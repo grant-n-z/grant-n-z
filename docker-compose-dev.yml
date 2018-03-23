@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+    db:
+        image: mysql
+        ports:
+          - '3306:3306'
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: revel
+          MYSQL_USER: revel
+          MYSQL_PASSWORD: root
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --skip-character-set-client-handshake
+    
+    web:
+        build: .
+        command: revel run revel-api
+        volumes:
+          - .:/go/src/revel-api
+        ports:
+          - 9000:9000
+        depends_on:
+          - db
