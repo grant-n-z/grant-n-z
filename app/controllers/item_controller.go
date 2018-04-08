@@ -3,16 +3,17 @@ package controllers
 import (
 	"github.com/revel/revel"
 	"revel-api/app/domain/entity"
+	"revel-api/app"
 )
 
-type HelloController struct {
+type ItemController struct {
 	*revel.Controller
+	app.GormController
 }
 
-func (c HelloController) Index() revel.Result {
-	hello := entity.HelloEntity {
-		Key: "Hello world",
-	}
+func (c ItemController) Get() revel.Result {
+	var user [] entity.ItemEntity
 
-	return c.RenderJSON(hello)
+	c.Txn.Find(user)
+	return c.RenderJSON(user)
 }
