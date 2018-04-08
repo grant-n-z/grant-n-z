@@ -2,18 +2,34 @@ package app
 
 import (
 	"github.com/revel/revel"
+	"github.com/jinzhu/gorm"
+	"os"
 )
 
 var (
-	// AppVersion revel app version (ldflags)
 	AppVersion string
-
-	// BuildTime revel app build-time (ldflags)
 	BuildTime string
 )
 
+var (
+	Db *gorm.DB
+)
+
+func InitDB() {
+	var err error
+	var dsn = os.Getenv("DB_USER") +
+		":" + os.Getenv("DB_PASS") +
+		"@" + os.Getenv("DB_HOST") +
+		"/" + os.Getenv("DB_NAME") +
+		"?parseTime=true&loc=Asia%2FTokyo"
+
+	Db, err = gorm.Open("mysql", dsn)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func init() {
-	// Filters is the default set of global filters.
 	revel.Filters = []revel.Filter{
 		revel.PanicFilter,             // Recover from panics and display an error page instead.
 		revel.RouterFilter,            // Use the routing table to select the right Action
@@ -29,30 +45,14 @@ func init() {
 		revel.ActionInvoker,           // Invoke the action.
 	}
 
-	// Register startup functions with OnAppStart
-	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
-	// ( order dependent )
-	// revel.OnAppStart(ExampleStartupScript)
-	// revel.OnAppStart(InitDB)
-	// revel.OnAppStart(FillCache)
+	revel.OnAppStart(InitDB)
 }
 
-// HeaderFilter adds common security headers
-// There is a full implementation of a CSRF filter in
-// https://github.com/revel/modules/tree/master/csrf
 var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 	c.Response.Out.Header().Add("X-Frame-Options", "SAMEORIGIN")
 	c.Response.Out.Header().Add("X-XSS-Protection", "1; mode=block")
 	c.Response.Out.Header().Add("X-Content-Type-Options", "nosniff")
 	c.Response.Out.Header().Add("Referrer-Policy", "strict-origin-when-cross-origin")
 
-	fc[0](c, fc[1:]) // Execute the next filter stage.
+	fc[0](c, fc[1:])
 }
-
-//func ExampleStartupScript() {
-//	// revel.DevMod and revel.RunMode work here
-//	// Use this script to check for dev mode and set dev/prod startup scripts here!
-//	if revel.DevMode == true {
-//		// Dev mode
-//	}
-//}
