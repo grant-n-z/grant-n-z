@@ -1,5 +1,5 @@
 package entity
 
-type HelloEntity struct {
+type Hellos struct {
 	Key string `json:"key"`
 }
