@@ -3,7 +3,9 @@ package app
 import (
 	"github.com/revel/revel"
 	"github.com/jinzhu/gorm"
-	"os"
+	_ "github.com/go-sql-driver/mysql"
+	"fmt"
+	"strings"
 )
 
 var (
@@ -15,34 +17,63 @@ var (
 	Db *gorm.DB
 )
 
-func InitDB() {
-	var err error
-	var dsn = os.Getenv("DB_USER") +
-		":" + os.Getenv("DB_PASS") +
-		"@" + os.Getenv("DB_HOST") +
-		"/" + os.Getenv("DB_NAME") +
-		"?parseTime=true&loc=Asia%2FTokyo"
+func getParamString(param string, defaultValue string) string {
+	p, found := revel.Config.String(param)
+	if !found {
+		if defaultValue == "" {
+			revel.ERROR.Fatal("Cound not find parameter: " + param)
+		} else {
+			return defaultValue
+		}
+	}
+	return p
+}
 
-	Db, err = gorm.Open("mysql", dsn)
+func getConnectionString() string {
+	host := getParamString("db.host", "db")
+	port := getParamString("db.port", "3306")
+	user := getParamString("db.user", "root")
+	pass := getParamString("db.password", "root")
+	dbname := getParamString("db.name", "revel")
+	protocol := getParamString("db.protocol", "tcp")
+	dbargs := getParamString("dbargs", " ")
+	timezone := getParamString("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
+
+	if strings.Trim(dbargs, " ") != "" {
+		dbargs = "?" + dbargs
+	} else {
+		dbargs = ""
+	}
+	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s%s?%s", user, pass, protocol, host, port, dbname, dbargs, timezone)
+}
+
+
+func InitDB() {
+	db, err := gorm.Open("mysql", getConnectionString())
+
 	if err != nil {
+		revel.ERROR.Println("FATAL", err)
 		panic(err)
 	}
+
+	db.DB()
+	Db = db
 }
 
 func init() {
 	revel.Filters = []revel.Filter{
-		revel.PanicFilter,             // Recover from panics and display an error page instead.
-		revel.RouterFilter,            // Use the routing table to select the right Action
-		revel.FilterConfiguringFilter, // A hook for adding or removing per-Action filters.
-		revel.ParamsFilter,            // Parse parameters into Controller.Params.
-		revel.SessionFilter,           // Restore and write the session cookie.
-		revel.FlashFilter,             // Restore and write the flash cookie.
-		revel.ValidationFilter,        // Restore kept validation errors and save new ones from cookie.
-		revel.I18nFilter,              // Resolve the requested language
-		HeaderFilter,                  // Add some security based headers
-		revel.InterceptorFilter,       // Run interceptors around the action.
-		revel.CompressFilter,          // Compress the result.
-		revel.ActionInvoker,           // Invoke the action.
+		revel.PanicFilter,
+		revel.RouterFilter,
+		revel.FilterConfiguringFilter,
+		revel.ParamsFilter,
+		revel.SessionFilter,
+		revel.FlashFilter,
+		revel.ValidationFilter,
+		revel.I18nFilter,
+		HeaderFilter,
+		revel.InterceptorFilter,
+		revel.CompressFilter,
+		revel.ActionInvoker,
 	}
 
 	revel.OnAppStart(InitDB)
