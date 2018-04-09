@@ -15,7 +15,7 @@ type ItemController struct {
 }
 
 func (c ItemController) Get() revel.Result {
-	items := []entity.Items{}
+	var items []entity.Items
 
 	app.Db.Order("id desc").Find(&items)
 
