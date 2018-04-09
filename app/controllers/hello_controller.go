@@ -10,7 +10,7 @@ type HelloController struct {
 }
 
 func (c HelloController) Index() revel.Result {
-	hello := entity.HelloEntity {
+	hello := entity.Hellos{
 		Key: "Hello world",
 	}
 
