@@ -6,14 +6,21 @@ import (
 	"revel-api/app"
 )
 
+type JsonResponse struct {
+	Response interface{} `json:"items"`
+}
+
 type ItemController struct {
 	*revel.Controller
-	app.GormController
 }
 
 func (c ItemController) Get() revel.Result {
-	var user [] entity.ItemEntity
+	items := []entity.Items{}
 
-	c.Txn.Find(user)
-	return c.RenderJSON(user)
+	app.Db.Order("id desc").Find(&items)
+
+	response := JsonResponse{}
+	response.Response = items
+
+	return c.RenderJSON(response)
 }
