@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
 	"strings"
+	"os"
 )
 
 var (
@@ -30,11 +31,11 @@ func getParamString(param string, defaultValue string) string {
 }
 
 func getConnectionString() string {
-	host := getParamString("db.host", "db")
+	host := getParamString("db.host", os.Getenv("DB_HOST"))
 	port := getParamString("db.port", "3306")
-	user := getParamString("db.user", "root")
-	pass := getParamString("db.password", "root")
-	dbname := getParamString("db.name", "revel")
+	user := getParamString("db.user", os.Getenv("DB_USER"))
+	pass := getParamString("db.password", os.Getenv("DB_PASS"))
+	dbname := getParamString("db.name", os.Getenv("DB_NAME"))
 	protocol := getParamString("db.protocol", "tcp")
 	dbargs := getParamString("dbargs", " ")
 	timezone := getParamString("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
