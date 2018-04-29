@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/revel/revel"
-	"revel-api/app/domain/entity"
+	"revel-api/app/domains/entity"
 	"revel-api/app"
 	"revel-api/app/controllers"
 )
