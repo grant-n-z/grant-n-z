@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/revel/revel"
-	"revel-api/app/domains/entity"
 )
 
 type HelloController struct {
@@ -10,9 +9,6 @@ type HelloController struct {
 }
 
 func (c HelloController) Index() revel.Result {
-	hello := entity.Hellos{
-		Key: "Hello world",
-	}
-
-	return c.RenderJSON(hello)
+	hello := map[string]string{"key": "hello world"}
+	return c.Render(hello)
 }
