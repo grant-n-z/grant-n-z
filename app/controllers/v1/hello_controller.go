@@ -5,10 +5,10 @@ import (
 )
 
 type HelloController struct {
-	*revel.Controller
+	revel.Controller
 }
 
 func (c HelloController) Index() revel.Result {
 	hello := map[string]string{"key": "hello world"}
-	return c.Render(hello)
+	return c.RenderJSON(hello)
 }
