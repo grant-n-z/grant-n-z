@@ -13,12 +13,12 @@ $ revel test revel-api test
 
 Docker build
 ```
-$ docker-compose -f docker-compose-dev.yml build
+$ docker build -t auth-server:latest .
 ```
 
 Docker container run
 ```
-$ docker-compose -f docker-compose-dev.yml up -d
+$ docker run -p 80:9000 auth-server
 ```
 
 ## Authentication and Authorization
