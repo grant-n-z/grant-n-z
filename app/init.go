@@ -5,7 +5,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	"strings"
 	"os"
 )
 
@@ -32,20 +31,14 @@ func getParamString(param string, defaultValue string) string {
 
 func getConnectionString() string {
 	host := getParamString("db.host", os.Getenv("DB_HOST"))
-	port := getParamString("db.port", "3306")
+	port := getParamString("db.port", os.Getenv("DB_PORT"))
 	user := getParamString("db.user", os.Getenv("DB_USER"))
 	pass := getParamString("db.password", os.Getenv("DB_PASS"))
 	dbname := getParamString("db.name", os.Getenv("DB_NAME"))
 	protocol := getParamString("db.protocol", "tcp")
-	dbargs := getParamString("dbargs", " ")
 	timezone := getParamString("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
 
-	if strings.Trim(dbargs, " ") != "" {
-		dbargs = "?" + dbargs
-	} else {
-		dbargs = ""
-	}
-	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s%s?%s", user, pass, protocol, host, port, dbname, dbargs, timezone)
+	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s?%s", user, pass, protocol, host, port, dbname, timezone)
 }
 
 
