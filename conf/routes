@@ -1,7 +1,5 @@
 module:testrunner
 
 GET     /hello                                  HelloController.Index
-GET     /items                                  ItemController.Get
 
 GET     /favicon.ico                            404
-GET     /public/*filepath                       Static.Serve("public")
