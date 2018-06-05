@@ -5,7 +5,7 @@ import (
 )
 
 type HelloController struct {
-	revel.Controller
+	*revel.Controller
 }
 
 func (c HelloController) Index() revel.Result {

@@ -1,7 +1,7 @@
 FROM golang:1.9.4
 
 ENV GOPATH $GOPATH:/go/src
-ENV DB_HOST="db"
+ENV DB_HOST="docker.for.mac.localhost"
 ENV DB_NAME="auth_server"
 ENV DB_USER="root"
 ENV DB_PASS="root"
@@ -14,4 +14,6 @@ RUN go get github.com/revel/revel && \
 
 RUN mkdir /go/src/auth-server
 
-CMD revel run revel-performance
+COPY . /go/src/auth-server
+
+CMD revel run auth-server
