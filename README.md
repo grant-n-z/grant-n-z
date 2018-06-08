@@ -13,12 +13,12 @@ $ revel test auth-server test
 
 Docker build
 ```
-$ docker build -t auth-server:latest .
+$ docker build -t authentication-server:latest .
 ```
 
 Docker container run
 ```
-$ docker run -p 9000:9000 auth-server
+$ docker run -p 9000:9000 authentication-server
 ```
 
 ## Authentication and Authorization
