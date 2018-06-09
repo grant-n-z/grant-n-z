@@ -1,0 +1,5 @@
+export DB_HOST="localhost"
+export DB_NAME="auth_server"
+export DB_USER="root"
+export DB_PASS="root"
+export DB_PORT="3306"
