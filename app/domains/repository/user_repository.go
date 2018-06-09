@@ -6,16 +6,16 @@ import (
 	"authentication-server/app/controllers"
 )
 
-type UserRepository struct {}
+type UserRepository struct{}
 
-// Find users by users.id
-func (r UserRepository) FindById(id int) controllers.BaseResponse {
+// Find users by users.email
+func (r UserRepository) FindByEmail(email string) controllers.BaseResponse {
 	var users entity.Users
-	if err := app.Db.Where("id = ?", id).First(&users).Error; err != nil {
+	if err := app.Db.Where("email = ?", email).First(&users).Error; err != nil {
 		return controllers.BaseResponse{}
 	}
 
-	response := controllers.BaseResponse {}
+	response := controllers.BaseResponse{}
 	response.Response = users
 
 	return response

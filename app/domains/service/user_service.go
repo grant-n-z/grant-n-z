@@ -10,10 +10,10 @@ type UserService struct {}
 
 var userRepository repository.UserRepository
 
-func (s UserService) GetUserById(id int) controllers.BaseResponse {
-	return userRepository.FindById(id)
+func (s UserService) GetUserByEmail(email string) controllers.BaseResponse {
+	return userRepository.FindByEmail(email)
 }
 
-func (s UserService) InsertUser(users entity.Users) bool{
+func (s UserService) InsertUser(users entity.Users) bool {
 	return userRepository.Save(users)
 }
