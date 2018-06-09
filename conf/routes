@@ -1,5 +1,6 @@
 module:testrunner
 
-GET     /hello                                  HelloController.Index
+GET     /v1/hello                                  HelloController.Index
+POST    /v1/users                                  UserController.PostUser
 
 GET     /favicon.ico                            404
