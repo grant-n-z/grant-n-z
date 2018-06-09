@@ -9,22 +9,8 @@ import (
 )
 
 var (
-	AppVersion string
-	BuildTime string
-)
-
-var (
 	Db *gorm.DB
 )
-
-var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
-	c.Response.Out.Header().Add("X-Frame-Options", "SAMEORIGIN")
-	c.Response.Out.Header().Add("X-XSS-Protection", "1; mode=block")
-	c.Response.Out.Header().Add("X-Content-Type-Options", "nosniff")
-	c.Response.Out.Header().Add("Referrer-Policy", "strict-origin-when-cross-origin")
-
-	fc[0](c, fc[1:])
-}
 
 func init() {
 	revel.Filters = []revel.Filter{
@@ -36,7 +22,6 @@ func init() {
 		revel.FlashFilter,
 		revel.ValidationFilter,
 		revel.I18nFilter,
-		HeaderFilter,
 		revel.InterceptorFilter,
 		revel.CompressFilter,
 		revel.ActionInvoker,
