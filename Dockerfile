@@ -11,7 +11,8 @@ RUN go get github.com/revel/revel && \
     go get github.com/revel/cmd/revel && \
     go get github.com/jinzhu/gorm && \
     go get github.com/go-sql-driver/mysql && \
-    go get github.com/satori/go.uuid
+    go get github.com/satori/go.uuid && \
+    go get gopkg.in/go-playground/validator.v9
 
 RUN mkdir /go/src/authentication-server
 
