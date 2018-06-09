@@ -10,10 +10,11 @@ ENV DB_PORT="3306"
 RUN go get github.com/revel/revel && \
     go get github.com/revel/cmd/revel && \
     go get github.com/jinzhu/gorm && \
-    go get github.com/go-sql-driver/mysql
+    go get github.com/go-sql-driver/mysql && \
+    go get github.com/satori/go.uuid
 
-RUN mkdir /go/src/auth-server
+RUN mkdir /go/src/authentication-server
 
-COPY . /go/src/auth-server
+COPY . /go/src/authentication-server
 
-CMD revel run auth-server
+CMD revel run authentication-server
