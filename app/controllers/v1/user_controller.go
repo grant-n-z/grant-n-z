@@ -26,12 +26,18 @@ func (c UserController) PostUser(users entity.Users) revel.Result {
 	}
 
 	var useService service.UserService
-	if useService.GetUserByEmail(users.Email).Response == nil {
-		return c.NotFound("002")
+	userData := useService.GetUserByEmail(users.Email).Response
+
+	if userData == nil {
+		return c.InternalServer("002")
 	}
-	
+
+	if userData != 0 {
+		return c.NotFound("003")
+	}
+
 	if useService.InsertUser(users) == false {
-		return c.InternalServer("003")
+		return c.InternalServer("004")
 	}
 
 	return c.RenderJSON(users)
