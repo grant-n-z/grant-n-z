@@ -1,19 +1,31 @@
-USE revel;
+USE auth_server;
 
-DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS tokens;
 
--- items table
-CREATE TABLE items (
+-- users table
+CREATE TABLE users (
   id int(11) NOT NULL AUTO_INCREMENT,
-  name varchar(128) NOT NULL,
-  category varchar(128) NOT NULL,
+  uuid varchar(128) NOT NULL,
+  username varchar(128) NOT NULL,
+  email varchar(128) NOT NULL,
+  password varchar(128) NOT NULL,
   created_at datetime(6),
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- items test data
-INSERT INTO items(id, name, category, created_at)
-VALUES (1, 'test_title01', 'Im fine', '1970-01-01 00:00:01');
-
-INSERT INTO items(id, name, category, created_at)
-VALUES (2, 'hoge', 'hoge', '1970-01-01 00:00:01');
+-- tokens table
+CREATE TABLE tokens (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  token_type varchar(128) NOT NULL,
+  token varchar(512) NOT NULL,
+  refresh_token varchar(512) NOT NULL,
+  user_id int(11) NOT NULL,
+  expires_at datetime(6),
+  created_at datetime(6),
+  updated_at datetime(6),
+  PRIMARY KEY (id),
+  UNIQUE (token),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
