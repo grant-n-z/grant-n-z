@@ -9,9 +9,8 @@ type AppTest struct {
 }
 
 func (t *AppTest) Before() {
-	println("Set up")
 }
 
 func (t *AppTest) After() {
-	println("Tear down")
 }
+
