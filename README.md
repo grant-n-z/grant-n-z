@@ -8,7 +8,7 @@ $ git clone git@github.com:tomo0111/authentication-server.git
 
 Run test
 ```
-$ revel test auth-server test
+$ revel test authentication-server test
 ```
 
 Docker build
