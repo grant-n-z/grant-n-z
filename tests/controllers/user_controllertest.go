@@ -1,4 +1,4 @@
-package app
+package controllers
 
 import "authentication-server/tests"
 
