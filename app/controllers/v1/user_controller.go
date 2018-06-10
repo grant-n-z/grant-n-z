@@ -20,6 +20,7 @@ var useService service.UserService
 func (c UserController) PostUser(users entity.Users) revel.Result {
 
 	users.Uuid = uuid.Must(uuid.NewV4()).String()
+	users.Password = useService.BcryptPw(users.Password)
 
 	err := validate.Struct(users)
 	if err != nil {
@@ -30,11 +31,13 @@ func (c UserController) PostUser(users entity.Users) revel.Result {
 		return c.UnprocessableEntity("002")
 	}
 
-	userData := useService.InsertUser(users).Response
-
-	if userData == nil {
+	if useService.InsertUser(users).Response == nil {
 		return c.InternalServer("003")
 	}
 
-	return c.RenderJSON(userData)
+	success := map[string]string{
+		"message": "user creation succeeded.",
+	}
+
+	return c.RenderJSON(success)
 }
