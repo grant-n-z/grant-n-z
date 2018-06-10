@@ -27,15 +27,20 @@ func (c UserController) PostUser(users entity.Users) revel.Result {
 		return c.BadRequest("001")
 	}
 
-	if useService.GetUserByEmail(users.Email).Response != nil {
-		return c.UnprocessableEntity("002")
+	userData := useService.GetUserByEmail(users.Email).Response
+	if userData == "server error" {
+		return c.InternalServer("002")
+	}
+
+	if userData != nil {
+		return c.UnprocessableEntity("003")
 	}
 
 	if useService.InsertUser(users).Response == nil {
-		return c.InternalServer("003")
+		return c.InternalServer("004")
 	}
 
-	success := map[string]string{
+	success := map[string]string {
 		"message": "user creation succeeded.",
 	}
 

@@ -12,7 +12,7 @@ type UserRepository struct{}
 func (r UserRepository) FindByEmail(email string) controllers.BaseResponse {
 	var users entity.Users
 	if err := app.Db.Where("email = ?", email).First(&users).Error; err != nil {
-		return controllers.BaseResponse{}
+		return controllers.BaseResponse{Response: "server error"}
 	}
 
 	response := controllers.BaseResponse{}
@@ -24,7 +24,7 @@ func (r UserRepository) FindByEmail(email string) controllers.BaseResponse {
 // Save to users
 func (r UserRepository) Save(users entity.Users) controllers.BaseResponse {
 	if err := app.Db.Create(&users).Error; err != nil {
-		return controllers.BaseResponse{}
+		return controllers.BaseResponse{Response: "server error"}
 	}
 
 	response := controllers.BaseResponse{}
@@ -36,7 +36,7 @@ func (r UserRepository) Save(users entity.Users) controllers.BaseResponse {
 // Update to users
 func (r UserRepository) Update(users entity.Users) controllers.BaseResponse {
 	if err := app.Db.Update(&users).Error; err != nil {
-		return controllers.BaseResponse{}
+		return controllers.BaseResponse{Response: "server error"}
 	}
 
 	response := controllers.BaseResponse{}
