@@ -22,19 +22,25 @@ func (r UserRepository) FindByEmail(email string) controllers.BaseResponse {
 }
 
 // Save to users
-func (r UserRepository) Save(users entity.Users) bool {
-	if err := app.Db.Create(users).Error; err != nil {
-		return false
+func (r UserRepository) Save(users entity.Users) controllers.BaseResponse {
+	if err := app.Db.Create(&users).Error; err != nil {
+		return controllers.BaseResponse{}
 	}
 
-	return true
+	response := controllers.BaseResponse{}
+	response.Response = users
+
+	return response
 }
 
 // Update to users
-func (r UserRepository) Update(users entity.Users) bool {
-	if err := app.Db.Update(users).Error; err != nil {
-		return false
+func (r UserRepository) Update(users entity.Users) controllers.BaseResponse {
+	if err := app.Db.Update(&users).Error; err != nil {
+		return controllers.BaseResponse{}
 	}
 
-	return true
+	response := controllers.BaseResponse{}
+	response.Response = users
+
+	return response
 }

@@ -14,6 +14,6 @@ func (s UserService) GetUserByEmail(email string) controllers.BaseResponse {
 	return userRepository.FindByEmail(email)
 }
 
-func (s UserService) InsertUser(users entity.Users) bool {
+func (s UserService) InsertUser(users entity.Users) controllers.BaseResponse {
 	return userRepository.Save(users)
 }

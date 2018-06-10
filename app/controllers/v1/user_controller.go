@@ -15,6 +15,7 @@ type UserController struct {
 }
 
 var validate = validator.New()
+var useService service.UserService
 
 func (c UserController) PostUser(users entity.Users) revel.Result {
 
@@ -25,20 +26,15 @@ func (c UserController) PostUser(users entity.Users) revel.Result {
 		return c.BadRequest("001")
 	}
 
-	var useService service.UserService
-	userData := useService.GetUserByEmail(users.Email).Response
+	if useService.GetUserByEmail(users.Email).Response != nil {
+		return c.UnprocessableEntity("002")
+	}
+
+	userData := useService.InsertUser(users).Response
 
 	if userData == nil {
-		return c.InternalServer("002")
+		return c.InternalServer("003")
 	}
 
-	if userData != 0 {
-		return c.NotFound("003")
-	}
-
-	if useService.InsertUser(users) == false {
-		return c.InternalServer("004")
-	}
-
-	return c.RenderJSON(users)
+	return c.RenderJSON(userData)
 }
