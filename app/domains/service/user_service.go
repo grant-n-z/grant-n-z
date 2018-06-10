@@ -2,9 +2,9 @@ package service
 
 import (
 	"authentication-server/app/domains/repository"
-	"authentication-server/app/controllers"
 	"authentication-server/app/domains/entity"
 	"golang.org/x/crypto/bcrypt"
+	"authentication-server/app/controllers/base"
 )
 
 type UserService struct {}
@@ -16,10 +16,10 @@ func (s UserService) BcryptPw(password string) string {
 	return string(hash)
 }
 
-func (s UserService) GetUserByEmail(email string) controllers.BaseResponse {
+func (s UserService) GetUserByEmail(email string) base.BaseResponse {
 	return userRepository.FindByEmail(email)
 }
 
-func (s UserService) InsertUser(users entity.Users) controllers.BaseResponse {
+func (s UserService) InsertUser(users entity.Users) base.BaseResponse {
 	return userRepository.Save(users)
 }

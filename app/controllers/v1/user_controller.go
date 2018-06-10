@@ -2,7 +2,7 @@ package v1
 
 import (
 	"authentication-server/app/domains/entity"
-	"authentication-server/app/controllers"
+	"authentication-server/app/controllers/base"
 	"github.com/satori/go.uuid"
 	"github.com/revel/revel"
 	"gopkg.in/go-playground/validator.v9"
@@ -10,7 +10,7 @@ import (
 )
 
 type UserController struct {
-	controllers.BaseApiController
+	base.BaseApiController
 	validate *validator.Validate
 }
 
