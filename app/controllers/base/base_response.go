@@ -1,4 +1,4 @@
-package controllers
+package base
 
 type BaseResponse struct {
 	Response interface{}

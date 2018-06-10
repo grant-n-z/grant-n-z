@@ -1,4 +1,4 @@
-package controllers
+package base
 
 import (
 	"net/http"
@@ -14,9 +14,9 @@ type BaseApiController struct {
 func (c BaseApiController) BadRequest(detail string) revel.Result {
 	c.Response.Status = http.StatusBadRequest
 	r := model.ErrorResponse {
-		c.Response.Status,
-		"Bad request.",
-		detail,
+		Code:    c.Response.Status,
+		Message: "Bad request.",
+		Detail:  detail,
 	}
 	return c.RenderJSON(r)
 }
@@ -25,9 +25,9 @@ func (c BaseApiController) BadRequest(detail string) revel.Result {
 func (c BaseApiController) Unauthorized(detail string) revel.Result {
 	c.Response.Status = http.StatusUnauthorized
 	r := model.ErrorResponse {
-		c.Response.Status,
-		"Unauthorized.",
-		detail,
+		Code:    c.Response.Status,
+		Message: "Unauthorized.",
+		Detail:  detail,
 	}
 	return c.RenderJSON(r)
 }
@@ -36,9 +36,9 @@ func (c BaseApiController) Unauthorized(detail string) revel.Result {
 func (c BaseApiController) Forbidden(detail string) revel.Result {
 	c.Response.Status = http.StatusForbidden
 	r := model.ErrorResponse {
-		c.Response.Status,
-		"Forbidden.",
-		detail,
+		Code:    c.Response.Status,
+		Message: "Forbidden.",
+		Detail:  detail,
 	}
 	return c.RenderJSON(r)
 }
@@ -47,9 +47,9 @@ func (c BaseApiController) Forbidden(detail string) revel.Result {
 func (c BaseApiController) NotFound(detail string) revel.Result {
 	c.Response.Status = http.StatusNotFound
 	r := model.ErrorResponse {
-		c.Response.Status,
-		"Not found.",
-		detail,
+		Code:    c.Response.Status,
+		Message: "Not found.",
+		Detail:  detail,
 	}
 	return c.RenderJSON(r)
 }
@@ -58,9 +58,9 @@ func (c BaseApiController) NotFound(detail string) revel.Result {
 func (c BaseApiController) UnprocessableEntity(detail string) revel.Result {
 	c.Response.Status = http.StatusUnprocessableEntity
 	r := model.ErrorResponse {
-		c.Response.Status,
-		"Unprocessable Entity.",
-		detail,
+		Code:    c.Response.Status,
+		Message: "Unprocessable Entity.",
+		Detail:  detail,
 	}
 	return c.RenderJSON(r)
 }
@@ -69,9 +69,9 @@ func (c BaseApiController) UnprocessableEntity(detail string) revel.Result {
 func (c BaseApiController) InternalServer(detail string) revel.Result {
 	c.Response.Status = http.StatusInternalServerError
 	r := model.ErrorResponse {
-		c.Response.Status,
-		"Internal server error.",
-		detail,
+		Code:    c.Response.Status,
+		Message: "Internal server error.",
+		Detail:  detail,
 	}
 	return c.RenderJSON(r)
 }
