@@ -1,46 +1,40 @@
 package repository
 
 import (
-	"authentication-server/app/domains/entity"
 	"authentication-server/app"
-	"authentication-server/app/controllers/base"
+	"authentication-server/app/domains/entity"
 )
 
 type UserRepository struct{}
 
 // Find users by users.email
-func (r UserRepository) FindByEmail(email string) base.BaseResponse {
-	var users entity.Users
+func (r UserRepository) FindByEmail(email string) *entity.Users {
+	users := entity.Users{}
+
 	if err := app.Db.Where("email = ?", email).First(&users).Error; err != nil {
-		return base.BaseResponse{Response: "server error"}
+		if err.Error() == "record not found" {
+			return &entity.Users{}
+		}
+		return nil
 	}
 
-	response := base.BaseResponse{}
-	response.Response = users
-
-	return response
+	return &users
 }
 
 // Save to users
-func (r UserRepository) Save(users entity.Users) base.BaseResponse {
+func (r UserRepository) Save(users entity.Users) *entity.Users {
 	if err := app.Db.Create(&users).Error; err != nil {
-		return base.BaseResponse{Response: "server error"}
+		return nil
 	}
 
-	response := base.BaseResponse{}
-	response.Response = users
-
-	return response
+	return &users
 }
 
 // Update to users
-func (r UserRepository) Update(users entity.Users) base.BaseResponse {
+func (r UserRepository) Update(users entity.Users) *entity.Users {
 	if err := app.Db.Update(&users).Error; err != nil {
-		return base.BaseResponse{Response: "server error"}
+		return nil
 	}
 
-	response := base.BaseResponse{}
-	response.Response = users
-
-	return response
+	return &users
 }

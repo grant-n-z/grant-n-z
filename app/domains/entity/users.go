@@ -7,7 +7,3 @@ type Users struct {
 	Email     string    `validate:"required,email"json:"email"`
 	Password  string    `validate:"required"json:"password"`
 }
-
-func (Users) TableName() string {
-	return "users"
-}

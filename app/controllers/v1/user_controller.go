@@ -1,12 +1,13 @@
 package v1
 
 import (
-	"authentication-server/app/domains/entity"
 	"authentication-server/app/controllers/base"
+	"authentication-server/app/domains/entity"
+	"authentication-server/app/domains/service"
 	"github.com/satori/go.uuid"
 	"github.com/revel/revel"
 	"gopkg.in/go-playground/validator.v9"
-	"authentication-server/app/domains/service"
+	"strings"
 )
 
 type UserController struct {
@@ -27,16 +28,16 @@ func (c UserController) PostUser(users entity.Users) revel.Result {
 		return c.BadRequest("001")
 	}
 
-	userData := useService.GetUserByEmail(users.Email).Response
-	if userData == "server error" {
+	userData := useService.GetUserByEmail(users.Email)
+	if userData == nil {
 		return c.InternalServer("002")
 	}
 
-	if userData != nil {
+	if !strings.EqualFold(userData.Email, "") {
 		return c.UnprocessableEntity("003")
 	}
 
-	if useService.InsertUser(users).Response == nil {
+	if useService.InsertUser(users) == nil {
 		return c.InternalServer("004")
 	}
 
