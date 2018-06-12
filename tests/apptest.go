@@ -13,4 +13,3 @@ func (t *AppTest) Before() {
 
 func (t *AppTest) After() {
 }
-
