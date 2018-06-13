@@ -10,7 +10,7 @@ type UserService struct{}
 
 var userRepository repository.UserRepository
 
-func (s UserService) BcryptPw(password string) string {
+func (s UserService) EncryptPw(password string) string {
 	hash, _ := bcrypt.GenerateFromPassword(
 		[] byte(password),
 		bcrypt.DefaultCost,
