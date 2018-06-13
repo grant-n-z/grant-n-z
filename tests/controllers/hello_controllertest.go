@@ -17,7 +17,7 @@ func (t HelloControllerTest) After() {
 func (t HelloControllerTest) TestIndexOk() {
 	t.Get("/hello")
 	t.AssertOk()
-	t.AssertContentType("application/json")
+	t.AssertContentType("application/json; charset=utf-8")
 }
 
 func (t HelloControllerTest) TestIndexBadResponse() {
@@ -26,5 +26,5 @@ func (t HelloControllerTest) TestIndexBadResponse() {
 
 	t.Get("/hello")
 	t.AssertNotEqual(inCorrectHello, correctHello)
-	t.AssertContentType("application/json")
+	t.AssertContentType("application/json; charset=utf-8")
 }
