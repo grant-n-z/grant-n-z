@@ -8,12 +8,6 @@ type HelloControllerTest struct {
 	tests.AppTest
 }
 
-func (t HelloControllerTest) Before() {
-}
-
-func (t HelloControllerTest) After() {
-}
-
 func (t HelloControllerTest) TestIndexOk() {
 	t.Get("/hello")
 	t.AssertOk()
