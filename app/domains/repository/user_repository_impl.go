@@ -3,12 +3,18 @@ package repository
 import (
 	"authentication-server/app"
 	"authentication-server/app/domains/entity"
+	"authentication-server/app/infrastructures"
 )
 
-type UserRepository struct{}
+type UserRepositoryImpl struct{}
+
+// Infrastructure UserRepository implementation
+func (r UserRepositoryImpl) NewUserRepository() infrastructures.UserRepository {
+	return &UserRepositoryImpl{}
+}
 
 // Find users by users.email
-func (r UserRepository) FindByEmail(email string) *entity.Users {
+func (r UserRepositoryImpl) FindByEmail(email string) *entity.Users {
 	users := entity.Users{}
 
 	if err := app.Db.Where("email = ?", email).First(&users).Error; err != nil {
@@ -22,7 +28,7 @@ func (r UserRepository) FindByEmail(email string) *entity.Users {
 }
 
 // Save to users
-func (r UserRepository) Save(users entity.Users) *entity.Users {
+func (r UserRepositoryImpl) Save(users entity.Users) *entity.Users {
 	if err := app.Db.Create(&users).Error; err != nil {
 		return nil
 	}
@@ -31,7 +37,7 @@ func (r UserRepository) Save(users entity.Users) *entity.Users {
 }
 
 // Update to users
-func (r UserRepository) Update(users entity.Users) *entity.Users {
+func (r UserRepositoryImpl) Update(users entity.Users) *entity.Users {
 	if err := app.Db.Update(&users).Error; err != nil {
 		return nil
 	}
