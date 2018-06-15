@@ -31,7 +31,7 @@ func init() {
 }
 
 func InitDB() {
-	db, err := gorm.Open("mysql", getConnectionString())
+	db, err := gorm.Open("mysql", GetConnection())
 
 	if err != nil {
 		revel.ERROR.Println("FATAL", err)
@@ -42,19 +42,19 @@ func InitDB() {
 	Db = db
 }
 
-func getConnectionString() string {
-	host := getParamString("db.host", os.Getenv("DB_HOST"))
-	port := getParamString("db.port", os.Getenv("DB_PORT"))
-	user := getParamString("db.user", os.Getenv("DB_USER"))
-	pass := getParamString("db.password", os.Getenv("DB_PASS"))
-	dbname := getParamString("db.name", os.Getenv("DB_NAME"))
-	protocol := getParamString("db.protocol", "tcp")
-	timezone := getParamString("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
+func GetConnection() string {
+	host := GetValueOfParam("db.host", os.Getenv("DB_HOST"))
+	port := GetValueOfParam("db.port", os.Getenv("DB_PORT"))
+	user := GetValueOfParam("db.user", os.Getenv("DB_USER"))
+	pass := GetValueOfParam("db.password", os.Getenv("DB_PASS"))
+	name := GetValueOfParam("db.name", os.Getenv("DB_NAME"))
+	protocol := GetValueOfParam("db.protocol", "tcp")
+	timezone := GetValueOfParam("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
 
-	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s?%s", user, pass, protocol, host, port, dbname, timezone)
+	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s?%s", user, pass, protocol, host, port, name, timezone)
 }
 
-func getParamString(param string, defaultValue string) string {
+func GetValueOfParam(param string, defaultValue string) string {
 	p, found := revel.Config.String(param)
 	if !found {
 		if defaultValue == "" {
