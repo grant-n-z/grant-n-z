@@ -8,7 +8,7 @@ import (
 
 type UserService struct{}
 
-var userRepository repository.UserRepository
+var userRepository = repository.UserRepositoryImpl{}.NewUserRepository()
 
 func (s UserService) EncryptPw(password string) string {
 	hash, _ := bcrypt.GenerateFromPassword(
