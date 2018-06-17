@@ -12,8 +12,11 @@ RUN go get github.com/revel/revel && \
     go get github.com/jinzhu/gorm && \
     go get github.com/go-sql-driver/mysql && \
     go get github.com/satori/go.uuid && \
-    go get gopkg.in/go-playground/validator.v9
+    go get gopkg.in/go-playground/validator.v9 && \
+    go get github.com/lestrrat/go-test-mysqld && \
+    go get github.com/gchaincl/dotsq && \
     
+
 RUN mkdir /go/src/authentication-server
 
 COPY . /go/src/authentication-server
