@@ -1,5 +1,5 @@
 -- name: create-auth-server
-CREATE DATABASE auth-server;
+CREATE DATABASE auth_server;
 
 -- name: use-auth-server
 USE auth_server;
@@ -36,3 +36,4 @@ CREATE TABLE tokens (
   UNIQUE (token),
   FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
