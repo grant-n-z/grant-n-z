@@ -2,66 +2,62 @@ package controllers
 
 import (
 	"authentication-server/tests"
-	"github.com/lestrrat/go-test-mysqld"
-	"log"
 	"authentication-server/app/controllers/v1"
 	"github.com/jinzhu/gorm"
-	"authentication-server/app/domains/entity"
 	"authentication-server/app"
-	"fmt"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"authentication-server/app/domains/entity"
 )
 
 type UserControllerTest struct {
 	tests.AppTest
 }
 
-var testMySQLd *mysqltest.TestMysqld
 var userController = v1.UserController{}
 
 // Start MySQL
 func (t UserControllerTest) Before() {
 
-	testMySQLd, err := mysqltest.NewMysqld(nil)
+	_, mock, err := sqlmock.NewWithDSN("sqlmock_db_0")
 	if err != nil {
-		log.Fatal("Test MySQL server", err)
+		panic("Got an unexpected error.")
 	}
-	testMySQLd.Start()
 
-	var dataSource = testMySQLd.Datasource("auth_server", "test", "test", 3306)
-	var driver = "mysql"
-
-	db, err := gorm.Open(driver, dataSource)
+	db, err := gorm.Open("sqlmock", "sqlmock_db_0")
 	if err != nil {
-		log.Fatal("Dtabase connection error:", err)
+		panic("Got an unexpected error.")
 	}
+	defer db.Close()
 
 	db.DB()
 	app.Db = db
 
-	app.Db.Create(&entity.Users{})
 
-	var result string
-	fmt.Print(db.Raw("SELECT * FROM users").Scan(&result))
+	rs := sqlmock.NewRows([]string{"count"}).FromCSVString("1")
+	mock.ExpectQuery(`SELECT * FROM "users"`).
+		WithArgs(12345).
+		WillReturnRows(rs)
 }
 
 // Stop MySQL
 func (t UserControllerTest) After() {
 	app.Db.Close()
-	testMySQLd.Stop()
 }
 
-//func (t UserControllerTest) TestPostUserOk() {
-//	users := entity.Users{
-//		Username: "test",
-//		Email: "test@gmail.com",
-//		Password: "testtest",
-//	}
-//
-//	var response = userController.PostUser(users)
-//
-//	success := map[string]string {
-//		"message": "user creation succeeded.",
-//	}
-//
-//	t.AssertEqual(success, response)
-//}
+func (t UserControllerTest) TestPostUserOk() {
+	app.Db.CreateTable(&entity.Users{})
+
+	users := entity.Users{
+		Username: "test",
+		Email: "test@gmail.com",
+		Password: "testtest",
+	}
+
+	var response = userController.PostUser(users)
+
+	success := map[string]string {
+		"message": "user creation succeeded.",
+	}
+
+	t.AssertEqual(success, response)
+}
