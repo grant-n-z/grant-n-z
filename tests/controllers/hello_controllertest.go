@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"authentication-server/tests"
+	"grant-n-z/tests"
 )
 
 type HelloControllerTest struct {

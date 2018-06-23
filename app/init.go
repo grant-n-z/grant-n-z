@@ -25,13 +25,13 @@ func init() {
 		revel.ActionInvoker,
 	}
 
-	revel.OnAppStart(initDB)
+	revel.OnAppStart(InitDB)
 }
 
-func initDB() {
+func InitDB() {
 	var mode = revel.Config.BoolDefault("mode.dev", false)
 	if mode == true {
-		db, err := gorm.Open("mysql", getConnection())
+		db, err := gorm.Open("mysql", GetConnection())
 
 		if err != nil {
 			revel.ERROR.Println("MySQL open error", err)
@@ -43,19 +43,19 @@ func initDB() {
 	}
 }
 
-func getConnection() string {
+func GetConnection() string {
 	host := revel.Config.StringDefault("db.host", "0.0.0.0")
 	port := revel.Config.StringDefault("db.port", "3306")
 	user := revel.Config.StringDefault("db.user", "")
 	pass := revel.Config.StringDefault("db.pass", "")
 	name := revel.Config.StringDefault("db.name", "")
-	protocol := getValueOfParam("db.protocol", "tcp")
-	timezone := getValueOfParam("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
+	protocol := GetValueOfParam("db.protocol", "tcp")
+	timezone := GetValueOfParam("db.timezone", "parseTime=true&loc=Asia%2FTokyo")
 
 	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s?%s", user, pass, protocol, host, port, name, timezone)
 }
 
-func getValueOfParam(param string, defaultValue string) string {
+func GetValueOfParam(param string, defaultValue string) string {
 	p, found := revel.Config.String(param)
 	if !found {
 		if defaultValue == "" {

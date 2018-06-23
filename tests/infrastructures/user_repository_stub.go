@@ -1,8 +1,8 @@
 package infrastructures
 
 import (
-	"authentication-server/app/infrastructures"
-	"authentication-server/app/domains/entity"
+	"grant-n-z/app/infrastructures"
+	"grant-n-z/app/domains/entity"
 	"github.com/satori/go.uuid"
 )
 

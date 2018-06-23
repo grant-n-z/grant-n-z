@@ -1,12 +1,12 @@
 package service
 
 import (
-	"authentication-server/tests"
-	"authentication-server/app/domains/service"
+	"grant-n-z/tests"
+	"grant-n-z/app/domains/service"
 	"golang.org/x/crypto/bcrypt"
 
-	"authentication-server/tests/infrastructures"
-	"authentication-server/app/domains/entity"
+	"grant-n-z/tests/infrastructures"
+	"grant-n-z/app/domains/entity"
 	"github.com/satori/go.uuid"
 )
 
