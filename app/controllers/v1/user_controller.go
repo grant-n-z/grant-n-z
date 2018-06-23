@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"authentication-server/app/controllers/base"
-	"authentication-server/app/domains/entity"
-	"authentication-server/app/domains/service"
+	"grant-n-z/app/controllers/base"
+	"grant-n-z/app/domains/entity"
+	"grant-n-z/app/domains/service"
 	"github.com/satori/go.uuid"
 	"github.com/revel/revel"
 	"gopkg.in/go-playground/validator.v9"

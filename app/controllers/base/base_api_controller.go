@@ -2,7 +2,7 @@ package base
 
 import (
 	"net/http"
-	"authentication-server/app/domains/model"
+	"grant-n-z/app/domains/model"
 	"github.com/revel/revel"
 )
 

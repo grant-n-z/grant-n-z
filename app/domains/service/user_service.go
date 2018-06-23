@@ -1,8 +1,8 @@
 package service
 
 import (
-	"authentication-server/app/domains/repository"
-	"authentication-server/app/domains/entity"
+	"grant-n-z/app/domains/repository"
+	"grant-n-z/app/domains/entity"
 	"golang.org/x/crypto/bcrypt"
 )
 

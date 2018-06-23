@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"authentication-server/app"
-	"authentication-server/app/domains/entity"
-	"authentication-server/app/infrastructures"
+	"grant-n-z/app"
+	"grant-n-z/app/domains/entity"
+	"grant-n-z/app/infrastructures"
 )
 
 type UserRepositoryImpl struct{}
