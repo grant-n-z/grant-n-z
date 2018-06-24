@@ -17,8 +17,8 @@ RUN go get github.com/revel/revel && \
     go get gopkg.in/DATA-DOG/go-sqlmock.v1
     
 
-RUN mkdir /go/src/authentication-server
+RUN mkdir /go/src/grant-n-z
 
-COPY . /go/src/authentication-server
+COPY . /go/src/grant-n-z
 
-CMD revel run authentication-server
+CMD revel run grant-n-z

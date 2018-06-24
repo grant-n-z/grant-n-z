@@ -1,24 +1,25 @@
-# Authentication server
+# Grant Authentication and Authorization
+WIP
 
 ## Build
 Git clone
 ```
-$ git clone git@github.com:tomo0111/authentication-server.git
+$ git clone git@github.com:tomo0111/grant-n-z.git
 ```
 
 Run test
 ```
-$ revel test authentication-server
+$ revel test grant-n-z test
 ```
 
 Docker build
 ```
-$ docker build -t authentication-server:latest .
+$ docker build -t grant-n-z:latest .
 ```
 
 Docker container run
 ```
-$ docker run -p 9000:9000 authentication-server
+$ docker run -p 9000:9000 grant-n-z
 ```
 
 ## Authentication and Authorization
