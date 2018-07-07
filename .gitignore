@@ -4,3 +4,4 @@ routes/
 .idea/
 dev/
 prod/
+vendor/
