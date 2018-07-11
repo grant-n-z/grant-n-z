@@ -1,13 +1,13 @@
 package v1
 
 import (
-	"grant-n-z/app/controllers/base"
-	"grant-n-z/app/domains/entity"
-	"grant-n-z/app/domains/service"
 	"github.com/satori/go.uuid"
 	"github.com/revel/revel"
 	"gopkg.in/go-playground/validator.v9"
 	"strings"
+	"github.com/tomo0111/grant-n-z/app/controllers/base"
+	"github.com/tomo0111/grant-n-z/app/domains/service"
+	"github.com/tomo0111/grant-n-z/app/domains/entity"
 )
 
 type UserController struct {
