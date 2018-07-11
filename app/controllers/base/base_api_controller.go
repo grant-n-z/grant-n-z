@@ -2,8 +2,8 @@ package base
 
 import (
 	"net/http"
-	"grant-n-z/app/domains/model"
 	"github.com/revel/revel"
+	"github.com/tomo0111/grant-n-z/app/domains/model"
 )
 
 type BaseApiController struct {
