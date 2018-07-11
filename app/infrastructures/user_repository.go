@@ -1,6 +1,6 @@
 package infrastructures
 
-import "grant-n-z/app/domains/entity"
+import "github.com/tomo0111/grant-n-z/app/domains/entity"
 
 type UserRepository interface {
 	FindByEmail(email string) *entity.Users
