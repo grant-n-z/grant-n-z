@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"grant-n-z/tests"
-	"grant-n-z/app/controllers/v1"
 	"github.com/jinzhu/gorm"
-	"grant-n-z/app"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"grant-n-z/app/domains/entity"
+	"github.com/tomo0111/grant-n-z/app/controllers/v1"
+	"github.com/tomo0111/grant-n-z/app/domains/entity"
+	"github.com/tomo0111/grant-n-z/tests"
+	"github.com/tomo0111/grant-n-z/app"
 )
 
 type UserControllerTest struct {

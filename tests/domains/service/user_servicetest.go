@@ -1,13 +1,12 @@
 package service
 
 import (
-	"grant-n-z/tests"
-	"grant-n-z/app/domains/service"
 	"golang.org/x/crypto/bcrypt"
-
-	"grant-n-z/tests/infrastructures"
-	"grant-n-z/app/domains/entity"
 	"github.com/satori/go.uuid"
+	"github.com/tomo0111/grant-n-z/tests"
+	"github.com/tomo0111/grant-n-z/app/domains/service"
+	"github.com/tomo0111/grant-n-z/tests/infrastructures"
+	"github.com/tomo0111/grant-n-z/app/domains/entity"
 )
 
 type UserServiceTest struct {
@@ -64,7 +63,7 @@ func (t UserServiceTest) TestInsertUserOk() {
 
 	users := entity.Users{
 		Id: 1,
-		Uuid: uuid.Must(uuid.NewV4()).String(),
+		Uuid: uuid.NewV4().String(),
 		Username: "test",
 		Email: "test@gmail.com",
 		Password: "testtest",

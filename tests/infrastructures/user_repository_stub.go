@@ -1,9 +1,9 @@
 package infrastructures
 
 import (
-	"grant-n-z/app/infrastructures"
-	"grant-n-z/app/domains/entity"
 	"github.com/satori/go.uuid"
+	"github.com/tomo0111/grant-n-z/app/infrastructures"
+	"github.com/tomo0111/grant-n-z/app/domains/entity"
 )
 
 type UserRepositoryStub struct {}
@@ -15,7 +15,7 @@ func (r UserRepositoryStub) NewUserRepository() infrastructures.UserRepository {
 func (r UserRepositoryStub) FindByEmail(email string) *entity.Users {
 	users := entity.Users{
 		Id: 1,
-		Uuid: uuid.Must(uuid.NewV4()).String(),
+		Uuid: uuid.NewV4().String(),
 		Username: "test",
 		Email: email,
 		Password: "testtest",
