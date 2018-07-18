@@ -4,7 +4,7 @@ WIP
 ## Build
 Git clone
 ```
-$ git clone git@github.com:tomo0111/grant-n-z.git
+$ git clone git@github.com:tomoyane/grant-n-z.git
 ```
 
 Run test
