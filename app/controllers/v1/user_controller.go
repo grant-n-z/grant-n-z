@@ -20,7 +20,7 @@ var useService service.UserService
 
 func (c UserController) PostUser(users entity.Users) revel.Result {
 
-	users.Uuid = uuid.Must(uuid.NewV4()).String()
+	users.Uuid = uuid.NewV4().String()
 	users.Password = useService.EncryptPw(users.Password)
 
 	err := validate.Struct(users)
