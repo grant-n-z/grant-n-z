@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/tomo0111/grant-n-z/tests"
+	"github.com/tomoyane/grant-n-z/tests"
 )
 
 type HelloControllerTest struct {

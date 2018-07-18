@@ -3,10 +3,10 @@ package service
 import (
 	"golang.org/x/crypto/bcrypt"
 	"github.com/satori/go.uuid"
-	"github.com/tomo0111/grant-n-z/tests"
-	"github.com/tomo0111/grant-n-z/app/domains/service"
-	"github.com/tomo0111/grant-n-z/tests/infrastructures"
-	"github.com/tomo0111/grant-n-z/app/domains/entity"
+	"github.com/tomoyane/grant-n-z/tests"
+	"github.com/tomoyane/grant-n-z/app/domains/service"
+	"github.com/tomoyane/grant-n-z/tests/infrastructures"
+	"github.com/tomoyane/grant-n-z/app/domains/entity"
 )
 
 type UserServiceTest struct {

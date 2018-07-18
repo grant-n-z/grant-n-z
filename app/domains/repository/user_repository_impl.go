@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/tomo0111/grant-n-z/app/infrastructures"
-	"github.com/tomo0111/grant-n-z/app/domains/entity"
-	"github.com/tomo0111/grant-n-z/app"
+	"github.com/tomoyane/grant-n-z/app/infrastructures"
+	"github.com/tomoyane/grant-n-z/app/domains/entity"
+	"github.com/tomoyane/grant-n-z/app"
 )
 
 type UserRepositoryImpl struct{}

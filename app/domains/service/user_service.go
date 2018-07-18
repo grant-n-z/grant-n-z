@@ -2,8 +2,8 @@ package service
 
 import (
 	"golang.org/x/crypto/bcrypt"
-	"github.com/tomo0111/grant-n-z/app/domains/repository"
-	"github.com/tomo0111/grant-n-z/app/domains/entity"
+	"github.com/tomoyane/grant-n-z/app/domains/repository"
+	"github.com/tomoyane/grant-n-z/app/domains/entity"
 )
 
 type UserService struct{}

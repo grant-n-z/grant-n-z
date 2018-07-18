@@ -3,7 +3,7 @@ package base
 import (
 	"net/http"
 	"github.com/revel/revel"
-	"github.com/tomo0111/grant-n-z/app/domains/model"
+	"github.com/tomoyane/grant-n-z/app/domains/model"
 )
 
 type BaseApiController struct {
