@@ -3,14 +3,14 @@ resources:
     type: git
     source:
       branch: master
-      uri: git@github.com:tomo0111/grant-n-z.git
+      uri: git@github.com:tomoyane/grant-n-z.git
       private_key: ((github-deploy-key))
 
   - name: pull-request
     type: pull-request
     source:
-      uri: git@github.com:tomo0111/grant-n-z.git
-      repo: tomo0111/grant-n-z
+      uri: git@github.com:tomoyane/grant-n-z.git
+      repo: tomoyane/grant-n-z
       access_token: ((github-access-token))
       private_key: ((github-deploy-key))
       base: master
