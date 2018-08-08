@@ -2,260 +2,128 @@
 
 
 [[projects]]
-  name = "github.com/Microsoft/go-winio"
-  packages = ["."]
-  revision = "67921128fb397dd80339870d2193d6b1e6856fd4"
-  version = "v0.4.8"
-
-[[projects]]
-  name = "github.com/docker/distribution"
-  packages = [
-    "digest",
-    "reference"
-  ]
-  revision = "48294d928ced5dd9b378f7fd7c6f5da3ff3f2c89"
-  version = "v2.6.2"
-
-[[projects]]
-  name = "github.com/docker/docker"
-  packages = [
-    "api/types",
-    "api/types/blkiodev",
-    "api/types/container",
-    "api/types/events",
-    "api/types/filters",
-    "api/types/mount",
-    "api/types/network",
-    "api/types/reference",
-    "api/types/registry",
-    "api/types/strslice",
-    "api/types/swarm",
-    "api/types/time",
-    "api/types/versions",
-    "api/types/volume",
-    "client",
-    "pkg/tlsconfig"
-  ]
-  revision = "092cba3727bb9b4a2f0e922cd6c0f93ea270e363"
-  version = "v1.13.1"
-
-[[projects]]
-  name = "github.com/docker/go-connections"
-  packages = [
-    "nat",
-    "sockets",
-    "tlsconfig"
-  ]
-  revision = "3ede32e2033de7505e6500d6c868c2b9ed9f169d"
-  version = "v0.3.0"
-
-[[projects]]
-  name = "github.com/docker/go-units"
-  packages = ["."]
-  revision = "47565b4f722fb6ceae66b95f853feed578a4a51c"
-  version = "v0.3.3"
-
-[[projects]]
-  name = "github.com/go-playground/locales"
-  packages = [
-    ".",
-    "currency"
-  ]
-  revision = "f63010822830b6fe52288ee52d5a1151088ce039"
-  version = "v0.12.1"
-
-[[projects]]
-  name = "github.com/go-playground/universal-translator"
-  packages = ["."]
-  revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
-  version = "v0.16.0"
-
-[[projects]]
+  digest = "1:adea5a94903eb4384abef30f3d878dc9ff6b6b5b0722da25b82e5169216dfb61"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
+  pruneopts = "UT"
   revision = "d523deb1b23d913de5bdada721a6071e71283618"
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:235ae01f32fb5f12c5f6d2e0e05ab48e651ab31c126e45a4efc4f510810941ac"
   name = "github.com/jinzhu/gorm"
   packages = ["."]
+  pruneopts = "UT"
   revision = "6ed508ec6a4ecb3531899a69cbc746ccf65a4166"
   version = "v1.9.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:fd97437fbb6b7dce04132cf06775bd258cce305c44add58eb55ca86c6c325160"
   name = "github.com/jinzhu/inflection"
   packages = ["."]
+  pruneopts = "UT"
   revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
-  name = "github.com/klauspost/compress"
-  packages = [
-    "flate",
-    "gzip",
-    "zlib"
-  ]
-  revision = "5fb1f31b0a61e9858f12f39266e059848a5f1cea"
-  version = "v1.3.0"
-
-[[projects]]
-  name = "github.com/klauspost/cpuid"
+  digest = "1:26971a24734a1b911111711f981ffc7463361b36483456f33da623570b7d214c"
+  name = "github.com/labstack/echo"
   packages = ["."]
-  revision = "ae7887de9fa5d2db4eaa8174a7eff2c1ac00f2da"
-  version = "v1.1"
+  pruneopts = "UT"
+  revision = "6d227dfea4d2e52cb76856120b3c17f758139b4e"
+  version = "3.3.5"
 
 [[projects]]
+  digest = "1:faee5b9f53eb1ae4eb04708c040c8c4dd685ce46509671e57a08520a15c54368"
+  name = "github.com/labstack/gommon"
+  packages = [
+    "color",
+    "log",
+  ]
+  pruneopts = "UT"
+  revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
+  version = "0.2.6"
+
+[[projects]]
+  digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
+  pruneopts = "UT"
   revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
   version = "v0.0.9"
 
 [[projects]]
+  digest = "1:d4d17353dbd05cb52a2a52b7fe1771883b682806f68db442b436294926bbfafb"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
   version = "v0.0.3"
 
 [[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
-
-[[projects]]
-  name = "github.com/revel/config"
-  packages = ["."]
-  revision = "662332b741dd464a886ab0901379c02b9bc5dc30"
-  version = "v0.19.0"
-
-[[projects]]
-  name = "github.com/revel/log15"
-  packages = ["."]
-  revision = "b105bd37f74e5d9dc7b6ad7806715c7a2b83fd3f"
-  version = "v2.11"
-
-[[projects]]
-  name = "github.com/revel/modules"
+  branch = "master"
+  digest = "1:ec6654ebb0ca0a4ee98c66f2e0087be176ea990a485ec14ed93a2c419c19d1c6"
+  name = "github.com/tomoyane/echo-performance"
   packages = [
-    "static/app/controllers",
-    "testrunner/app",
-    "testrunner/app/controllers"
+    "common",
+    "controller",
+    "entity",
   ]
-  revision = "f97a4d0320f4ee755526333a0286f787a5bf6d8b"
-  version = "v0.19.0"
+  pruneopts = "UT"
+  revision = "a07cf1af19f3426816dea1149c0948fed2ae0a11"
 
 [[projects]]
   branch = "master"
-  name = "github.com/revel/pathtree"
+  digest = "1:c468422f334a6b46a19448ad59aaffdfc0a36b08fdcc1c749a0b29b6453d7e59"
+  name = "github.com/valyala/bytebufferpool"
   packages = ["."]
-  revision = "41257a1839e945fce74afd070e02bab2ea2c776a"
-
-[[projects]]
-  name = "github.com/revel/revel"
-  packages = [
-    ".",
-    "logger",
-    "testing"
-  ]
-  revision = "248166bf840eab87a88d1c18309f8e174e8327ff"
-  version = "v0.19.1"
-
-[[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
+  pruneopts = "UT"
+  revision = "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
 
 [[projects]]
   branch = "master"
-  name = "github.com/tomoyane/embedded-mysql-container"
+  digest = "1:268b8bce0064e8c057d7b913605459f9a26dcab864c0886a56d196540fbf003f"
+  name = "github.com/valyala/fasttemplate"
   packages = ["."]
-  revision = "7f52adbb7b29eb42c44f4e2d5e242ebef7f0bf74"
-
-[[projects]]
-  name = "github.com/xeonx/timeago"
-  packages = ["."]
-  revision = "49df971d6c5d5b073f921e8c580fbb6a0bb629c1"
-  version = "v1.0.0-rc2"
+  pruneopts = "UT"
+  revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
 
 [[projects]]
   branch = "master"
+  digest = "1:35aff791260b519f5766ebbd85eb439f488bd1af407c785738fb951105b2adbd"
   name = "golang.org/x/crypto"
   packages = [
-    "bcrypt",
-    "blowfish"
+    "acme",
+    "acme/autocert",
   ]
-  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
+  pruneopts = "UT"
+  revision = "f027049dab0ad238e394a753dba2d14753473a04"
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/net"
-  packages = [
-    "context",
-    "context/ctxhttp",
-    "internal/socks",
-    "proxy",
-    "websocket"
-  ]
-  revision = "32a936f46389aa10549d60bd7833e54b01685d09"
-
-[[projects]]
-  branch = "master"
+  digest = "1:6bfac13093727f9b78d4aa0e728d46649c1e251df07283cacac8b1622d205af9"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows"
-  ]
-  revision = "3c6ecd8f22c6f40fbeec94c000a069d7d87c7624"
+  packages = ["unix"]
+  pruneopts = "UT"
+  revision = "3249cb6984157e6ed574d535fb27fc72a94a67e2"
 
 [[projects]]
+  digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
+  pruneopts = "UT"
   revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
   version = "v1.1.0"
-
-[[projects]]
-  name = "gopkg.in/DATA-DOG/go-sqlmock.v1"
-  packages = ["."]
-  revision = "d76b18b42f285b792bf985118980ce9eacea9d10"
-  version = "v1.3.0"
-
-[[projects]]
-  name = "gopkg.in/fsnotify/fsnotify.v1"
-  packages = ["."]
-  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
-  version = "v1.4.7"
-
-[[projects]]
-  name = "gopkg.in/go-playground/validator.v9"
-  packages = ["."]
-  revision = "ce9336f6e200cbb2e7c5672b36095b03f8bf5af7"
-  version = "v9.19.0"
-
-[[projects]]
-  name = "gopkg.in/inconshreveable/log15.v2"
-  packages = [
-    "stack",
-    "term"
-  ]
-  revision = "b105bd37f74e5d9dc7b6ad7806715c7a2b83fd3f"
-  version = "v2.11"
-
-[[projects]]
-  name = "gopkg.in/natefinch/lumberjack.v2"
-  packages = ["."]
-  revision = "a96e63847dc3c67d17befa69c303767e2f84e54f"
-  version = "v2.1"
-
-[[projects]]
-  branch = "v0"
-  name = "gopkg.in/stack.v0"
-  packages = ["."]
-  revision = "9b43fcefddd0178abdabf4d484ab0d695d0011db"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7ebcd9528a6fd566d6fb0c758d29e029dfbf1c151fc043937a3ed626d813d0e7"
+  input-imports = [
+    "github.com/go-sql-driver/mysql",
+    "github.com/jinzhu/gorm",
+    "github.com/labstack/echo",
+    "github.com/tomoyane/echo-performance/common",
+    "github.com/tomoyane/echo-performance/controller",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
