@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/domain/repository"
 	"golang.org/x/crypto/bcrypt"
 	"github.com/tomoyane/grant-n-z/domain/entity"
+	"github.com/tomoyane/grant-n-z/domain/repository"
 )
 
 var userRepository = repository.UserRepositoryImpl{}.NewUserRepository()
