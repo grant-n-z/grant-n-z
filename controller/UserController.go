@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"gopkg.in/go-playground/validator.v9"
 	"github.com/labstack/echo"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/satori/go.uuid"
@@ -11,37 +10,36 @@ import (
 	"strings"
 )
 
-var validate = validator.New()
-
 func UserController (c echo.Context) (err error) {
 	user := new(entity.User)
+
 	if err = c.Bind(user); err != nil {
-		return
+		return c.JSON(http.StatusBadRequest,
+			domain.ErrorResponse{}.Error(http.StatusBadRequest, "001"))
 	}
 
 	user.Uuid = uuid.NewV4()
 	user.Password = service.EncryptPw(user.Password)
 
-	validateErr := validate.Struct(user)
-	if validateErr != nil {
+	if err = c.Validate(user); err != nil {
 		return c.JSON(http.StatusBadRequest,
-			domain.ErrorResponse{}.Error(http.StatusBadRequest, "001"))
+			domain.ErrorResponse{}.Error(http.StatusBadRequest, "002"))
 	}
 
 	userData := service.GetUserByEmail(user.Email)
 	if userData == nil {
 		return c.JSON(http.StatusInternalServerError,
-			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "002"))
+			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "003"))
 	}
 
 	if !strings.EqualFold(userData.Email, "") {
 		return c.JSON(http.StatusUnprocessableEntity,
-			domain.ErrorResponse{}.Error(http.StatusUnprocessableEntity, "003"))
+			domain.ErrorResponse{}.Error(http.StatusUnprocessableEntity, "004"))
 	}
 
 	if service.InsertUser(*user) == nil {
 		return c.JSON(http.StatusInternalServerError,
-			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "004"))
+			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "005"))
 	}
 
 	success := map[string]string {
