@@ -1,0 +1,7 @@
+driver: mysql
+db:
+  host: 127.0.0.1
+  user: root
+  password: root
+  port: 33306
+  db: auth_server
