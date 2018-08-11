@@ -4,18 +4,46 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
+	"io/ioutil"
+	"gopkg.in/yaml.v2"
+	"github.com/tomoyane/grant-n-z/domain"
+	"fmt"
 )
 
 var (
 	Db *gorm.DB
+	dbSource string
 )
 
 func InitDB() {
-	db, err := gorm.Open("mysql", os.Getenv("DB_SOURCE"))
+	switch os.Getenv("ENV") {
+	case "test":
+		var yml = readYml("../app-test.yaml")
+		dbSource = yml.GetDataSourceUrl()
+	default:
+		var yml = readYml("app.yaml")
+		dbSource = yml.GetDataSourceUrl()
+	}
+
+	fmt.Print(dbSource)
+
+	db, err := gorm.Open("mysql", dbSource)
 	if err != nil {
 		panic(err)
 	}
 
 	db.DB()
 	Db = db
+}
+
+func readYml(ymlName string) domain.YmlModel {
+	yml, err := ioutil.ReadFile(ymlName)
+	if err != nil {
+		panic(err)
+	}
+
+	var db domain.YmlModel
+	err = yaml.Unmarshal(yml, &db)
+
+	return db
 }
