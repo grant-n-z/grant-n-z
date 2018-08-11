@@ -18,6 +18,7 @@ CREATE TABLE users (
   email varchar(128) NOT NULL,
   password varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
