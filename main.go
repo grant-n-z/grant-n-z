@@ -13,6 +13,6 @@ func main() {
 
 	e := echo.New()
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-	e.POST("/v1/users", controller.UserController)
+	e.POST("/v1/users", controller.GenerateUser)
 	e.Logger.Fatal(e.Start(":8080"))
 }
