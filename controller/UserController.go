@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func UserController (c echo.Context) (err error) {
+func GenerateUser(c echo.Context) (err error) {
 	user := new(entity.User)
 
 	if err = c.Bind(user); err != nil {
@@ -46,5 +46,5 @@ func UserController (c echo.Context) (err error) {
 		"message": "user creation succeeded.",
 	}
 
-	return c.JSON(http.StatusOK, success)
+	return c.JSON(http.StatusCreated, success)
 }
