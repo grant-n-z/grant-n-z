@@ -9,18 +9,23 @@ import (
 
 func TestMain(m *testing.M) {
 	os.Setenv("ENV", "test")
+	containerDaemon := container.ContainerDaemonImpl{}.New()
+	embeddedMysql := container.MysqlConfigImpl{}.New()
 
-	// Before
-	containerDaemon := container.ContainerDaemonImpl{}.NewContainerDaemonImpl()
-
-	containerDaemon.InitDocker()
-	containerDaemon.PullImage("docker.io/library/mysql:5.7")
-
-	containerId := containerDaemon.BuildImage(
-		"mysql:5.7",
-		"embedded_mysql_container")
-
-	containerDaemon.StartContainer(containerId)
+	containerId := containerDaemon.StartEmbeddedMysql()
+	embeddedMysql.AddSchema("auth_server")
+	embeddedMysql.CreateTable(
+		`CREATE TABLE users (
+					id int(11) NOT NULL AUTO_INCREMENT,
+  					uuid varchar(128) NOT NULL,
+  					username varchar(128) NOT NULL,
+  					email varchar(128) NOT NULL,
+  					password varchar(128) NOT NULL,
+  					created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  					updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  					PRIMARY KEY (id),
+  					UNIQUE (email)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;`)
 
 	// Init database
 	common.InitDB()
@@ -29,7 +34,6 @@ func TestMain(m *testing.M) {
 
 	// After
 	containerDaemon.StopContainer(containerId)
-	containerDaemon.DeleteContainer(containerId)
 
 	os.Exit(code)
 }
