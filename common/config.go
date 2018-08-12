@@ -13,15 +13,16 @@ import (
 var (
 	Db *gorm.DB
 	dbSource string
+	yml domain.YmlModel
 )
 
 func InitDB() {
 	switch os.Getenv("ENV") {
 	case "test":
-		var yml = readYml("../app-test.yaml")
+		yml = readYml("../app-test.yaml")
 		dbSource = yml.GetDataSourceUrl()
 	default:
-		var yml = readYml("app.yaml")
+		yml = readYml("app.yaml")
 		dbSource = yml.GetDataSourceUrl()
 	}
 
