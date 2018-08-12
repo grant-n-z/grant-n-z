@@ -18,10 +18,6 @@ func TestGenerateUser(t *testing.T) {
 	e := echo.New()
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
-	success := map[string]string {
-		"message": "user creation succeeded.",
-	}
-
 	user := entity.User{
 		Username: "test123456789",
 		Email: "test@gmail.com",
@@ -37,6 +33,5 @@ func TestGenerateUser(t *testing.T) {
 
 	if assert.NoError(t,  controller.GenerateUser(c)) {
 		assert.Equal(t, http.StatusCreated, recorder.Code)
-		assert.Equal(t, success, recorder.Body.String())
 	}
 }
