@@ -161,11 +161,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2a1cabda990c8081ca4515b6048a3ad65ff978c992b9852fa52fdfae870db8d4"
+  digest = "1:ecb6f39cd0eb3c5e349250696afc1ff5265846dacbd64110c53830db6591b309"
   name = "github.com/tomoyane/embedded-mysql-container"
   packages = ["container"]
   pruneopts = "UT"
-  revision = "559f52574da48785eb87774d1cd040cafa6454e7"
+  revision = "ddb4a7c0d610250b5418cabbbf894b764f007885"
 
 [[projects]]
   branch = "master"
