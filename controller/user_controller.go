@@ -3,42 +3,42 @@ package controller
 import (
 	"github.com/labstack/echo"
 	"github.com/tomoyane/grant-n-z/domain/entity"
-	"github.com/satori/go.uuid"
-	"github.com/tomoyane/grant-n-z/domain/service"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/domain"
+	"github.com/satori/go.uuid"
 	"strings"
+	"github.com/tomoyane/grant-n-z/common"
 )
 
 func GenerateUser(c echo.Context) (err error) {
 	user := new(entity.User)
 
 	if err = c.Bind(user); err != nil {
-		return c.JSON(http.StatusBadRequest,
+		return echo.NewHTTPError(http.StatusBadRequest,
 			domain.ErrorResponse{}.Error(http.StatusBadRequest, "001"))
 	}
 
 	user.Uuid = uuid.NewV4()
-	user.Password = service.EncryptPw(user.Password)
+	user.Password = common.ProvideUserService.EncryptPw(user.Password)
 
 	if err = c.Validate(user); err != nil {
-		return c.JSON(http.StatusBadRequest,
+		return echo.NewHTTPError(http.StatusBadRequest,
 			domain.ErrorResponse{}.Error(http.StatusBadRequest, "002"))
 	}
 
-	userData := service.GetUserByEmail(user.Email)
+	userData := common.ProvideUserService.GetUserByEmail(user.Email)
 	if userData == nil {
-		return c.JSON(http.StatusInternalServerError,
+		return echo.NewHTTPError(http.StatusInternalServerError,
 			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "003"))
 	}
 
 	if !strings.EqualFold(userData.Email, "") {
-		return c.JSON(http.StatusUnprocessableEntity,
+		return echo.NewHTTPError(http.StatusUnprocessableEntity,
 			domain.ErrorResponse{}.Error(http.StatusUnprocessableEntity, "004"))
 	}
 
-	if service.InsertUser(*user) == nil {
-		return c.JSON(http.StatusInternalServerError,
+	if common.ProvideUserService.InsertUser(*user) == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
 			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "005"))
 	}
 
