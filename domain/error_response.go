@@ -3,9 +3,9 @@ package domain
 import "net/http"
 
 type ErrorResponse struct {
-	Code    int
-	Message string
-	Detail  string
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Detail  string `json:"detail"`
 }
 
 func (e ErrorResponse) Error(code int, internalCode string) ErrorResponse {
