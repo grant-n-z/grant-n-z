@@ -6,9 +6,11 @@ import (
 	"github.com/tomoyane/grant-n-z/domain/repository"
 )
 
-var userRepository = repository.UserRepositoryImpl{}.NewUserRepository()
+type UserService struct {
+	UserRepository repository.UserRepository
+}
 
-func EncryptPw(password string) string {
+func (u UserService)EncryptPw(password string) string {
 	hash, _ := bcrypt.GenerateFromPassword(
 		[] byte(password),
 		bcrypt.DefaultCost,
@@ -16,10 +18,10 @@ func EncryptPw(password string) string {
 	return string(hash)
 }
 
-func GetUserByEmail(email string) *entity.User {
-	return userRepository.FindByEmail(email)
+func (u UserService)GetUserByEmail(email string) *entity.User {
+	return u.UserRepository.FindByEmail(email)
 }
 
-func InsertUser(user entity.User) *entity.User {
-	return userRepository.Save(user)
+func (u UserService)InsertUser(user entity.User) *entity.User {
+	return u.UserRepository.Save(user)
 }
