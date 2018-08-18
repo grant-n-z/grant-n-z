@@ -2,21 +2,17 @@ package repository
 
 import (
 	"github.com/tomoyane/grant-n-z/domain/entity"
-	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/infra"
 )
 
-type UserRepositoryImpl struct{
-}
-
-func (r UserRepositoryImpl) NewUserRepository() UserRepository {
-	return &UserRepositoryImpl{}
+type UserRepositoryImpl struct {
 }
 
 // Find users by users.email
 func (r UserRepositoryImpl) FindByEmail(email string) *entity.User {
 	users := entity.User{}
 
-	if err := common.Db.Where("email = ?", email).First(&users).Error; err != nil {
+	if err := infra.Db.Where("email = ?", email).First(&users).Error; err != nil {
 		if err.Error() == "record not found" {
 			return &entity.User{}
 		}
@@ -28,7 +24,7 @@ func (r UserRepositoryImpl) FindByEmail(email string) *entity.User {
 
 // Save to user
 func (r UserRepositoryImpl) Save(user entity.User) *entity.User {
-	if err := common.Db.Create(&user).Error; err != nil {
+	if err := infra.Db.Create(&user).Error; err != nil {
 		return nil
 	}
 
@@ -37,7 +33,7 @@ func (r UserRepositoryImpl) Save(user entity.User) *entity.User {
 
 // Update to user
 func (r UserRepositoryImpl) Update(user entity.User) *entity.User {
-	if err := common.Db.Update(&user).Error; err != nil {
+	if err := infra.Db.Update(&user).Error; err != nil {
 		return nil
 	}
 
