@@ -12,18 +12,30 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"encoding/json"
 	"github.com/tomoyane/grant-n-z/controller"
+	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/test/stub"
+	"os"
 )
 
 var(
 	e = echo.New()
 )
 
+func TestMain(m *testing.M) {
+	common.InitUserService(stub.UserRepositoryStub{})
+	e := echo.New()
+	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+
+	code := m.Run()
+	os.Exit(code)
+}
+
 func TestCreateUser(t *testing.T) {
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
 	user := entity.User {
-		Username: "test123456789",
-		Email: "test@gmail.com",
+		Username: "test",
+		Email: "test1@gmail.com",
 		Password: "21312abcdefg",
 	}
 	userData, _ := json.Marshal(user)
@@ -33,7 +45,7 @@ func TestCreateUser(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.NoError(t,  controller.GenerateUser(c)) {
+	if assert.NoError(t, controller.GenerateUser(c)) {
 		assert.Equal(t, http.StatusCreated, recorder.Code)
 	}
 }
@@ -41,20 +53,14 @@ func TestCreateUser(t *testing.T) {
 func TestCreateUserBadRequest01(t *testing.T) {
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
-	user := entity.User {
-		Username: "test123456789",
-		Email: "test@gmail.com",
-	}
-	userData, _ := json.Marshal(user)
+	inCorrectData := `{"key":"value"}`
 
-	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
+	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(inCorrectData))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.Error(t,  controller.GenerateUser(c)) {
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	}
+	assert.Error(t, controller.GenerateUser(c))
 }
 
 func TestCreateUserBadRequest02(t *testing.T) {
@@ -73,18 +79,16 @@ func TestCreateUserBadRequest02(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.Error(t,  controller.GenerateUser(c)) {
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	}
+	assert.Error(t, controller.GenerateUser(c))
 }
 
 func TestCreateUserUnprocessableEntity(t *testing.T) {
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
-	// Incorrect validation
+	// Already exit user
 	user := entity.User {
 		Username: "test123456789",
-		Email: "aaa@gmail.com",
+		Email: "test2@gmail.com",
 		Password: "21312abcdefg",
 	}
 	userData, _ := json.Marshal(user)
@@ -94,7 +98,5 @@ func TestCreateUserUnprocessableEntity(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.Error(t,  controller.GenerateUser(c)) {
-		assert.Equal(t, http.StatusUnprocessableEntity, recorder.Code)
-	}
+	assert.Error(t, controller.GenerateUser(c))
 }
