@@ -1,6 +1,9 @@
 package domain
 
-import "net/http"
+import (
+	"net/http"
+	"fmt"
+)
 
 type ErrorResponse struct {
 	Code    int    `json:"code"`
@@ -24,4 +27,10 @@ func (e ErrorResponse) Error(code int, internalCode string) ErrorResponse {
 	}
 
 	return e
+}
+
+func (e ErrorResponse) Print(code int, msg string, detail string) {
+	fmt.Print(code)
+	fmt.Print(msg)
+	fmt.Print(detail)
 }
