@@ -5,3 +5,4 @@ routes/
 dev/
 prod/
 vendor/
+credentials.yml
