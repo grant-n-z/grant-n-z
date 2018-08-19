@@ -14,7 +14,7 @@ import (
 var (
 	Db *gorm.DB
 	dbSource string
-	yml domain.YmlModel
+	yml domain.Yml
 )
 
 func InitDB() {
@@ -46,13 +46,13 @@ func GetHostName() string {
 	return host
 }
 
-func readYml(ymlName string) domain.YmlModel {
+func readYml(ymlName string) domain.Yml {
 	yml, err := ioutil.ReadFile(ymlName)
 	if err != nil {
 		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed read yml", "")
 	}
 
-	var db domain.YmlModel
+	var db domain.Yml
 	err = yaml.Unmarshal(yml, &db)
 
 	return db

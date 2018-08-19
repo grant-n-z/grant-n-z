@@ -2,7 +2,7 @@ package domain
 
 import "fmt"
 
-type YmlModel struct {
+type Yml struct {
 	DbModel DbModel `yaml:"db"`
 }
 
@@ -14,7 +14,7 @@ type DbModel struct {
 	Db       string `yaml:"db"`
 }
 
-func (yml YmlModel) GetDataSourceUrl() string {
+func (yml Yml) GetDataSourceUrl() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
 		yml.DbModel.User,
 		yml.DbModel.Password,
