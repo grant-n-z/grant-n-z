@@ -14,18 +14,18 @@ import (
 	"github.com/tomoyane/grant-n-z/controller"
 )
 
-var (
-	user = entity.User {
+var(
+	e = echo.New()
+)
+
+func TestCreateUser(t *testing.T) {
+	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+
+	user := entity.User {
 		Username: "test123456789",
 		Email: "test@gmail.com",
 		Password: "21312abcdefg",
 	}
-)
-
-func TestCreateUser(t *testing.T) {
-	e := echo.New()
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-
 	userData, _ := json.Marshal(user)
 
 	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
@@ -35,5 +35,66 @@ func TestCreateUser(t *testing.T) {
 
 	if assert.NoError(t,  controller.GenerateUser(c)) {
 		assert.Equal(t, http.StatusCreated, recorder.Code)
+	}
+}
+
+func TestCreateUserBadRequest01(t *testing.T) {
+	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+
+	user := entity.User {
+		Username: "test123456789",
+		Email: "test@gmail.com",
+	}
+	userData, _ := json.Marshal(user)
+
+	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	recorder := httptest.NewRecorder()
+	c := e.NewContext(request, recorder)
+
+	if assert.Error(t,  controller.GenerateUser(c)) {
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	}
+}
+
+func TestCreateUserBadRequest02(t *testing.T) {
+	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+
+	// Incorrect validation
+	user := entity.User {
+		Username: "test123456789",
+		Email: "testgmail.com",
+		Password: "2131",
+	}
+	userData, _ := json.Marshal(user)
+
+	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	recorder := httptest.NewRecorder()
+	c := e.NewContext(request, recorder)
+
+	if assert.Error(t,  controller.GenerateUser(c)) {
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	}
+}
+
+func TestCreateUserUnprocessableEntity(t *testing.T) {
+	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+
+	// Incorrect validation
+	user := entity.User {
+		Username: "test123456789",
+		Email: "aaa@gmail.com",
+		Password: "21312abcdefg",
+	}
+	userData, _ := json.Marshal(user)
+
+	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	recorder := httptest.NewRecorder()
+	c := e.NewContext(request, recorder)
+
+	if assert.Error(t,  controller.GenerateUser(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, recorder.Code)
 	}
 }
