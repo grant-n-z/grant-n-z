@@ -15,13 +15,6 @@ resources:
       private_key: ((github-deploy-key))
       base: master
 
-  - name: grant-n-z-image
-    type: docker-image
-    source:
-      repository: ((docker-hub-account))/grant-n-z
-      username: ((docker-hub-user))
-      password: ((docker-hub-pass))
-
 resource_types:
   - name: pull-request
     type: docker-image
@@ -60,19 +53,3 @@ jobs:
         params:
           path: repository
           status: failure
-
-  - name: deploy-image
-    serial: true
-    public: true
-    plan:
-    - get: repository
-      trigger: true
-    - do:
-      - task: test
-        file: repository/concourse/test.yml
-      - task: deploy-image
-        file: repository/concourse/deploy-image.yml
-      - put: grant-n-z-image
-        params:
-          tag: out/version.txt
-          build: repository
