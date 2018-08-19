@@ -8,6 +8,7 @@ import (
 	"github.com/satori/go.uuid"
 	"strings"
 	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/infra"
 )
 
 func GenerateUser(c echo.Context) (err error) {
@@ -46,5 +47,6 @@ func GenerateUser(c echo.Context) (err error) {
 		"message": "user creation succeeded.",
 	}
 
+	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/users/" + user.Uuid.String())
 	return c.JSON(http.StatusCreated, success)
 }
