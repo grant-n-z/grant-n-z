@@ -1,5 +1,7 @@
 package domain
 
+import "fmt"
+
 type YmlModel struct {
 	DbModel DbModel `yaml:"db"`
 }
@@ -13,7 +15,10 @@ type DbModel struct {
 }
 
 func (yml YmlModel) GetDataSourceUrl() string {
-	return yml.DbModel.User + ":" + yml.DbModel.Password +
-		"@tcp(" + yml.DbModel.Host + ":" + yml.DbModel.Port + ")/" + yml.DbModel.Db +
-		"?charset=utf8&parseTime=True"
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
+		yml.DbModel.User,
+		yml.DbModel.Password,
+		yml.DbModel.Host,
+		yml.DbModel.Port,
+		yml.DbModel.Db)
 }
