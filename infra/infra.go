@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"github.com/tomoyane/grant-n-z/domain"
 	"fmt"
+	"net/http"
 )
 
 var (
@@ -37,10 +38,18 @@ func InitDB() {
 	Db = db
 }
 
+func GetHostName() string {
+	host, err := os.Hostname()
+	if err != nil {
+		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed hostname", "")
+	}
+	return host
+}
+
 func readYml(ymlName string) domain.YmlModel {
 	yml, err := ioutil.ReadFile(ymlName)
 	if err != nil {
-		panic(err)
+		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed read yml", "")
 	}
 
 	var db domain.YmlModel
