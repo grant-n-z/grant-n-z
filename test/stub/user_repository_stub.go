@@ -11,7 +11,7 @@ type UserRepositoryStub struct {
 func (r UserRepositoryStub) FindByEmail(email string) *entity.User {
 	users := entity.User{
 		Username: "test",
-		Email: email,
+		Email: "test@gmail.com",
 		Uuid: uuid.NewV4(),
 		Password: "test12345",
 	}
