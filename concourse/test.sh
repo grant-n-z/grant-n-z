@@ -10,4 +10,4 @@ cd /go/src/repository
 
 dep ensure
 
-go test test
+go test -v /go/src/repository/test/...
