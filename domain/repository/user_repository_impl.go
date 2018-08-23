@@ -8,18 +8,18 @@ import (
 type UserRepositoryImpl struct {
 }
 
-// Find users by users.email
+// Find user by users.email
 func (r UserRepositoryImpl) FindByEmail(email string) *entity.User {
-	users := entity.User{}
+	user := entity.User{}
 
-	if err := infra.Db.Where("email = ?", email).First(&users).Error; err != nil {
+	if err := infra.Db.Where("email = ?", email).First(&user).Error; err != nil {
 		if err.Error() == "record not found" {
 			return &entity.User{}
 		}
 		return nil
 	}
 
-	return &users
+	return &user
 }
 
 // Save to user
