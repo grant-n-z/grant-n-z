@@ -1,11 +1,4 @@
 resources:
-  - name: repository
-    type: git
-    source:
-      branch: master
-      uri: git@github.com:tomoyane/grant-n-z.git
-      private_key: ((github-deploy-key))
-
   - name: pull-request
     type: pull-request
     source:
