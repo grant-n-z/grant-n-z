@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-type Tokens struct {
+type Token struct {
 	Id           int       `gorm:"primary_key"json:"id"`
 	TokenType    string    `json:"token_type"`
 	Token        string    `json:"token"`
@@ -13,6 +13,6 @@ type Tokens struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-func (Tokens) TableName() string {
+func (t Token) TableName() string {
 	return "tokens"
 }
