@@ -29,12 +29,11 @@ CREATE TABLE tokens (
   token_type varchar(128) NOT NULL,
   token varchar(512) NOT NULL,
   refresh_token varchar(512) NOT NULL,
-  user_id int(11) NOT NULL,
+  user_uuid varchar(128) NOT NULL,
   expires_at datetime,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE (token),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  UNIQUE (token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
