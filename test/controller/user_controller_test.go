@@ -12,7 +12,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"encoding/json"
 	"github.com/tomoyane/grant-n-z/controller"
-	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/test/stub"
 	"os"
 )
@@ -22,7 +22,7 @@ var(
 )
 
 func TestMain(m *testing.M) {
-	common.InitUserService(stub.UserRepositoryStub{})
+	di.InitUserService(stub.UserRepositoryStub{})
 	e := echo.New()
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
@@ -45,7 +45,7 @@ func TestCreateUser(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.NoError(t, controller.GenerateUser(c)) {
+	if assert.NoError(t, controller.PostUser(c)) {
 		assert.Equal(t, http.StatusCreated, recorder.Code)
 	}
 }
@@ -60,7 +60,7 @@ func TestCreateUserBadRequest01(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.GenerateUser(c))
+	assert.Error(t, controller.PostUser(c))
 }
 
 func TestCreateUserBadRequest02(t *testing.T) {
@@ -79,7 +79,7 @@ func TestCreateUserBadRequest02(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.GenerateUser(c))
+	assert.Error(t, controller.PostUser(c))
 }
 
 func TestCreateUserUnprocessableEntity(t *testing.T) {
@@ -98,5 +98,5 @@ func TestCreateUserUnprocessableEntity(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.GenerateUser(c))
+	assert.Error(t, controller.PostUser(c))
 }

@@ -2,7 +2,7 @@ package domain
 
 import (
 	"testing"
-	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/test/stub"
 	"fmt"
 	"os"
@@ -17,7 +17,7 @@ var(
 )
 
 func TestMain(m *testing.M) {
-	common.InitUserService(stub.UserRepositoryStub{})
+	di.InitUserService(stub.UserRepositoryStub{})
 
 	code := m.Run()
 
@@ -28,14 +28,14 @@ func TestMain(m *testing.M) {
 
 func TestEncryptPw(t *testing.T) {
 	password := "test"
-	passwordHash := common.ProvideUserService.EncryptPw(password)
+	passwordHash := di.ProviderUserService.EncryptPw(password)
 
-	assert.Equal(t, common.ProvideUserService.ComparePw(passwordHash, password), true)
+	assert.Equal(t, di.ProviderUserService.ComparePw(passwordHash, password), true)
 }
 
 func TestGetUserByEmail(t *testing.T) {
 	email := "test@gmail.com"
-	userData := common.ProvideUserService.GetUserByEmail(email)
+	userData := di.ProviderUserService.GetUserByEmail(email)
 
 	assert.Equal(t, userData.Username, correctUserName)
 }
@@ -47,7 +47,7 @@ func TestInsertUser(t *testing.T) {
 		Password: "21312abcdefg",
 	}
 
-	insertUser := common.ProvideUserService.InsertUser(user)
+	insertUser := di.ProviderUserService.InsertUser(user)
 
 	assert.Equal(t, insertUser.Username, correctUserName)
 	assert.Equal(t, insertUser.Email, correctEmail)
