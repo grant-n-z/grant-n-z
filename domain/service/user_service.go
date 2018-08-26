@@ -11,10 +11,7 @@ type UserService struct {
 }
 
 func (u UserService) EncryptPw(password string) string {
-	hash, _ := bcrypt.GenerateFromPassword(
-		[] byte(password),
-		bcrypt.DefaultCost,
-	)
+	hash, _ := bcrypt.GenerateFromPassword([] byte(password), bcrypt.DefaultCost)
 	return string(hash)
 }
 

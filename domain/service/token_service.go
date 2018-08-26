@@ -1,36 +1,47 @@
 package service
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/domain/repository"
+	"time"
+	"github.com/satori/go.uuid"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/tomoyane/grant-n-z/domain"
+	"net/http"
 )
 
 type TokenService struct {
-	UserRepository repository.UserRepository
+	TokenRepository repository.TokenRepository
 }
 
-func (u UserService) EncryptPw(password string) string {
-	hash, _ := bcrypt.GenerateFromPassword(
-		[] byte(password),
-		bcrypt.DefaultCost,
-	)
-	return string(hash)
-}
+func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID) string {
+	token := jwt.New(jwt.SigningMethodHS256)
 
-func (u UserService) ComparePw(passwordHash string, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+	claims := token.Claims.(jwt.MapClaims)
+	claims["name"] = username
+	claims["user_uuid"] = userUuid.String()
+	claims["exp"] = time.Now().Add(time.Hour * 365).Unix()
+
+	signedToken, err := token.SignedString([]byte("secret"))
 	if err != nil {
-		return false
+		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed generate jwt", "")
+		return ""
 	}
 
-	return true
+	return signedToken
 }
 
-func (u UserService) GetUserByEmail(email string) *entity.User {
-	return u.UserRepository.FindByEmail(email)
+func (t TokenService) GetTokenByUserId(userId string) *entity.Token {
+	return t.TokenRepository.FindByUserId(userId)
 }
 
-func (u UserService) InsertUser(user entity.User) *entity.User {
-	return u.UserRepository.Save(user)
+func (t TokenService) InsertToken(userUuid uuid.UUID, token string, refreshToken string) *entity.Token {
+	data := entity.Token{
+		TokenType: "Bearer",
+		Token: token,
+		RefreshToken: refreshToken,
+		UserUuid: userUuid,
+		ExpiresAt: time.Now().Add(time.Hour * 365),
+	}
+	return t.TokenRepository.Save(data)
 }
