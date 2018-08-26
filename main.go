@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/domain/repository"
 	"github.com/labstack/echo"
 	"github.com/tomoyane/grant-n-z/domain"
@@ -12,10 +12,12 @@ import (
 
 func main() {
 	infra.InitDB()
-	common.InitUserService(repository.UserRepositoryImpl{})
+	di.InitUserService(repository.UserRepositoryImpl{})
+	di.InitTokenService(repository.TokenRepositoryImpl{})
 
 	e := echo.New()
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-	e.POST("/v1/users", controller.GenerateUser)
+	e.POST("/v1/users", controller.PostUser)
+	e.POST("/v1/tokens", controller.PostToken)
 	e.Logger.Fatal(e.Start(":8080"))
 }
