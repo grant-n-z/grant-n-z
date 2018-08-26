@@ -7,11 +7,11 @@ import (
 	"github.com/tomoyane/grant-n-z/domain"
 	"github.com/satori/go.uuid"
 	"strings"
-	"github.com/tomoyane/grant-n-z/common"
+	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
 )
 
-func GenerateUser(c echo.Context) (err error) {
+func PostUser(c echo.Context) (err error) {
 	user := new(entity.User)
 
 	if err = c.Bind(user); err != nil {
@@ -20,14 +20,14 @@ func GenerateUser(c echo.Context) (err error) {
 	}
 
 	user.Uuid = uuid.NewV4()
-	user.Password = common.ProvideUserService.EncryptPw(user.Password)
+	user.Password = di.ProviderUserService.EncryptPw(user.Password)
 
 	if err = c.Validate(user); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			domain.ErrorResponse{}.Error(http.StatusBadRequest, "002"))
 	}
 
-	userData := common.ProvideUserService.GetUserByEmail(user.Email)
+	userData := di.ProviderUserService.GetUserByEmail(user.Email)
 	if userData == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "003"))
@@ -38,9 +38,17 @@ func GenerateUser(c echo.Context) (err error) {
 			domain.ErrorResponse{}.Error(http.StatusUnprocessableEntity, "004"))
 	}
 
-	if common.ProvideUserService.InsertUser(*user) == nil {
+	if di.ProviderUserService.InsertUser(*user) == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "005"))
+	}
+
+	token := di.ProviderTokenService.GenerateJwt(user.Username, user.Uuid)
+	refreshToken := di.ProviderTokenService.GenerateJwt(user.Username, user.Uuid)
+
+	if di.ProviderTokenService.InsertToken(user.Uuid, token, refreshToken) == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "006"))
 	}
 
 	success := map[string]string {
