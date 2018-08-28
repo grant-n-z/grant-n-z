@@ -12,23 +12,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"encoding/json"
 	"github.com/tomoyane/grant-n-z/controller"
-	"github.com/tomoyane/grant-n-z/di"
-	"github.com/tomoyane/grant-n-z/test/stub"
-	"os"
 )
-
-var(
-	e = echo.New()
-)
-
-func TestMain(m *testing.M) {
-	di.InitUserService(stub.UserRepositoryStub{})
-	e := echo.New()
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-
-	code := m.Run()
-	os.Exit(code)
-}
 
 func TestCreateUser(t *testing.T) {
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
@@ -82,7 +66,7 @@ func TestCreateUserBadRequest02(t *testing.T) {
 	assert.Error(t, controller.PostUser(c))
 }
 
-func TestCreateUserUnprocessableEntity(t *testing.T) {
+func TestCreateUserUnProcessableEntity(t *testing.T) {
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
 	// Already exit user

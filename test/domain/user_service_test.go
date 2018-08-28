@@ -3,28 +3,9 @@ package domain
 import (
 	"testing"
 	"github.com/tomoyane/grant-n-z/di"
-	"github.com/tomoyane/grant-n-z/test/stub"
-	"fmt"
-	"os"
 	"src/github.com/stretchr/testify/assert"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 )
-
-var(
-	correctUserName = "test"
-	correctEmail = "test@gmail.com"
-	correctPassword = "21312abcdefg"
-)
-
-func TestMain(m *testing.M) {
-	di.InitUserService(stub.UserRepositoryStub{})
-
-	code := m.Run()
-
-	fmt.Println("Done")
-
-	os.Exit(code)
-}
 
 func TestEncryptPw(t *testing.T) {
 	password := "test"
