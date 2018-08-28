@@ -30,7 +30,6 @@ CREATE TABLE tokens (
   token varchar(512) NOT NULL,
   refresh_token varchar(512) NOT NULL,
   user_uuid varchar(128) NOT NULL,
-  expires_at datetime,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
