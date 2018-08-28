@@ -30,14 +30,14 @@ func TestEncryptPw(t *testing.T) {
 	password := "test"
 	passwordHash := di.ProviderUserService.EncryptPw(password)
 
-	assert.Equal(t, di.ProviderUserService.ComparePw(passwordHash, password), true)
+	assert.Equal(t, true, di.ProviderUserService.ComparePw(passwordHash, password))
 }
 
 func TestGetUserByEmail(t *testing.T) {
 	email := "test@gmail.com"
 	userData := di.ProviderUserService.GetUserByEmail(email)
 
-	assert.Equal(t, userData.Username, correctUserName)
+	assert.Equal(t, correctUserName, userData.Username)
 }
 
 func TestInsertUser(t *testing.T) {
@@ -48,8 +48,9 @@ func TestInsertUser(t *testing.T) {
 	}
 
 	insertUser := di.ProviderUserService.InsertUser(user)
+	isPassword := di.ProviderUserService.ComparePw(insertUser.Password, correctPassword)
 
-	assert.Equal(t, insertUser.Username, correctUserName)
-	assert.Equal(t, insertUser.Email, correctEmail)
-	assert.Equal(t, insertUser.Password, correctPassword)
+	assert.Equal(t, correctUserName, insertUser.Username)
+	assert.Equal(t, correctEmail, insertUser.Email)
+	assert.Equal(t, true, isPassword)
 }

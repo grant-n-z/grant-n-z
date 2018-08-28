@@ -4,6 +4,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/domain/repository"
+	"github.com/satori/go.uuid"
 )
 
 type UserService struct {
@@ -29,5 +30,7 @@ func (u UserService) GetUserByEmail(email string) *entity.User {
 }
 
 func (u UserService) InsertUser(user entity.User) *entity.User {
+	user.Uuid = uuid.NewV4()
+	user.Password = u.EncryptPw(user.Password)
 	return u.UserRepository.Save(user)
 }
