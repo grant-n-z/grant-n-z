@@ -1,6 +1,6 @@
 driver: mysql
 db:
-  host: 127.0.0.1
+  host: docker.for.mac.localhost
   user: root
   password: root
   port: 3306

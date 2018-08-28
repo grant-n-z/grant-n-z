@@ -1,14 +1,14 @@
 FROM golang:1.9.4
 
-RUN go get github.com/golang/dep/cmd/dep
-RUN go get github.com/tomoyane/grant-n-z
+RUN git clone https://github.com/tomoyane/grant-n-z.git && \
+    go get github.com/golang/dep/cmd/dep && \
+    mkdir /go/src/github.com/tomoyane && \
+    cp -rp grant-n-z /go/src/github.com/tomoyane/
 
 WORKDIR /go/src/github.com/tomoyane/grant-n-z
 
 ENV GOPATH $GOPATH:/go/src
-ENV DB_SOURCE="root:root@tcp(docker.for.mac.localhost:3306)/auth_server?charset=utf8&parseTime=True"
 
-RUN dep ensure
-RUN go build
-
-CMD ["grant-n-z"]
+RUN dep ensure && \
+    go build && \
+    ./grant-n-z
