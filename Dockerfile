@@ -9,6 +9,7 @@ WORKDIR /go/src/github.com/tomoyane/grant-n-z
 
 ENV GOPATH $GOPATH:/go/src
 
-RUN dep ensure && \
-    go build && \
-    ./grant-n-z
+RUN dep ensure
+RUN go build
+
+CMD ["grant-n-z"]
