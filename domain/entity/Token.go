@@ -11,7 +11,6 @@ type Token struct {
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
 	UserUuid     uuid.UUID `json:"user_uuid"`
-	ExpiresAt    time.Time `json:"expires_at"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

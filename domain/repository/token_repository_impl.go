@@ -24,7 +24,7 @@ func (t TokenRepositoryImpl) FindByUserId(userId string) *entity.Token {
 
 // Save to token
 func (t TokenRepositoryImpl) Save(token entity.Token) *entity.Token {
-	if err := infra.Db.Create(&token).Error; err != nil {
+	if err := infra.Db.Where("user_uuid = ?", token.UserUuid).Assign(token).FirstOrCreate(&token).Error; err != nil {
 		return nil
 	}
 

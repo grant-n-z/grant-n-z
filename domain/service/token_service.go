@@ -41,7 +41,6 @@ func (t TokenService) InsertToken(userUuid uuid.UUID, token string, refreshToken
 		Token: token,
 		RefreshToken: refreshToken,
 		UserUuid: userUuid,
-		ExpiresAt: time.Now().Add(time.Hour * 365),
 	}
 	return t.TokenRepository.Save(data)
 }
