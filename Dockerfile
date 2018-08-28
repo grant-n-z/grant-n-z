@@ -12,4 +12,4 @@ ENV GOPATH $GOPATH:/go/src
 RUN dep ensure
 RUN go build
 
-CMD ["grant-n-z"]
+ENTRYPOINT ["grant-n-z"]
