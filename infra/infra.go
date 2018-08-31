@@ -9,6 +9,7 @@ import (
 	"github.com/tomoyane/grant-n-z/domain"
 	"fmt"
 	"net/http"
+	"github.com/tomoyane/grant-n-z/domain/entity"
 )
 
 var (
@@ -36,6 +37,18 @@ func InitDB() {
 
 	db.DB()
 	Db = db
+}
+
+func DbMigration() {
+	if (!Db.HasTable(&entity.User{})) {
+		Db.CreateTable(&entity.User{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.User{})
+	}
+
+	if (!Db.HasTable(&entity.Token{})) {
+		Db.CreateTable(&entity.Token{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Token{})
+	}
 }
 
 func GetHostName() string {

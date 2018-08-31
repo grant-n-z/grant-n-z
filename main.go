@@ -12,6 +12,8 @@ import (
 
 func main() {
 	infra.InitDB()
+	infra.DbMigration()
+
 	di.InitUserService(repository.UserRepositoryImpl{})
 	di.InitTokenService(repository.TokenRepositoryImpl{})
 
