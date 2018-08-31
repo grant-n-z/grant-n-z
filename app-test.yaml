@@ -1,3 +1,5 @@
+app:
+  version: 1.0.0
 driver: mysql
 db:
   host: 127.0.0.1
