@@ -21,7 +21,7 @@ func (e ErrorResponse) Error(code int, internalCode string) ErrorResponse {
 	case http.StatusNotFound:
 		e.Message = "Not found."
 	case http.StatusUnprocessableEntity:
-		e.Message = "Unprocessable Entity."
+		e.Message = "UnProcessable Entity."
 	case http.StatusInternalServerError:
 		e.Message = "Internal server error."
 	}
