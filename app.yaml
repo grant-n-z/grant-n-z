@@ -2,8 +2,8 @@ app:
   version: 1.0.0
 driver: mysql
 db:
-  host: localhost
-  user: root
-  password: root
-  port: 3306
-  db: auth_server
+  host: $MYSQL_HOST
+  user: $MYSQL_USER
+  password: $MYSQL_PASS
+  port: $MYSQL_PORT
+  db: $MYSQL_DB
