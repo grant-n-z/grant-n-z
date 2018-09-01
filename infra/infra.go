@@ -39,7 +39,7 @@ func InitDB() {
 	Db = db
 }
 
-func DbMigration() {
+func MigrateDB() {
 	if (!Db.HasTable(&entity.User{})) {
 		Db.CreateTable(&entity.User{})
 		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.User{})
