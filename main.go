@@ -12,7 +12,7 @@ import (
 
 func main() {
 	infra.InitDB()
-	infra.DbMigration()
+	infra.MigrateDB()
 
 	di.InitUserService(repository.UserRepositoryImpl{})
 	di.InitTokenService(repository.TokenRepositoryImpl{})
