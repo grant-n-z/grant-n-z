@@ -2,8 +2,6 @@
 
 set -e -u -x
 
-export GOPATH $GOPATH:/go/src
-
 go get -u github.com/golang/dep/cmd/dep
 
 mkdir /go/src/github.com/tomoyane/
@@ -14,7 +12,6 @@ mv /go/src/github.com/tomoyane/repository /go/src/github.com/tomoyane/grant-n-z
 cd /go/src/github.com/tomoyane/grant-n-z
 
 dep ensure
-
 
 ls -la /go/src/github.com/
 
