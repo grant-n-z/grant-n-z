@@ -1,4 +1,11 @@
 resources:
+  - name: repository
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:tomoyane/grant-n-z.git
+      private_key: ((github-deploy-key))
+
   - name: pull-request
     type: pull-request
     source:
@@ -7,6 +14,18 @@ resources:
       access_token: ((github-access-token))
       private_key: ((github-deploy-key))
       base: master
+
+  - name: grant-n-z-image
+    type: docker-image
+    source:
+      repository: ((docker-hub-account))/grant-n-z
+      username: ((docker-hub-user))
+      password: ((docker-hub-pass))
+
+  - name: slack-notification
+    type: slack-notification
+    source:
+      url: ((slack-webhook))
 
 resource_types:
   - name: pull-request
@@ -46,3 +65,38 @@ jobs:
         params:
           path: repository
           status: failure
+        put: slack-notification
+        params:
+          text: "Unit Test failed."
+
+  - name: deploy-image
+    serial: true
+    public: true
+    plan:
+    - get: repository
+      trigger: true
+    - do:
+      - task: unit-test
+        file: repository/concourse/test.yml
+        on_success:
+          put: slack-notification
+          params:
+            text: "Unit Test succeeded !"
+        on_failure:
+          put: slack-notification
+          params:
+            text: "Unit Test failed."
+      - task: deploy-image
+        file: repository/concourse/deploy-image.yml
+      - put: grant-n-z-image
+        params:
+          tag: out/version.txt
+          build: repository
+        on_success:
+          put: slack-notification
+          params:
+            text: "Deploy to docker image succeeded !"
+        on_failure:
+          put: slack-notification
+          params:
+            text: "Deploy to docker image failed."
