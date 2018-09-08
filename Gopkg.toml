@@ -41,7 +41,7 @@
   name = "github.com/labstack/echo"
   version = "3.3.5"
 
-[[constraint]]
+[[override]]
   name = "github.com/satori/go.uuid"
   branch = "master"
 
