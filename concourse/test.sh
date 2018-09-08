@@ -11,8 +11,10 @@ cp -r repository /go/src/github.com/tomoyane/
 mv /go/src/github.com/tomoyane/repository /go/src/github.com/tomoyane/grant-n-z
 cd /go/src/github.com/tomoyane/grant-n-z
 
-dep ensure
+export GOPATH=/go/src
 
 echo $GOPATH
+
+dep ensure
 
 go test -v github.com/tomoyane/grant-n-z/test/...
