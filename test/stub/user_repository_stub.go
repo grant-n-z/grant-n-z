@@ -9,11 +9,12 @@ type UserRepositoryStub struct {
 }
 
 func (r UserRepositoryStub) FindByEmail(email string) *entity.User {
+	userUuid, _ :=  uuid.NewV4()
 	if email == "test2@gmail.com"{
 		return &entity.User{
 			Username: "test",
 			Email: "test2@gmail.com",
-			Uuid: uuid.NewV4(),
+			Uuid: userUuid,
 			Password: "test12345",
 		}
 	}
@@ -21,7 +22,7 @@ func (r UserRepositoryStub) FindByEmail(email string) *entity.User {
 	return &entity.User{
 		Username: "test",
 		Email: "",
-		Uuid: uuid.NewV4(),
+		Uuid: userUuid,
 		Password: "test12345",
 	}
 }

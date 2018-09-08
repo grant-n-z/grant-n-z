@@ -3,8 +3,8 @@ package domain
 import (
 	"testing"
 	"github.com/tomoyane/grant-n-z/di"
-	"src/github.com/stretchr/testify/assert"
 	"github.com/tomoyane/grant-n-z/domain/entity"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEncryptPw(t *testing.T) {

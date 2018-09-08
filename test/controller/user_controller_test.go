@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 	"net/http/httptest"
 	"strings"
-	"src/github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/domain"
 	"gopkg.in/go-playground/validator.v9"
