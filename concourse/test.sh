@@ -6,9 +6,9 @@ go get -u github.com/golang/dep/cmd/dep
 
 mkdir /go/src/github.com/tomoyane/
 
-mv repository grant-n-z
-cp -r grant-n-z /go/src/github.com/tomoyane/
+cp -r repository /go/src/github.com/tomoyane/
 
+mv /go/src/github.com/tomoyane/repository /go/src/github.com/tomoyane/grant-n-z
 cd /go/src/github.com/tomoyane/grant-n-z
 
 dep ensure
