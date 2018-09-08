@@ -26,6 +26,10 @@
 
 
 [[constraint]]
+  name = "github.com/dgrijalva/jwt-go"
+  version = "3.2.0"
+
+[[constraint]]
   name = "github.com/go-sql-driver/mysql"
   version = "1.4.0"
 
@@ -47,7 +51,11 @@
 
 [[constraint]]
   name = "gopkg.in/go-playground/validator.v9"
-  version = "9.20.2"
+  version = "9.21.0"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  version = "2.2.1"
 
 [prune]
   go-tests = true
