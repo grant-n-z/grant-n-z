@@ -22,6 +22,7 @@ func (u UserService) ComparePw(passwordHash string, password string) bool {
 		return false
 	}
 
+
 	return true
 }
 
@@ -30,7 +31,7 @@ func (u UserService) GetUserByEmail(email string) *entity.User {
 }
 
 func (u UserService) InsertUser(user entity.User) *entity.User {
-	user.Uuid = uuid.NewV4()
+	user.Uuid, _ = uuid.NewV4()
 	user.Password = u.EncryptPw(user.Password)
 	return u.UserRepository.Save(user)
 }

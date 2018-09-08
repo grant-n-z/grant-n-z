@@ -41,10 +41,6 @@
   name = "github.com/labstack/echo"
   version = "3.3.5"
 
-[[override]]
-  name = "github.com/satori/go.uuid"
-  branch = "master"
-
 [[constraint]]
   branch = "master"
   name = "golang.org/x/crypto"
@@ -60,3 +56,7 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/satori/go.uuid"
+  branch = "master"
