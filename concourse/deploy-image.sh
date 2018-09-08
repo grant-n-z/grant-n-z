@@ -8,9 +8,10 @@ go get github.com/stretchr/testify/assert
 
 cd /go/src/github.com/tomoyane/grant-n-z
 
-touch ../out/version.txt
+mkdir /repository/out
+touch /repository/out/version.txt
 
-cat app.yaml | grep version |sed -e 's/[^0-9.]//g' > ../out/version.txt
+cat app.yaml | grep version |sed -e 's/[^0-9.]//g' > /repository/out/version.txt
 
 dep ensure
 
