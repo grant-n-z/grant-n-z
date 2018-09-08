@@ -6,7 +6,7 @@ go get -u github.com/golang/dep/cmd/dep
 
 cp -r repository /go/src/github.com/tomoyane/
 
-cd /go/src/github.com/tomoyane/
+cd /go/src/github.com/tomoyane/repository
 
 dep ensure
 
