@@ -10,4 +10,6 @@ cd /go/src/repository
 
 dep ensure
 
+pwd
+ls -la
 go test -v /go/src/repository/test/...
