@@ -88,9 +88,17 @@ jobs:
             text: "[grant-n-z] Unit Test failed."
       - task: deploy-image
         file: repository/concourse/deploy-image.yml
+        on_success:
+          put: slack-notification
+          params:
+            text: "[grant-n-z] Application build succeeded !"
+        on_failure:
+          put: slack-notification
+          params:
+            text: "[grant-n-z] Application build failed."
       - put: grant-n-z-image
         params:
-          tag: out/version.txt
+          tag: latest
           build: repository
         on_success:
           put: slack-notification
