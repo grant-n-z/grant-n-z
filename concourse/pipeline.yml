@@ -98,7 +98,6 @@ jobs:
             text: "[grant-n-z] Application build failed."
       - put: grant-n-z-image
         params:
-          tag: latest
           build: repository
         on_success:
           put: slack-notification
