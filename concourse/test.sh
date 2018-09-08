@@ -12,7 +12,4 @@ cd /go/src/github.com/tomoyane/repository
 
 dep ensure
 
-pwd
-ls -la
-
-go test -v go test -v github.com/tomoyane/repository/test/...
+go test -v github.com/tomoyane/repository/test/...
