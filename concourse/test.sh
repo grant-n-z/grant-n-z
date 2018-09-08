@@ -13,6 +13,6 @@ cd /go/src/github.com/tomoyane/grant-n-z
 
 dep ensure
 
-ls -la /go/src/github.com/
+echo $GOPATH
 
 go test -v github.com/tomoyane/grant-n-z/test/...
