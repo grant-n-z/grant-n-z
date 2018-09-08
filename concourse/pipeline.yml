@@ -67,7 +67,7 @@ jobs:
           status: failure
         put: slack-notification
         params:
-          text: "[grant-n-z] Unit Test failed."
+          text: "[grant-n-z] :fearful: Unit Test failed."
 
   - name: deploy-image
     serial: true
@@ -81,29 +81,29 @@ jobs:
         on_success:
           put: slack-notification
           params:
-            text: "[grant-n-z] Unit Test succeeded !"
+            text: "[grant-n-z] :slightly_smiling_face: Unit Test succeeded !"
         on_failure:
           put: slack-notification
           params:
-            text: "[grant-n-z] Unit Test failed."
+            text: "[grant-n-z] :fearful: Unit Test failed."
       - task: deploy-image
         file: repository/concourse/deploy-image.yml
         on_success:
           put: slack-notification
           params:
-            text: "[grant-n-z] Application build succeeded !"
+            text: "[grant-n-z] :slightly_smiling_face: Application build succeeded !"
         on_failure:
           put: slack-notification
           params:
-            text: "[grant-n-z] Application build failed."
+            text: "[grant-n-z] :fearful: Application build failed."
       - put: grant-n-z-image
         params:
           build: repository
         on_success:
           put: slack-notification
           params:
-            text: "[grant-n-z] Deploy to docker image succeeded !"
+            text: "[grant-n-z] :slightly_smiling_face: Deploy to docker image succeeded !"
         on_failure:
           put: slack-notification
           params:
-            text: "[grant-n-z] Deploy to docker image failed."
+            text: "[grant-n-z] :fearful: Deploy to docker image failed."
