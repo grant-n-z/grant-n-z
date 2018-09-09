@@ -7,29 +7,31 @@ import (
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
 	"github.com/tomoyane/grant-n-z/domain"
-	"fmt"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/domain/entity"
+	"fmt"
 )
 
 var (
 	Db *gorm.DB
 	dbSource string
-	yml domain.Yml
+	Yaml domain.Yml
 )
 
-func InitDB() {
+func InitYaml()  {
 	switch os.Getenv("ENV") {
 	case "test":
-		yml = readYml("../app-test.yaml")
-		dbSource = yml.GetDataSourceUrl()
+		Yaml = readYml("../app-test.yaml")
+		dbSource = Yaml.GetDataSourceUrl()
 	default:
-		yml = readYml("app.yaml")
-		dbSource = yml.GetDataSourceUrl()
+		Yaml = readYml("app.yaml")
+		dbSource = Yaml.GetDataSourceUrl()
 	}
 
 	fmt.Print(dbSource)
+}
 
+func InitDB() {
 	db, err := gorm.Open("mysql", dbSource)
 	if err != nil {
 		panic(err)
@@ -48,6 +50,11 @@ func MigrateDB() {
 	if (!Db.HasTable(&entity.Token{})) {
 		Db.CreateTable(&entity.Token{})
 		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Token{})
+	}
+
+	if (!Db.HasTable(&entity.Role{})) {
+		Db.CreateTable(&entity.Role{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Role{})
 	}
 }
 
