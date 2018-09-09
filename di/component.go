@@ -9,6 +9,7 @@ import (
 var (
 	ProviderUserService service.UserService
 	ProviderTokenService service.TokenService
+	ProviderRoleService service.RoleService
 )
 
 func InitUserService(repo repository.UserRepository) {
@@ -23,3 +24,8 @@ func InitTokenService(repo repository.TokenRepository) {
 	}
 }
 
+func InitRoleService(repo repository.RoleRepository) {
+	ProviderRoleService = service.RoleService{
+		RoleRepository: repo,
+	}
+}
