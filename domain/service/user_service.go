@@ -22,12 +22,15 @@ func (u UserService) ComparePw(passwordHash string, password string) bool {
 		return false
 	}
 
-
 	return true
 }
 
 func (u UserService) GetUserByEmail(email string) *entity.User {
 	return u.UserRepository.FindByEmail(email)
+}
+
+func (u UserService) GetUserByUuid(username string, uuid string) *entity.User {
+	return u.UserRepository.FindByUserNameAndUuid(username, uuid)
 }
 
 func (u UserService) InsertUser(user entity.User) *entity.User {
