@@ -9,7 +9,6 @@ import (
 	"github.com/tomoyane/grant-n-z/domain"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/infra"
-	"fmt"
 )
 
 type TokenService struct {
@@ -22,7 +21,7 @@ func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID, isAdmin b
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
 	claims["user_uuid"] = userUuid.String()
-	claims["exp"] = time.Now().Add(time.Hour * 365).Unix()
+	claims["expires"] = time.Now().Add(time.Hour * 365).String()
 	claims["role"] = "user"
 
 	if isAdmin {
@@ -39,28 +38,20 @@ func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID, isAdmin b
 }
 
 func (t TokenService) ValidJwt(token string) (map[string]string, bool) {
-	token = fmt.Sprintf("Bearer %d", token)
 	resultMap := map[string]string{}
 
-	_, err := jwt.ParseRSAPublicKeyFromPEM([]byte(infra.Yaml.App.PublicKey))
-	if err != nil {
-		fmt.Println(err)
-		return resultMap, false
-	}
-
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(infra.Yaml.App.PublicKey), nil
+		return []byte(infra.Yaml.App.PrivateKey), nil
 	})
 
 	claims := parseToken.Claims.(jwt.MapClaims)
-	if !parseToken.Valid {
-		fmt.Println("parse")
+	if err != nil && !parseToken.Valid {
 		return resultMap, false
 	}
 
 	resultMap["username"] = claims["username"].(string)
 	resultMap["user_uuid"] = claims["user_uuid"].(string)
-	resultMap["expires"] = claims["exp"].(string)
+	resultMap["expires"] = claims["expires"].(string)
 	resultMap["role"] = claims["role"].(string)
 
 	return resultMap, true

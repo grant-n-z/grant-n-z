@@ -41,10 +41,15 @@ func PostToken(c echo.Context) (err error) {
 	tokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid, false)
 	refreshTokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid, false)
 
+	if tokenStr == "" || refreshTokenStr == ""{
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "012"))
+	}
+
 	token := di.ProviderTokenService.InsertToken(userData.Uuid, tokenStr, refreshTokenStr)
 	if token == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "012"))
+			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "013"))
 	}
 
 	success := map[string]string {
