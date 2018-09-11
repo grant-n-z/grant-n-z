@@ -14,7 +14,7 @@ func GrantToken(c echo.Context) (err error) {
 			domain.ErrorResponse{}.Error(http.StatusUnauthorized, "014"))
 	}
 
-	resultMap, result := di.ProviderTokenService.ValidJwt(token)
+	resultMap, result := di.ProviderTokenService.ParseJwt(token)
 	if !result {
 		return echo.NewHTTPError(http.StatusUnauthorized,
 			domain.ErrorResponse{}.Error(http.StatusUnauthorized, "015"))
@@ -47,5 +47,9 @@ func GrantToken(c echo.Context) (err error) {
 			domain.ErrorResponse{}.Error(http.StatusForbidden, "020"))
 	}
 
-	return c.JSON(http.StatusOK, true)
+	success := map[string]bool {
+		"authority": true,
+	}
+
+	return c.JSON(http.StatusOK, success)
 }

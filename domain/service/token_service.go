@@ -37,15 +37,31 @@ func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID, isAdmin b
 	return signedToken
 }
 
-func (t TokenService) ValidJwt(token string) (map[string]string, bool) {
+func (t TokenService) ParseJwt(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(infra.Yaml.App.PrivateKey), nil
 	})
 
-	claims := parseToken.Claims.(jwt.MapClaims)
 	if err != nil && !parseToken.Valid {
+		return resultMap, false
+	}
+
+	claims := parseToken.Claims.(jwt.MapClaims)
+	if _, ok := claims["username"].(string); !ok {
+		return resultMap, false
+	}
+
+	if _, ok := claims["user_uuid"].(string); !ok {
+		return resultMap, false
+	}
+
+	if _, ok := claims["expires"].(string); !ok {
+		return resultMap, false
+	}
+
+	if _, ok := claims["role"].(string); !ok {
 		return resultMap, false
 	}
 
