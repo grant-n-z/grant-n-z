@@ -18,6 +18,10 @@ func (e ErrorResponse) Error(code int, internalCode string) ErrorResponse {
 	switch e.Code {
 	case http.StatusBadRequest:
 		e.Message = "Bad request."
+	case http.StatusUnauthorized:
+		e.Message = "Unauthorized token."
+	case http.StatusForbidden:
+		e.Message = "Forbidden token."
 	case http.StatusNotFound:
 		e.Message = "Not found."
 	case http.StatusUnprocessableEntity:

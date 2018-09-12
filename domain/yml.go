@@ -7,7 +7,14 @@ import (
 )
 
 type Yml struct {
-	DbModel DbModel `yaml:"db"`
+	App     AppModel `yaml:"app"`
+	DbModel DbModel  `yaml:"db"`
+}
+
+type AppModel struct {
+	Version    string `yaml:"version"`
+	PrivateKey string `yaml:"private-key"`
+	PublicKey  string `yaml:"public-key"`
 }
 
 type DbModel struct {

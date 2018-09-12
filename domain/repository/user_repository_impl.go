@@ -22,6 +22,20 @@ func (r UserRepositoryImpl) FindByEmail(email string) *entity.User {
 	return &user
 }
 
+// Find user by user.username and users.uuid
+func (r UserRepositoryImpl) FindByUserNameAndUuid(username string, uuid string) *entity.User  {
+	user := entity.User{}
+
+	if err := infra.Db.Where("username = ? AND uuid = ?", username, uuid).First(&user).Error; err != nil {
+		if err.Error() == "record not found" {
+			return &entity.User{}
+		}
+		return nil
+	}
+
+	return &user
+}
+
 // Save to user
 func (r UserRepositoryImpl) Save(user entity.User) *entity.User {
 	if err := infra.Db.Create(&user).Error; err != nil {

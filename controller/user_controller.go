@@ -33,9 +33,17 @@ func PostUser(c echo.Context) (err error) {
 			domain.ErrorResponse{}.Error(http.StatusUnprocessableEntity, "004"))
 	}
 
-	if di.ProviderUserService.InsertUser(*user) == nil {
+	userData = di.ProviderUserService.InsertUser(*user)
+	if userData == nil {
+		infra.Db.Rollback()
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "005"))
+	}
+
+	if di.ProviderRoleService.InsertRole(userData.Uuid) == nil {
+		infra.Db.Rollback()
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			domain.ErrorResponse{}.Error(http.StatusInternalServerError, "006"))
 	}
 
 	success := map[string]string {
