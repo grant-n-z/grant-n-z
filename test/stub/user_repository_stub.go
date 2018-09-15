@@ -10,6 +10,7 @@ type UserRepositoryStub struct {
 
 func (u UserRepositoryStub) FindByEmail(email string) *entity.User {
 	userUuid, _ :=  uuid.NewV4()
+
 	if email == "test2@gmail.com"{
 		return &entity.User{
 			Username: "test",
