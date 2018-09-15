@@ -31,12 +31,10 @@ func PostUser(c echo.Context) (err error) {
 
 	userData = di.ProviderUserService.InsertUser(*user)
 	if userData == nil {
-		infra.Db.Rollback()
 		return echo.NewHTTPError(http.StatusInternalServerError, domain.InternalServerError("005"))
 	}
 
 	if di.ProviderRoleService.InsertRole(userData.Uuid) == nil {
-		infra.Db.Rollback()
 		return echo.NewHTTPError(http.StatusInternalServerError, domain.InternalServerError("006"))
 	}
 
