@@ -17,6 +17,7 @@ var(
 
 func TestMain(m *testing.M) {
 	di.InitUserService(stub.UserRepositoryStub{})
+	di.InitRoleService(stub.RoleRepositoryStub{})
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
 	code := m.Run()

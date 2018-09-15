@@ -27,6 +27,10 @@ func (r UserRepositoryStub) FindByEmail(email string) *entity.User {
 	}
 }
 
+func (r UserRepositoryStub) FindByUserNameAndUuid(username string, uuid string) *entity.User  {
+	return &entity.User{}
+}
+
 func (r UserRepositoryStub) Save(user entity.User) *entity.User {
 	return &user
 }
