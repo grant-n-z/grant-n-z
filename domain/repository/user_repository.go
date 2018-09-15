@@ -7,7 +7,7 @@ import (
 type UserRepository interface {
 	FindByEmail(email string) *entity.User
 
-	FindByUserNameAndUuid(username string, uuid string) *entity.User
+	FindByUserNameAndUuid(username string, uuidStr string) *entity.User
 
 	Save(user entity.User) *entity.User
 

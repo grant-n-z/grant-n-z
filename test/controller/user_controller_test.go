@@ -1,17 +1,17 @@
 package controller
 
 import (
-	"github.com/tomoyane/grant-n-z/domain/entity"
 	"testing"
-	"github.com/labstack/echo"
-	"net/http/httptest"
-	"strings"
-	"github.com/stretchr/testify/assert"
-	"net/http"
 	"github.com/tomoyane/grant-n-z/domain"
 	"gopkg.in/go-playground/validator.v9"
+	"github.com/tomoyane/grant-n-z/domain/entity"
 	"encoding/json"
+	"net/http/httptest"
+	"github.com/labstack/echo"
+	"strings"
 	"github.com/tomoyane/grant-n-z/controller"
+	"net/http"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateUser(t *testing.T) {

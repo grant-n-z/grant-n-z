@@ -12,6 +12,7 @@ var(
 	correctUserName = "test"
 	correctEmail = "test@gmail.com"
 	correctPassword = "21312abcdefg"
+	correctUserUuid = "52F6228E-9169-4563-ADE2-07ED697B67BA"
 )
 
 func TestMain(m *testing.M) {
