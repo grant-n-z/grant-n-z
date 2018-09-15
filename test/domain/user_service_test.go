@@ -5,6 +5,7 @@ import (
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/stretchr/testify/assert"
+	"github.com/satori/go.uuid"
 )
 
 func TestEncryptPw(t *testing.T) {
@@ -19,6 +20,16 @@ func TestGetUserByEmail(t *testing.T) {
 	userData := di.ProviderUserService.GetUserByEmail(email)
 
 	assert.Equal(t, correctUserName, userData.Username)
+}
+
+func TestGetUserByUuid(t *testing.T) {
+	username := "test"
+	userUuidStr := "52F6228E-9169-4563-ADE2-07ED697B67BA"
+	userData := di.ProviderUserService.GetUserByUuid(username, userUuidStr)
+
+	correctUserUuid, _ := uuid.FromString(correctUserUuid)
+	assert.Equal(t, correctUserName, userData.Username)
+	assert.Equal(t, correctUserUuid, userData.Uuid)
 }
 
 func TestInsertUser(t *testing.T) {
