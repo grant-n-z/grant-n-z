@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/tomoyane/grant-n-z/domain"
 	"gopkg.in/go-playground/validator.v9"
-	"github.com/tomoyane/grant-n-z/controller"
+	"github.com/tomoyane/grant-n-z/app/controller"
 	"github.com/tomoyane/grant-n-z/infra"
 )
 

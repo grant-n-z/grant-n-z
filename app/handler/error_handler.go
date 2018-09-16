@@ -1,4 +1,4 @@
-package domain
+package handler
 
 import (
 	"net/http"

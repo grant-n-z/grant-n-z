@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 	"github.com/labstack/echo"
 	"strings"
-	"github.com/tomoyane/grant-n-z/controller"
+	"github.com/tomoyane/grant-n-z/app/controller"
 	"net/http"
 	"github.com/stretchr/testify/assert"
 )

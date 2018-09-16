@@ -6,9 +6,9 @@ import (
 	"time"
 	"github.com/satori/go.uuid"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/tomoyane/grant-n-z/domain"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/infra"
+	"github.com/tomoyane/grant-n-z/app/handler"
 )
 
 type TokenService struct {
@@ -30,7 +30,7 @@ func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID, isAdmin b
 
 	signedToken, err := token.SignedString([]byte(infra.Yaml.App.PrivateKey))
 	if err != nil {
-		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed generate jwt", "")
+		handler.ErrorResponse{}.Print(http.StatusInternalServerError, "failed generate jwt", "")
 		return ""
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"fmt"
 	"net/http"
+	"github.com/tomoyane/grant-n-z/app/handler"
 )
 
 var (
@@ -61,7 +62,7 @@ func MigrateDB() {
 func GetHostName() string {
 	host, err := os.Hostname()
 	if err != nil {
-		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed hostname", "")
+		handler.ErrorResponse{}.Print(http.StatusInternalServerError, "failed hostname", "")
 	}
 	return host
 }
@@ -69,7 +70,7 @@ func GetHostName() string {
 func readYml(ymlName string) domain.Yml {
 	yml, err := ioutil.ReadFile(ymlName)
 	if err != nil {
-		domain.ErrorResponse{}.Print(http.StatusInternalServerError, "failed read yml", "")
+		handler.ErrorResponse{}.Print(http.StatusInternalServerError, "failed read yml", "")
 	}
 
 	var db domain.Yml
