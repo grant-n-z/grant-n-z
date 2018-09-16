@@ -6,36 +6,36 @@ import (
 	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
-	"github.com/tomoyane/grant-n-z/domain"
+	"github.com/tomoyane/grant-n-z/app/handler"
 )
 
 func PostUser(c echo.Context) (err error) {
 	user := new(entity.User)
 
 	if err = c.Bind(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, domain.BadRequest("001"))
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest("001"))
 	}
 
 	if err = c.Validate(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, domain.BadRequest("002"))
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest("002"))
 	}
 
 	userData := di.ProviderUserService.GetUserByEmail(user.Email)
 	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, domain.InternalServerError("003"))
+		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("003"))
 	}
 
 	if len(userData.Email) > 0 {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, domain.UnProcessableEntity("004"))
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.UnProcessableEntity("004"))
 	}
 
 	userData = di.ProviderUserService.InsertUser(*user)
 	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, domain.InternalServerError("005"))
+		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("005"))
 	}
 
 	if di.ProviderRoleService.InsertRole(userData.Uuid) == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, domain.InternalServerError("006"))
+		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("006"))
 	}
 
 	success := map[string]string {
