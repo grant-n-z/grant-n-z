@@ -1,9 +1,10 @@
 app:
   version: 1.0.0
+  private-key: $GRANT_N_Z_PRIVATE_KEY
 driver: mysql
 db:
-  host: $MYSQL_HOST
-  user: $MYSQL_USER
-  password: $MYSQL_PASS
-  port: $MYSQL_PORT
-  db: $MYSQL_DB
+  host: $GRANT_N_Z_MYSQL_HOST
+  user: $GRANT_N_Z_MYSQL_USER
+  password: $GRANT_N_Z_MYSQL_PASS
+  port: $GRANT_N_Z_MYSQL_PORT
+  db: $GRANT_N_Z_MYSQL_DB
