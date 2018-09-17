@@ -69,7 +69,7 @@ ENV GRANT_N_Z_PRIVATE_KEY="{PRIVATE KEy}"
     
     * If you not install go, you can use binary.
 
-       * [Binary file]()
+       * [Binary file](https://github.com/tomoyane/grant-n-z/releases/download/1.0.0/grant-n-z)
 
 2. You have to create `grant_n_z` database on mysql. Grant-n-z supports only mysql.
 
