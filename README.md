@@ -40,7 +40,7 @@ GRANT_N_Z_MYSQL_DB
   * This is grant-n-z database port on mysql.
 
 * GRANT_N_Z_MYSQL_DB
-  * This is grant-n-z database name on mysql.
+  * This is `grant-n-z` db on mysql.
 
 ### Run on Container
 Base docker image
