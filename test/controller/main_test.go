@@ -16,8 +16,12 @@ var(
 )
 
 func TestMain(m *testing.M) {
+	os.Setenv("ENV", "test")
+
 	di.InitUserService(stub.UserRepositoryStub{})
+	di.InitTokenService(stub.TokenRepositoryStub{})
 	di.InitRoleService(stub.RoleRepositoryStub{})
+
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 
 	code := m.Run()
