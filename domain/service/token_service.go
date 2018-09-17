@@ -44,7 +44,7 @@ func (t TokenService) ParseJwt(token string) (map[string]string, bool) {
 		return []byte(infra.Yaml.App.PrivateKey), nil
 	})
 
-	if err != nil && !parseToken.Valid {
+	if err != nil || !parseToken.Valid {
 		return resultMap, false
 	}
 
@@ -73,8 +73,8 @@ func (t TokenService) ParseJwt(token string) (map[string]string, bool) {
 	return resultMap, true
 }
 
-func (t TokenService) GetTokenByUserId(userId string) *entity.Token {
-	return t.TokenRepository.FindByUserId(userId)
+func (t TokenService) GetTokenByUserUuid(userUuid string) *entity.Token {
+	return t.TokenRepository.FindByUserUuid(userUuid)
 }
 
 func (t TokenService) InsertToken(userUuid uuid.UUID, token string, refreshToken string) *entity.Token {
