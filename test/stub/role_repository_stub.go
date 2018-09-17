@@ -12,7 +12,7 @@ func (r RoleRepositoryStub) FindByUserUuid(userUuidStr string) *entity.Role {
 	userUuid, _ := uuid.FromString(userUuidStr)
 	role := entity.Role{
 		Id: 1,
-		Type: "Bearer",
+		Type: "user",
 		UserUuid: userUuid,
 	}
 	return &role
