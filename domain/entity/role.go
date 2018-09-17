@@ -7,8 +7,8 @@ import (
 
 type Role struct {
 	Id        int       `gorm:"primary_key"json:"id"`
-	Type      string    `json:"type"`
-	UserUuid  uuid.UUID `json:"user_uuid"`
+	Type      string    `gorm:"type:varchar(128)"json:"type"`
+	UserUuid  uuid.UUID `gorm:"type:varchar(128);index:user_uuid"json:"user_uuid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
