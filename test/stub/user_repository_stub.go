@@ -16,7 +16,7 @@ func (u UserRepositoryStub) FindByEmail(email string) *entity.User {
 			Username: "test",
 			Email: "test2@gmail.com",
 			Uuid: userUuid,
-			Password: "test12345",
+			Password: "$2a$10$yHVbM8iJBbqCHW4z3lq9KuV1m6s2TY2Z2214XPp4fpP/7JxjQDu72",
 		}
 	}
 
@@ -24,7 +24,7 @@ func (u UserRepositoryStub) FindByEmail(email string) *entity.User {
 		Username: "test",
 		Email: "",
 		Uuid: userUuid,
-		Password: "test12345",
+		Password: "$2a$10$yHVbM8iJBbqCHW4z3lq9KuV1m6s2TY2Z2214XPp4fpP/7JxjQDu72",
 	}
 }
 
@@ -35,7 +35,7 @@ func (u UserRepositoryStub) FindByUserNameAndUuid(username string, uuidStr strin
 		Username: username,
 		Email: "test2@gmail.com",
 		Uuid: userUuid,
-		Password: "test12345",
+		Password: "$2a$10$yHVbM8iJBbqCHW4z3lq9KuV1m6s2TY2Z2214XPp4fpP/7JxjQDu72",
 	}
 }
 
