@@ -8,11 +8,11 @@ import (
 type TokenRepositoryImpl struct {
 }
 
-// Find users by token.user_id
-func (t TokenRepositoryImpl) FindByUserId(userId string) *entity.Token {
+// Find users by token.user_uuid
+func (t TokenRepositoryImpl) FindByUserUuid(userUuid string) *entity.Token {
 	token := entity.Token{}
 
-	if err := infra.Db.Where("user_id = ?", userId).First(&token).Error; err != nil {
+	if err := infra.Db.Where("user_uuid = ?", userUuid).First(&token).Error; err != nil {
 		if err.Error() == "record not found" {
 			return &entity.Token{}
 		}
