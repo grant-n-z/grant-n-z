@@ -8,7 +8,7 @@ Grant-n-z is simple and fast authentication and authorization server.
 When i develop some micro service application and some micro service tool, i need to shared authentication system.
 Then i can use grant-n-z application.
 
-If you can use container infrastructure, you can use docker image.
+If you can use kubernetes (container ochestration tool), you can use docker image.
 
 ----
 
