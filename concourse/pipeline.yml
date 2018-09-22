@@ -99,6 +99,7 @@ jobs:
       - put: grant-n-z-image
         params:
           build: repository
+          tag: version/version.txt
         on_success:
           put: slack-notification
           params:
