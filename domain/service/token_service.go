@@ -8,7 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/infra"
-	"github.com/tomoyane/grant-n-z/app/handler"
+	"github.com/tomoyane/grant-n-z/handler"
 )
 
 type TokenService struct {

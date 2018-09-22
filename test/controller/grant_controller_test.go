@@ -4,7 +4,7 @@ import (
 	"testing"
 	"net/http/httptest"
 	"github.com/labstack/echo"
-	"github.com/tomoyane/grant-n-z/app/controller"
+	"github.com/tomoyane/grant-n-z/controller"
 	"github.com/stretchr/testify/assert"
 )
 

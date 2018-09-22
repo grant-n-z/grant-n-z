@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
-	"github.com/tomoyane/grant-n-z/app/handler"
+	"github.com/tomoyane/grant-n-z/handler"
 )
 
 func GrantToken(c echo.Context) (err error) {

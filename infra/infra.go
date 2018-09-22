@@ -10,7 +10,7 @@ import (
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"fmt"
 	"net/http"
-	"github.com/tomoyane/grant-n-z/app/handler"
+	"github.com/tomoyane/grant-n-z/handler"
 )
 
 var (

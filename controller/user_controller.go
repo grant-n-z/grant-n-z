@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
-	"github.com/tomoyane/grant-n-z/app/handler"
+	"github.com/tomoyane/grant-n-z/handler"
 )
 
 func PostUser(c echo.Context) (err error) {

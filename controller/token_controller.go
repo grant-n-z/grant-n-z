@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/domain/entity"
-	"github.com/tomoyane/grant-n-z/app/handler"
+	"github.com/tomoyane/grant-n-z/handler"
 )
 
 func PostToken(c echo.Context) (err error) {
