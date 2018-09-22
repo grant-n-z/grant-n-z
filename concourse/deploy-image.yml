@@ -15,4 +15,3 @@ outputs:
 
 run:
   path: concourse/deploy-image.sh
-  dir: repository
