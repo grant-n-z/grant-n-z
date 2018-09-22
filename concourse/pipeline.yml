@@ -100,6 +100,7 @@ jobs:
         params:
           build: repository
           tag: version/version.txt
+          tag_as_latest: true
         on_success:
           put: slack-notification
           params:
