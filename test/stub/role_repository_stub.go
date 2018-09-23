@@ -12,8 +12,18 @@ func (r RoleRepositoryStub) FindByUserUuid(userUuidStr string) *entity.Role {
 	userUuid, _ := uuid.FromString(userUuidStr)
 	role := entity.Role{
 		Id: 1,
-		Type: "user",
-		UserUuid: userUuid,
+		Permission: "user",
+		Uuid: userUuid,
+	}
+	return &role
+}
+
+func (r RoleRepositoryStub) FindByPermission(userUuidStr string) *entity.Role {
+	userUuid, _ := uuid.FromString(userUuidStr)
+	role := entity.Role{
+		Id: 1,
+		Permission: "user",
+		Uuid: userUuid,
 	}
 	return &role
 }
