@@ -1,5 +1,5 @@
 # Authentication and Authorization micro service
-[![Build Status](http://www.concourse.developer-tm.com:8080/api/v1/teams/main/pipelines/grant-n-z-pipeline/jobs/test/badge)](https://www.concourse.developer-tm.com/teams/main/pipelines/springboot-bestpractice-pipeline)
+[![Build Status](http://www.concourse.developer-tm.com:8080/api/v1/teams/main/pipelines/grant-n-z-pipeline/jobs/test/badge)](https://www.concourse.developer-tm.com/teams/main/pipelines/grant-n-z-pipeline)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/tomoyane/grant-n-z/blob/master/LICENSE.txt)
 
 ----
