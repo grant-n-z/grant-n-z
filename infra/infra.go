@@ -48,14 +48,29 @@ func MigrateDB() {
 		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.User{})
 	}
 
-	if (!Db.HasTable(&entity.Token{})) {
-		Db.CreateTable(&entity.Token{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Token{})
+	if (!Db.HasTable(&entity.Principal{})) {
+		Db.CreateTable(&entity.Principal{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Principal{})
 	}
 
 	if (!Db.HasTable(&entity.Role{})) {
 		Db.CreateTable(&entity.Role{})
 		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Role{})
+	}
+
+	if (!Db.HasTable(&entity.Token{})) {
+		Db.CreateTable(&entity.Token{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Token{})
+	}
+
+	if (!Db.HasTable(&entity.Member{})) {
+		Db.CreateTable(&entity.Member{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Member{})
+	}
+
+	if (!Db.HasTable(&entity.MemberRole{})) {
+		Db.CreateTable(&entity.MemberRole{})
+		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.MemberRole{})
 	}
 }
 
