@@ -22,6 +22,20 @@ func (r RoleRepositoryImpl) FindByUserUuid(userUuid string) *entity.Role {
 	return &role
 }
 
+// Find role by roles.permission
+func (r RoleRepositoryImpl) FindByPermission(permission string) *entity.Role {
+	role := entity.Role{}
+
+	if err := infra.Db.Where("permission = ?", permission).First(&role).Error; err != nil {
+		if err.Error() == "record not found" {
+			return &entity.Role{}
+		}
+		return nil
+	}
+
+	return &role
+}
+
 // Save to role
 func (r RoleRepositoryImpl) Save(role entity.Role) *entity.Role {
 	if err := infra.Db.Create(&role).Error; err != nil {
