@@ -32,13 +32,13 @@ func GrantToken(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("018"))
 	}
 
-	if len(role.UserUuid) == 0 {
-		return echo.NewHTTPError(http.StatusForbidden, handler.Forbidden("019"))
-	}
-
-	if role.Type != "user" && role.Type != "admin" {
-		return echo.NewHTTPError(http.StatusForbidden, handler.Forbidden("020"))
-	}
+	//if len(role.UserUuid) == 0 {
+	//	return echo.NewHTTPError(http.StatusForbidden, handler.Forbidden("019"))
+	//}
+	//
+	//if role.Type != "user" && role.Type != "admin" {
+	//	return echo.NewHTTPError(http.StatusForbidden, handler.Forbidden("020"))
+	//}
 
 	success := map[string]bool {
 		"authority": true,
