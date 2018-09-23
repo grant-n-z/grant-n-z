@@ -43,6 +43,14 @@ func NotFound(internalCode string) ErrorResponse {
 	}
 }
 
+func Conflict(internalCode string) ErrorResponse {
+	return ErrorResponse{
+		Code: http.StatusConflict,
+		Detail: internalCode,
+		Message: "Conflict resource.",
+	}
+}
+
 func UnProcessableEntity(internalCode string) ErrorResponse {
 	return ErrorResponse{
 		Code: http.StatusUnprocessableEntity,
