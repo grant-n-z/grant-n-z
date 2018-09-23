@@ -18,10 +18,13 @@ func main() {
 	di.InitUserService(repository.UserRepositoryImpl{})
 	di.InitTokenService(repository.TokenRepositoryImpl{})
 	di.InitRoleService(repository.RoleRepositoryImpl{})
+	di.InitPrincipalService(repository.PrincipalRepositoryImpl{})
 
 	e := echo.New()
 	e.Validator = &domain.GrantValidator{Validator: validator.New()}
 	e.POST("/v1/users", controller.PostUser)
+	e.POST("/v1/roles", controller.PostRole)
+	e.POST("/v1/principals", controller.PostPrincipal)
 	e.POST("/v1/tokens", controller.PostToken)
 	e.POST("/v1/grants", controller.GrantToken)
 	e.Logger.Fatal(e.Start(":8080"))
