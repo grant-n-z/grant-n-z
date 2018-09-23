@@ -26,7 +26,7 @@ func PostToken(c echo.Context) (err error) {
 	}
 
 	if len(userData.Email) == 0 {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.UnProcessableEntity("010"))
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.NotFound("010"))
 	}
 
 	if !di.ProviderUserService.ComparePw(userData.Password, user.Password) {
