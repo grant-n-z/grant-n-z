@@ -26,16 +26,12 @@ func PostUser(c echo.Context) (err error) {
 	}
 
 	if len(userData.Email) > 0 {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.UnProcessableEntity("004"))
+		return echo.NewHTTPError(http.StatusConflict, handler.Conflict("004"))
 	}
 
 	userData = di.ProviderUserService.InsertUser(*user)
 	if userData == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("005"))
-	}
-
-	if di.ProviderRoleService.InsertRole(userData.Uuid) == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("006"))
 	}
 
 	success := map[string]string {
