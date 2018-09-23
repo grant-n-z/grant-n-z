@@ -14,10 +14,11 @@ func (r RoleService) GetRoleByUserUuid(userUuid string) *entity.Role {
 	return r.RoleRepository.FindByUserUuid(userUuid)
 }
 
-func (r RoleService) InsertRole(userUuid uuid.UUID) *entity.Role {
-	role := entity.Role{
-		Type: "user",
-		UserUuid: userUuid,
-	}
+func (r RoleService) GetRoleByPermission(permission string) *entity.Role {
+	return r.RoleRepository.FindByPermission(permission)
+}
+
+func (r RoleService) InsertRole(role entity.Role) *entity.Role {
+	role.Uuid, _ = uuid.NewV4()
 	return r.RoleRepository.Save(role)
 }
