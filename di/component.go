@@ -10,6 +10,7 @@ var (
 	ProviderUserService service.UserService
 	ProviderTokenService service.TokenService
 	ProviderRoleService service.RoleService
+	ProviderPrincipalService service.PrincipalService
 )
 
 func InitUserService(repo repository.UserRepository) {
@@ -27,5 +28,11 @@ func InitTokenService(repo repository.TokenRepository) {
 func InitRoleService(repo repository.RoleRepository) {
 	ProviderRoleService = service.RoleService{
 		RoleRepository: repo,
+	}
+}
+
+func InitPrincipalService(repo repository.PrincipalRepository) {
+	ProviderPrincipalService = service.PrincipalService{
+		PrincipalRepository: repo,
 	}
 }
