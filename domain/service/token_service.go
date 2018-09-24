@@ -9,24 +9,20 @@ import (
 	"net/http"
 	"github.com/tomoyane/grant-n-z/infra"
 	"github.com/tomoyane/grant-n-z/handler"
+	"github.com/labstack/echo"
 )
 
 type TokenService struct {
 	TokenRepository repository.TokenRepository
 }
 
-func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID, isAdmin bool) string {
+func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID) string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
 	claims["user_uuid"] = userUuid.String()
 	claims["expires"] = time.Now().Add(time.Hour * 365).String()
-	claims["role"] = "user"
-
-	if isAdmin {
-		claims["role"] = "admin"
-	}
 
 	signedToken, err := token.SignedString([]byte(infra.Yaml.App.PrivateKey))
 	if err != nil {
@@ -61,14 +57,9 @@ func (t TokenService) ParseJwt(token string) (map[string]string, bool) {
 		return resultMap, false
 	}
 
-	if _, ok := claims["role"].(string); !ok {
-		return resultMap, false
-	}
-
 	resultMap["username"] = claims["username"].(string)
 	resultMap["user_uuid"] = claims["user_uuid"].(string)
 	resultMap["expires"] = claims["expires"].(string)
-	resultMap["role"] = claims["role"].(string)
 
 	return resultMap, true
 }
@@ -85,4 +76,41 @@ func (t TokenService) InsertToken(userUuid uuid.UUID, token string, refreshToken
 		UserUuid: userUuid,
 	}
 	return t.TokenRepository.Save(data)
+}
+
+func (t TokenService) VerifyToken(c echo.Context, userService UserService,
+	roleService RoleService, token string) (err error) {
+
+	if token == "" {
+		return echo.NewHTTPError(http.StatusUnauthorized, handler.Unauthorized(""))
+	}
+
+	resultMap, result := t.ParseJwt(token)
+	if !result {
+		return echo.NewHTTPError(http.StatusUnauthorized, handler.Unauthorized(""))
+	}
+
+	user := userService.GetUserByUuid(resultMap["username"], resultMap["user_uuid"])
+	if user == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+	}
+
+	if len(user.Email) == 0 {
+		return echo.NewHTTPError(http.StatusUnauthorized, handler.Unauthorized(""))
+	}
+
+	//role := roleService.GetRoleByUserUuid(user.Uuid.String())
+	//if role == nil {
+	//	return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+	//}
+
+	//if len(role.UserUuid) == 0 {
+	//	return echo.NewHTTPError(http.StatusForbidden, handler.Forbidden("019"))
+	//}
+	//
+	//if role.Type != "user" && role.Type != "admin" {
+	//	return echo.NewHTTPError(http.StatusForbidden, handler.Forbidden("020"))
+	//}
+
+	return nil
 }

@@ -12,4 +12,6 @@ type UserRepository interface {
 	Save(user entity.User) *entity.User
 
 	Update(user entity.User) *entity.User
+
+	UpdateUserColumn(user entity.User, column string) *entity.User
 }

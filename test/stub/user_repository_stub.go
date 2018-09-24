@@ -47,3 +47,7 @@ func (u UserRepositoryStub) Update(user entity.User) *entity.User {
 	return &user
 }
 
+func (u UserRepositoryStub) UpdatePassword(user entity.User) *entity.User {
+	return &user
+}
+

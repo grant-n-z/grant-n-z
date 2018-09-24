@@ -47,7 +47,27 @@ func (u UserRepositoryImpl) Save(user entity.User) *entity.User {
 
 // Update to user
 func (u UserRepositoryImpl) Update(user entity.User) *entity.User {
-	if err := infra.Db.Update(&user).Error; err != nil {
+	if err := infra.Db.Save(&user).Error; err != nil {
+		return nil
+	}
+
+	return &user
+}
+
+// Update to user column
+func (u UserRepositoryImpl) UpdateUserColumn(user entity.User, column string) *entity.User {
+	var data string
+
+	switch column {
+	case "username":
+		data = user.Username
+	case "email":
+		data = user.Email
+	case "password":
+		data = user.Password
+	}
+
+	if err := infra.Db.Model(&entity.User{}).Where("email = ?", user.Email).Update(column, data).Error; err != nil {
 		return nil
 	}
 

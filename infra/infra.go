@@ -2,15 +2,15 @@ package infra
 
 import (
 	"github.com/jinzhu/gorm"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/tomoyane/grant-n-z/domain"
 	"os"
+	"fmt"
+	"github.com/tomoyane/grant-n-z/domain/entity"
+	"github.com/tomoyane/grant-n-z/handler"
+	"net/http"
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
-	"github.com/tomoyane/grant-n-z/domain"
-	"github.com/tomoyane/grant-n-z/domain/entity"
-	"fmt"
-	"net/http"
-	"github.com/tomoyane/grant-n-z/handler"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -43,34 +43,35 @@ func InitDB() {
 }
 
 func MigrateDB() {
-	if (!Db.HasTable(&entity.User{})) {
+	if !Db.HasTable(entity.User{}.TableName()) {
 		Db.CreateTable(&entity.User{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.User{})
+		hash, _ := bcrypt.GenerateFromPassword([] byte("admin"), bcrypt.DefaultCost)
+		user := entity.User{
+			Username: "admin",
+			Email: "admin@gmail.com",
+			Password: string(hash),
+		}
+		Db.Create(&user)
 	}
 
-	if (!Db.HasTable(&entity.Principal{})) {
+	if !Db.HasTable(entity.Principal{}.TableName()) {
 		Db.CreateTable(&entity.Principal{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Principal{})
 	}
 
-	if (!Db.HasTable(&entity.Role{})) {
+	if !Db.HasTable(entity.Role{}.TableName()) {
 		Db.CreateTable(&entity.Role{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Role{})
 	}
 
-	if (!Db.HasTable(&entity.Token{})) {
+	if !Db.HasTable(entity.Token{}.TableName()) {
 		Db.CreateTable(&entity.Token{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Token{})
 	}
 
-	if (!Db.HasTable(&entity.Member{})) {
+	if !Db.HasTable(entity.Member{}.TableName()) {
 		Db.CreateTable(&entity.Member{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.Member{})
 	}
 
-	if (!Db.HasTable(&entity.MemberRole{})) {
+	if !Db.HasTable(entity.MemberRole{}.TableName()) {
 		Db.CreateTable(&entity.MemberRole{})
-		Db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&entity.MemberRole{})
 	}
 }
 
