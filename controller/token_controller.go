@@ -33,8 +33,8 @@ func PostToken(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.UnProcessableEntity("011"))
 	}
 
-	tokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid, false)
-	refreshTokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid, false)
+	tokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid)
+	refreshTokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid)
 
 	if tokenStr == "" || refreshTokenStr == ""{
 		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("012"))

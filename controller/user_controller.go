@@ -6,32 +6,15 @@ import (
 	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
-	"github.com/tomoyane/grant-n-z/handler"
 )
 
 func PostUser(c echo.Context) (err error) {
 	user := new(entity.User)
 
-	if err = c.Bind(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest("001"))
-	}
+	result := di.ProviderUserService.PostUserData(c, user)
 
-	if err = c.Validate(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest("002"))
-	}
-
-	userData := di.ProviderUserService.GetUserByEmail(user.Email)
-	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("003"))
-	}
-
-	if len(userData.Email) > 0 {
-		return echo.NewHTTPError(http.StatusConflict, handler.Conflict("004"))
-	}
-
-	userData = di.ProviderUserService.InsertUser(*user)
-	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("005"))
+	if result != nil {
+		return result
 	}
 
 	success := map[string]string {
@@ -40,4 +23,23 @@ func PostUser(c echo.Context) (err error) {
 
 	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/users/" + user.Uuid.String())
 	return c.JSON(http.StatusCreated, success)
+}
+
+func PutUser(c echo.Context) (err error) {
+	token := c.Request().Header.Get("Authorization")
+	column := c.Param("column")
+	user := new(entity.User)
+
+	result := di.ProviderUserService.PutUserColumnData(
+		c, di.ProviderTokenService, di.ProviderRoleService, user, token, column)
+
+	if result != nil {
+		return result
+	}
+
+	success := map[string]string {
+		"message": "ok.",
+	}
+
+	return c.JSON(http.StatusOK, success)
 }
