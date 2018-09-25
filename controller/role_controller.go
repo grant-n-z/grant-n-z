@@ -4,34 +4,24 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"github.com/tomoyane/grant-n-z/domain/entity"
-	"github.com/tomoyane/grant-n-z/handler"
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
 )
 
 func PostRole(c echo.Context) (err error) {
+	token := c.Request().Header.Get("Authorization")
+
+	errAuth := di.ProviderTokenService.VerifyToken(c, token)
+
+	if errAuth != nil {
+		return echo.NewHTTPError(errAuth.Code, errAuth)
+	}
+
 	role := new(entity.Role)
+	roleData, errRole := di.ProviderRoleService.PostRoleData(c, role, token)
 
-	if err = c.Bind(role); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
-	}
-
-	if err = c.Validate(role); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
-	}
-
-	roleData := di.ProviderRoleService.GetRoleByPermission(role.Permission)
-	if roleData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
-	}
-
-	if len(roleData.Permission) > 0 {
-		return echo.NewHTTPError(http.StatusConflict, handler.Conflict(""))
-	}
-
-	roleData = di.ProviderRoleService.InsertRole(*role)
-	if roleData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+	if errRole != nil {
+		return echo.NewHTTPError(errRole.Code, errRole)
 	}
 
 	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/roles/" + role.Uuid.String())

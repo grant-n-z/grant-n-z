@@ -8,16 +8,11 @@ import (
 
 func GrantToken(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
+	errAuth := di.ProviderTokenService.VerifyToken(c, token)
 
-	result := di.ProviderTokenService.VerifyToken(c, di.ProviderUserService, di.ProviderRoleService, token)
-
-	if result != nil {
-		return result
+	if errAuth != nil {
+		return echo.NewHTTPError(errAuth.Code, errAuth)
 	}
 
-	success := map[string]bool {
-		"authority": true,
-	}
-
-	return c.JSON(http.StatusOK, success)
+	return c.JSON(http.StatusOK, map[string]bool {"authority": true})
 }

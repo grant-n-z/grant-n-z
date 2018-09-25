@@ -17,29 +17,26 @@ func PostUser(c echo.Context) (err error) {
 		return result
 	}
 
-	success := map[string]string {
-		"message": "user creation succeeded.",
-	}
-
 	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/users/" + user.Uuid.String())
-	return c.JSON(http.StatusCreated, success)
+	return c.JSON(http.StatusCreated, map[string]string {"message": "user creation succeeded."})
 }
 
 func PutUser(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
 	column := c.Param("column")
+
+	errAuth := di.ProviderTokenService.VerifyToken(c, token)
+
+	if errAuth != nil {
+		return echo.NewHTTPError(errAuth.Code, errAuth)
+	}
+
 	user := new(entity.User)
+	errUser := di.ProviderUserService.PutUserColumnData(c, user, column)
 
-	result := di.ProviderUserService.PutUserColumnData(
-		c, di.ProviderTokenService, di.ProviderRoleService, user, token, column)
-
-	if result != nil {
-		return result
+	if errUser != nil {
+		return echo.NewHTTPError(errUser.Code, errUser)
 	}
 
-	success := map[string]string {
-		"message": "ok.",
-	}
-
-	return c.JSON(http.StatusOK, success)
+	return c.JSON(http.StatusOK, map[string]string {"message": "ok."})
 }
