@@ -12,7 +12,7 @@ import (
 
 func main() {
 	di.InitUserService(repository.UserRepositoryImpl{})
-	di.InitTokenService(repository.TokenRepositoryImpl{})
+	di.InitTokenService(repository.TokenRepositoryImpl{}, repository.UserRepositoryImpl{})
 	di.InitRoleService(repository.RoleRepositoryImpl{})
 	di.InitPrincipalService(repository.PrincipalRepositoryImpl{})
 
