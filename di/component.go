@@ -19,9 +19,10 @@ func InitUserService(repo repository.UserRepository) {
 	}
 }
 
-func InitTokenService(repo repository.TokenRepository) {
+func InitTokenService(tRepo repository.TokenRepository, uRepo repository.UserRepository) {
 	ProviderTokenService = service.TokenService{
-		TokenRepository: repo,
+		TokenRepository: tRepo,
+		UserRepository: uRepo,
 	}
 }
 
