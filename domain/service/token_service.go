@@ -14,6 +14,7 @@ import (
 
 type TokenService struct {
 	TokenRepository repository.TokenRepository
+	UserRepository repository.UserRepository
 }
 
 func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID) string {
@@ -78,25 +79,24 @@ func (t TokenService) InsertToken(userUuid uuid.UUID, token string, refreshToken
 	return t.TokenRepository.Save(data)
 }
 
-func (t TokenService) VerifyToken(c echo.Context, userService UserService,
-	roleService RoleService, token string) (err error) {
+func (t TokenService) VerifyToken(c echo.Context, token string) (*handler.ErrorResponse) {
 
 	if token == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized, handler.Unauthorized(""))
+		return handler.Unauthorized("")
 	}
 
 	resultMap, result := t.ParseJwt(token)
 	if !result {
-		return echo.NewHTTPError(http.StatusUnauthorized, handler.Unauthorized(""))
+		return handler.Unauthorized("")
 	}
 
-	user := userService.GetUserByUuid(resultMap["username"], resultMap["user_uuid"])
+	user := t.UserRepository.FindByUserNameAndUuid(resultMap["username"], resultMap["user_uuid"])
 	if user == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+		return handler.InternalServerError("")
 	}
 
 	if len(user.Email) == 0 {
-		return echo.NewHTTPError(http.StatusUnauthorized, handler.Unauthorized(""))
+		return handler.Unauthorized("")
 	}
 
 	//role := roleService.GetRoleByUserUuid(user.Uuid.String())

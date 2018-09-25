@@ -33,7 +33,7 @@ func (u UserService) GetUserByEmail(email string) *entity.User {
 	return u.UserRepository.FindByEmail(email)
 }
 
-func (u UserService) GetUserByUuid(username string, uuid string) *entity.User {
+func (u UserService) GetUserByNameAndUuid(username string, uuid string) *entity.User {
 	return u.UserRepository.FindByUserNameAndUuid(username, uuid)
 }
 
@@ -79,38 +79,34 @@ func (u UserService) PostUserData(c echo.Context, user *entity.User) (err error)
 	return nil
 }
 
-func (u UserService) PutUserColumnData(c echo.Context, tokeService TokenService, roleService RoleService,
-	user *entity.User, token string, column string) (err error) {
+func (u UserService) PutUserColumnData(c echo.Context, user *entity.User, column string) *handler.ErrorResponse {
 
-	result := tokeService.VerifyToken(c, u, roleService, token)
+	if !strings.Contains(column, "username") &&
+		!strings.EqualFold(column, "email") && !strings.EqualFold(column, "password") {
 
-	if result != nil {
-		return result
-	}
-	if !strings.Contains(column, "username") && !strings.EqualFold(column, "email") && !strings.EqualFold(column, "password") {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+			return handler.BadRequest("")
 	}
 
-	if err = c.Bind(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	if err := c.Bind(user); err != nil {
+		return handler.BadRequest("")
 	}
 
-	if err = c.Validate(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	if err := c.Validate(user); err != nil {
+		return handler.BadRequest("")
 	}
 
 	userData := u.GetUserByEmail(user.Email)
 	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+		return handler.InternalServerError("")
 	}
 
 	if len(userData.Email) == 0 {
-		return echo.NewHTTPError(http.StatusNotFound, handler.NotFound(""))
+		return handler.NotFound("")
 	}
 
 	userData = u.UpdateUserColumn(*user, column)
 	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+		return handler.InternalServerError("")
 	}
 
 	return nil
