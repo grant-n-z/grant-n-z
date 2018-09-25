@@ -25,7 +25,7 @@ func TestGetUserByEmail(t *testing.T) {
 func TestGetUserByUuid(t *testing.T) {
 	username := "test"
 	userUuidStr := "52F6228E-9169-4563-ADE2-07ED697B67BA"
-	userData := di.ProviderUserService.GetUserByUuid(username, userUuidStr)
+	userData := di.ProviderUserService.GetUserByNameAndUuid(username, userUuidStr)
 
 	correctUserUuid, _ := uuid.FromString(correctUserUuid)
 	assert.Equal(t, correctUserName, userData.Username)
