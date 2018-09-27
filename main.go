@@ -15,6 +15,7 @@ func main() {
 	di.InitTokenService(repository.TokenRepositoryImpl{}, repository.UserRepositoryImpl{})
 	di.InitRoleService(repository.RoleRepositoryImpl{})
 	di.InitPrincipalService(repository.PrincipalRepositoryImpl{})
+	di.InitServiceService(repository.ServiceRepositoryImpl{})
 
 	infra.InitYaml()
 	infra.InitDB()
@@ -28,6 +29,9 @@ func main() {
 
 	e.POST("/v1/roles", controller.PostRole)
 	e.POST("/v1/principals", controller.PostPrincipal)
+
+	e.GET("/v1/services", controller.GetService)
+	e.POST("/v1/services", controller.PostService)
 
 	e.POST("/v1/tokens", controller.PostToken)
 	e.POST("/v1/grants", controller.GrantToken)
