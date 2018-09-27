@@ -10,8 +10,14 @@ import (
 )
 
 func PostPrincipal(c echo.Context) (err error) {
-	principal := new(entity.Principal)
+	token := c.Request().Header.Get("Authorization")
+	errAuth := di.ProviderTokenService.VerifyToken(c, token)
 
+	if errAuth != nil {
+		return echo.NewHTTPError(errAuth.Code, errAuth)
+	}
+
+	principal := new(entity.Principal)
 	if err = c.Bind(principal); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
@@ -20,20 +26,11 @@ func PostPrincipal(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	principalData := di.ProviderPrincipalService.GetPrincipalByName(principal.Name)
-	if principalData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
+	principalData, errPrincipal := di.ProviderPrincipalService.PostPrincipalData(principal)
+	if errPrincipal != nil {
+		return echo.NewHTTPError(errPrincipal.Code, errPrincipal)
 	}
 
-	if len(principalData.Name) > 0 {
-		return echo.NewHTTPError(http.StatusConflict, handler.Conflict(""))
-	}
-
-	principalData = di.ProviderPrincipalService.InsertRole(*principal)
-	if principalData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError(""))
-	}
-
-	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/roles/" + principalData.Uuid.String())
+	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/principals/" + principalData.Uuid.String())
 	return c.JSON(http.StatusCreated, principalData)
 }
