@@ -6,11 +6,11 @@ import (
 )
 
 type Principal struct {
-	Id        int       `json:"id"`
-	Name      string    `gorm:"type:varchar(128);not null"validate:"required"json:"name"`
-	Uuid      uuid.UUID `gorm:"type:varchar(128);not null"json:"uuid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `gorm:"primary_key"json:"id"`
+	MemberUuid uuid.UUID `gorm:"type:varchar(128);not null;index:member_uuid"json:"member_uuid"`
+	RoleUuid   uuid.UUID `gorm:"type:varchar(128);not null;index:role_uuid"json:"role_uuid"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (m Principal) TableName() string {
