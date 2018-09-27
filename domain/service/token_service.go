@@ -10,11 +10,21 @@ import (
 	"github.com/tomoyane/grant-n-z/infra"
 	"github.com/tomoyane/grant-n-z/handler"
 	"github.com/labstack/echo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type TokenService struct {
 	TokenRepository repository.TokenRepository
 	UserRepository repository.UserRepository
+}
+
+func (t TokenService) ComparePw(passwordHash string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID) string {
@@ -113,4 +123,33 @@ func (t TokenService) VerifyToken(c echo.Context, token string) (*handler.ErrorR
 	//}
 
 	return nil
+}
+
+func (t TokenService) IssueToken(user *entity.User) (issueToken *entity.Token, errRes *handler.ErrorResponse) {
+	userData := t.UserRepository.FindByEmail(user.Email)
+	if userData == nil {
+		return nil, handler.InternalServerError("")
+	}
+
+	if len(userData.Email) == 0 {
+		return nil, handler.NotFound("")
+	}
+
+	if !t.ComparePw(userData.Password, user.Password) {
+		return nil, handler.UnProcessableEntity("")
+	}
+
+	tokenStr := t.GenerateJwt(userData.Username, userData.Uuid)
+	refreshTokenStr := t.GenerateJwt(userData.Username, userData.Uuid)
+
+	if tokenStr == "" || refreshTokenStr == ""{
+		return nil, handler.InternalServerError("")
+	}
+
+	token := t.InsertToken(userData.Uuid, tokenStr, refreshTokenStr)
+	if token == nil {
+		return nil, handler.InternalServerError("")
+	}
+
+	return token, nil
 }

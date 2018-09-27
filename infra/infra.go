@@ -11,12 +11,17 @@ import (
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/satori/go.uuid"
 )
 
 var (
 	Db *gorm.DB
 	dbSource string
 	Yaml domain.Yml
+	userUuid uuid.UUID
+	roleUuid uuid.UUID
+	serviceUuid uuid.UUID
+	memberUuid uuid.UUID
 )
 
 func InitYaml()  {
@@ -45,33 +50,59 @@ func InitDB() {
 func MigrateDB() {
 	if !Db.HasTable(entity.User{}.TableName()) {
 		Db.CreateTable(&entity.User{})
+		userUuid, _ = uuid.NewV4()
 		hash, _ := bcrypt.GenerateFromPassword([] byte("admin"), bcrypt.DefaultCost)
 		user := entity.User{
 			Username: "admin",
 			Email: "admin@gmail.com",
 			Password: string(hash),
+			Uuid: userUuid,
 		}
 		Db.Create(&user)
 	}
 
-	if !Db.HasTable(entity.Principal{}.TableName()) {
-		Db.CreateTable(&entity.Principal{})
-	}
-
 	if !Db.HasTable(entity.Role{}.TableName()) {
 		Db.CreateTable(&entity.Role{})
+		roleUuid, _ = uuid.NewV4()
+		role := entity.Role{
+			Uuid: roleUuid,
+			Permission: "admin",
+		}
+		Db.Create(&role)
 	}
 
-	if !Db.HasTable(entity.Token{}.TableName()) {
-		Db.CreateTable(&entity.Token{})
+	if !Db.HasTable(entity.Service{}.TableName()) {
+		Db.CreateTable(&entity.Service{})
+		serviceUuid, _ = uuid.NewV4()
+		service := entity.Service{
+			Uuid: serviceUuid,
+			Name: "admin-service",
+		}
+		Db.Create(&service)
 	}
 
 	if !Db.HasTable(entity.Member{}.TableName()) {
 		Db.CreateTable(&entity.Member{})
+		memberUuid, _ = uuid.NewV4()
+		member := entity.Member{
+			Uuid: memberUuid,
+			ServiceUuid: serviceUuid,
+			UserUuid: userUuid,
+		}
+		Db.Create(&member)
 	}
 
-	if !Db.HasTable(entity.MemberRole{}.TableName()) {
-		Db.CreateTable(&entity.MemberRole{})
+	if !Db.HasTable(entity.Principal{}.TableName()) {
+		Db.CreateTable(&entity.Principal{})
+		principal := entity.Principal{
+			MemberUuid: memberUuid,
+			RoleUuid: roleUuid,
+		}
+		Db.Create(&principal)
+	}
+
+	if !Db.HasTable(entity.Token{}.TableName()) {
+		Db.CreateTable(&entity.Token{})
 	}
 }
 
