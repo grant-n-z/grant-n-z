@@ -6,15 +6,23 @@ import (
 	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
+	"strings"
+	"github.com/tomoyane/grant-n-z/handler"
 )
 
 func PostUser(c echo.Context) (err error) {
 	user := new(entity.User)
+	if err := c.Bind(user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	}
 
-	result := di.ProviderUserService.PostUserData(c, user)
+	if err := c.Validate(user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	}
 
-	if result != nil {
-		return result
+	errUser := di.ProviderUserService.PostUserData(user)
+	if errUser != nil {
+		return echo.NewHTTPError(errUser.Code, errUser)
 	}
 
 	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/users/" + user.Uuid.String())
@@ -24,7 +32,6 @@ func PostUser(c echo.Context) (err error) {
 func PutUser(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
 	column := c.Param("column")
-
 	errAuth := di.ProviderTokenService.VerifyToken(c, token)
 
 	if errAuth != nil {
@@ -32,8 +39,21 @@ func PutUser(c echo.Context) (err error) {
 	}
 
 	user := new(entity.User)
-	errUser := di.ProviderUserService.PutUserColumnData(c, user, column)
+	if !strings.Contains(column, "username") &&
+		!strings.EqualFold(column, "email") && !strings.EqualFold(column, "password") {
 
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	}
+
+	if err := c.Bind(user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	}
+
+	if err := c.Validate(user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
+	}
+
+	errUser := di.ProviderUserService.PutUserColumnData(user, column)
 	if errUser != nil {
 		return echo.NewHTTPError(errUser.Code, errUser)
 	}

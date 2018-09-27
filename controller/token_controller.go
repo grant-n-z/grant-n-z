@@ -20,34 +20,11 @@ func PostToken(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest("008"))
 	}
 
-	userData := di.ProviderUserService.GetUserByEmail(user.Email)
-	if userData == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("009"))
+	token, errToken := di.ProviderTokenService.IssueToken(user)
+
+	if errToken != nil {
+		return echo.NewHTTPError(errToken.Code, errToken)
 	}
 
-	if len(userData.Email) == 0 {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.NotFound("010"))
-	}
-
-	if !di.ProviderUserService.ComparePw(userData.Password, user.Password) {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, handler.UnProcessableEntity("011"))
-	}
-
-	tokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid)
-	refreshTokenStr := di.ProviderTokenService.GenerateJwt(userData.Username, userData.Uuid)
-
-	if tokenStr == "" || refreshTokenStr == ""{
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("012"))
-	}
-
-	token := di.ProviderTokenService.InsertToken(userData.Uuid, tokenStr, refreshTokenStr)
-	if token == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, handler.InternalServerError("013"))
-	}
-
-	success := map[string]string {
-		"token": token.Token,
-	}
-
-	return c.JSON(http.StatusOK, success)
+	return c.JSON(http.StatusOK,  map[string]string {"token": token.Token})
 }
