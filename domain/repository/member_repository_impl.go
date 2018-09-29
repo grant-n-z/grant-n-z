@@ -21,3 +21,11 @@ func (m MemberRepositoryImpl) FindByUserUuidAndServiceUuid(userUuid uuid.UUID, s
 
 	return &member
 }
+
+func (m MemberRepositoryImpl) Save(member entity.Member) *entity.Member {
+	if err := infra.Db.Create(&member).Error; err != nil {
+		return nil
+	}
+
+	return &member
+}
