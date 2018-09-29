@@ -10,14 +10,14 @@ import (
 
 func TestEncryptPw(t *testing.T) {
 	password := "test"
-	passwordHash := di.ProviderUserService.EncryptPw(password)
+	passwordHash := di.ProvideUserService.EncryptPw(password)
 
-	assert.Equal(t, true, di.ProviderUserService.ComparePw(passwordHash, password))
+	assert.Equal(t, true, di.ProvideUserService.ComparePw(passwordHash, password))
 }
 
 func TestGetUserByEmail(t *testing.T) {
 	email := "test@gmail.com"
-	userData := di.ProviderUserService.GetUserByEmail(email)
+	userData := di.ProvideUserService.GetUserByEmail(email)
 
 	assert.Equal(t, correctUserName, userData.Username)
 }
@@ -25,7 +25,7 @@ func TestGetUserByEmail(t *testing.T) {
 func TestGetUserByUuid(t *testing.T) {
 	username := "test"
 	userUuidStr := "52F6228E-9169-4563-ADE2-07ED697B67BA"
-	userData := di.ProviderUserService.GetUserByNameAndUuid(username, userUuidStr)
+	userData := di.ProvideUserService.GetUserByNameAndUuid(username, userUuidStr)
 
 	correctUserUuid, _ := uuid.FromString(correctUserUuid)
 	assert.Equal(t, correctUserName, userData.Username)
@@ -39,8 +39,8 @@ func TestInsertUser(t *testing.T) {
 		Password: "21312abcdefg",
 	}
 
-	insertUser := di.ProviderUserService.InsertUser(user)
-	isPassword := di.ProviderUserService.ComparePw(insertUser.Password, correctPassword)
+	insertUser := di.ProvideUserService.InsertUser(user)
+	isPassword := di.ProvideUserService.ComparePw(insertUser.Password, correctPassword)
 
 	assert.Equal(t, correctUserName, insertUser.Username)
 	assert.Equal(t, correctEmail, insertUser.Email)
