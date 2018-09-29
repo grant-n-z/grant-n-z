@@ -20,7 +20,7 @@ func PostUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	errUser := di.ProviderUserService.PostUserData(user)
+	errUser := di.ProvideUserService.PostUserData(user)
 	if errUser != nil {
 		return echo.NewHTTPError(errUser.Code, errUser)
 	}
@@ -32,7 +32,7 @@ func PostUser(c echo.Context) (err error) {
 func PutUser(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
 	column := c.Param("column")
-	errAuth := di.ProviderTokenService.VerifyToken(c, token)
+	errAuth := di.ProvideTokenService.VerifyToken(c, token)
 
 	if errAuth != nil {
 		return echo.NewHTTPError(errAuth.Code, errAuth)
@@ -53,7 +53,7 @@ func PutUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	errUser := di.ProviderUserService.PutUserColumnData(user, column)
+	errUser := di.ProvideUserService.PutUserColumnData(user, column)
 	if errUser != nil {
 		return echo.NewHTTPError(errUser.Code, errUser)
 	}

@@ -11,7 +11,7 @@ import (
 
 func PostRole(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
-	errAuth := di.ProviderTokenService.VerifyToken(c, token)
+	errAuth := di.ProvideTokenService.VerifyToken(c, token)
 
 	if errAuth != nil {
 		return echo.NewHTTPError(errAuth.Code, errAuth)
@@ -26,11 +26,11 @@ func PostRole(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	roleData, errRole := di.ProviderRoleService.PostRoleData(role)
+	roleData, errRole := di.ProvideRoleService.PostRoleData(role)
 	if errRole != nil {
 		return echo.NewHTTPError(errRole.Code, errRole)
 	}
 
-	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/roles/" + role.Uuid.String())
-	return c.JSON(http.StatusCreated, roleData)
+	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/roles/" + roleData.Uuid.String())
+	return c.JSON(http.StatusOK, roleData)
 }

@@ -11,7 +11,7 @@ import (
 
 func PostPrincipal(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
-	errAuth := di.ProviderTokenService.VerifyToken(c, token)
+	errAuth := di.ProvideTokenService.VerifyToken(c, token)
 
 	if errAuth != nil {
 		return echo.NewHTTPError(errAuth.Code, errAuth)
@@ -26,11 +26,11 @@ func PostPrincipal(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	principalData, errPrincipal := di.ProviderPrincipalService.PostPrincipalData(*principalRequest)
+	principalData, errPrincipal := di.ProvidePrincipalService.PostPrincipalData(*principalRequest)
 	if errPrincipal != nil {
 		return echo.NewHTTPError(errPrincipal.Code, errPrincipal)
 	}
 
-	c.Response().Header().Add("Location", infra.GetHostName()+"/v1/principals/" + principalData.Uuid.String())
+	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/principals/" + principalData.Uuid.String())
 	return c.JSON(http.StatusCreated, principalData)
 }

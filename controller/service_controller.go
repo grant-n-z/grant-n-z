@@ -5,6 +5,7 @@ import (
 	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/handler"
+	"github.com/tomoyane/grant-n-z/infra"
 	"net/http"
 )
 
@@ -19,13 +20,14 @@ func PostService(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	serviceData := di.ProviderServiceService.InsertService(service)
+	serviceData := di.ProvideServiceService.InsertService(service)
 
+	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/services/" + serviceData.Uuid.String())
 	return c.JSON(http.StatusOK, serviceData)
 }
 
 func GetService(c echo.Context) (err error) {
-	serviceData := di.ProviderServiceService.GetAll()
+	serviceData := di.ProvideServiceService.GetAll()
 
 	return c.JSON(http.StatusOK, serviceData)
 }

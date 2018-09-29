@@ -20,7 +20,7 @@ func PostToken(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest("008"))
 	}
 
-	token, errToken := di.ProviderTokenService.IssueToken(user)
+	token, errToken := di.ProvideTokenService.IssueToken(user)
 
 	if errToken != nil {
 		return echo.NewHTTPError(errToken.Code, errToken)
