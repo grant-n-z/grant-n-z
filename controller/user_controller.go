@@ -2,12 +2,12 @@ package controller
 
 import (
 	"github.com/labstack/echo"
-	"github.com/tomoyane/grant-n-z/domain/entity"
-	"net/http"
 	"github.com/tomoyane/grant-n-z/di"
-	"github.com/tomoyane/grant-n-z/infra"
-	"strings"
+	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/handler"
+	"github.com/tomoyane/grant-n-z/infra"
+	"net/http"
+	"strings"
 )
 
 func PostUser(c echo.Context) (err error) {

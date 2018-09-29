@@ -1,8 +1,8 @@
 package entity
 
 import (
-	"time"
 	"github.com/satori/go.uuid"
+	"time"
 )
 
 type Token struct {

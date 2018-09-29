@@ -2,11 +2,11 @@ package controller
 
 import (
 	"github.com/labstack/echo"
-	"net/http"
+	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/handler"
-	"github.com/tomoyane/grant-n-z/di"
 	"github.com/tomoyane/grant-n-z/infra"
+	"net/http"
 )
 
 func PostPrincipal(c echo.Context) (err error) {
@@ -17,20 +17,20 @@ func PostPrincipal(c echo.Context) (err error) {
 		return echo.NewHTTPError(errAuth.Code, errAuth)
 	}
 
-	principal := new(entity.Principal)
-	if err = c.Bind(principal); err != nil {
+	principalRequest := new(entity.PrincipalRequest)
+	if err = c.Bind(principalRequest); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	if err = c.Validate(principal); err != nil {
+	if err = c.Validate(principalRequest); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	principalData, errPrincipal := di.ProviderPrincipalService.PostPrincipalData(principal)
+	principalData, errPrincipal := di.ProviderPrincipalService.PostPrincipalData(*principalRequest)
 	if errPrincipal != nil {
 		return echo.NewHTTPError(errPrincipal.Code, errPrincipal)
 	}
 
-	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/principals/" + principalData.Uuid.String())
+	c.Response().Header().Add("Location", infra.GetHostName()+"/v1/principals/" + principalData.Uuid.String())
 	return c.JSON(http.StatusCreated, principalData)
 }

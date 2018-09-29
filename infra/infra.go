@@ -1,30 +1,31 @@
 package infra
 
 import (
-	"github.com/jinzhu/gorm"
-	"github.com/tomoyane/grant-n-z/domain"
-	"os"
 	"fmt"
+	"github.com/jinzhu/gorm"
+	"github.com/satori/go.uuid"
+	"github.com/tomoyane/grant-n-z/domain"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/handler"
-	"net/http"
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/satori/go.uuid"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 var (
-	Db *gorm.DB
-	dbSource string
-	Yaml domain.Yml
-	userUuid uuid.UUID
-	roleUuid uuid.UUID
-	serviceUuid uuid.UUID
-	memberUuid uuid.UUID
+	Db            *gorm.DB
+	dbSource      string
+	Yaml          domain.Yml
+	userUuid      uuid.UUID
+	roleUuid      uuid.UUID
+	serviceUuid   uuid.UUID
+	memberUuid    uuid.UUID
+	principalUuid uuid.UUID
 )
 
-func InitYaml()  {
+func InitYaml() {
 	switch os.Getenv("ENV") {
 	case "test":
 		Yaml = readYml("../app-test.yaml")
@@ -54,9 +55,9 @@ func MigrateDB() {
 		hash, _ := bcrypt.GenerateFromPassword([] byte("admin"), bcrypt.DefaultCost)
 		user := entity.User{
 			Username: "admin",
-			Email: "admin@gmail.com",
+			Email:    "admin@gmail.com",
 			Password: string(hash),
-			Uuid: userUuid,
+			Uuid:     userUuid,
 		}
 		Db.Create(&user)
 	}
@@ -65,7 +66,7 @@ func MigrateDB() {
 		Db.CreateTable(&entity.Role{})
 		roleUuid, _ = uuid.NewV4()
 		role := entity.Role{
-			Uuid: roleUuid,
+			Uuid:       roleUuid,
 			Permission: "admin",
 		}
 		Db.Create(&role)
@@ -85,18 +86,20 @@ func MigrateDB() {
 		Db.CreateTable(&entity.Member{})
 		memberUuid, _ = uuid.NewV4()
 		member := entity.Member{
-			Uuid: memberUuid,
+			Uuid:        memberUuid,
 			ServiceUuid: serviceUuid,
-			UserUuid: userUuid,
+			UserUuid:    userUuid,
 		}
 		Db.Create(&member)
 	}
 
 	if !Db.HasTable(entity.Principal{}.TableName()) {
 		Db.CreateTable(&entity.Principal{})
+		principalUuid, _ = uuid.NewV4()
 		principal := entity.Principal{
+			Uuid: principalUuid,
 			MemberUuid: memberUuid,
-			RoleUuid: roleUuid,
+			RoleUuid:   roleUuid,
 		}
 		Db.Create(&principal)
 	}

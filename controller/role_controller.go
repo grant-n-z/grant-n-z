@@ -2,11 +2,11 @@ package controller
 
 import (
 	"github.com/labstack/echo"
-	"net/http"
-	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/di"
-	"github.com/tomoyane/grant-n-z/infra"
+	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/handler"
+	"github.com/tomoyane/grant-n-z/infra"
+	"net/http"
 )
 
 func PostRole(c echo.Context) (err error) {
@@ -26,7 +26,7 @@ func PostRole(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, handler.BadRequest(""))
 	}
 
-	roleData, errRole := di.ProviderRoleService.PostRoleData(role, token)
+	roleData, errRole := di.ProviderRoleService.PostRoleData(role)
 	if errRole != nil {
 		return echo.NewHTTPError(errRole.Code, errRole)
 	}

@@ -9,6 +9,8 @@ type UserRepository interface {
 
 	FindByUserNameAndUuid(username string, uuidStr string) *entity.User
 
+	FindByUserName(username string) *entity.User
+
 	Save(user entity.User) *entity.User
 
 	Update(user entity.User) *entity.User

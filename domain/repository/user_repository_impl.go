@@ -36,6 +36,20 @@ func (u UserRepositoryImpl) FindByUserNameAndUuid(username string, uuidStr strin
 	return &user
 }
 
+// Find user by user.username
+func (u UserRepositoryImpl) FindByUserName(username string) *entity.User  {
+	user := entity.User{}
+
+	if err := infra.Db.Where("username = ?", username).First(&user).Error; err != nil {
+		if err.Error() == "record not found" {
+			return &entity.User{}
+		}
+		return nil
+	}
+
+	return &user
+}
+
 // Save to user
 func (u UserRepositoryImpl) Save(user entity.User) *entity.User {
 	if err := infra.Db.Create(&user).Error; err != nil {

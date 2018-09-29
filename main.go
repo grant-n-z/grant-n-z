@@ -2,20 +2,21 @@ package main
 
 import (
 	"github.com/labstack/echo"
-	"github.com/tomoyane/grant-n-z/domain"
-	"gopkg.in/go-playground/validator.v9"
 	"github.com/tomoyane/grant-n-z/controller"
-	"github.com/tomoyane/grant-n-z/infra"
 	"github.com/tomoyane/grant-n-z/di"
+	"github.com/tomoyane/grant-n-z/domain"
 	"github.com/tomoyane/grant-n-z/domain/repository"
+	"github.com/tomoyane/grant-n-z/infra"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func main() {
 	di.InitUserService(repository.UserRepositoryImpl{})
-	di.InitTokenService(repository.TokenRepositoryImpl{}, repository.UserRepositoryImpl{})
 	di.InitRoleService(repository.RoleRepositoryImpl{})
-	di.InitPrincipalService(repository.PrincipalRepositoryImpl{})
 	di.InitServiceService(repository.ServiceRepositoryImpl{})
+	di.InitTokenService(repository.TokenRepositoryImpl{}, repository.UserRepositoryImpl{})
+	di.InitPrincipalService(repository.PrincipalRepositoryImpl{}, repository.UserRepositoryImpl{},
+		repository.ServiceRepositoryImpl{}, repository.MemberRepositoryImpl{}, repository.RoleRepositoryImpl{})
 
 	infra.InitYaml()
 	infra.InitDB()

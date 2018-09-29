@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func GrantToken(c echo.Context) (err error) {
+func PostMember(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
 	errAuth := di.ProviderTokenService.VerifyToken(c, token)
 	if errAuth != nil {

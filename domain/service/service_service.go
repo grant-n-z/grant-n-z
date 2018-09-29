@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/domain/repository"
-	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/satori/go.uuid"
+	"github.com/tomoyane/grant-n-z/domain/entity"
+	"github.com/tomoyane/grant-n-z/domain/repository"
 )
 
 type ServiceService struct {

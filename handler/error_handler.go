@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 )
 
 type ErrorResponse struct {

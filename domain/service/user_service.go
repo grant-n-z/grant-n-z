@@ -1,11 +1,11 @@
 package service
 
 import (
-	"golang.org/x/crypto/bcrypt"
+	"github.com/satori/go.uuid"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/domain/repository"
-	"github.com/satori/go.uuid"
 	"github.com/tomoyane/grant-n-z/handler"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {

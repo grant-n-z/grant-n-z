@@ -6,4 +6,6 @@ type ServiceRepository interface {
 	Save(service *entity.Service) *entity.Service
 
 	FindAll() []*entity.Service
+
+	FindByName(name string) *entity.Service
 }

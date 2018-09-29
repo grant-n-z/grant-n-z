@@ -2,8 +2,8 @@ package di
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/tomoyane/grant-n-z/domain/service"
 	"github.com/tomoyane/grant-n-z/domain/repository"
+	"github.com/tomoyane/grant-n-z/domain/service"
 )
 
 var (
@@ -33,9 +33,14 @@ func InitRoleService(repo repository.RoleRepository) {
 	}
 }
 
-func InitPrincipalService(repo repository.PrincipalRepository) {
+func InitPrincipalService(pRepo repository.PrincipalRepository, uRepo repository.UserRepository,
+	sRepo repository.ServiceRepository, mRepo repository.MemberRepository, rRepo repository.RoleRepository) {
 	ProviderPrincipalService = service.PrincipalService{
-		PrincipalRepository: repo,
+		PrincipalRepository: pRepo,
+		UserRepository: uRepo,
+		ServiceRepository: sRepo,
+		MemberRepository: mRepo,
+		RoleRepository: rRepo,
 	}
 }
 

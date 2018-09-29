@@ -13,7 +13,7 @@ func (s ServiceRepositoryImpl) Save(service *entity.Service) *entity.Service {
 		return nil
 	}
 
-	return &service
+	return service
 }
 
 func (s ServiceRepositoryImpl) FindAll() []*entity.Service {
@@ -27,4 +27,17 @@ func (s ServiceRepositoryImpl) FindAll() []*entity.Service {
 	}
 
 	return services
+}
+
+func (s ServiceRepositoryImpl) FindByName(name string) *entity.Service {
+	service := entity.Service{}
+
+	if err := infra.Db.Where("name = ?", name).First(&service).Error; err != nil {
+		if err.Error() == "record not found" {
+			return &entity.Service{}
+		}
+		return nil
+	}
+
+	return &service
 }

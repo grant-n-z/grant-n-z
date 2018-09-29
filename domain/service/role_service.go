@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/satori/go.uuid"
 	"github.com/tomoyane/grant-n-z/domain/entity"
 	"github.com/tomoyane/grant-n-z/domain/repository"
-	"github.com/satori/go.uuid"
 	"github.com/tomoyane/grant-n-z/handler"
 )
 
@@ -24,7 +24,7 @@ func (r RoleService) InsertRole(role entity.Role) *entity.Role {
 	return r.RoleRepository.Save(role)
 }
 
-func (r RoleService) PostRoleData(role *entity.Role, token string) (insertedRole *entity.Role, errRes *handler.ErrorResponse) {
+func (r RoleService) PostRoleData(role *entity.Role) (insertedRole *entity.Role, errRes *handler.ErrorResponse) {
 	roleData := r.GetRoleByPermission(role.Permission)
 	if roleData == nil {
 		return nil, handler.InternalServerError("")
