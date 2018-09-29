@@ -14,6 +14,7 @@ func main() {
 	di.InitUserService(repository.UserRepositoryImpl{})
 	di.InitRoleService(repository.RoleRepositoryImpl{})
 	di.InitServiceService(repository.ServiceRepositoryImpl{})
+	di.InitMemberService(repository.MemberRepositoryImpl{})
 	di.InitTokenService(repository.TokenRepositoryImpl{}, repository.UserRepositoryImpl{})
 	di.InitPrincipalService(repository.PrincipalRepositoryImpl{}, repository.UserRepositoryImpl{},
 		repository.ServiceRepositoryImpl{}, repository.MemberRepositoryImpl{}, repository.RoleRepositoryImpl{})
@@ -29,12 +30,16 @@ func main() {
 	e.PUT("/v1/users/:column", controller.PutUser)
 
 	e.POST("/v1/roles", controller.PostRole)
+
 	e.POST("/v1/principals", controller.PostPrincipal)
+
+	e.POST("/v1/members", controller.PostMember)
 
 	e.GET("/v1/services", controller.GetService)
 	e.POST("/v1/services", controller.PostService)
 
 	e.POST("/v1/tokens", controller.PostToken)
+
 	e.POST("/v1/grants", controller.GrantToken)
 	e.Logger.Fatal(e.Start(":8080"))
 }
