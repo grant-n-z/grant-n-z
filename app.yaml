@@ -3,8 +3,8 @@ app:
   private-key: $GRANT_N_Z_PRIVATE_KEY
 driver: mysql
 db:
-  host: $GRANT_N_Z_MYSQL_HOST
-  user: $GRANT_N_Z_MYSQL_USER
-  password: $GRANT_N_Z_MYSQL_PASS
-  port: $GRANT_N_Z_MYSQL_PORT
-  db: $GRANT_N_Z_MYSQL_DB
+  host: $GRANT_N_Z_HOST
+  user: $GRANT_N_Z_USER
+  password: $GRANT_N_Z_PASSWORD
+  port: $GRANT_N_Z_PORT
+  db: $GRANT_N_Z_DB
