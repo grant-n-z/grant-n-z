@@ -32,11 +32,6 @@ func (yml YmlConfig) GetDataSourceUrl() string {
 	port := yml.DbModel.Port
 	db := yml.DbModel.Db
 
-	fmt.Printf("host = %s\n", host)
-	fmt.Printf("port = %s\n", port)
-	fmt.Printf("db = %s\n", db)
-	fmt.Printf("user = %s\n", user)
-
 	if strings.Contains(user, "$") {
 		user = os.Getenv(yml.DbModel.User[1:])
 	}
@@ -56,6 +51,11 @@ func (yml YmlConfig) GetDataSourceUrl() string {
 	if strings.Contains(db, "$") {
 		db = os.Getenv(yml.DbModel.Db[1:])
 	}
+
+	fmt.Printf("host = %s\n", host)
+	fmt.Printf("port = %s\n", port)
+	fmt.Printf("db = %s\n", db)
+	fmt.Printf("user = %s\n", user)
 
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", user, password, host, port, db)
 }
