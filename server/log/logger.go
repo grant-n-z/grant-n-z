@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+var Logger = NewLogger()
+
 type Log struct {
 	i *log.Logger
 	w *log.Logger
@@ -20,13 +22,13 @@ func NewLogger() Log {
 }
 
 func (l Log) Info(message ...interface{}) {
-	l.i.Println(message)
+	l.i.Println(message...)
 }
 
 func (l Log) Warn(message ...interface{}) {
-	l.w.Println(message)
+	l.w.Println(message...)
 }
 
 func (l Log) Error(message ...interface{}) {
-	l.e.Println(message)
+	l.e.Println(message...)
 }
