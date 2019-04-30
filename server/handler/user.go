@@ -9,43 +9,35 @@ import (
 	"github.com/tomoyane/grant-n-z/server/log"
 )
 
-var logger log.Log
-
 type UserHandler struct {
 	UserService service.UserService
 }
 
 func NewUserHandler() UserHandler {
-	logger = log.NewLogger()
 	return UserHandler{UserService: service.NewUserService()}
 }
 
 func (uh UserHandler) Post(w http.ResponseWriter, r *http.Request) {
-	logger.Info("POST users")
+	log.Logger.Info("POST users")
+	var userEntity *entity.User
 
-	bodyBytes, err := Interceptor(r)
+	body, err := Interceptor(w, r, http.MethodPost)
 	if err != nil {
-		logger.Error("error interceptor")
+		return
+	}
+
+	_ = json.Unmarshal(body, &userEntity)
+	if err := BodyValidator(w, userEntity); err != nil {
+		return
+	}
+
+	if _, err := uh.UserService.InsertUser(userEntity); err != nil {
 		http.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	var user entity.User
-	json.Unmarshal(bodyBytes, &user)
-	if err := BodyValidator(user); err != nil {
-		logger.Info(err.ToJson())
-		http.Error(w, err.ToJson(), err.Code)
-		return
-	}
-
-	if _, err := uh.UserService.InsertUser(user); err != nil {
-		logger.Info(err.ToJson())
-		http.Error(w, err.ToJson(), err.Code)
-		return
-	}
-
-	ok, _ := json.Marshal(map[string]string {"message": "user creation succeeded."})
-	w.WriteHeader(http.StatusOK)
+	res, _ := json.Marshal(map[string]string {"message": "user creation succeeded."})
+	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(ok)
+	_, _ = w.Write(res)
 }
