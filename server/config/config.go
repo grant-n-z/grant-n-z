@@ -39,10 +39,10 @@ func initDb() {
 func initYaml() {
 	switch os.Getenv("ENV") {
 	case test:
-		ymlConfig = readYml("../../app-test.yaml")
+		ymlConfig = readYml("app-test.yaml")
 		dbSource = ymlConfig.GetDataSourceUrl()
 	case development:
-		ymlConfig = readYml("../../app-development.yaml")
+		ymlConfig = readYml("app-development.yaml")
 		dbSource = ymlConfig.GetDataSourceUrl()
 	default:
 		ymlConfig = readYml("app.yaml")
