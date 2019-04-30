@@ -50,10 +50,12 @@ CREATE TABLE users (
 -- The role
 CREATE TABLE roles (
   id int(11) NOT NULL AUTO_INCREMENT,
+  uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- user_services
