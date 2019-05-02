@@ -1,7 +1,8 @@
 app:
   version: 1.0.0
   private-key: $GRANT_N_Z_PRIVATE_KEY
-driver: mysql
+  environment: $GRANT_N_Z_ENV
+  log-level: $GRANT_N_Z_LOG_LEVEL
 db:
   host: $GRANT_N_Z_HOST
   user: $GRANT_N_Z_USER

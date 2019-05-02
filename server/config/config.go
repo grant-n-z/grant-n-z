@@ -11,14 +11,15 @@ import (
 )
 
 const (
-	test        = "test"
-	development = "development"
+	test = "test"
 )
 
 var (
-	Db        *gorm.DB
-	dbSource  string
-	ymlConfig YmlConfig
+	Db          *gorm.DB
+	Environment string
+	LogLevel    string
+	dbSource    string
+	ymlConfig   YmlConfig
 )
 
 func InitConfig() {
@@ -41,12 +42,13 @@ func initYaml() {
 	case test:
 		ymlConfig = readYml("app-test.yaml")
 		dbSource = ymlConfig.GetDataSourceUrl()
-	case development:
-		ymlConfig = readYml("app-development.yaml")
-		dbSource = ymlConfig.GetDataSourceUrl()
+		Environment = ymlConfig.GetAppEnvironment()
+		LogLevel = ymlConfig.GetAppLogLevel()
 	default:
 		ymlConfig = readYml("app.yaml")
 		dbSource = ymlConfig.GetDataSourceUrl()
+		Environment = ymlConfig.GetAppEnvironment()
+		LogLevel = ymlConfig.GetAppLogLevel()
 	}
 }
 

@@ -2,27 +2,28 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/handler"
+	"github.com/tomoyane/grant-n-z/server/log"
 )
 
 func init() {
 	config.InitConfig()
+	log.InitLogger(config.LogLevel)
 }
 
 func main() {
-	fmt.Println("start grant-n-z server :8080")
-
 	userHandler := handler.NewUserHandler()
 	serviceHandler := handler.NewServiceHandler()
 	roleHandler := handler.NewRoleHandler()
 
-	http.HandleFunc("/api/v1/users",  userHandler.Post)
-	http.HandleFunc("/api/v1/services",  serviceHandler.Post)
-	http.HandleFunc("/api/v1/roles",  roleHandler.Post)
+	fmt.Println("start grant-n-z server :8080")
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/api/v1/users",  userHandler.Api)
+	http.HandleFunc("/api/v1/services",  serviceHandler.Api)
+	http.HandleFunc("/api/v1/roles",  roleHandler.Api)
+
+	log.Logger.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -12,9 +12,11 @@ type YmlConfig struct {
 }
 
 type AppConfig struct {
-	Version    string `yaml:"version"`
-	PrivateKey string `yaml:"private-key"`
-	PublicKey  string `yaml:"public-key"`
+	Version     string `yaml:"version"`
+	PrivateKey  string `yaml:"private-key"`
+	PublicKey   string `yaml:"public-key"`
+	Environment string `yaml:"environment"`
+	LogLevel    string `yaml:"log-level"`
 }
 
 type DbConfig struct {
@@ -23,6 +25,14 @@ type DbConfig struct {
 	Password string `yaml:"password"`
 	Port     string `yaml:"port"`
 	Db       string `yaml:"db"`
+}
+
+func (yml YmlConfig) GetAppEnvironment() string {
+	return os.Getenv(yml.App.Environment[1:])
+}
+
+func (yml YmlConfig) GetAppLogLevel() string {
+	return os.Getenv(yml.App.LogLevel[1:])
 }
 
 func (yml YmlConfig) GetDataSourceUrl() string {
@@ -51,11 +61,6 @@ func (yml YmlConfig) GetDataSourceUrl() string {
 	if strings.Contains(db, "$") {
 		db = os.Getenv(yml.DbModel.Db[1:])
 	}
-
-	fmt.Printf("host = %s\n", host)
-	fmt.Printf("port = %s\n", port)
-	fmt.Printf("db = %s\n", db)
-	fmt.Printf("user = %s\n", user)
 
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", user, password, host, port, db)
 }
