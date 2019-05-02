@@ -19,7 +19,17 @@ func main() {
 	serviceHandler := handler.NewServiceHandler()
 	roleHandler := handler.NewRoleHandler()
 
-	fmt.Println("start grant-n-z server :8080")
+	banner := `start grant-n-z server :8080
+___________________________________________________
+    ____                      _      
+   / __/ _    ____   _____ __//_      _____   ____ 
+  / /__ //__ /__ /  /___ //_ __/     /___ /  /__ /
+ / /_ //___///_//_ //  //  //_  === //  // === //__
+/____///   /_____///  //  /__/     //  //     /___/
+___________________________________________________
+High performance authentication and authorization. version is %s
+`
+	fmt.Printf(banner, config.AppVersion)
 
 	http.HandleFunc("/api/v1/users",  userHandler.Api)
 	http.HandleFunc("/api/v1/services",  serviceHandler.Api)

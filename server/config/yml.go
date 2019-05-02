@@ -27,6 +27,10 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
+func (yml YmlConfig) GetAppVersion() string {
+	return yml.App.Version
+}
+
 func (yml YmlConfig) GetAppEnvironment() string {
 	return os.Getenv(yml.App.Environment[1:])
 }

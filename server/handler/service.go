@@ -31,6 +31,7 @@ func (sh ServiceHandler) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceHandler) Get(w http.ResponseWriter, r *http.Request) {
+	log.Logger.Info("GET services")
 }
 
 func (sh ServiceHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +61,9 @@ func (sh ServiceHandler) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceHandler) Put(w http.ResponseWriter, r *http.Request) {
+	log.Logger.Info("PUT services")
 }
 
 func (sh ServiceHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	log.Logger.Info("DELETE services")
 }

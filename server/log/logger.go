@@ -30,7 +30,7 @@ func (l Log) Fatal(v ...interface{}) {
 	log.Fatal(v)
 }
 
-func (l Log) Debug(log ...interface{}) {
+func (l Log) Debug(log ...interface{})  {
 	if strings.EqualFold(l.level, "DEBUG") || strings.EqualFold(l.level, "debug") {
 		l.d.Println(log...)
 	}

@@ -18,6 +18,7 @@ var (
 	Db          *gorm.DB
 	Environment string
 	LogLevel    string
+	AppVersion  string
 	dbSource    string
 	ymlConfig   YmlConfig
 )
@@ -44,11 +45,13 @@ func initYaml() {
 		dbSource = ymlConfig.GetDataSourceUrl()
 		Environment = ymlConfig.GetAppEnvironment()
 		LogLevel = ymlConfig.GetAppLogLevel()
+		AppVersion = ymlConfig.GetAppVersion()
 	default:
 		ymlConfig = readYml("app.yaml")
 		dbSource = ymlConfig.GetDataSourceUrl()
 		Environment = ymlConfig.GetAppEnvironment()
 		LogLevel = ymlConfig.GetAppLogLevel()
+		AppVersion = ymlConfig.GetAppVersion()
 	}
 }
 
