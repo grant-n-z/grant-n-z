@@ -10,8 +10,8 @@ import (
 	"github.com/tomoyane/grant-n-z/server/log"
 )
 
-func Interceptor(w http.ResponseWriter, r *http.Request, method string) ([]byte, *entity.ErrorResponse) {
-	if err := httpValidator(r, method); err != nil {
+func Interceptor(w http.ResponseWriter, r *http.Request) ([]byte, *entity.ErrorResponse) {
+	if err := httpValidator(r); err != nil {
 		log.Logger.Warn("error http validation", err.Detail)
 		http.Error(w, err.ToJson(), err.Code)
 		return nil, err
@@ -27,12 +27,7 @@ func Interceptor(w http.ResponseWriter, r *http.Request, method string) ([]byte,
 	return bodyBytes, nil
 }
 
-func httpValidator(r *http.Request, method string) *entity.ErrorResponse {
-	if r.Method != method {
-		log.Logger.Warn("not allow http method")
-		return entity.MethodNotAllowed()
-	}
-
+func httpValidator(r *http.Request) *entity.ErrorResponse {
 	if r.Header.Get("Content-Type") != "application/json" {
 		log.Logger.Warn("not allow content-type")
 		return entity.BadRequest()

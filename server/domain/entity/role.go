@@ -6,9 +6,10 @@ import (
 )
 
 type Role struct {
-	Id        int       `gorm:"primary_key"json:"id"`
-	Uuid      uuid.UUID `gorm:"type:varchar(128)"json:"uuid"`
-	Name      string    `gorm:"unique;type:varchar(128)"validate:"required"json:"name"`
+	Id        int       `json:"id"`
+	Uuid      uuid.UUID `json:"uuid"`
+	Name      string    `validate:"required"json:"name"`
+	ServiceId int       `validate:"required"json:"service_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

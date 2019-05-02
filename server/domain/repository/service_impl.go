@@ -11,6 +11,15 @@ import (
 type ServiceRepositoryImpl struct {
 }
 
+func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *entity.ErrorResponse) {
+	service := entity.Service{}
+	if err := config.Db.Where("id = ?", id).First(&service).Error; err != nil {
+		return nil, entity.InternalServerError(err.Error())
+	}
+
+	return &service, nil
+}
+
 func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *entity.ErrorResponse) {
 	if err := config.Db.Create(&service).Error; err != nil {
 		errRes := entity.Conflict(err.Error())
