@@ -11,6 +11,19 @@ import (
 type UserRepositoryImpl struct {
 }
 
+func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *entity.ErrorResponse) {
+	var user *entity.User
+	if err := config.Db.Where("id = ?", id).Find(&user).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, entity.InternalServerError(err.Error())
+	}
+
+	return user, nil
+}
+
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *entity.ErrorResponse) {
 	if err := config.Db.Create(&user).Error; err != nil {
 		errRes := entity.Conflict(err.Error())

@@ -14,7 +14,7 @@ type UserHandler struct {
 }
 
 func NewUserHandler() UserHandler {
-	log.Logger.Debug("inject `UserService` to `UserHandler`")
+	log.Logger.Info("inject `UserService` to `UserHandler`")
 	return UserHandler{UserService: service.NewUserService()}
 }
 

@@ -14,8 +14,16 @@ func NewServiceService() Service {
 	return Service{ServiceRepository: repository.ServiceRepositoryImpl{}}
 }
 
-func (ss Service) GetService(id int) (*entity.Service, *entity.ErrorResponse)  {
+func (ss Service) GetServices() ([]*entity.Service, *entity.ErrorResponse)  {
+	return ss.ServiceRepository.FindAll()
+}
+
+func (ss Service) GetServiceById(id int) (*entity.Service, *entity.ErrorResponse)  {
 	return ss.ServiceRepository.FindById(id)
+}
+
+func (ss Service) GetServiceByName(name string) (*entity.Service, *entity.ErrorResponse)  {
+	return ss.ServiceRepository.FindByName(name)
 }
 
 func (ss Service) InsertService(service *entity.Service) (*entity.Service, *entity.ErrorResponse) {

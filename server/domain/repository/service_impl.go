@@ -11,9 +11,39 @@ import (
 type ServiceRepositoryImpl struct {
 }
 
+func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *entity.ErrorResponse) {
+	var services []*entity.Service
+	if err := config.Db.Find(&services).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, entity.InternalServerError(err.Error())
+	}
+
+	return services, nil
+}
+
 func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *entity.ErrorResponse) {
 	service := entity.Service{}
 	if err := config.Db.Where("id = ?", id).First(&service).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, entity.InternalServerError(err.Error())
+	}
+
+	return &service, nil
+}
+
+func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *entity.ErrorResponse) {
+	service := entity.Service{}
+	if err := config.Db.Where("name = ?", name).First(&service).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
 		return nil, entity.InternalServerError(err.Error())
 	}
 

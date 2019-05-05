@@ -63,16 +63,10 @@ CREATE TABLE roles (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
-  service_id int(11) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE (name),
-  INDEX (service_id),
-  CONSTRAINT fk_roles_service_id
-  FOREIGN KEY (service_id)
-  REFERENCES services (id)
-  ON DELETE RESTRICT ON UPDATE RESTRICT
+  UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- role_members
@@ -82,6 +76,7 @@ CREATE TABLE role_members (
   user_id int(11) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (user_id),
   PRIMARY KEY (id),
   CONSTRAINT fk_role_members_role_id
   FOREIGN KEY (role_id)

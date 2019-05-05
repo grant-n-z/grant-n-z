@@ -2,24 +2,19 @@ package handler
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"github.com/tomoyane/grant-n-z/server/domain/entity"
 	"github.com/tomoyane/grant-n-z/server/domain/service"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"net/http"
 )
 
 type RoleHandler struct {
 	RoleService service.RoleService
-	Service     service.Service
 }
 
 func NewRoleHandler() RoleHandler {
-	log.Logger.Debug("inject `Service`, `RoleService` to `RoleHandler`")
-	return RoleHandler{
-		RoleService: service.NewRoleService(),
-		Service:     service.NewServiceService(),
-	}
+	log.Logger.Info("inject `Service`, `RoleService` to `RoleHandler`")
+	return RoleHandler{RoleService: service.NewRoleService()}
 }
 
 func (rh RoleHandler) Api(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +30,24 @@ func (rh RoleHandler) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rh RoleHandler) Get(w http.ResponseWriter, r *http.Request) {
+	log.Logger.Info("GET roles list")
+	var result interface{}
+
+	roleEntities, err := rh.RoleService.GetRoles()
+	if err != nil {
+		http.Error(w, err.ToJson(), err.Code)
+		return
+	}
+
+	if roleEntities == nil {
+		result = []string{}
+	} else {
+		result = roleEntities
+	}
+
+	res, _ := json.Marshal(result)
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(res)
 }
 
 func (rh RoleHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -48,12 +61,6 @@ func (rh RoleHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.Unmarshal(body, &roleEntity)
 	if err := BodyValidator(w, roleEntity); err != nil {
-		return
-	}
-
-	if serviceEntity, _ := rh.Service.GetService(roleEntity.ServiceId); serviceEntity == nil {
-		err = entity.BadRequest()
-		http.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

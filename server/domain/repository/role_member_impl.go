@@ -8,12 +8,12 @@ import (
 	"github.com/tomoyane/grant-n-z/server/log"
 )
 
-type RoleRepositoryImpl struct {
+type RoleMemberRepositoryImpl struct {
 }
 
-func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *entity.ErrorResponse) {
-	var roles []*entity.Role
-	if err := config.Db.Find(&roles).Error; err != nil {
+func (rmri RoleMemberRepositoryImpl) FindAll() ([]*entity.RoleMember, *entity.ErrorResponse) {
+	var roleMembers []*entity.RoleMember
+	if err := config.Db.Find(&roleMembers).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -21,12 +21,12 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *entity.ErrorResponse) 
 		return nil, entity.InternalServerError(err.Error())
 	}
 
-	return roles, nil
+	return roleMembers, nil
 }
 
-func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *entity.ErrorResponse) {
-	var role *entity.Role
-	if err := config.Db.Where("id = ?", id).Find(&role).Error; err != nil {
+func (rmri RoleMemberRepositoryImpl) FindByUserId(userId int) ([]*entity.RoleMember, *entity.ErrorResponse) {
+	var roleMembers []*entity.RoleMember
+	if err := config.Db.Where("user_id = ?", userId).Find(&roleMembers).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -34,11 +34,11 @@ func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *entity.ErrorRespo
 		return nil, entity.InternalServerError(err.Error())
 	}
 
-	return role, nil
+	return roleMembers, nil
 }
 
-func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *entity.ErrorResponse) {
-	if err := config.Db.Create(&role).Error; err != nil {
+func (rmri RoleMemberRepositoryImpl) Save(roleMember entity.RoleMember) (*entity.RoleMember, *entity.ErrorResponse) {
+	if err := config.Db.Create(&roleMember).Error; err != nil {
 		errRes := entity.Conflict(err.Error())
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
@@ -49,5 +49,5 @@ func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *entity.Erro
 		return nil, entity.InternalServerError(err.Error())
 	}
 
-	return &role, nil
+	return &roleMember, nil
 }

@@ -1,12 +1,13 @@
 package service
 
 import (
-	"github.com/satori/go.uuid"
-	"github.com/tomoyane/grant-n-z/server/log"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/satori/go.uuid"
 
 	"github.com/tomoyane/grant-n-z/server/domain/entity"
 	"github.com/tomoyane/grant-n-z/server/domain/repository"
+	"github.com/tomoyane/grant-n-z/server/log"
 )
 
 type UserService struct {
@@ -30,6 +31,10 @@ func (us UserService) ComparePw(passwordHash string, password string) bool {
 	}
 
 	return true
+}
+
+func (us UserService) GetUserById(id int) (*entity.User, *entity.ErrorResponse) {
+	return us.UserRepository.FindById(id)
 }
 
 func (us UserService) InsertUser(user *entity.User) (*entity.User, *entity.ErrorResponse) {

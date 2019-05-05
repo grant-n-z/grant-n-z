@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/tomoyane/grant-n-z/server/domain/entity"
 	"github.com/tomoyane/grant-n-z/server/domain/service"
@@ -14,11 +15,12 @@ type ServiceHandler struct {
 }
 
 func NewServiceHandler() ServiceHandler {
-	log.Logger.Debug("inject `Service` to `ServiceHandler`")
+	log.Logger.Info("inject `Service` to `ServiceHandler`")
 	return ServiceHandler{Service: service.NewServiceService()}
 }
 
 func (sh ServiceHandler) Api(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodGet: sh.Get(w, r)
 	case http.MethodPost: sh.Post(w, r)
@@ -31,7 +33,42 @@ func (sh ServiceHandler) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceHandler) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET services")
+	var result interface{}
+	name := r.URL.Query().Get(entity.SERVICE_NAME.String())
+
+	if !strings.EqualFold(name, "") {
+		log.Logger.Info("GET services by name")
+
+		serviceEntity, err := sh.Service.GetServiceByName(name)
+		if err != nil {
+			http.Error(w, err.ToJson(), err.Code)
+			return
+		}
+
+		if serviceEntity == nil {
+			result = map[string]string{}
+		} else {
+			result = serviceEntity
+		}
+	} else {
+		log.Logger.Info("GET services list")
+
+		serviceEntities, err := sh.Service.GetServices()
+		if err != nil {
+			http.Error(w, err.ToJson(), err.Code)
+			return
+		}
+
+		if serviceEntities == nil {
+			result = []string{}
+		} else {
+			result = serviceEntities
+		}
+	}
+
+	res, _ := json.Marshal(result)
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(res)
 }
 
 func (sh ServiceHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +93,6 @@ func (sh ServiceHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(serviceEntity)
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(res)
 }
 
