@@ -15,6 +15,7 @@ type UserService struct {
 }
 
 func NewUserService() UserService {
+	log.Logger.Info("inject `UserRepository` to `UserService`")
 	return UserService{UserRepository: repository.UserRepositoryImpl{}}
 }
 

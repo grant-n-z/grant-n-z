@@ -5,6 +5,7 @@ import (
 
 	"github.com/tomoyane/grant-n-z/server/domain/entity"
 	"github.com/tomoyane/grant-n-z/server/domain/repository"
+	"github.com/tomoyane/grant-n-z/server/log"
 )
 
 type RoleService struct {
@@ -12,6 +13,7 @@ type RoleService struct {
 }
 
 func NewRoleService() RoleService {
+	log.Logger.Info("inject `RoleRepository` to `RoleService`")
 	return RoleService{RoleRepository: repository.RoleRepositoryImpl{}}
 }
 

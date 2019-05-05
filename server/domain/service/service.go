@@ -4,6 +4,8 @@ import (
 	"github.com/satori/go.uuid"
 	"github.com/tomoyane/grant-n-z/server/domain/entity"
 	"github.com/tomoyane/grant-n-z/server/domain/repository"
+	"github.com/tomoyane/grant-n-z/server/log"
+	"strings"
 )
 
 type Service struct {
@@ -11,7 +13,39 @@ type Service struct {
 }
 
 func NewServiceService() Service {
+	log.Logger.Info("inject `ServiceRepository` to `Service`")
 	return Service{ServiceRepository: repository.ServiceRepositoryImpl{}}
+}
+
+func (ss Service) Get(queryParam string) (interface{}, *entity.ErrorResponse)  {
+	var result interface{}
+
+	if !strings.EqualFold(queryParam, "") {
+		serviceEntity, err := ss.GetServiceByName(queryParam)
+		if err != nil {
+			return nil, err
+		}
+
+		if serviceEntity == nil {
+			result = map[string]string{}
+		} else {
+			result = serviceEntity
+		}
+
+	} else {
+		serviceEntities, err := ss.GetServices()
+		if err != nil {
+			return nil, err
+		}
+
+		if serviceEntities == nil {
+			result = []string{}
+		} else {
+			result = serviceEntities
+		}
+	}
+
+	return result, nil
 }
 
 func (ss Service) GetServices() ([]*entity.Service, *entity.ErrorResponse)  {

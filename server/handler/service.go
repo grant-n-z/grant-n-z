@@ -2,12 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"net/http"
-	"strings"
-
 	"github.com/tomoyane/grant-n-z/server/domain/entity"
 	"github.com/tomoyane/grant-n-z/server/domain/service"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"net/http"
 )
 
 type ServiceHandler struct {
@@ -33,37 +31,13 @@ func (sh ServiceHandler) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceHandler) Get(w http.ResponseWriter, r *http.Request) {
-	var result interface{}
+	log.Logger.Info("GET services")
 	name := r.URL.Query().Get(entity.SERVICE_NAME.String())
 
-	if !strings.EqualFold(name, "") {
-		log.Logger.Info("GET services by name")
-
-		serviceEntity, err := sh.Service.GetServiceByName(name)
-		if err != nil {
-			http.Error(w, err.ToJson(), err.Code)
-			return
-		}
-
-		if serviceEntity == nil {
-			result = map[string]string{}
-		} else {
-			result = serviceEntity
-		}
-	} else {
-		log.Logger.Info("GET services list")
-
-		serviceEntities, err := sh.Service.GetServices()
-		if err != nil {
-			http.Error(w, err.ToJson(), err.Code)
-			return
-		}
-
-		if serviceEntities == nil {
-			result = []string{}
-		} else {
-			result = serviceEntities
-		}
+	result, err := sh.Service.Get(name)
+	if err != nil {
+		http.Error(w, err.ToJson(), err.Code)
+		return
 	}
 
 	res, _ := json.Marshal(result)
