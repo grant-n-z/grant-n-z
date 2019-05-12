@@ -1,35 +1,18 @@
 package handler
 
 import (
-	"fmt"
-	"github.com/labstack/echo"
-	"github.com/tomoyane/grant-n-z/server/di"
-	"github.com/tomoyane/grant-n-z/server/domain"
-	"github.com/tomoyane/grant-n-z/server/domain/repository"
-	"gopkg.in/go-playground/validator.v9"
 	"os"
 	"testing"
-)
 
-var(
-	e = echo.New()
+	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/log"
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("ENV", "test")
+	_ = os.Setenv("APP_ENV", "test")
+	config.InitConfig()
+	log.InitLogger(config.LogLevel)
 
-	di.InitUserService(repository.UserRepositoryStub{})
-	di.InitTokenService(repository.TokenRepositoryStub{})
-	di.InitRoleService(repository.RoleRepositoryStub{})
-
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-
-	code := m.Run()
-
-	fmt.Println("Done controller packge")
-
-	os.Exit(code)
+	ret := m.Run()
+	os.Exit(ret)
 }
-
-
-

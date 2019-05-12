@@ -1,85 +1,51 @@
 package handler
 
 import (
-	"encoding/json"
-	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
-	"github.com/tomoyane/grant-n-z/server/domain"
-	"github.com/tomoyane/grant-n-z/server/domain/entity"
-	"gopkg.in/go-playground/validator.v9"
-	"net/http"
-	"net/http/httptest"
+	"fmt"
 	"strings"
 	"testing"
+
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/satori/go.uuid"
+
+	"github.com/tomoyane/grant-n-z/server/entity"
 )
 
-func TestCreateUser(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+const (
+	endpointUsers = "/api/v1/users"
+)
 
-	user := entity.User {
-		Username: "test",
-		Email: "test1@gmail.com",
-		Password: "21312abcdefg",
-	}
-	userData, _ := json.Marshal(user)
-
-	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+func TestUserHandlerGet(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, endpointUsers, nil)
 	recorder := httptest.NewRecorder()
-	c := e.NewContext(request, recorder)
 
-	if assert.NoError(t, PostUser(c)) {
-		assert.Equal(t, http.StatusCreated, recorder.Code)
-	}
+	NewUserHandler().Get(recorder, request)
+	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
-func TestCreateUserBadRequest01(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+func TestUserHandlerPost(t *testing.T) {
+	id, _ := uuid.NewV4()
+	username := "unit_test"
+	email := fmt.Sprintf("%s@unittest.com", id.String())
+	password := "unittest1234"
 
-	inCorrectData := `{"key":"value"}`
-
-	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(inCorrectData))
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	recorder := httptest.NewRecorder()
-	c := e.NewContext(request, recorder)
-
-	assert.Error(t, PostUser(c))
-}
-
-func TestCreateUserBadRequest02(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-
-	// Incorrect validation
-	user := entity.User {
-		Username: "test123456789",
-		Email: "testgmail.com",
-		Password: "2131",
+	user := entity.User{
+		Username: username,
+		Email: email,
+		Password: password,
 	}
-	userData, _ := json.Marshal(user)
 
-	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	body, _:= json.Marshal(user)
+
+	request := httptest.NewRequest(http.MethodPost, endpointUsers, strings.NewReader(string(body)))
+	request.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
-	c := e.NewContext(request, recorder)
 
-	assert.Error(t, PostUser(c))
-}
-
-func TestCreateUserUnProcessableEntity(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
-
-	// Already exit user
-	user := entity.User {
-		Username: "test123456789",
-		Email: "test2@gmail.com",
-		Password: "21312abcdefg",
-	}
-	userData, _ := json.Marshal(user)
-
-	request := httptest.NewRequest(echo.POST, "/v1/users", strings.NewReader(string(userData)))
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	recorder := httptest.NewRecorder()
-	c := e.NewContext(request, recorder)
-
-	assert.Error(t, PostUser(c))
+	NewUserHandler().Post(recorder, request)
+	assert.Equal(t, http.StatusCreated, recorder.Code)
 }

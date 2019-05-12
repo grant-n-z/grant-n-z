@@ -2,23 +2,31 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/handler"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/router"
 )
 
 func init() {
 	config.InitConfig()
 	log.InitLogger(config.LogLevel)
+	log.Logger.Debug("Completed init process")
 }
 
 func main() {
-	userHandler := handler.NewUserHandler()
-	serviceHandler := handler.NewServiceHandler()
-	roleHandler := handler.NewRoleHandler()
-	roleMemberHandler := handler.NewRoleMemberHandler()
+	route := router.Router{
+		UserHandler:        handler.NewUserHandler(),
+		ServiceHandler:     handler.NewServiceHandler(),
+		RoleHandler:        handler.NewRoleHandler(),
+		RoleMemberHandler:  handler.NewRoleMemberHandler(),
+		UserServiceHandler: handler.NewUserServiceHandler(),
+		PermissionHandler:  handler.NewPermissionHandler(),
+		PolicyHandler:      handler.NewPolicyHandlerHandler(),
+	}
+
+	route.V1()
 
 	banner := `start grant-n-z server :8080
 ___________________________________________________
@@ -31,16 +39,6 @@ ___________________________________________________
 High performance authentication and authorization. version is %s
 `
 	fmt.Printf(banner, config.AppVersion)
-	log.Logger.Debug("routing info")
-	log.Logger.Debug("method: POST routing: /api/v1/users")
-	log.Logger.Debug("method: POST,GET routing: /api/v1/services")
-	log.Logger.Debug("method: POST,GET routing: /api/v1/roles")
-	log.Logger.Debug("method: POST,GET routing: /api/v1/role-members")
 
-	http.HandleFunc("/api/v1/users",  userHandler.Api)
-	http.HandleFunc("/api/v1/services",  serviceHandler.Api)
-	http.HandleFunc("/api/v1/roles",  roleHandler.Api)
-	http.HandleFunc("/api/v1/role-members",  roleMemberHandler.Api)
-
-	log.Logger.Fatal(http.ListenAndServe(":8080", nil))
+	route.Run(":8080")
 }

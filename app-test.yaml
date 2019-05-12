@@ -1,10 +1,11 @@
 app:
   version: 1.0.0
-  private-key: testtest
-driver: mysql
+  private-key: test
+  environment: test
+  log-level: $GRANT_N_Z_LOG_LEVEL
 db:
-  host: $GRANT_N_Z_MYSQL_HOST
-  user: $GRANT_N_Z_MYSQL_USER
-  password: $GRANT_N_Z_MYSQL_PASS
-  port: $GRANT_N_Z_MYSQL_PORT
-  db: $GRANT_N_Z_MYSQL_DB
+  host: $GRANT_N_Z_HOST
+  user: $GRANT_N_Z_USER
+  password: $GRANT_N_Z_PASSWORD
+  port: $GRANT_N_Z_PORT
+  db: $GRANT_N_Z_DB

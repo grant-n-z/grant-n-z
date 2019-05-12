@@ -6,7 +6,7 @@ import (
 
 	"gopkg.in/go-playground/validator.v9"
 
-	"github.com/tomoyane/grant-n-z/server/domain/entity"
+	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 )
 

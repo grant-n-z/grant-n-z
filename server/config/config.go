@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	test = "test"
+	test   = "test"
+	appEnv = "APP_ENV"
 )
 
 var (
@@ -39,9 +40,9 @@ func initDb() {
 }
 
 func initYaml() {
-	switch os.Getenv("ENV") {
+	switch os.Getenv(appEnv) {
 	case test:
-		ymlConfig = readYml("app-test.yaml")
+		ymlConfig = readYml("../../app-test.yaml")
 		dbSource = ymlConfig.GetDataSourceUrl()
 		Environment = ymlConfig.GetAppEnvironment()
 		LogLevel = ymlConfig.GetAppLogLevel()
