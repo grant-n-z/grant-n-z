@@ -58,10 +58,12 @@ func (rms roleMemberServiceImpl) GetRoleMemberByUserId(userId int) ([]*entity.Ro
 
 func (rms roleMemberServiceImpl) InsertRoleMember(roleMember *entity.RoleMember) (*entity.RoleMember, *entity.ErrorResponse) {
 	if userEntity, _ := rms.userRepository.FindById(roleMember.UserId); userEntity == nil {
+		log.Logger.Warn("Not found user id")
 		return nil, entity.BadRequest("Not found user id")
 	}
 
 	if roleEntity, _ := rms.roleRepository.FindById(roleMember.RoleId); roleEntity == nil {
+		log.Logger.Warn("Not found role id")
 		return nil, entity.BadRequest("Not found role id")
 	}
 

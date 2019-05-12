@@ -30,11 +30,11 @@ func TestRoleHandlerPost(t *testing.T) {
 	id, _ := uuid.NewV4()
 	name := fmt.Sprintf("unit_test_%s", id.String())
 
-	service := entity.Role{
+	role := entity.Role{
 		Name: name,
 	}
 
-	body, _:= json.Marshal(service)
+	body, _:= json.Marshal(role)
 
 	request := httptest.NewRequest(http.MethodPost, endpointRoles, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")

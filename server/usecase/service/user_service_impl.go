@@ -62,10 +62,12 @@ func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity
 
 func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *entity.ErrorResponse) {
 	if userEntity, _ := uss.userRepository.FindById(userService.UserId); userEntity == nil {
+		log.Logger.Warn("Not found user id")
 		return nil, entity.BadRequest("Not found user id")
 	}
 
 	if serviceEntity, _ := uss.serviceRepository.FindById(userService.ServiceId); serviceEntity == nil {
+		log.Logger.Warn("Not found service id")
 		return nil, entity.BadRequest("Not found service id")
 	}
 

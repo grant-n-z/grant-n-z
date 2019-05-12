@@ -14,7 +14,7 @@ type UserRepositoryImpl struct {
 }
 
 func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *entity.ErrorResponse) {
-	var user *entity.User
+	user := entity.User{}
 	if err := uri.Db.Where("id = ?", id).Find(&user).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -23,7 +23,7 @@ func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *entity.ErrorRespo
 		return nil, entity.InternalServerError(err.Error())
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *entity.ErrorResponse) {

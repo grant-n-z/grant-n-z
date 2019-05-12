@@ -1,12 +1,18 @@
 package handler
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/tomoyane/grant-n-z/server/entity"
 )
 
 const (
@@ -23,4 +29,20 @@ func TestPermissionHandlerGet(t *testing.T) {
 }
 
 func TestPermissionHandlerPost(t *testing.T) {
+	id, _ := uuid.NewV4()
+	name := fmt.Sprintf("unit_test_%s", id.String())
+
+	permission := entity.Permission{
+		Name: name,
+	}
+
+	body, _:= json.Marshal(permission)
+
+	request := httptest.NewRequest(http.MethodPost, endpointPermissions, strings.NewReader(string(body)))
+	request.Header.Set("Content-Type", "application/json")
+	recorder := httptest.NewRecorder()
+
+	NewPermissionHandler().Post(recorder, request)
+	assert.Equal(t, http.StatusCreated, recorder.Code)
+
 }

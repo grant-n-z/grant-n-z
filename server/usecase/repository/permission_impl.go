@@ -27,8 +27,8 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *entity.Err
 }
 
 func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *entity.ErrorResponse) {
-	var permissions *entity.Permission
-	if err := pri.Db.Where("role_id = ?", id).Find(&permissions).Error; err != nil {
+	permissions := entity.Permission{}
+	if err := pri.Db.Where("id = ?", id).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -36,7 +36,7 @@ func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *entit
 		return nil, entity.InternalServerError(err.Error())
 	}
 
-	return permissions, nil
+	return &permissions, nil
 }
 
 func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, *entity.ErrorResponse) {

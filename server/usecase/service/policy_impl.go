@@ -58,10 +58,12 @@ func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *
 
 func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *entity.ErrorResponse) {
 	if permissionEntity, _ := ps.permissionRepository.FindById(policy.PermissionId); permissionEntity == nil {
+		log.Logger.Warn("Not found permission id")
 		return nil, entity.BadRequest("Not found permission id")
 	}
 
 	if roleEntity, _ := ps.roleRepository.FindById(policy.RoleId); roleEntity == nil {
+		log.Logger.Warn("Not found role id")
 		return nil, entity.BadRequest("Not found role id")
 	}
 

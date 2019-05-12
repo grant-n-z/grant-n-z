@@ -27,7 +27,7 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *entity.ErrorResponse) 
 }
 
 func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *entity.ErrorResponse) {
-	var role *entity.Role
+	role := entity.Role{}
 	if err := rri.Db.Where("id = ?", id).Find(&role).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -36,7 +36,7 @@ func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *entity.ErrorRespo
 		return nil, entity.InternalServerError(err.Error())
 	}
 
-	return role, nil
+	return &role, nil
 }
 
 func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *entity.ErrorResponse) {
