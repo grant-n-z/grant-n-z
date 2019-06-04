@@ -2,10 +2,13 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/tomoyane/grant-n-z/server/entity"
-	"github.com/tomoyane/grant-n-z/server/usecase/service"
-	"github.com/tomoyane/grant-n-z/server/log"
 	"net/http"
+
+	"github.com/tomoyane/grant-n-z/server/entity"
+	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
+
+	"github.com/tomoyane/grant-n-z/server/usecase/service"
 )
 
 type ServiceHandlerImpl struct {
@@ -25,7 +28,7 @@ func (sh ServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut: sh.Put(w, r)
 	case http.MethodDelete: sh.Delete(w, r)
 	default:
-		err := entity.MethodNotAllowed()
+		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
 	}
 }
