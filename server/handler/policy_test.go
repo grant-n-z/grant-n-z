@@ -6,12 +6,11 @@ import (
 	"testing"
 
 	"encoding/json"
-
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/satori/go.uuid"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/tomoyane/grant-n-z/server/entity"
 )
@@ -33,12 +32,12 @@ func TestPolicyHandlerPost(t *testing.T) {
 	name := fmt.Sprintf("unit_test_%s", id.String())
 
 	policy := entity.Policy{
-		Name: name,
+		Name:         name,
 		PermissionId: 1,
-		RoleId: 1,
+		RoleId:       1,
 	}
 
-	body, _:= json.Marshal(policy)
+	body, _ := json.Marshal(policy)
 
 	request := httptest.NewRequest(http.MethodPost, endpointPolicies, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")
