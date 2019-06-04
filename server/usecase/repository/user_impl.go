@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/tomoyane/grant-n-z/server/model"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -13,29 +14,29 @@ type UserRepositoryImpl struct {
 	Db *gorm.DB
 }
 
-func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *entity.ErrorResponse) {
+func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResponse) {
 	user := entity.User{}
 	if err := uri.Db.Where("id = ?", id).Find(&user).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
 
-		return nil, entity.InternalServerError(err.Error())
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *entity.ErrorResponse) {
+func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResponse) {
 	if err := uri.Db.Create(&user).Error; err != nil {
-		errRes := entity.Conflict(err.Error())
+		errRes := model.Conflict(err.Error())
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
-			return nil, entity.Conflict(err.Error())
+			return nil, model.Conflict(err.Error())
 		}
 
 		log.Logger.Error(errRes.ToJson(), errRes.Detail)
-		return nil, entity.InternalServerError(err.Error())
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	return &user, nil
