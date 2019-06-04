@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/satori/go.uuid"
+	"github.com/tomoyane/grant-n-z/server/model"
 
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/entity"
@@ -20,7 +21,7 @@ func NewPermissionService() PermissionService {
 	}
 }
 
-func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *entity.ErrorResponse) {
+func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.ErrorResponse) {
 	permissions, err := ps.permissionRepository.FindAll()
 	if permissions == nil {
 		return []*entity.Permission{}, err
@@ -29,11 +30,11 @@ func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *entity.
 	return permissions, err
 }
 
-func (ps permissionServiceImpl) GetPermissionByRoleId(id int) (*entity.Permission, *entity.ErrorResponse) {
+func (ps permissionServiceImpl) GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResponse) {
 	return ps.permissionRepository.FindById(id)
 }
 
-func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *entity.ErrorResponse) {
+func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResponse) {
 	permission.Uuid, _ = uuid.NewV4()
 	return ps.permissionRepository.Save(*permission)
 }

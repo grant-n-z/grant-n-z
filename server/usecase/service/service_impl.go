@@ -8,6 +8,8 @@ import (
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
+
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -20,7 +22,7 @@ func NewServiceService() Service {
 	return serviceImpl{serviceRepository: repository.ServiceRepositoryImpl{Db: config.Db}}
 }
 
-func (ss serviceImpl) Get(queryParam string) (interface{}, *entity.ErrorResponse)  {
+func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse)  {
 	if !strings.EqualFold(queryParam, "") {
 		serviceEntity, err := ss.GetServiceByName(queryParam)
 		if err != nil {
@@ -47,19 +49,19 @@ func (ss serviceImpl) Get(queryParam string) (interface{}, *entity.ErrorResponse
 	}
 }
 
-func (ss serviceImpl) GetServices() ([]*entity.Service, *entity.ErrorResponse)  {
+func (ss serviceImpl) GetServices() ([]*entity.Service, *model.ErrorResponse)  {
 	return ss.serviceRepository.FindAll()
 }
 
-func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *entity.ErrorResponse)  {
+func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResponse)  {
 	return ss.serviceRepository.FindById(id)
 }
 
-func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *entity.ErrorResponse)  {
+func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResponse)  {
 	return ss.serviceRepository.FindByName(name)
 }
 
-func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *entity.ErrorResponse) {
+func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResponse) {
 	service.Uuid, _ = uuid.NewV4()
 	return ss.serviceRepository.Save(*service)
 }

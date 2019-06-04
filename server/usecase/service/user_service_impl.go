@@ -7,6 +7,8 @@ import (
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
+
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -25,7 +27,7 @@ func NewUserServiceService() UserServiceService {
 	}
 }
 
-func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *entity.ErrorResponse) {
+func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse) {
 	var result interface{}
 
 	if strings.EqualFold(queryParam, "") {
@@ -35,7 +37,7 @@ func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *entity.E
 	i, castErr := strconv.Atoi(queryParam)
 	if castErr != nil {
 		log.Logger.Warn("The user_id is only integer")
-		return nil, entity.BadRequest(castErr.Error())
+		return nil, model.BadRequest(castErr.Error())
 	}
 
 	userServiceEntities, err := uss.GetUserServicesByUserId(i)
@@ -52,23 +54,23 @@ func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *entity.E
 	return result, nil
 }
 
-func (uss userServiceServiceImpl) GetUserServices() ([]*entity.UserService, *entity.ErrorResponse) {
+func (uss userServiceServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResponse) {
 	return uss.userServiceRepository.FindAll()
 }
 
-func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity.UserService, *entity.ErrorResponse) {
+func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResponse) {
 	return uss.userServiceRepository.FindByUserId(userId)
 }
 
-func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *entity.ErrorResponse) {
+func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResponse) {
 	if userEntity, _ := uss.userRepository.FindById(userService.UserId); userEntity == nil {
 		log.Logger.Warn("Not found user id")
-		return nil, entity.BadRequest("Not found user id")
+		return nil, model.BadRequest("Not found user id")
 	}
 
 	if serviceEntity, _ := uss.serviceRepository.FindById(userService.ServiceId); serviceEntity == nil {
 		log.Logger.Warn("Not found service id")
-		return nil, entity.BadRequest("Not found service id")
+		return nil, model.BadRequest("Not found service id")
 	}
 
 	return uss.userServiceRepository.Save(*userService)

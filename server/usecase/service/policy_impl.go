@@ -7,6 +7,8 @@ import (
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
+
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -25,7 +27,7 @@ func NewPolicyService() PolicyService {
 	}
 }
 
-func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *entity.ErrorResponse) {
+func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *model.ErrorResponse) {
 	if strings.EqualFold(queryParam, "") {
 		return ps.GetPolicies()
 	}
@@ -33,7 +35,7 @@ func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *entity.Er
 	i, castErr := strconv.Atoi(queryParam)
 	if castErr != nil {
 		log.Logger.Warn("The role_id is only integer")
-		return nil, entity.BadRequest(castErr.Error())
+		return nil, model.BadRequest(castErr.Error())
 	}
 
 	policyEntities, err := ps.GetPoliciesByRoleId(i)
@@ -48,23 +50,23 @@ func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *entity.Er
 	return policyEntities, nil
 }
 
-func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *entity.ErrorResponse) {
+func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResponse) {
 	return ps.policyRepository.FindAll()
 }
 
-func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *entity.ErrorResponse) {
+func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResponse) {
 	return ps.policyRepository.FindByRoleId(roleId)
 }
 
-func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *entity.ErrorResponse) {
+func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResponse) {
 	if permissionEntity, _ := ps.permissionRepository.FindById(policy.PermissionId); permissionEntity == nil {
 		log.Logger.Warn("Not found permission id")
-		return nil, entity.BadRequest("Not found permission id")
+		return nil, model.BadRequest("Not found permission id")
 	}
 
 	if roleEntity, _ := ps.roleRepository.FindById(policy.RoleId); roleEntity == nil {
 		log.Logger.Warn("Not found role id")
-		return nil, entity.BadRequest("Not found role id")
+		return nil, model.BadRequest("Not found role id")
 	}
 
 	return ps.policyRepository.Save(*policy)

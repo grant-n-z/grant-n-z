@@ -8,6 +8,8 @@ import (
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
+
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -40,11 +42,11 @@ func (us userServiceImpl) ComparePw(passwordHash string, password string) bool {
 	return true
 }
 
-func (us userServiceImpl) GetUserById(id int) (*entity.User, *entity.ErrorResponse) {
+func (us userServiceImpl) GetUserById(id int) (*entity.User, *model.ErrorResponse) {
 	return us.userRepository.FindById(id)
 }
 
-func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *entity.ErrorResponse) {
+func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.ErrorResponse) {
 	user.Uuid, _ = uuid.NewV4()
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.Save(*user)
