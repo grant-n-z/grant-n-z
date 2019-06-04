@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/server/entity"
-	"github.com/tomoyane/grant-n-z/server/usecase/service"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
+
+	"github.com/tomoyane/grant-n-z/server/usecase/service"
 )
 
 type RoleMemberHandlerImpl struct {
@@ -26,7 +28,7 @@ func (rmh RoleMemberHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut: rmh.Put(w, r)
 	case http.MethodDelete: rmh.Delete(w, r)
 	default:
-		err := entity.MethodNotAllowed()
+		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
 	}
 }
