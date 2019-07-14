@@ -11,12 +11,16 @@ import (
 
 func init() {
 	config.InitConfig()
-	log.InitLogger(config.LogLevel)
+	log.InitLogger(config.App.LogLevel)
 	log.Logger.Debug("Completed init process")
 }
 
 func main() {
+	cron := handler.NewCronHandler()
+	cron.RunUpdatePolicy()
+
 	route := router.Router{
+		TokenHandler:       handler.NewTokenHandler(),
 		UserHandler:        handler.NewUserHandler(),
 		ServiceHandler:     handler.NewServiceHandler(),
 		RoleHandler:        handler.NewRoleHandler(),
@@ -38,7 +42,7 @@ ___________________________________________________
 ___________________________________________________
 High performance authentication and authorization. version is %s
 `
-	fmt.Printf(banner, config.AppVersion)
+	fmt.Printf(banner, config.App.Version)
 
 	route.Run(":8080")
 }
