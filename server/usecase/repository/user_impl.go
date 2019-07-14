@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"github.com/tomoyane/grant-n-z/server/model"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
 )
 
 type UserRepositoryImpl struct {
@@ -17,6 +17,19 @@ type UserRepositoryImpl struct {
 func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResponse) {
 	user := entity.User{}
 	if err := uri.Db.Where("id = ?", id).Find(&user).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return &user, nil
+}
+
+func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.ErrorResponse) {
+	user := entity.User{}
+	if err := uri.Db.Where("email = ?", email).Find(&user).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

@@ -12,5 +12,11 @@ type UserService interface {
 
 	GetUserById(id int) (*entity.User, *model.ErrorResponse)
 
+	GetUserByEmail(email string) (*entity.User, *model.ErrorResponse)
+
 	InsertUser(user *entity.User) (*entity.User, *model.ErrorResponse)
+
+	GenerateJwt(user *entity.User, role string) *string
+
+	ParseJwt(token string) (map[string]string, bool)
 }

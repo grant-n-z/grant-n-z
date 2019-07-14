@@ -21,7 +21,7 @@ func (t TokenService) GenerateJwt(username string, userUuid uuid.UUID, isAdmin b
 	//	claims["role"] = "admin"
 	//}
 	//
-	//signedToken, err := token.SignedString([]byte(infra.Yaml.App.PrivateKey))
+	//signedToken, err := token.SignedString([]byte(infra.Yaml.App.PrivateKeyBase64))
 	//if err != nil {
 	//	handler.ErrorResponse{}.Print(http.StatusInternalServerError, "failed generate jwt", "")
 	//	return ""
@@ -35,7 +35,7 @@ func (t TokenService) ParseJwt(token string) (map[string]string, bool) {
 	//resultMap := map[string]string{}
 	//
 	//parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-	//	return []byte(infra.Yaml.App.PrivateKey), nil
+	//	return []byte(infra.Yaml.App.PrivateKeyBase64), nil
 	//})
 	//
 	//if err != nil || !parseToken.Valid {

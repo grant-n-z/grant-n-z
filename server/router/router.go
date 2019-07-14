@@ -8,6 +8,7 @@ import (
 )
 
 type Router struct {
+	TokenHandler       handler.TokenHandler
 	UserHandler        handler.UserHandler
 	ServiceHandler     handler.ServiceHandler
 	RoleHandler        handler.RoleHandler
@@ -18,6 +19,7 @@ type Router struct {
 }
 
 func (r Router) V1() {
+	http.HandleFunc("/api/v1/oauth", r.TokenHandler.Post)
 	http.HandleFunc("/api/v1/users", r.UserServiceHandler.Api)
 	http.HandleFunc("/api/v1/services", r.ServiceHandler.Api)
 	http.HandleFunc("/api/v1/roles", r.RoleHandler.Api)
@@ -27,6 +29,7 @@ func (r Router) V1() {
 	http.HandleFunc("/api/v1/policies", r.PolicyHandler.Api)
 
 	log.Logger.Debug("____ routing info ____")
+	log.Logger.Debug("Method: `POST` routing: /api/v1/oauth")
 	log.Logger.Debug("Method: `POST` routing: /api/v1/users")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/services`")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/roles`")

@@ -6,9 +6,9 @@ import (
 )
 
 type ErrorResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Detail  interface{} `json:"detail"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Detail  string `json:"detail"`
 }
 
 func (er ErrorResponse) ToJson() string {
@@ -72,7 +72,7 @@ func Conflict(err ...string) *ErrorResponse {
 	return &ErrorResponse{
 		Code:    http.StatusConflict,
 		Message: "Conflict.",
-		Detail:  detail	,
+		Detail:  detail,
 	}
 }
 
