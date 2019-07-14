@@ -7,16 +7,16 @@ import (
 )
 
 type YmlConfig struct {
-	App     AppConfig `yaml:"app"`
-	DbModel DbConfig  `yaml:"db"`
+	App AppConfig `yaml:"app"`
+	Db  DbConfig  `yaml:"db"`
 }
 
 type AppConfig struct {
-	Version     string `yaml:"version"`
-	PrivateKey  string `yaml:"private-key"`
-	PublicKey   string `yaml:"public-key"`
-	Environment string `yaml:"environment"`
-	LogLevel    string `yaml:"log-level"`
+	Version          string `yaml:"version"`
+	PrivateKeyBase64 string `yaml:"private-key-base64"`
+	Environment      string `yaml:"environment"`
+	LogLevel         string `yaml:"log-level"`
+	PolicyFilePath   string `yaml:"policy-file-path"`
 }
 
 type DbConfig struct {
@@ -27,43 +27,60 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
-func (yml YmlConfig) GetAppVersion() string {
-	return yml.App.Version
-}
+func (yml YmlConfig) GetAppConfig() AppConfig {
+	privateKeyBase64 := yml.App.PrivateKeyBase64
+	environment := yml.App.Environment
+	logLevel := yml.App.LogLevel
+	policyFilePath := yml.App.PolicyFilePath
 
-func (yml YmlConfig) GetAppEnvironment() string {
-	return os.Getenv(yml.App.Environment[1:])
-}
+	if strings.Contains(privateKeyBase64, "$") {
+		privateKeyBase64 = os.Getenv(yml.App.PrivateKeyBase64[1:])
+	}
 
-func (yml YmlConfig) GetAppLogLevel() string {
-	return os.Getenv(yml.App.LogLevel[1:])
+	if strings.Contains(environment, "$") {
+		environment = os.Getenv(yml.App.Environment[1:])
+	}
+
+	if strings.Contains(logLevel, "$") {
+		logLevel = os.Getenv(yml.App.LogLevel[1:])
+	}
+
+	if strings.Contains(policyFilePath, "$") {
+		policyFilePath = os.Getenv(yml.App.PolicyFilePath[1:])
+	}
+
+	yml.App.PrivateKeyBase64 = privateKeyBase64
+	yml.App.Environment = environment
+	yml.App.LogLevel = logLevel
+	yml.App.PolicyFilePath = policyFilePath
+	return yml.App
 }
 
 func (yml YmlConfig) GetDataSourceUrl() string {
-	user := yml.DbModel.User
-	password := yml.DbModel.Password
-	host := yml.DbModel.Host
-	port := yml.DbModel.Port
-	db := yml.DbModel.Db
+	user := yml.Db.User
+	password := yml.Db.Password
+	host := yml.Db.Host
+	port := yml.Db.Port
+	db := yml.Db.Db
 
 	if strings.Contains(user, "$") {
-		user = os.Getenv(yml.DbModel.User[1:])
+		user = os.Getenv(yml.Db.User[1:])
 	}
 
 	if strings.Contains(password, "$") {
-		password = os.Getenv(yml.DbModel.Password[1:])
+		password = os.Getenv(yml.Db.Password[1:])
 	}
 
 	if strings.Contains(host, "$") {
-		host = os.Getenv(yml.DbModel.Host[1:])
+		host = os.Getenv(yml.Db.Host[1:])
 	}
 
 	if strings.Contains(port, "$") {
-		port = os.Getenv(yml.DbModel.Port[1:])
+		port = os.Getenv(yml.Db.Port[1:])
 	}
 
 	if strings.Contains(db, "$") {
-		db = os.Getenv(yml.DbModel.Db[1:])
+		db = os.Getenv(yml.Db.Db[1:])
 	}
 
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", user, password, host, port, db)

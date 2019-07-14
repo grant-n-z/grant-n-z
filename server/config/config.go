@@ -16,12 +16,10 @@ const (
 )
 
 var (
-	Db          *gorm.DB
-	Environment string
-	LogLevel    string
-	AppVersion  string
-	dbSource    string
-	ymlConfig   YmlConfig
+	Db       *gorm.DB
+	App      AppConfig
+	yml      YmlConfig
+	dbSource string
 )
 
 func InitConfig() {
@@ -42,17 +40,13 @@ func initDb() {
 func initYaml() {
 	switch os.Getenv(appEnv) {
 	case test:
-		ymlConfig = readYml("../../app-test.yaml")
-		dbSource = ymlConfig.GetDataSourceUrl()
-		Environment = ymlConfig.GetAppEnvironment()
-		LogLevel = ymlConfig.GetAppLogLevel()
-		AppVersion = ymlConfig.GetAppVersion()
+		yml = readYml("../../app-test.yaml")
+		dbSource = yml.GetDataSourceUrl()
+		App = yml.GetAppConfig()
 	default:
-		ymlConfig = readYml("app.yaml")
-		dbSource = ymlConfig.GetDataSourceUrl()
-		Environment = ymlConfig.GetAppEnvironment()
-		LogLevel = ymlConfig.GetAppLogLevel()
-		AppVersion = ymlConfig.GetAppVersion()
+		yml = readYml("app.yaml")
+		dbSource = yml.GetDataSourceUrl()
+		App = yml.GetAppConfig()
 	}
 }
 
