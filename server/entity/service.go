@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	SERVICE_ID ServiceColumn = iota
-	SERVICE_UUID
-	SERVICE_NAME
-	SERVICE_CREATED_AT
-	SERVICE_UPDATED_AT
+	ServiceId ServiceColumn = iota
+	ServiceUuid
+	ServiceName
+	ServiceCreatedAt
+	ServiceUpdatedAt
 )
 
 type Service struct {
@@ -26,15 +26,15 @@ type ServiceColumn int
 
 func (sc ServiceColumn) String() string {
 	switch sc {
-	case SERVICE_ID:
+	case ServiceId:
 		return "id"
-	case SERVICE_UUID:
+	case ServiceUuid:
 		return "uuid"
-	case SERVICE_NAME:
+	case ServiceName:
 		return "name"
-	case SERVICE_CREATED_AT:
+	case ServiceCreatedAt:
 		return "created_at"
-	case SERVICE_UPDATED_AT:
+	case ServiceUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

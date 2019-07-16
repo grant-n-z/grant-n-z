@@ -10,13 +10,13 @@ import (
 	"github.com/tomoyane/grant-n-z/server/model"
 )
 
-type RoleMemberRepositoryImpl struct {
+type OperatorMemberRoleRepositoryImpl struct {
 	Db *gorm.DB
 }
 
-func (rmri RoleMemberRepositoryImpl) FindAll() ([]*entity.RoleMember, *model.ErrorResponse) {
-	var roleMembers []*entity.RoleMember
-	if err := rmri.Db.Find(&roleMembers).Error; err != nil {
+func (omrri OperatorMemberRoleRepositoryImpl) FindAll() ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
+	var entities []*entity.OperatorMemberRole
+	if err := omrri.Db.Find(&entities).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -24,12 +24,12 @@ func (rmri RoleMemberRepositoryImpl) FindAll() ([]*entity.RoleMember, *model.Err
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return roleMembers, nil
+	return entities, nil
 }
 
-func (rmri RoleMemberRepositoryImpl) FindByUserId(userId int) ([]*entity.RoleMember, *model.ErrorResponse) {
-	var roleMembers []*entity.RoleMember
-	if err := rmri.Db.Where("user_id = ?", userId).Find(&roleMembers).Error; err != nil {
+func (omrri OperatorMemberRoleRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
+	var entities []*entity.OperatorMemberRole
+	if err := omrri.Db.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -37,11 +37,11 @@ func (rmri RoleMemberRepositoryImpl) FindByUserId(userId int) ([]*entity.RoleMem
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return roleMembers, nil
+	return entities, nil
 }
 
-func (rmri RoleMemberRepositoryImpl) Save(roleMember entity.RoleMember) (*entity.RoleMember, *model.ErrorResponse) {
-	if err := rmri.Db.Create(&roleMember).Error; err != nil {
+func (omrri OperatorMemberRoleRepositoryImpl) Save(entity entity.OperatorMemberRole) (*entity.OperatorMemberRole, *model.ErrorResponse) {
+	if err := omrri.Db.Create(&entity).Error; err != nil {
 		errRes := model.Conflict(err.Error())
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
@@ -52,5 +52,5 @@ func (rmri RoleMemberRepositoryImpl) Save(roleMember entity.RoleMember) (*entity
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return &roleMember, nil
+	return &entity, nil
 }

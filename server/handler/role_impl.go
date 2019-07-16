@@ -57,7 +57,7 @@ func (rh RoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(body, &roleEntity)
-	if err := BodyValidator(w, roleEntity); err != nil {
+	if err := ValidateHttpRequest(w, roleEntity); err != nil {
 		return
 	}
 

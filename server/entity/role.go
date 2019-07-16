@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	ROLE_ID RoleColumn = iota
-	ROLE_UUID
-	ROLE_NAME
-	ROLE_CREATED_AT
-	ROLE_UPDATED_AT
+	RoleId RoleColumn = iota
+	RoleUuid
+	RoleName
+	RoleCreatedAt
+	RoleUpdatedAt
 )
 
 type Role struct {
@@ -25,15 +25,15 @@ type RoleColumn int
 
 func (rc RoleColumn) String() string {
 	switch rc {
-	case ROLE_ID:
+	case RoleId:
 		return "id"
-	case ROLE_UUID:
+	case RoleUuid:
 		return "uuid"
-	case ROLE_NAME:
+	case RoleName:
 		return "name"
-	case ROLE_CREATED_AT:
+	case RoleCreatedAt:
 		return "created_at"
-	case ROLE_UPDATED_AT:
+	case RoleUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

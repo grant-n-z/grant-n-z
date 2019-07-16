@@ -8,14 +8,14 @@ import (
 )
 
 type Router struct {
-	TokenHandler       handler.TokenHandler
-	UserHandler        handler.UserHandler
-	ServiceHandler     handler.ServiceHandler
-	RoleHandler        handler.RoleHandler
-	RoleMemberHandler  handler.RoleMemberHandler
-	UserServiceHandler handler.UserServiceHandler
-	PermissionHandler  handler.PermissionHandler
-	PolicyHandler      handler.PolicyHandler
+	TokenHandler              handler.TokenHandler
+	UserHandler               handler.UserHandler
+	ServiceHandler            handler.ServiceHandler
+	RoleHandler               handler.RoleHandler
+	OperatorMemberRoleHandler handler.OperateMemberRoleHandler
+	UserServiceHandler        handler.UserServiceHandler
+	PermissionHandler         handler.PermissionHandler
+	PolicyHandler             handler.PolicyHandler
 }
 
 func (r Router) V1() {
@@ -23,7 +23,7 @@ func (r Router) V1() {
 	http.HandleFunc("/api/v1/users", r.UserServiceHandler.Api)
 	http.HandleFunc("/api/v1/services", r.ServiceHandler.Api)
 	http.HandleFunc("/api/v1/roles", r.RoleHandler.Api)
-	http.HandleFunc("/api/v1/role-members", r.RoleMemberHandler.Api)
+	http.HandleFunc("/api/v1/operator-member-roles", r.OperatorMemberRoleHandler.Api)
 	http.HandleFunc("/api/v1/user-services", r.UserServiceHandler.Api)
 	http.HandleFunc("/api/v1/permissions", r.PermissionHandler.Api)
 	http.HandleFunc("/api/v1/policies", r.PolicyHandler.Api)
@@ -33,7 +33,7 @@ func (r Router) V1() {
 	log.Logger.Debug("Method: `POST` routing: /api/v1/users")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/services`")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/roles`")
-	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/role-members`")
+	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/operator-member-roles`")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/user-services`")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/permissions`")
 	log.Logger.Debug("Method: `POST`, `GET` Routing: `/api/v1/policies`")

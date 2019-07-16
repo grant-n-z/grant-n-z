@@ -35,7 +35,7 @@ func (ush UserServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("GET user_services")
-	id := r.URL.Query().Get(entity.USER_SERVICE_ID.String())
+	id := r.URL.Query().Get(entity.UserServiceId.String())
 
 	userServiceEntities, err := ush.UserService.Get(id)
 	if err != nil {
@@ -58,7 +58,7 @@ func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(body, &userServiceEntity)
-	if err := BodyValidator(w, userServiceEntity); err != nil {
+	if err := ValidateHttpRequest(w, userServiceEntity); err != nil {
 		return
 	}
 

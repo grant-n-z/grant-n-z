@@ -30,7 +30,7 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.Unmarshal(body, &userEntity)
 	userEntity.Username = userEntity.Email
-	if err := BodyValidator(w, userEntity); err != nil {
+	if err := ValidateHttpRequest(w, userEntity); err != nil {
 		return
 	}
 

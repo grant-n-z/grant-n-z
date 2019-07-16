@@ -20,6 +20,12 @@ DROP TABLE IF EXISTS user_services;
 -- If roles exit, drop roles
 DROP TABLE IF EXISTS roles;
 
+-- If operate_member_roles exit, drop roles
+DROP TABLE IF EXISTS operator_member_roles;
+
+-- If service_member_roles exit, drop roles
+DROP TABLE IF EXISTS service_member_roles;
+
 -- If policies exit, drop policies
 DROP TABLE IF EXISTS policies;
 
@@ -34,7 +40,8 @@ CREATE TABLE services (
   UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- users
+-- `users`
+-- The all user data.
 CREATE TABLE users (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
@@ -47,7 +54,8 @@ CREATE TABLE users (
   UNIQUE (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- permissions
+-- `permissions`
+-- The permission data.
 CREATE TABLE permissions (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
@@ -58,7 +66,8 @@ CREATE TABLE permissions (
   UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- roles
+-- `roles`
+-- The role data.
 CREATE TABLE roles (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
@@ -69,8 +78,9 @@ CREATE TABLE roles (
   UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- role_members
-CREATE TABLE role_members (
+-- `operator_member_roles`
+-- It can operate grant_n_z server.
+CREATE TABLE operator_member_roles (
   id int(11) NOT NULL AUTO_INCREMENT,
   role_id int(11) NOT NULL,
   user_id int(11) NOT NULL,
@@ -78,17 +88,19 @@ CREATE TABLE role_members (
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX (user_id),
   PRIMARY KEY (id),
-  CONSTRAINT fk_role_members_role_id
+  CONSTRAINT fk_operate_member_roles_role_id
   FOREIGN KEY (role_id)
   REFERENCES roles (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_role_members_user_id
+  CONSTRAINT fk_operate_member_roles_user_id
   FOREIGN KEY (user_id)
   REFERENCES users (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- user_services
+-- `user_services`
+-- If we want to know how many user of service, read this table.
+-- If we want to know how many service of user, read this table.
 CREATE TABLE user_services (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL,
@@ -108,22 +120,46 @@ CREATE TABLE user_services (
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- policies
+-- `service_member_roles`
+-- It can operate any service.
+-- Any service member role.
+CREATE TABLE service_member_roles (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  role_id int(11) NOT NULL,
+  user_service_id int(11) NOT NULL,
+  created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (role_id),
+  INDEX (user_service_id),
+  PRIMARY KEY (id),
+  CONSTRAINT fk_service_member_roles_role_id
+  FOREIGN KEY (role_id)
+  REFERENCES roles (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_service_member_roles_user_service_id
+  FOREIGN KEY (user_service_id)
+  REFERENCES user_services (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- `policies`
+-- Access policy.
 CREATE TABLE policies (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(128) NOT NULL,
   permission_id int(11) NOT NULL,
-  role_id int(11) NOT NULL,
+  service_member_role_id int(11) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (role_id),
+  INDEX (permission_id),
+  INDEX (service_member_role_id),
   CONSTRAINT fk_policies_permission_id
   FOREIGN KEY (permission_id)
   REFERENCES permissions (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_policies_role_id
-  FOREIGN KEY (role_id)
-  REFERENCES roles (id)
+  CONSTRAINT fk_policies_service_member_role_id
+  FOREIGN KEY (service_member_role_id)
+  REFERENCES service_member_roles (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

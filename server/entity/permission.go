@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	PERMISSION_ID PermissionColumn = iota
-	PERMISSION_UUID
-	PERMISSION_NAME
-	PERMISSION_CREATED_AT
-	PERMISSION_UPDATED_AT
+	PermissionId PermissionColumn = iota
+	PermissionUuid
+	PermissionName
+	PermissionCreatedAt
+	PermissionUpdatedAt
 )
 
 type Permission struct {
@@ -26,15 +26,15 @@ type PermissionColumn int
 
 func (pc PermissionColumn) String() string {
 	switch pc {
-	case PERMISSION_ID:
+	case PermissionId:
 		return "id"
-	case PERMISSION_NAME:
+	case PermissionName:
 		return "name"
-	case PERMISSION_UUID:
+	case PermissionUuid:
 		return "uuid"
-	case PERMISSION_CREATED_AT:
+	case PermissionCreatedAt:
 		return "created_at"
-	case PERMISSION_UPDATED_AT:
+	case PermissionUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

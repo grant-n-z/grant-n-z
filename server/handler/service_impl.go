@@ -35,7 +35,7 @@ func (sh ServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("GET services")
-	name := r.URL.Query().Get(entity.SERVICE_NAME.String())
+	name := r.URL.Query().Get(entity.ServiceName.String())
 
 	result, err := sh.Service.Get(name)
 	if err != nil {
@@ -58,7 +58,7 @@ func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(body, &serviceEntity)
-	if err := BodyValidator(w, serviceEntity); err != nil {
+	if err := ValidateHttpRequest(w, serviceEntity); err != nil {
 		return
 	}
 

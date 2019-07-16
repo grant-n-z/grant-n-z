@@ -7,13 +7,13 @@ import (
 )
 
 const (
-	USER_ID UserColumn = iota
-	USER_UUID
-	USER_USERNAME
-	USER_EMAIL
-	USER_PASSWORD
-	USER_CREATED_AT
-	USER_UPDATED_AT
+	UserId UserColumn = iota
+	UserUuid
+	UserUsername
+	UserEmail
+	UserPassword
+	UserCreatedAt
+	UserUpdatedAt
 )
 
 type User struct {
@@ -30,19 +30,19 @@ type UserColumn int
 
 func (uc UserColumn) String() string {
 	switch uc {
-	case USER_ID:
+	case UserId:
 		return "id"
-	case USER_UUID:
+	case UserUuid:
 		return "uuid"
-	case USER_USERNAME:
+	case UserUsername:
 		return "username"
-	case USER_EMAIL:
+	case UserEmail:
 		return "email"
-	case USER_PASSWORD:
+	case UserPassword:
 		return "password"
-	case USER_CREATED_AT:
+	case UserCreatedAt:
 		return "created_at"
-	case USER_UPDATED_AT:
+	case UserUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

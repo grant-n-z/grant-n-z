@@ -5,11 +5,11 @@ import (
 )
 
 const (
-	USER_SERVICE_ID UserServiceColumn = iota
-	USER_SERVICE_USER_ID
-	USER_SERVICE_SERVICE_ID
-	USER_SERVICE_CREATED_AT
-	USER_SERVICE_UPDATED_AT
+	UserServiceId UserServiceColumn = iota
+	UserServiceUserId
+	UserServiceServiceId
+	UserServiceCreatedAt
+	UserServiceUpdatedAt
 )
 
 type UserService struct {
@@ -24,15 +24,15 @@ type UserServiceColumn int
 
 func (usc UserServiceColumn) String() string {
 	switch usc {
-	case USER_SERVICE_ID:
+	case UserServiceId:
 		return "id"
-	case USER_SERVICE_USER_ID:
+	case UserServiceUserId:
 		return "user_id"
-	case USER_SERVICE_SERVICE_ID:
+	case UserServiceServiceId:
 		return "service_id"
-	case USER_SERVICE_CREATED_AT:
+	case UserServiceCreatedAt:
 		return "created_at"
-	case USER_SERVICE_UPDATED_AT:
+	case UserServiceUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

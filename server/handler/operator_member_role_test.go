@@ -15,19 +15,19 @@ import (
 )
 
 const (
-	endpointRoleMembers = "/api/v1/role-members"
+	endpointRoleMembers = "/api/v1/operator-member-roles"
 )
 
-func TestRoleMemberHandlerGet(t *testing.T) {
+func TestOperateMemberRoleHandlerGet(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, endpointRoleMembers, nil)
 	recorder := httptest.NewRecorder()
 
-	NewRoleMemberHandler().Get(recorder, request)
+	NewOperatorMemberRoleHandler().Get(recorder, request)
 	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
-func TestRoleMemberHandlerPost(t *testing.T) {
-	roleMember := entity.RoleMember{
+func TestOperateMemberRoleHandlerPost(t *testing.T) {
+	roleMember := entity.OperatorMemberRole{
 		RoleId: 1,
 		UserId: 1,
 	}
@@ -38,6 +38,6 @@ func TestRoleMemberHandlerPost(t *testing.T) {
 	request.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 
-	NewRoleMemberHandler().Post(recorder, request)
+	NewOperatorMemberRoleHandler().Post(recorder, request)
 	assert.Equal(t, http.StatusCreated, recorder.Code)
 }

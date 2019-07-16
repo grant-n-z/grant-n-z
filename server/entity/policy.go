@@ -5,12 +5,12 @@ import (
 )
 
 const (
-	POLICY_ID PolicyColumn = iota
-	POLICY_NAME
-	POLICY_PERMISSION_ID
-	POLICY_ROLE_ID
-	POLICY_CREATED_AT
-	POLICY_UPDATED_AT
+	PolicyId PolicyColumn = iota
+	PolicyName
+	PolicyPermissionId
+	PolicyRoleId
+	PolicyCreatedAt
+	PolicyUpdatedAt
 )
 
 type Policy struct {
@@ -26,17 +26,17 @@ type PolicyColumn int
 
 func (pc PolicyColumn) String() string {
 	switch pc {
-	case POLICY_ID:
+	case PolicyId:
 		return "id"
-	case POLICY_NAME:
+	case PolicyName:
 		return "name"
-	case POLICY_PERMISSION_ID:
+	case PolicyPermissionId:
 		return "permission_id"
-	case POLICY_ROLE_ID:
+	case PolicyRoleId:
 		return "role_id"
-	case POLICY_CREATED_AT:
+	case PolicyCreatedAt:
 		return "created_at"
-	case POLICY_UPDATED_AT:
+	case PolicyUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

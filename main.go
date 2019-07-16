@@ -20,14 +20,14 @@ func main() {
 	cron.RunUpdatePolicy()
 
 	route := router.Router{
-		TokenHandler:       handler.NewTokenHandler(),
-		UserHandler:        handler.NewUserHandler(),
-		ServiceHandler:     handler.NewServiceHandler(),
-		RoleHandler:        handler.NewRoleHandler(),
-		RoleMemberHandler:  handler.NewRoleMemberHandler(),
-		UserServiceHandler: handler.NewUserServiceHandler(),
-		PermissionHandler:  handler.NewPermissionHandler(),
-		PolicyHandler:      handler.NewPolicyHandlerHandler(),
+		TokenHandler:              handler.NewTokenHandler(),
+		UserHandler:               handler.NewUserHandler(),
+		ServiceHandler:            handler.NewServiceHandler(),
+		RoleHandler:               handler.NewRoleHandler(),
+		OperatorMemberRoleHandler: handler.NewOperatorMemberRoleHandler(),
+		UserServiceHandler:        handler.NewUserServiceHandler(),
+		PermissionHandler:         handler.NewPermissionHandler(),
+		PolicyHandler:             handler.NewPolicyHandlerHandler(),
 	}
 
 	route.V1()

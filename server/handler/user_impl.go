@@ -46,7 +46,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(body, &userEntity)
-	if err := BodyValidator(w, userEntity); err != nil {
+	if err := ValidateHttpRequest(w, userEntity); err != nil {
 		return
 	}
 

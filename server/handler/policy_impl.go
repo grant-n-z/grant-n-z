@@ -35,7 +35,7 @@ func (ph PolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (ph PolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("GET policies")
-	id := r.URL.Query().Get(entity.POLICY_ROLE_ID.String())
+	id := r.URL.Query().Get(entity.PolicyRoleId.String())
 
 	roleMemberEntities, err := ph.PolicyService.Get(id)
 	if err != nil {
@@ -58,7 +58,7 @@ func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(body, &policyEntity)
-	if err := BodyValidator(w, policyEntity); err != nil {
+	if err := ValidateHttpRequest(w, policyEntity); err != nil {
 		return
 	}
 

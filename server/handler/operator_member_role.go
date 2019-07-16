@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-type RoleMemberHandler interface {
+type OperateMemberRoleHandler interface {
 	Api(w http.ResponseWriter, r *http.Request)
 
 	Get(w http.ResponseWriter, r *http.Request)

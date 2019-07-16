@@ -57,7 +57,7 @@ func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(body, &permissionEntity)
-	if err := BodyValidator(w, permissionEntity); err != nil {
+	if err := ValidateHttpRequest(w, permissionEntity); err != nil {
 		return
 	}
 
