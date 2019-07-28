@@ -62,7 +62,7 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	roleMemberEntity, err = rmrhi.RoleMemberService.InsertRoleMember(roleMemberEntity)
+	roleMemberEntity, err = rmrhi.RoleMemberService.Insert(roleMemberEntity)
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
 		return
