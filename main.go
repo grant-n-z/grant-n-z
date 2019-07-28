@@ -14,5 +14,5 @@ func init() {
 }
 
 func main() {
-	gserver.NewGrantNZServer().Run(":8080")
+	gserver.NewGrantNZServer().Run()
 }

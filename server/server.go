@@ -54,7 +54,7 @@ func NewGrantNZServer() GrantNZServer {
 	}
 }
 
-func (g GrantNZServer) Run(port string) {
+func (g GrantNZServer) Run() {
 	g.runCron()
 	g.runRouter()
 	go g.subscribeSignal(signalCode, exitCode)
