@@ -12,11 +12,11 @@ type YmlConfig struct {
 }
 
 type AppConfig struct {
-	Version          string `yaml:"version"`
-	PrivateKeyBase64 string `yaml:"private-key-base64"`
-	Environment      string `yaml:"environment"`
-	LogLevel         string `yaml:"log-level"`
-	PolicyFilePath   string `yaml:"policy-file-path"`
+	Version                  string `yaml:"version"`
+	PrivateKeyBase64         string `yaml:"private-key-base64"`
+	PolicyEncPublicKeyBase64 string `yaml:"policy-enc-public-key-base64"`
+	Environment              string `yaml:"environment"`
+	LogLevel                 string `yaml:"log-level"`
 }
 
 type DbConfig struct {
@@ -29,12 +29,16 @@ type DbConfig struct {
 
 func (yml YmlConfig) GetAppConfig() AppConfig {
 	privateKeyBase64 := yml.App.PrivateKeyBase64
+	publickKeyBase64 := yml.App.PolicyEncPublicKeyBase64
 	environment := yml.App.Environment
 	logLevel := yml.App.LogLevel
-	policyFilePath := yml.App.PolicyFilePath
 
 	if strings.Contains(privateKeyBase64, "$") {
 		privateKeyBase64 = os.Getenv(yml.App.PrivateKeyBase64[1:])
+	}
+
+	if strings.Contains(publickKeyBase64, "$") {
+		publickKeyBase64 = os.Getenv(yml.App.PolicyEncPublicKeyBase64[1:])
 	}
 
 	if strings.Contains(environment, "$") {
@@ -45,14 +49,9 @@ func (yml YmlConfig) GetAppConfig() AppConfig {
 		logLevel = os.Getenv(yml.App.LogLevel[1:])
 	}
 
-	if strings.Contains(policyFilePath, "$") {
-		policyFilePath = os.Getenv(yml.App.PolicyFilePath[1:])
-	}
-
 	yml.App.PrivateKeyBase64 = privateKeyBase64
 	yml.App.Environment = environment
 	yml.App.LogLevel = logLevel
-	yml.App.PolicyFilePath = policyFilePath
 	return yml.App
 }
 
