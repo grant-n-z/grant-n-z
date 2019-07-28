@@ -2,24 +2,25 @@ package handler
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/jasonlvhit/gocron"
 	"github.com/tomoyane/grant-n-z/server/config"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/usecase/service"
 )
 
 const minutes = 5
 
 type CronHandlerImpl struct {
-	cron gocron.Scheduler
-	app  config.AppConfig
+	cron               gocron.Scheduler
+	app                config.AppConfig
+	policyLocalService service.PolicyLocalService
 }
 
-func NewCronHandler() CronHandler {
+func NewCronHandlerImpl() CronHandler {
 	return CronHandlerImpl{
-		cron: *gocron.NewScheduler(),
-		app: config.App,
+		cron:               *gocron.NewScheduler(),
+		app:                config.App,
+		policyLocalService: service.NewPolicyLocalService(),
 	}
 }
 
@@ -30,17 +31,9 @@ func (ch CronHandlerImpl) RunUpdatePolicy() {
 
 func (ch CronHandlerImpl) Run() {
 	log.Logger.Info("Run update policy file")
+	a, _ := ch.policyLocalService.EncryptData("Test")
+	fmt.Println(*a)
 
-	path := fmt.Sprintf("%spolicy.json", ch.app.PolicyFilePath)
-	file, err := os.Open(path)
-	if err != nil {
-		file, err = os.Create(path)
-		if err != nil {
-			log.Logger.Error("Error write policy file", err.Error())
-		}
-	}
-	defer file.Close()
-
-	output := "{'key': 'value'}"
-	_, _ = file.Write(([]byte)(output))
+	b, _ := ch.policyLocalService.DecryptData(*a)
+	fmt.Println(*b)
 }
