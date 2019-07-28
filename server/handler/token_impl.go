@@ -48,6 +48,7 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, _ := json.Marshal(map[string]string {"token": *th.UserService.GenerateJwt(user, "test")})
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(res)
 }
