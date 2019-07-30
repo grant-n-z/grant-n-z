@@ -6,6 +6,7 @@ app:
   policy-file-path: $GRANT_N_Z_POLICY_FILE_PATH
 
 db:
+  engine: $GRANT_N_Z_ENGINE
   host: $GRANT_N_Z_HOST
   user: $GRANT_N_Z_USER
   password: $GRANT_N_Z_PASSWORD
