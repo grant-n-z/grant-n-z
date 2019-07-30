@@ -10,7 +10,6 @@ import (
 func init() {
 	config.InitConfig()
 	log.InitLogger(config.App.LogLevel)
-	log.Logger.Debug("Completed init process")
 }
 
 func main() {

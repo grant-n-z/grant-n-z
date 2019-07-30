@@ -13,4 +13,12 @@ type PolicyService interface {
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResponse)
 
 	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResponse)
+
+	ReadLocalPolicy(basePath string)
+
+	WriteLocalPolicy(basePath string)
+
+	EncryptData(data string) (*string, error)
+
+	DecryptData(data string) (*string, error)
 }

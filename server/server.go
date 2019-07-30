@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	exitCode = make(chan int)
+	exitCode   = make(chan int)
 	signalCode = make(chan os.Signal, 1)
-	server = &http.Server{Addr: ":8080", Handler: nil}
-	banner = `start grant-n-z server :8080
+	server     = &http.Server{Addr: ":8080", Handler: nil}
+	banner     = `start grant-n-z server :8080
 ___________________________________________________
     ____                      _      
    / __/ _    ____   _____ __//_      _____   ____ 
@@ -34,11 +34,11 @@ High performance authentication and authorization. version is %s
 
 type GrantNZServer struct {
 	router router.Router
-	cron handler.CronHandler
+	cron   handler.CronHandler
 }
 
 func NewGrantNZServer() GrantNZServer {
-	log.Logger.Info("Inject `Router`, `CronHandler` to `NewGrantNZServer`")
+	log.Logger.Info("Inject `Router`, `CronHandler`, `PolicyService` to `GrantNZServer`")
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,
@@ -50,7 +50,7 @@ func NewGrantNZServer() GrantNZServer {
 
 	return GrantNZServer{
 		router: router.NewRouter(),
-		cron: handler.NewCronHandlerImpl(),
+		cron:   handler.NewCronHandlerImpl(),
 	}
 }
 
@@ -110,7 +110,7 @@ func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 
 func (g GrantNZServer) gracefulShutdown(exitCode chan int, server http.Server) {
 	code := <-exitCode
-	ctx, _ := context.WithTimeout(context.Background(), 5 * time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	server.Shutdown(ctx)
 
 	// TODO: Delete policy file
