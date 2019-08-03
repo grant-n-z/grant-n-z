@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/server/handler"
@@ -31,6 +32,15 @@ func NewRouter() Router {
 		PolicyHandler:             handler.NewPolicyHandlerHandler(),
 		ServiceMemberRoleHandler:  handler.NewServiceMemberRoleHandler(),
 	}
+}
+
+func (r Router) Init() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		res, _ := json.Marshal(map[string]string {"message": "Not found."})
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(res)
+	})
 }
 
 func (r Router) V1() {
