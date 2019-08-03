@@ -28,12 +28,12 @@ func BadRequest(err ...string) *ErrorResponse {
 	}
 }
 
-func Unauthorized(err ...string) ErrorResponse {
+func Unauthorized(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return ErrorResponse{
+	return &ErrorResponse{
 		Code:    http.StatusUnauthorized,
 		Message: "Unauthorized.",
 		Detail:  detail,
@@ -52,12 +52,12 @@ func Forbidden(err ...string) ErrorResponse {
 	}
 }
 
-func NotFound(err ...string) ErrorResponse {
+func NotFound(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return ErrorResponse{
+	return &ErrorResponse{
 		Code:    http.StatusNotFound,
 		Message: "Not found.",
 		Detail:  detail,
@@ -101,13 +101,9 @@ func UnProcessableEntity(err ...string) ErrorResponse {
 }
 
 func InternalServerError(err ...string) *ErrorResponse {
-	var detail string
-	if err != nil {
-		detail = err[0]
-	}
 	return &ErrorResponse{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal server error.",
-		Detail:  detail,
+		Detail:  "Error internal processing.",
 	}
 }
