@@ -14,6 +14,12 @@ type RoleRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewRoleRepository(db *gorm.DB) RoleRepository {
+	return RoleRepositoryImpl{
+		Db: db,
+	}
+}
+
 func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResponse) {
 	var roles []*entity.Role
 	if err := rri.Db.Find(&roles).Error; err != nil {

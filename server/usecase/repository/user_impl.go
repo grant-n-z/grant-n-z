@@ -14,6 +14,12 @@ type UserRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return UserRepositoryImpl{
+		Db: db,
+	}
+}
+
 func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResponse) {
 	user := entity.User{}
 	if err := uri.Db.Where("id = ?", id).Find(&user).Error; err != nil {

@@ -14,6 +14,12 @@ type PolicyRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewPolicyRepository(db *gorm.DB) PolicyRepository {
+	return PolicyRepositoryImpl{
+		Db: db,
+	}
+}
+
 func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResponse) {
 	var policies []*entity.Policy
 	if err := pri.Db.Find(&policies).Error; err != nil {

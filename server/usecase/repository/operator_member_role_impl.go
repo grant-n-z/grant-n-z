@@ -14,6 +14,12 @@ type OperatorMemberRoleRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewOperatorMemberRoleRepository(db *gorm.DB) OperatorMemberRoleRepository {
+	return OperatorMemberRoleRepositoryImpl{
+		Db: db,
+	}
+}
+
 func (omrri OperatorMemberRoleRepositoryImpl) FindAll() ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
 	var entities []*entity.OperatorMemberRole
 	if err := omrri.Db.Find(&entities).Error; err != nil {

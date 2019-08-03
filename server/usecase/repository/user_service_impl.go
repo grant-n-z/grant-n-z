@@ -14,9 +14,28 @@ type UserServiceRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewUserServiceRepository(db *gorm.DB) UserServiceRepository {
+	return UserServiceRepositoryImpl {
+		Db: db,
+	}
+}
+
 func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.ErrorResponse) {
 	var userServices []*entity.UserService
 	if err := usri.Db.Find(&userServices).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return userServices, nil
+}
+
+func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *model.ErrorResponse) {
+	var userServices []*entity.UserService
+	if err := usri.Db.Where("id = ?", id).Find(&userServices).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

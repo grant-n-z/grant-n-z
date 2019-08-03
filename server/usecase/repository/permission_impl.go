@@ -14,6 +14,12 @@ type PermissionRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewPermissionRepository(db *gorm.DB) PermissionRepository {
+	return PermissionRepositoryImpl{
+		Db: db,
+	}
+}
+
 func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResponse) {
 	var permissions []*entity.Permission
 	if err := pri.Db.Find(&permissions).Error; err != nil {

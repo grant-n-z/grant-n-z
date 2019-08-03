@@ -14,6 +14,12 @@ type ServiceRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func NewServiceRepository(db *gorm.DB) ServiceRepository {
+	return ServiceRepositoryImpl{
+		Db: db,
+	}
+}
+
 func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorResponse) {
 	var services []*entity.Service
 	if err := sri.Db.Find(&services).Error; err != nil {
