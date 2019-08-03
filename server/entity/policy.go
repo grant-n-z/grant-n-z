@@ -8,18 +8,18 @@ const (
 	PolicyId PolicyColumn = iota
 	PolicyName
 	PolicyPermissionId
-	PolicyRoleId
+	PolicyServiceMemberRoleId
 	PolicyCreatedAt
 	PolicyUpdatedAt
 )
 
 type Policy struct {
-	Id           int       `json:"id"`
-	Name         string    `validate:"required"json:"name"`
-	PermissionId int       `validate:"required"json:"permission_id"`
-	RoleId       int       `validate:"required"json:"role_id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Id                  int       `json:"id"`
+	Name                string    `validate:"required"json:"name"`
+	PermissionId        int       `validate:"required"json:"permission_id"`
+	ServiceMemberRoleId int       `validate:"required"json:"service_member_role_id"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
 }
 
 type PolicyColumn int
@@ -32,8 +32,8 @@ func (pc PolicyColumn) String() string {
 		return "name"
 	case PolicyPermissionId:
 		return "permission_id"
-	case PolicyRoleId:
-		return "role_id"
+	case PolicyServiceMemberRoleId:
+		return "service_member_role_id"
 	case PolicyCreatedAt:
 		return "created_at"
 	case PolicyUpdatedAt:
