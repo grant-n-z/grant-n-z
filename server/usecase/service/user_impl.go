@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -69,6 +70,7 @@ func (us userServiceImpl) GenerateJwt(user *entity.User, role string) *string {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = user.Username
 	claims["user_uuid"] = user.Uuid
+	claims["user_id"] = strconv.Itoa(user.Id)
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
 	claims["role"] = role
 
@@ -90,28 +92,39 @@ func (us userServiceImpl) ParseJwt(token string) (map[string]string, bool) {
 	})
 
 	if err != nil || !parseToken.Valid {
+		log.Logger.Error("Error parse token validation", err.Error())
 		return resultMap, false
 	}
 
 	claims := parseToken.Claims.(jwt.MapClaims)
 	if _, ok := claims["username"].(string); !ok {
+		log.Logger.Info("Can not get username from token")
 		return resultMap, false
 	}
 
 	if _, ok := claims["user_uuid"].(string); !ok {
+		log.Logger.Info("Can not get user_uuid from token")
+		return resultMap, false
+	}
+
+	if _, ok := claims["user_id"].(string); !ok {
+		log.Logger.Info("Can not get user_id from token")
 		return resultMap, false
 	}
 
 	if _, ok := claims["expires"].(string); !ok {
+		log.Logger.Info("Can not get expires from token")
 		return resultMap, false
 	}
 
 	if _, ok := claims["role"].(string); !ok {
+		log.Logger.Info("Can not get role from token")
 		return resultMap, false
 	}
 
 	resultMap["username"] = claims["username"].(string)
 	resultMap["user_uuid"] = claims["user_uuid"].(string)
+	resultMap["user_id"] = claims["user_id"].(string)
 	resultMap["expires"] = claims["expires"].(string)
 	resultMap["role"] = claims["role"].(string)
 
