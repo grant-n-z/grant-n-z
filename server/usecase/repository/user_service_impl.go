@@ -27,7 +27,7 @@ func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.E
 			return nil, nil
 		}
 
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return userServices, nil
@@ -40,7 +40,7 @@ func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *
 			return nil, nil
 		}
 
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return userServices, nil
@@ -53,7 +53,7 @@ func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserSe
 			return nil, nil
 		}
 
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return userServices, nil
@@ -61,14 +61,14 @@ func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserSe
 
 func (usri UserServiceRepositoryImpl) Save(userService entity.UserService) (*entity.UserService, *model.ErrorResponse) {
 	if err := usri.Db.Create(&userService).Error; err != nil {
-		errRes := model.Conflict(err.Error())
-		if strings.Contains(err.Error(), "Duplicate entry") {
-			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
-			return nil, model.Conflict(err.Error())
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
 		}
 
-		log.Logger.Error(errRes.ToJson(), errRes.Detail)
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return &userService, nil

@@ -61,13 +61,11 @@ func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *mode
 
 func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResponse) {
 	if err := sri.Db.Create(&service).Error; err != nil {
-		errRes := model.Conflict(err.Error())
-		if strings.Contains(err.Error(), "Duplicate entry") {
-			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
-			return nil, model.Conflict(err.Error())
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
 		}
 
-		log.Logger.Error(errRes.ToJson(), errRes.Detail)
 		return nil, model.InternalServerError(err.Error())
 	}
 

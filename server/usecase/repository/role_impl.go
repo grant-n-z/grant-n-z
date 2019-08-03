@@ -48,13 +48,11 @@ func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorRespon
 
 func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResponse) {
 	if err := rri.Db.Create(&role); err != nil {
-		errRes := model.Conflict(err.Error.Error())
-		if strings.Contains(err.Error.Error(), "Duplicate entry") {
-			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
-			return nil, model.Conflict(err.Error.Error())
+		log.Logger.Warn(err.Error.Error())
+		if strings.Contains(err.Error.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
 		}
 
-		log.Logger.Error(errRes.ToJson(), errRes.Detail)
 		return nil, model.InternalServerError(err.Error.Error())
 	}
 

@@ -27,7 +27,7 @@ func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorRespon
 			return nil, nil
 		}
 
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return &user, nil
@@ -40,7 +40,7 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 			return nil, nil
 		}
 
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return &user, nil
@@ -48,14 +48,12 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResponse) {
 	if err := uri.Db.Create(&user).Error; err != nil {
-		errRes := model.Conflict(err.Error())
-		if strings.Contains(err.Error(), "Duplicate entry") {
-			log.Logger.Warn(errRes.ToJson(), errRes.Detail)
-			return nil, model.Conflict(err.Error())
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
 		}
 
-		log.Logger.Error(errRes.ToJson(), errRes.Detail)
-		return nil, model.InternalServerError(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return &user, nil
