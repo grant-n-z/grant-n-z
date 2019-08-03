@@ -34,7 +34,7 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Api(w http.ResponseWriter, r *http.Re
 }
 
 func (rmrhi OperatorMemberRoleHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET role_members")
+	log.Logger.Info("GET operator_member_roles")
 	id := r.URL.Query().Get(entity.OperatorMemberRoleUserId.String())
 
 	roleMemberEntities, err := rmrhi.RoleMemberService.Get(id)
@@ -49,7 +49,7 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Get(w http.ResponseWriter, r *http.Re
 }
 
 func (rmrhi OperatorMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST role_members")
+	log.Logger.Info("POST operator_member_roles")
 	var roleMemberEntity *entity.OperatorMemberRole
 
 	body, err := Interceptor(w, r)

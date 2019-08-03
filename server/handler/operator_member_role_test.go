@@ -15,11 +15,11 @@ import (
 )
 
 const (
-	endpointRoleMembers = "/api/v1/operator-member-roles"
+	endpointOperatorMemberRoles = "/api/v1/operator-member-roles"
 )
 
 func TestOperateMemberRoleHandlerGet(t *testing.T) {
-	request := httptest.NewRequest(http.MethodGet, endpointRoleMembers, nil)
+	request := httptest.NewRequest(http.MethodGet, endpointOperatorMemberRoles, nil)
 	recorder := httptest.NewRecorder()
 
 	NewOperatorMemberRoleHandler().Get(recorder, request)
@@ -34,7 +34,7 @@ func TestOperateMemberRoleHandlerPost(t *testing.T) {
 
 	body, _:= json.Marshal(roleMember)
 
-	request := httptest.NewRequest(http.MethodPost, endpointRoleMembers, strings.NewReader(string(body)))
+	request := httptest.NewRequest(http.MethodPost, endpointOperatorMemberRoles, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 
