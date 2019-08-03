@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS service_member_roles;
 -- If policies exit, drop policies
 DROP TABLE IF EXISTS policies;
 
--- services
+-- `services`
 CREATE TABLE services (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
