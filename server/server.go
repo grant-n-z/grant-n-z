@@ -67,6 +67,7 @@ func (g GrantNZServer) runCron() {
 }
 
 func (g GrantNZServer) runRouter() {
+	g.router.Init()
 	g.router.V1()
 }
 
