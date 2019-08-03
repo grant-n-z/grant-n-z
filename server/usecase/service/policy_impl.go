@@ -21,21 +21,23 @@ const BitSize = 2048
 
 var (
 	PrivateKey *rsa.PrivateKey = nil
-	PublicKey  *rsa.PublicKey = nil
+	PublicKey  *rsa.PublicKey  = nil
 )
 
 type policyServiceImpl struct {
-	policyRepository     repository.PolicyRepository
-	permissionRepository repository.PermissionRepository
-	roleRepository       repository.RoleRepository
+	policyRepository            repository.PolicyRepository
+	permissionRepository        repository.PermissionRepository
+	roleRepository              repository.RoleRepository
+	serviceMemberRoleRepository repository.ServiceMemberRoleRepository
 }
 
 func NewPolicyService() PolicyService {
 	log.Logger.Info("Inject `roleRepository`, `permissionRepository`, `roleRepository` to `PolicyService`")
 	return policyServiceImpl{
-		policyRepository:     repository.PolicyRepositoryImpl{Db: config.Db},
-		permissionRepository: repository.PermissionRepositoryImpl{Db: config.Db},
-		roleRepository:       repository.RoleRepositoryImpl{Db: config.Db},
+		policyRepository:            repository.NewPolicyRepository(config.Db),
+		permissionRepository:        repository.NewPermissionRepository(config.Db),
+		roleRepository:              repository.NewRoleRepository(config.Db),
+		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(config.Db),
 	}
 }
 
@@ -76,9 +78,9 @@ func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy,
 		return nil, model.BadRequest("Not found permission id")
 	}
 
-	if roleEntity, _ := ps.roleRepository.FindById(policy.RoleId); roleEntity == nil {
-		log.Logger.Warn("Not found role id")
-		return nil, model.BadRequest("Not found role id")
+	if roleEntity, _ := ps.serviceMemberRoleRepository.FindById(policy.ServiceMemberRoleId); roleEntity == nil {
+		log.Logger.Warn("Not found service member role id")
+		return nil, model.BadRequest("Not found service member role id")
 	}
 
 	return ps.policyRepository.Save(*policy)

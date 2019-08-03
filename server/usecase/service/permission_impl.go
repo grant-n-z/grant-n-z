@@ -17,7 +17,7 @@ type permissionServiceImpl struct {
 func NewPermissionService() PermissionService {
 	log.Logger.Info("Inject `permissionRepository` to `PermissionService`")
 	return permissionServiceImpl{
-		permissionRepository: repository.PermissionRepositoryImpl{Db: config.Db},
+		permissionRepository: repository.NewPermissionRepository(config.Db),
 	}
 }
 

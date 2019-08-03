@@ -21,9 +21,9 @@ type operatorMemberRoleServiceImpl struct {
 func NewOperatorMemberRoleService() OperatorMemberRoleService {
 	log.Logger.Info("Inject `operatorMemberRoleRepository`,`userRepository`,`roleRepository` to `OperatorMemberRoleService`")
 	return operatorMemberRoleServiceImpl{
-		operatorMemberRoleRepository: repository.OperatorMemberRoleRepositoryImpl{Db: config.Db},
-		userRepository:               repository.UserRepositoryImpl{Db: config.Db},
-		roleRepository:               repository.RoleRepositoryImpl{Db: config.Db},
+		operatorMemberRoleRepository: repository.NewOperatorMemberRoleRepository(config.Db),
+		userRepository:               repository.NewUserRepository(config.Db),
+		roleRepository:               repository.NewRoleRepository(config.Db),
 	}
 }
 
