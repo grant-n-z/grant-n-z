@@ -12,21 +12,29 @@ import (
 )
 
 type PermissionHandlerImpl struct {
+	RequestHandler    RequestHandler
 	PermissionService service.PermissionService
 }
 
 func NewPermissionHandler() PermissionHandler {
-	log.Logger.Info("Inject `PermissionService` to `PermissionHandler`")
-	return PermissionHandlerImpl{PermissionService: service.NewPermissionService()}
+	log.Logger.Info("Inject `RequestHandler`, `PermissionService` to `PermissionHandler`")
+	return PermissionHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		PermissionService: service.NewPermissionService(),
+	}
 }
 
 func (ph PermissionHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: ph.Get(w, r)
-	case http.MethodPost: ph.Post(w, r)
-	case http.MethodPut: ph.Put(w, r)
-	case http.MethodDelete: ph.Delete(w, r)
+	case http.MethodGet:
+		ph.Get(w, r)
+	case http.MethodPost:
+		ph.Post(w, r)
+	case http.MethodPut:
+		ph.Put(w, r)
+	case http.MethodDelete:
+		ph.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -51,13 +59,13 @@ func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST permissions")
 	var permissionEntity *entity.Permission
 
-	body, err := Interceptor(w, r)
+	body, err := ph.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &permissionEntity)
-	if err := ValidateHttpRequest(w, permissionEntity); err != nil {
+	if err := ph.RequestHandler.ValidateHttpRequest(w, permissionEntity); err != nil {
 		return
 	}
 

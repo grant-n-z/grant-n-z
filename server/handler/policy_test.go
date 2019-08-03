@@ -32,9 +32,9 @@ func TestPolicyHandlerPost(t *testing.T) {
 	name := fmt.Sprintf("unit_test_%s", id.String())
 
 	policy := entity.Policy{
-		Name:         name,
-		PermissionId: 1,
-		RoleId:       1,
+		Name:                name,
+		PermissionId:        1,
+		ServiceMemberRoleId: 1,
 	}
 
 	body, _ := json.Marshal(policy)

@@ -11,26 +11,30 @@ import (
 )
 
 type TokenHandlerImpl struct {
-	UserService service.UserService
+	RequestHandler RequestHandler
+	UserService    service.UserService
 }
 
 func NewTokenHandler() TokenHandler {
-	log.Logger.Info("Inject `UserService` to `TokenHandler`")
-	return TokenHandlerImpl{UserService: service.NewUserService()}
+	log.Logger.Info("Inject `RequestHandler`, `UserService` to `TokenHandler`")
+	return TokenHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		UserService: service.NewUserService(),
+	}
 }
 
 func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST oauth")
 	var userEntity *entity.User
 
-	body, err := Interceptor(w, r)
+	body, err := th.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &userEntity)
 	userEntity.Username = userEntity.Email
-	if err := ValidateHttpRequest(w, userEntity); err != nil {
+	if err := th.RequestHandler.ValidateHttpRequest(w, userEntity); err != nil {
 		return
 	}
 
@@ -47,7 +51,7 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, _ := json.Marshal(map[string]string {"token": *th.UserService.GenerateJwt(user, "test")})
+	res, _ := json.Marshal(map[string]string{"token": *th.UserService.GenerateJwt(user, "test")})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(res)

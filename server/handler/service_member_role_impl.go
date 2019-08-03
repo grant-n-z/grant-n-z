@@ -2,21 +2,23 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/tomoyane/grant-n-z/server/usecase/service"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
+	"github.com/tomoyane/grant-n-z/server/usecase/service"
 )
 
 type ServiceMemberRoleHandlerImpl struct {
+	RequestHandler           RequestHandler
 	ServiceMemberRoleService service.ServiceMemberRoleService
 }
 
 func NewServiceMemberRoleHandler() ServiceMemberRoleHandler {
-	log.Logger.Info("Inject `ServiceMemberRoleService` to `ServiceMemberRoleHandler`")
+	log.Logger.Info("Inject `RequestHandler`, `ServiceMemberRoleService` to `ServiceMemberRoleHandler`")
 	return ServiceMemberRoleHandlerImpl{
+		RequestHandler: NewRequestHandler(),
 		ServiceMemberRoleService: service.NewServiceMemberRoleService(),
 	}
 }
@@ -24,10 +26,14 @@ func NewServiceMemberRoleHandler() ServiceMemberRoleHandler {
 func (smrhi ServiceMemberRoleHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: smrhi.Get(w, r)
-	case http.MethodPost: smrhi.Post(w, r)
-	case http.MethodPut: smrhi.Put(w, r)
-	case http.MethodDelete: smrhi.Delete(w, r)
+	case http.MethodGet:
+		smrhi.Get(w, r)
+	case http.MethodPost:
+		smrhi.Post(w, r)
+	case http.MethodPut:
+		smrhi.Put(w, r)
+	case http.MethodDelete:
+		smrhi.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -52,13 +58,13 @@ func (smrhi ServiceMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.Re
 	log.Logger.Info("POST service_member_roles")
 	var serviceMemberRoleEntity *entity.ServiceMemberRole
 
-	body, err := Interceptor(w, r)
+	body, err := smrhi.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &serviceMemberRoleEntity)
-	if err := ValidateHttpRequest(w, serviceMemberRoleEntity); err != nil {
+	if err := smrhi.RequestHandler.ValidateHttpRequest(w, serviceMemberRoleEntity); err != nil {
 		return
 	}
 

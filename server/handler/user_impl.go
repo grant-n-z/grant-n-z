@@ -12,21 +12,29 @@ import (
 )
 
 type UserHandlerImpl struct {
-	UserService service.UserService
+	RequestHandler RequestHandler
+	UserService    service.UserService
 }
 
 func NewUserHandler() UserHandler {
-	log.Logger.Info("Inject `UserService` to `UserHandler`")
-	return UserHandlerImpl{UserService: service.NewUserService()}
+	log.Logger.Info("Inject `RequestHandler`, `UserService` to `UserHandler`")
+	return UserHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		UserService:    service.NewUserService(),
+	}
 }
 
 func (uh UserHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: uh.Get(w, r)
-	case http.MethodPost: uh.Post(w, r)
-	case http.MethodPut: uh.Put(w, r)
-	case http.MethodDelete: uh.Delete(w, r)
+	case http.MethodGet:
+		uh.Get(w, r)
+	case http.MethodPost:
+		uh.Post(w, r)
+	case http.MethodPut:
+		uh.Put(w, r)
+	case http.MethodDelete:
+		uh.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -40,13 +48,13 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST users")
 	var userEntity *entity.User
 
-	body, err := Interceptor(w, r)
+	body, err := uh.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &userEntity)
-	if err := ValidateHttpRequest(w, userEntity); err != nil {
+	if err := uh.RequestHandler.ValidateHttpRequest(w, userEntity); err != nil {
 		return
 	}
 
@@ -55,7 +63,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, _ := json.Marshal(map[string]string {"message": "user creation succeeded."})
+	res, _ := json.Marshal(map[string]string{"message": "User creation succeeded."})
 	w.WriteHeader(http.StatusCreated)
 	_, _ = w.Write(res)
 }

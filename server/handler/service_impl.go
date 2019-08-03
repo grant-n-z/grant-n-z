@@ -12,21 +12,29 @@ import (
 )
 
 type ServiceHandlerImpl struct {
-	Service service.Service
+	RequestHandler RequestHandler
+	Service        service.Service
 }
 
 func NewServiceHandler() ServiceHandler {
-	log.Logger.Info("Inject `Service` to `ServiceHandler`")
-	return ServiceHandlerImpl{Service: service.NewServiceService()}
+	log.Logger.Info("Inject `RequestHandler`, `Service` to `ServiceHandler`")
+	return ServiceHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		Service: service.NewServiceService(),
+	}
 }
 
 func (sh ServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: sh.Get(w, r)
-	case http.MethodPost: sh.Post(w, r)
-	case http.MethodPut: sh.Put(w, r)
-	case http.MethodDelete: sh.Delete(w, r)
+	case http.MethodGet:
+		sh.Get(w, r)
+	case http.MethodPost:
+		sh.Post(w, r)
+	case http.MethodPut:
+		sh.Put(w, r)
+	case http.MethodDelete:
+		sh.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -52,13 +60,13 @@ func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST services")
 	var serviceEntity *entity.Service
 
-	body, err := Interceptor(w, r)
+	body, err := sh.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &serviceEntity)
-	if err := ValidateHttpRequest(w, serviceEntity); err != nil {
+	if err := sh.RequestHandler.ValidateHttpRequest(w, serviceEntity); err != nil {
 		return
 	}
 

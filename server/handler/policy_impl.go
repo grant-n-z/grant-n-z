@@ -12,21 +12,29 @@ import (
 )
 
 type PolicyHandlerImpl struct {
+	RequestHandler    RequestHandler
 	PolicyService service.PolicyService
 }
 
 func NewPolicyHandlerHandler() PolicyHandler {
-	log.Logger.Info("Inject `PolicyService` to `PolicyHandler`")
-	return PolicyHandlerImpl{PolicyService: service.NewPolicyService()}
+	log.Logger.Info("Inject `RequestHandler`, `PolicyService` to `PolicyHandler`")
+	return PolicyHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		PolicyService: service.NewPolicyService(),
+	}
 }
 
 func (ph PolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: ph.Get(w, r)
-	case http.MethodPost: ph.Post(w, r)
-	case http.MethodPut: ph.Put(w, r)
-	case http.MethodDelete: ph.Delete(w, r)
+	case http.MethodGet:
+		ph.Get(w, r)
+	case http.MethodPost:
+		ph.Post(w, r)
+	case http.MethodPut:
+		ph.Put(w, r)
+	case http.MethodDelete:
+		ph.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -52,13 +60,13 @@ func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST policies")
 	var policyEntity *entity.Policy
 
-	body, err := Interceptor(w, r)
+	body, err := ph.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &policyEntity)
-	if err := ValidateHttpRequest(w, policyEntity); err != nil {
+	if err := ph.RequestHandler.ValidateHttpRequest(w, policyEntity); err != nil {
 		return
 	}
 

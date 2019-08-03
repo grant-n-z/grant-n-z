@@ -12,21 +12,29 @@ import (
 )
 
 type RoleHandlerImpl struct {
-	RoleService service.RoleService
+	RequestHandler RequestHandler
+	RoleService    service.RoleService
 }
 
 func NewRoleHandler() RoleHandler {
-	log.Logger.Info("Inject `RoleService` to `RoleHandler`")
-	return RoleHandlerImpl{RoleService: service.NewRoleService()}
+	log.Logger.Info("Inject `RequestHandler`, `RoleService` to `RoleHandler`")
+	return RoleHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		RoleService:    service.NewRoleService(),
+	}
 }
 
 func (rh RoleHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: rh.Get(w, r)
-	case http.MethodPost: rh.Post(w, r)
-	case http.MethodPut: rh.Put(w, r)
-	case http.MethodDelete: rh.Delete(w, r)
+	case http.MethodGet:
+		rh.Get(w, r)
+	case http.MethodPost:
+		rh.Post(w, r)
+	case http.MethodPut:
+		rh.Put(w, r)
+	case http.MethodDelete:
+		rh.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -51,13 +59,13 @@ func (rh RoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST roles")
 	var roleEntity *entity.Role
 
-	body, err := Interceptor(w, r)
+	body, err := rh.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &roleEntity)
-	if err := ValidateHttpRequest(w, roleEntity); err != nil {
+	if err := rh.RequestHandler.ValidateHttpRequest(w, roleEntity); err != nil {
 		return
 	}
 

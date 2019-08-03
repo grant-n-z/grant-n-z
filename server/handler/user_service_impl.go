@@ -12,21 +12,29 @@ import (
 )
 
 type UserServiceHandlerImpl struct {
-	UserService service.UserServiceService
+	RequestHandler RequestHandler
+	UserService    service.UserServiceService
 }
 
 func NewUserServiceHandler() UserServiceHandler {
-	log.Logger.Info("Inject `UserServiceService` to `UserServiceHandler`")
-	return UserServiceHandlerImpl{UserService: service.NewUserServiceService()}
+	log.Logger.Info("Inject `RequestHandler`, `UserServiceService` to `UserServiceHandler`")
+	return UserServiceHandlerImpl{
+		RequestHandler: NewRequestHandler(),
+		UserService:    service.NewUserServiceService(),
+	}
 }
 
 func (ush UserServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case http.MethodGet: ush.Get(w, r)
-	case http.MethodPost: ush.Post(w, r)
-	case http.MethodPut: ush.Put(w, r)
-	case http.MethodDelete: ush.Delete(w, r)
+	case http.MethodGet:
+		ush.Get(w, r)
+	case http.MethodPost:
+		ush.Post(w, r)
+	case http.MethodPut:
+		ush.Put(w, r)
+	case http.MethodDelete:
+		ush.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
@@ -52,13 +60,13 @@ func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST user_services")
 	var userServiceEntity *entity.UserService
 
-	body, err := Interceptor(w, r)
+	body, err := ush.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
 
 	_ = json.Unmarshal(body, &userServiceEntity)
-	if err := ValidateHttpRequest(w, userServiceEntity); err != nil {
+	if err := ush.RequestHandler.ValidateHttpRequest(w, userServiceEntity); err != nil {
 		return
 	}
 
