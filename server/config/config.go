@@ -34,6 +34,7 @@ func initDb() {
 	}
 
 	db.DB()
+	db.LogMode(false)
 	Db = db
 }
 
