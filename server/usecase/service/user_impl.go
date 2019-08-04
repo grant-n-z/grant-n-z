@@ -13,7 +13,6 @@ import (
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
-
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -33,7 +32,7 @@ func NewUserService() UserService {
 func (us userServiceImpl) EncryptPw(password string) string {
 	hash, err := bcrypt.GenerateFromPassword([] byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Logger.Error("Error password hash", err.Error())
+		log.Logger.Info("Error password hash", err.Error())
 		return ""
 	}
 
@@ -43,7 +42,7 @@ func (us userServiceImpl) EncryptPw(password string) string {
 func (us userServiceImpl) ComparePw(passwordHash string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
 	if err != nil {
-		log.Logger.Error("Error compare password", err.Error())
+		log.Logger.Info("Error compare password", err.Error())
 		return false
 	}
 
