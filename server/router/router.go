@@ -9,6 +9,7 @@ import (
 )
 
 type Router struct {
+	AuthHandler               handler.AuthHandler
 	TokenHandler              handler.TokenHandler
 	UserHandler               handler.UserHandler
 	ServiceHandler            handler.ServiceHandler
@@ -22,6 +23,7 @@ type Router struct {
 
 func NewRouter() Router {
 	return Router{
+		AuthHandler:               handler.NewAuthHandler(),
 		TokenHandler:              handler.NewTokenHandler(),
 		UserHandler:               handler.NewUserHandler(),
 		ServiceHandler:            handler.NewServiceHandler(),
@@ -37,14 +39,15 @@ func NewRouter() Router {
 func (r Router) Init() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		res, _ := json.Marshal(map[string]string {"message": "Not found."})
+		res, _ := json.Marshal(map[string]string{"message": "Not found."})
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(res)
 	})
 }
 
 func (r Router) V1() {
-	http.HandleFunc("/api/v1/oauth", r.TokenHandler.Post)
+	http.HandleFunc("/api/v1/auth", r.AuthHandler.Api)
+	http.HandleFunc("/api/v1/token", r.TokenHandler.Api)
 	http.HandleFunc("/api/v1/users", r.UserHandler.Api)
 	http.HandleFunc("/api/v1/services", r.ServiceHandler.Api)
 	http.HandleFunc("/api/v1/roles", r.RoleHandler.Api)
