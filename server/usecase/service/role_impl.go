@@ -3,11 +3,10 @@ package service
 import (
 	"github.com/satori/go.uuid"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
-
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -17,7 +16,7 @@ type roleServiceImpl struct {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("Inject `roleRepository` to `RoleService`")
-	return roleServiceImpl{roleRepository: repository.RoleRepositoryImpl{Db: config.Db}}
+	return roleServiceImpl{roleRepository: repository.RoleRepositoryImpl{Db: driver.Db}}
 }
 
 func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResponse) {

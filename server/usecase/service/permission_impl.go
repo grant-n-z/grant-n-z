@@ -2,11 +2,11 @@ package service
 
 import (
 	"github.com/satori/go.uuid"
-	"github.com/tomoyane/grant-n-z/server/model"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/server/model"
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -17,7 +17,7 @@ type permissionServiceImpl struct {
 func NewPermissionService() PermissionService {
 	log.Logger.Info("Inject `permissionRepository` to `PermissionService`")
 	return permissionServiceImpl{
-		permissionRepository: repository.NewPermissionRepository(config.Db),
+		permissionRepository: repository.NewPermissionRepository(driver.Db),
 	}
 }
 

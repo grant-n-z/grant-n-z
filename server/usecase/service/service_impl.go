@@ -5,11 +5,10 @@ import (
 
 	"github.com/satori/go.uuid"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
-
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -19,7 +18,7 @@ type serviceImpl struct {
 
 func NewServiceService() Service {
 	log.Logger.Info("Inject `serviceRepository` to `Service`")
-	return serviceImpl{serviceRepository: repository.ServiceRepositoryImpl{Db: config.Db}}
+	return serviceImpl{serviceRepository: repository.ServiceRepositoryImpl{Db: driver.Db}}
 }
 
 func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse)  {

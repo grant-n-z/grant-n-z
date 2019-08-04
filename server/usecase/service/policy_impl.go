@@ -1,15 +1,13 @@
 package service
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
 	"crypto/rand"
 	"crypto/rsa"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
@@ -34,10 +32,10 @@ type policyServiceImpl struct {
 func NewPolicyService() PolicyService {
 	log.Logger.Info("Inject `roleRepository`, `permissionRepository`, `roleRepository` to `PolicyService`")
 	return policyServiceImpl{
-		policyRepository:            repository.NewPolicyRepository(config.Db),
-		permissionRepository:        repository.NewPermissionRepository(config.Db),
-		roleRepository:              repository.NewRoleRepository(config.Db),
-		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(config.Db),
+		policyRepository:            repository.NewPolicyRepository(driver.Db),
+		permissionRepository:        repository.NewPermissionRepository(driver.Db),
+		roleRepository:              repository.NewRoleRepository(driver.Db),
+		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(driver.Db),
 	}
 }
 
@@ -84,27 +82,6 @@ func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy,
 	}
 
 	return ps.policyRepository.Save(*policy)
-}
-
-func (ps policyServiceImpl) ReadLocalPolicy(basePath string) {
-	panic("implement me")
-}
-
-func (ps policyServiceImpl) WriteLocalPolicy(basePath string) {
-	path := fmt.Sprintf("%spolicy.json", basePath)
-	file, err := os.Open(path)
-	if err != nil {
-		file, err = os.Create(path)
-		if err != nil {
-			log.Logger.Error("Error write policy file", err.Error())
-		}
-	}
-	defer file.Close()
-
-	// TODO: Read policy table, then update policy file
-	// TODO: Now, example test data
-	output := "{'key': 'value'}"
-	_, _ = file.Write(([]byte)(output))
 }
 
 func (ps policyServiceImpl) EncryptData(payload string) (*string, error) {

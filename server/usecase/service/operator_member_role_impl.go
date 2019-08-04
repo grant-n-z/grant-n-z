@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
@@ -21,9 +21,9 @@ type operatorMemberRoleServiceImpl struct {
 func NewOperatorMemberRoleService() OperatorMemberRoleService {
 	log.Logger.Info("Inject `operatorMemberRoleRepository`,`userRepository`,`roleRepository` to `OperatorMemberRoleService`")
 	return operatorMemberRoleServiceImpl{
-		operatorMemberRoleRepository: repository.NewOperatorMemberRoleRepository(config.Db),
-		userRepository:               repository.NewUserRepository(config.Db),
-		roleRepository:               repository.NewRoleRepository(config.Db),
+		operatorMemberRoleRepository: repository.NewOperatorMemberRoleRepository(driver.Db),
+		userRepository:               repository.NewUserRepository(driver.Db),
+		roleRepository:               repository.NewRoleRepository(driver.Db),
 	}
 }
 

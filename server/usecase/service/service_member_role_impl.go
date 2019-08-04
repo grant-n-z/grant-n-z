@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
@@ -17,9 +17,9 @@ type serviceMemberRoleServiceImpl struct {
 func NewServiceMemberRoleService() ServiceMemberRoleService {
 	log.Logger.Info("Inject `serviceMemberRoleRepository` to `OperatorMemberRoleService`")
 	return serviceMemberRoleServiceImpl{
-		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(config.Db),
-		roleRepository: repository.NewRoleRepository(config.Db),
-		userServiceRepository: repository.NewUserServiceRepository(config.Db),
+		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(driver.Db),
+		roleRepository: repository.NewRoleRepository(driver.Db),
+		userServiceRepository: repository.NewUserServiceRepository(driver.Db),
 	}
 }
 

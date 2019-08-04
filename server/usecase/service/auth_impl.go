@@ -9,12 +9,14 @@ import (
 )
 
 type AuthServiceImpl struct {
-	UserService UserService
+	UserService   UserService
+	PolicyService PolicyService
 }
 
 func NewAuthService() AuthService {
 	return AuthServiceImpl{
-		UserService: NewUserService(),
+		UserService:   NewUserService(),
+		PolicyService: NewPolicyService(),
 	}
 }
 
@@ -45,5 +47,6 @@ func (as AuthServiceImpl) VerifyOperatorMember(token string) *model.ErrorRespons
 }
 
 func (as AuthServiceImpl) VerifyServiceMember(token string) *model.ErrorResponse {
+
 	return nil
 }

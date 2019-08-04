@@ -4,11 +4,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
-
 	"github.com/tomoyane/grant-n-z/server/usecase/repository"
 )
 
@@ -21,9 +20,9 @@ type userServiceServiceImpl struct {
 func NewUserServiceService() UserServiceService {
 	log.Logger.Info("Inject `userServiceRepository`, `userRepository`, `serviceRepository` to `UserServiceService`")
 	return userServiceServiceImpl{
-		userServiceRepository: repository.NewUserServiceRepository(config.Db),
-		userRepository:        repository.NewUserRepository(config.Db),
-		serviceRepository:     repository.NewServiceRepository(config.Db),
+		userServiceRepository: repository.NewUserServiceRepository(driver.Db),
+		userRepository:        repository.NewUserRepository(driver.Db),
+		serviceRepository:     repository.NewServiceRepository(driver.Db),
 	}
 }
 

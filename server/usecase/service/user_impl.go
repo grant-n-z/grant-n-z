@@ -9,7 +9,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/satori/go.uuid"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/config"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"github.com/tomoyane/grant-n-z/server/entity"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/model"
@@ -24,7 +25,7 @@ type userServiceImpl struct {
 func NewUserService() UserService {
 	log.Logger.Info("Inject `UserRepository` to `UserService`")
 	return userServiceImpl{
-		userRepository: repository.NewUserRepository(config.Db),
+		userRepository: repository.NewUserRepository(driver.Db),
 		appConfig:      config.App,
 	}
 }
