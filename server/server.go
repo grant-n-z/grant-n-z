@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/tomoyane/grant-n-z/server/common/driver"
 	"os"
 	"syscall"
 	"time"
@@ -10,8 +11,7 @@ import (
 	"net/http"
 	"os/signal"
 
-	"github.com/tomoyane/grant-n-z/server/config"
-	"github.com/tomoyane/grant-n-z/server/handler"
+	"github.com/tomoyane/grant-n-z/server/common/config"
 	"github.com/tomoyane/grant-n-z/server/log"
 	"github.com/tomoyane/grant-n-z/server/router"
 )
@@ -34,7 +34,6 @@ High performance authentication and authorization. version is %s
 
 type GrantNZServer struct {
 	router router.Router
-	cron   handler.CronHandler
 }
 
 func NewGrantNZServer() GrantNZServer {
@@ -50,20 +49,14 @@ func NewGrantNZServer() GrantNZServer {
 
 	return GrantNZServer{
 		router: router.NewRouter(),
-		cron:   handler.NewCronHandlerImpl(),
 	}
 }
 
 func (g GrantNZServer) Run() {
-	g.runCron()
 	g.runRouter()
 	go g.subscribeSignal(signalCode, exitCode)
 	go g.gracefulShutdown(exitCode, *server)
 	g.runServer(*server)
-}
-
-func (g GrantNZServer) runCron() {
-	g.cron.RunUpdatePolicy()
 }
 
 func (g GrantNZServer) runRouter() {
@@ -114,8 +107,11 @@ func (g GrantNZServer) gracefulShutdown(exitCode chan int, server http.Server) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	server.Shutdown(ctx)
 
-	// TODO: Delete policy file
-	// TODO: Disconnected database
+	driver.Db.Close()
+	log.Logger.Info("Closed database connection")
+
+	driver.Redis.Close()
+	log.Logger.Info("Closed Redis connection")
 
 	log.Logger.Info("Shutdown gracefully")
 	os.Exit(code)
