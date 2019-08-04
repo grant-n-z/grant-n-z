@@ -18,6 +18,7 @@ type RequestHandlerImpl struct {
 }
 
 func NewRequestHandler() RequestHandler {
+	log.Logger.Info("Inject `AuthService` to `RequestHandler`")
 	return RequestHandlerImpl{
 		AuthService: service.NewAuthService(),
 	}
@@ -30,7 +31,7 @@ func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Reques
 	}
 
 	if !(strings.Contains(r.URL.String(), "users") && strings.EqualFold(r.Method, http.MethodPost)) {
-		if !strings.Contains(r.URL.String(), "token") {
+		if !strings.Contains(r.URL.String(), "token") &&  !strings.Contains(r.URL.String(), "auth"){
 			if err := rh.AuthService.VerifyOperatorMember(r.Header.Get("Authorization")); err != nil {
 				http.Error(w, err.ToJson(), err.Code)
 				return nil, err

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tomoyane/grant-n-z/server/config"
+	"github.com/tomoyane/grant-n-z/server/common/config"
 	"github.com/tomoyane/grant-n-z/server/log"
 )
 
