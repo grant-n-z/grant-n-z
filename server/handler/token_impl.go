@@ -23,8 +23,19 @@ func NewTokenHandler() TokenHandler {
 	}
 }
 
+func (th TokenHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case http.MethodPost:
+		th.Post(w, r)
+	default:
+		err := model.MethodNotAllowed()
+		http.Error(w, err.ToJson(), err.Code)
+	}
+}
+
 func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST oauth")
+	log.Logger.Info("POST token")
 	var userEntity *entity.User
 
 	body, err := th.RequestHandler.InterceptHttp(w, r)
