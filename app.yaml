@@ -12,3 +12,9 @@ db:
   password: $GRANT_N_Z_PASSWORD
   port: $GRANT_N_Z_PORT
   db: $GRANT_N_Z_DB
+
+redis:
+  host: $GRANT_N_Z_REDIS_HOST
+  password: $GRANT_N_Z_REDIS_PASSWORD
+  port: $GRANT_N_Z_REDIS_PORT
+  db: $GRANT_N_Z_REDIS_DB
