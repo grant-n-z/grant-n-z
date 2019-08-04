@@ -1,13 +1,12 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -16,39 +15,27 @@ const (
 )
 
 var (
-	Db       *gorm.DB
-	App      AppConfig
-	yml      YmlConfig
-	dbSource string
+	App         AppConfig
+	Redis       RedisConfig
+	Db          DbConfig
 )
 
 func InitConfig() {
 	initYaml()
-	initDb()
-}
-
-func initDb() {
-	db, err := gorm.Open("mysql", dbSource)
-	if err != nil {
-		panic(err)
-	}
-
-	db.DB()
-	db.LogMode(false)
-	Db = db
 }
 
 func initYaml() {
+	var yml YmlConfig
 	switch os.Getenv(appEnv) {
 	case test:
 		yml = readYml("../../app-test.yaml")
-		dbSource = yml.GetDataSourceUrl()
-		App = yml.GetAppConfig()
 	default:
 		yml = readYml("app.yaml")
-		dbSource = yml.GetDataSourceUrl()
-		App = yml.GetAppConfig()
 	}
+
+	App = yml.GetAppConfig()
+	Db = yml.GetDbConfig()
+	Redis = yml.GetRedisConfig()
 }
 
 func readYml(ymlName string) YmlConfig {

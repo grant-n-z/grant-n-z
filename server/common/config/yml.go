@@ -1,14 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
 
 type YmlConfig struct {
-	App AppConfig `yaml:"app"`
-	Db  DbConfig  `yaml:"db"`
+	App   AppConfig   `yaml:"app"`
+	Db    DbConfig    `yaml:"db"`
+	Redis RedisConfig `yaml:"redis"`
 }
 
 type AppConfig struct {
@@ -23,6 +23,13 @@ type DbConfig struct {
 	Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
 	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Port     string `yaml:"port"`
+	Db       string `yaml:"db"`
+}
+
+type RedisConfig struct {
+	Host     string `yaml:"host"`
 	Password string `yaml:"password"`
 	Port     string `yaml:"port"`
 	Db       string `yaml:"db"`
@@ -56,7 +63,36 @@ func (yml YmlConfig) GetAppConfig() AppConfig {
 	return yml.App
 }
 
-func (yml YmlConfig) GetDataSourceUrl() string {
+func (yml YmlConfig) GetRedisConfig() RedisConfig {
+	host := yml.Redis.Host
+	password := yml.Redis.Password
+	port := yml.Redis.Port
+	db := yml.Redis.Db
+
+	if strings.Contains(host, "$") {
+		host = os.Getenv(yml.Redis.Host[1:])
+	}
+
+	if strings.Contains(password, "$") {
+		password = os.Getenv(yml.Redis.Password[1:])
+	}
+
+	if strings.Contains(port, "$") {
+		port = os.Getenv(yml.Redis.Port[1:])
+	}
+
+	if strings.Contains(db, "$") {
+		db = os.Getenv(yml.Redis.Db[1:])
+	}
+
+	yml.Redis.Host = host
+	yml.Redis.Password = password
+	yml.Redis.Port = port
+	yml.Redis.Db = db
+	return yml.Redis
+}
+
+func (yml YmlConfig) GetDbConfig() DbConfig {
 	engine := yml.Db.Engine
 	user := yml.Db.User
 	password := yml.Db.Password
@@ -88,5 +124,11 @@ func (yml YmlConfig) GetDataSourceUrl() string {
 		db = os.Getenv(yml.Db.Db[1:])
 	}
 
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", user, password, host, port, db)
+	yml.Db.Engine = engine
+	yml.Db.User = user
+	yml.Db.Password = password
+	yml.Db.Host = host
+	yml.Db.Port = port
+	yml.Db.Db = db
+	return yml.Db
 }
