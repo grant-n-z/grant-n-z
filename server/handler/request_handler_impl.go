@@ -1,10 +1,10 @@
 package handler
 
 import (
+	"strings"
+
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"gopkg.in/go-playground/validator.v9"
 
@@ -14,12 +14,12 @@ import (
 )
 
 type RequestHandlerImpl struct {
-	UserService service.UserService
+	AuthService service.AuthService
 }
 
 func NewRequestHandler() RequestHandler {
 	return RequestHandlerImpl{
-		UserService: service.NewUserService(),
+		AuthService: service.NewAuthService(),
 	}
 }
 
@@ -30,8 +30,8 @@ func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Reques
 	}
 
 	if !(strings.Contains(r.URL.String(), "users") && strings.EqualFold(r.Method, http.MethodPost)) {
-		if !strings.Contains(r.URL.String(), "oauth") {
-			if err := rh.verifyServiceAuth(r.Header.Get("Authorization")); err != nil {
+		if !strings.Contains(r.URL.String(), "token") {
+			if err := rh.AuthService.VerifyOperatorMember(r.Header.Get("Authorization")); err != nil {
 				http.Error(w, err.ToJson(), err.Code)
 				return nil, err
 			}
@@ -64,32 +64,6 @@ func (rh RequestHandlerImpl) validateHttpHeader(r *http.Request) *model.ErrorRes
 		return model.BadRequest("Need to content type is only json.")
 	}
 
-	return nil
-}
-
-func (rh RequestHandlerImpl) verifyServiceAuth(token string) *model.ErrorResponse {
-	if !strings.Contains(token, "Bearer") {
-		log.Logger.Info("Not contain `Bearer` authorization header")
-		return model.Unauthorized("Not contain `Bearer` authorization header.")
-	}
-
-	jwt := strings.Replace(token, "Bearer ", "", 1)
-	userData, result := rh.UserService.ParseJwt(jwt)
-	if !result {
-		log.Logger.Info("Failed to parse token")
-		return model.Unauthorized("Failed to token.")
-	}
-
-	id, _ := strconv.Atoi(userData["user_id"])
-	user, err := rh.UserService.GetUserById(id)
-	if err != nil {
-		return err
-	}
-
-	if user == nil {
-		log.Logger.Info("User data is null")
-		return model.Unauthorized("Failed to token.")
-	}
 	return nil
 }
 

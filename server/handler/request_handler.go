@@ -13,7 +13,5 @@ type RequestHandler interface {
 
 	validateHttpHeader(r *http.Request) *model.ErrorResponse
 
-	verifyServiceAuth(token string) *model.ErrorResponse
-
 	bindRequestBody(r *http.Request) ([]byte, *model.ErrorResponse)
 }
