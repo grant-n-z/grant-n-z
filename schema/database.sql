@@ -34,6 +34,7 @@ CREATE TABLE services (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
+  public_key text NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -88,11 +89,11 @@ CREATE TABLE operator_member_roles (
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX (user_id),
   PRIMARY KEY (id),
-  CONSTRAINT fk_operate_member_roles_role_id
+  CONSTRAINT fk_operator_member_roles_role_id
   FOREIGN KEY (role_id)
   REFERENCES roles (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_operate_member_roles_user_id
+  CONSTRAINT fk_operator_member_roles_user_id
   FOREIGN KEY (user_id)
   REFERENCES users (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT

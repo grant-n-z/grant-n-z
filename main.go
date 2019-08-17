@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/tomoyane/grant-n-z/server/common/config"
-	"github.com/tomoyane/grant-n-z/server/common/driver"
-	"github.com/tomoyane/grant-n-z/server/log"
+	"github.com/tomoyane/grant-n-z/gserver/common/config"
+	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/log"
 
-	gserver "github.com/tomoyane/grant-n-z/server"
+	gserver "github.com/tomoyane/grant-n-z/gserver"
 )
 
 func init() {
