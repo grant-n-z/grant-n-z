@@ -36,7 +36,7 @@ func (m Migration) V1() {
 	_, userErr := m.UserService.InsertUser(&operatorUser)
 	if userErr != nil {
 		if userErr.Code != http.StatusConflict {
-			log.Logger.Fatal("Error generate user for migration")
+			log.Logger.Fatal("Failed to generate user for migration")
 		}
 	}
 	log.Logger.Info("Generate to user for migration")
@@ -49,7 +49,7 @@ func (m Migration) V1() {
 	_, roleErr := m.RoleService.InsertRole(&operatorRole)
 	if roleErr != nil {
 		if userErr.Code != http.StatusConflict {
-			log.Logger.Fatal("Error generate user for migration")
+			log.Logger.Fatal("Failed to generate user for migration")
 		}
 	}
 	log.Logger.Info("Generate to role for migration")
@@ -71,17 +71,17 @@ func (m Migration) V1() {
 func (m Migration) checkAdminUser() bool {
 	operatorAdminUser, err := m.UserService.GetUserById(1)
 	if err != nil {
-		log.Logger.Fatal("Error not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 	operatorAdminRole, err := m.RoleService.GetRoleById(1)
 	if err != nil {
-		log.Logger.Fatal("Error not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
 	var operatorAdminMemberRole []*entity.OperatorMemberRole
 	operatorAdminMemberRole, err = m.OperatorMemberRoleService.GetByUserId(1)
 	if err != nil {
-		log.Logger.Fatal("Error not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
 	if operatorAdminUser != nil && operatorAdminRole != nil && len(operatorAdminMemberRole) != 0 {
