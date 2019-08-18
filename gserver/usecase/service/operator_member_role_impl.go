@@ -8,7 +8,6 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-
 	"github.com/tomoyane/grant-n-z/gserver/usecase/repository"
 )
 
@@ -56,6 +55,10 @@ func (omrs operatorMemberRoleServiceImpl) GetAll() ([]*entity.OperatorMemberRole
 
 func (omrs operatorMemberRoleServiceImpl) GetByUserId(userId int) ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
 	return omrs.operatorMemberRoleRepository.FindByUserId(userId)
+}
+
+func (omrs operatorMemberRoleServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorMemberRole, *model.ErrorResponse) {
+	return omrs.operatorMemberRoleRepository.FindByUserIdAndRoleId(userId, roleId)
 }
 
 func (omts operatorMemberRoleServiceImpl) GetRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {

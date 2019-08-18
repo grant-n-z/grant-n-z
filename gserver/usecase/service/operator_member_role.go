@@ -12,6 +12,8 @@ type OperatorMemberRoleService interface {
 
 	GetByUserId(userId int) ([]*entity.OperatorMemberRole, *model.ErrorResponse)
 
+	GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorMemberRole, *model.ErrorResponse)
+
 	GetRoleNameByUserId(userId int) ([]string, *model.ErrorResponse)
 
 	Insert(roleMember *entity.OperatorMemberRole) (*entity.OperatorMemberRole, *model.ErrorResponse)

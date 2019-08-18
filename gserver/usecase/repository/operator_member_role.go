@@ -10,6 +10,8 @@ type OperatorMemberRoleRepository interface {
 
 	FindByUserId(userId int) ([]*entity.OperatorMemberRole, *model.ErrorResponse)
 
+	FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorMemberRole, *model.ErrorResponse)
+
 	FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse)
 
 	Save(role entity.OperatorMemberRole) (*entity.OperatorMemberRole, *model.ErrorResponse)

@@ -47,6 +47,19 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindByUserId(userId int) ([]*entit
 	return entities, nil
 }
 
+func (omrri OperatorMemberRoleRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorMemberRole, *model.ErrorResponse) {
+	var operatorMemberRole *entity.OperatorMemberRole
+	if err := omrri.Db.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return operatorMemberRole, nil
+}
+
 func (omrri OperatorMemberRoleRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
 	query := omrri.Db.Table(entity.OperatorMemberRole{}.TableName()).
 		Select("name").
