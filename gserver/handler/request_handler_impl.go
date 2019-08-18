@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"strings"
-
 	"io/ioutil"
 	"net/http"
 
 	"gopkg.in/go-playground/validator.v9"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/usecase/service"
@@ -30,15 +29,6 @@ func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Reques
 		return nil, err
 	}
 
-	if !(strings.Contains(r.URL.String(), "users") && strings.EqualFold(r.Method, http.MethodPost)) {
-		if !strings.Contains(r.URL.String(), "token") &&  !strings.Contains(r.URL.String(), "auth"){
-			if err := rh.AuthService.VerifyOperatorMember(r.Header.Get("Authorization")); err != nil {
-				http.Error(w, err.ToJson(), err.Code)
-				return nil, err
-			}
-		}
-	}
-
 	bodyBytes, err := rh.bindRequestBody(r)
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
@@ -46,6 +36,29 @@ func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Reques
 	}
 
 	return bodyBytes, nil
+}
+
+func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResponse) {
+	switch authType {
+	case property.AuthOperator:
+		authUser, err := rh.AuthService.VerifyOperatorMember(r.Header.Get("GrantNZ-Operator-Auth"))
+		if err != nil {
+			http.Error(w, err.ToJson(), err.Code)
+			return nil, err
+		}
+		return authUser, err
+
+	case property.AuthUser:
+		authUser, err := rh.AuthService.VerifyServiceMember(r.Header.Get("Authorization"))
+		if err != nil {
+			http.Error(w, err.ToJson(), err.Code)
+			return nil, err
+		}
+		return authUser, err
+	default:
+	}
+
+	return nil, nil
 }
 
 func (rh RequestHandlerImpl) ValidateHttpRequest(w http.ResponseWriter, i interface{}) *model.ErrorResponse {
