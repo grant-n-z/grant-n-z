@@ -16,7 +16,9 @@ type UserService interface {
 
 	InsertUser(user *entity.User) (*entity.User, *model.ErrorResponse)
 
-	GenerateJwt(user *entity.User, role string) *string
+	UpdateUser(user *entity.User) (*entity.User, *model.ErrorResponse)
+
+	GenerateJwt(user *entity.User, roleId int) *string
 
 	ParseJwt(token string) (map[string]string, bool)
 }

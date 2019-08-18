@@ -67,7 +67,12 @@ func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.Er
 	return us.userRepository.Save(*user)
 }
 
-func (us userServiceImpl) GenerateJwt(user *entity.User, role string) *string {
+func (us userServiceImpl) UpdateUser(user *entity.User) (*entity.User, *model.ErrorResponse) {
+	user.Password = us.EncryptPw(user.Password)
+	return us.userRepository.Update(*user)
+}
+
+func (us userServiceImpl) GenerateJwt(user *entity.User, roleId int) *string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -75,7 +80,7 @@ func (us userServiceImpl) GenerateJwt(user *entity.User, role string) *string {
 	claims["user_uuid"] = user.Uuid
 	claims["user_id"] = strconv.Itoa(user.Id)
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
-	claims["role"] = role
+	claims["role"] = strconv.Itoa(roleId)
 
 	signedToken, err := token.SignedString([]byte(us.appConfig.PrivateKeyBase64))
 	if err != nil {
@@ -90,7 +95,6 @@ func (us userServiceImpl) ParseJwt(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		log.Logger.Error("Error parse token")
 		return []byte(us.appConfig.PrivateKeyBase64), nil
 	})
 
