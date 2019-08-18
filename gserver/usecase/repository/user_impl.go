@@ -59,10 +59,11 @@ func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.Error
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) Update(user entity.User) *entity.User {
-	if err := uri.Db.Update(&user).Error; err != nil {
-		return nil
+func (uri UserRepositoryImpl) Update(user entity.User) (*entity.User, *model.ErrorResponse) {
+	if err := uri.Db.Save(&user).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError(	)
 	}
 
-	return &user
+	return &user, nil
 }

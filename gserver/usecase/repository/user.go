@@ -12,5 +12,5 @@ type UserRepository interface {
 
 	Save(user entity.User) (*entity.User, *model.ErrorResponse)
 
-	Update(user entity.User) *entity.User
+	Update(user entity.User) (*entity.User, *model.ErrorResponse)
 }
