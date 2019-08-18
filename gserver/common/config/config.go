@@ -1,17 +1,13 @@
 package config
 
 import (
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v2"
 
 	_ "github.com/go-sql-driver/mysql"
-)
-
-const (
-	test   = "test"
-	appEnv = "APP_ENV"
 )
 
 var (
@@ -26,8 +22,8 @@ func InitConfig() {
 
 func initYaml() {
 	var yml YmlConfig
-	switch os.Getenv(appEnv) {
-	case test:
+	switch os.Getenv(property.AppEnv) {
+	case property.Test:
 		yml = readYml("../../app-test.yaml")
 	default:
 		yml = readYml("app.yaml")
