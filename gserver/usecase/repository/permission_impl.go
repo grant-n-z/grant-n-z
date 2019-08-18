@@ -34,7 +34,7 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.Erro
 }
 
 func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResponse) {
-	permissions := entity.Permission{}
+	var permissions entity.Permission
 	if err := pri.Db.Where("id = ?", id).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil

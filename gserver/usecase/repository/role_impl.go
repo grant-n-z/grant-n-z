@@ -34,7 +34,7 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResponse) {
 }
 
 func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResponse) {
-	role := entity.Role{}
+	var role entity.Role
 	if err := rri.Db.Where("id = ?", id).Find(&role).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -47,13 +47,13 @@ func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorRespon
 }
 
 func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResponse) {
-	if err := rri.Db.Create(&role); err != nil {
-		log.Logger.Warn(err.Error.Error())
-		if strings.Contains(err.Error.Error(), "1062") {
+	if err := rri.Db.Create(&role).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")
 		}
 
-		return nil, model.InternalServerError(err.Error.Error())
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	return &role, nil

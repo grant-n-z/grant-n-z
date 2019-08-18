@@ -59,7 +59,7 @@ func (omrs operatorMemberRoleServiceImpl) GetByUserId(userId int) ([]*entity.Ope
 }
 
 func (omts operatorMemberRoleServiceImpl) GetRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
-
+	return nil, nil
 }
 
 func (omrs operatorMemberRoleServiceImpl) Insert(entity *entity.OperatorMemberRole) (*entity.OperatorMemberRole, *model.ErrorResponse) {

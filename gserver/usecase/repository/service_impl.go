@@ -34,7 +34,7 @@ func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorRespo
 }
 
 func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.ErrorResponse) {
-	service := entity.Service{}
+	var service entity.Service
 	if err := sri.Db.Where("id = ?", id).First(&service).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -47,7 +47,7 @@ func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.Error
 }
 
 func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *model.ErrorResponse) {
-	service := entity.Service{}
+	var service entity.Service
 	if err := sri.Db.Where("name = ?", name).First(&service).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
