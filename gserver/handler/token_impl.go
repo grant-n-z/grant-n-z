@@ -12,14 +12,14 @@ import (
 
 type TokenHandlerImpl struct {
 	RequestHandler RequestHandler
-	UserService    service.UserService
+	TokenService   service.TokenService
 }
 
 func NewTokenHandler() TokenHandler {
-	log.Logger.Info("Inject `RequestHandler`, `UserService` to `TokenHandler`")
+	log.Logger.Info("Inject `RequestHandler`, `TokenService` to `TokenHandler`")
 	return TokenHandlerImpl{
 		RequestHandler: NewRequestHandler(),
-		UserService: service.NewUserService(),
+		TokenService:   service.NewTokenService(),
 	}
 }
 
@@ -49,21 +49,13 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := th.UserService.GetUserByEmail(userEntity.Email)
-	if err != nil || user == nil {
-		errResponse := model.BadRequest("Failed to email or password")
-		http.Error(w, errResponse.ToJson(), errResponse.Code)
+	token, err := th.TokenService.Generate(r.URL.Query().Get("type"), *userEntity)
+	if err != nil {
+		http.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	if !th.UserService.ComparePw(user.Password, userEntity.Password) {
-		errResponse := model.BadRequest("Failed to email or password")
-		http.Error(w, errResponse.ToJson(), errResponse.Code)
-		return
-	}
-
-	res, _ := json.Marshal(map[string]string{"token": *th.UserService.GenerateJwt(user, "test")})
-	w.Header().Set("Content-Type", "application/json")
+	res, _ := json.Marshal(map[string]string{"token": *token})
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(res)
 }
