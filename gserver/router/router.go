@@ -59,7 +59,7 @@ func (r Router) V1() {
 
 	log.Logger.Info("------ Routing info ------")
 	log.Logger.Info("HTTP Method: `POST` Routing: /api/v1/oauth")
-	log.Logger.Info("HTTP Method: `POST` Routing: /api/v1/users")
+	log.Logger.Info("HTTP Method: `POST`, `PUT` Routing: /api/v1/users")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/services`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/roles`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/user-services`")
@@ -67,4 +67,5 @@ func (r Router) V1() {
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/policies`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/operator-member-roles`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/service-member-roles`")
+	log.Logger.Info("------ Routing info ------")
 }
