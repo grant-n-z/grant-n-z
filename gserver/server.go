@@ -14,6 +14,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/router"
+	"github.com/tomoyane/grant-n-z/gserver/usecase/migration"
 )
 
 var (
@@ -36,6 +37,12 @@ type GrantNZServer struct {
 	router router.Router
 }
 
+func init() {
+	config.InitConfig()
+	log.InitLogger(config.App.LogLevel)
+	driver.InitDriver()
+}
+
 func NewGrantNZServer() GrantNZServer {
 	log.Logger.Info("Inject `Router`, `CronHandler`, `PolicyService` to `GrantNZServer`")
 	signal.Notify(
@@ -53,12 +60,16 @@ func NewGrantNZServer() GrantNZServer {
 }
 
 func (g GrantNZServer) Run() {
+	g.migration()
 	g.runRouter()
-	signalCtx := context.TODO()
-	go g.subscribeSignal(signalCtx, signalCode, exitCode)
+	go g.subscribeSignal(context.TODO(), signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
 	g.runServer(*server)
+}
+
+func (g GrantNZServer) migration() {
+	migration.NewMigration().V1()
 }
 
 func (g GrantNZServer) runRouter() {
