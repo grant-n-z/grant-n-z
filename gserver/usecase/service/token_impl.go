@@ -33,6 +33,30 @@ func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) 
 }
 
 func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResponse) {
+	// TODO: Cache
+
+	user, err := tsi.userService.GetUserWithRoleByEmail(userEntity.Email)
+	if err != nil || user == nil {
+		return nil, model.BadRequest("Failed to email or password")
+	}
+	if !tsi.userService.ComparePw(user.Password, userEntity.Password) {
+		return nil, model.BadRequest("Failed to email or password")
+	}
+	if user.RoleId != property.OperatorRoleId {
+		return nil, model.BadRequest("Can not issue token")
+	}
+
+	return tsi.userService.GenerateJwt(&userEntity, property.OperatorRoleId), nil
+}
+
+func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *model.ErrorResponse) {
+	return nil, nil
+}
+
+func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResponse) {
+	// TODO: Cache
+	// TODO: Set user policy
+
 	user, err := tsi.userService.GetUserByEmail(userEntity.Email)
 	if err != nil || user == nil {
 		return nil, model.BadRequest("Failed to email or password")
@@ -42,29 +66,5 @@ func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *mod
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	memberRoles, err := tsi.operatorMemberRoleService.GetByUserId(user.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	result := false
-	for _, v := range memberRoles {
-		if v.RoleId == property.OperatorRoleId {
-			result = true
-		}
-	}
-
-	if !result {
-		return nil, model.BadRequest("Can not issue token this request")
-	}
-
-	return tsi.userService.GenerateJwt(user, property.OperatorRoleId), nil
-}
-
-func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *model.ErrorResponse) {
-	return nil, nil
-}
-
-func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResponse) {
-	return nil, nil
+	return tsi.userService.GenerateJwt(&userEntity, property.OperatorRoleId), nil
 }
