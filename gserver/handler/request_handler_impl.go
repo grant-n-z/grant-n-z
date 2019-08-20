@@ -55,7 +55,6 @@ func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request,
 			return nil, err
 		}
 		return authUser, err
-	default:
 	}
 
 	return nil, nil
