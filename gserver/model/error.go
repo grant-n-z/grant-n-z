@@ -5,17 +5,20 @@ import (
 	"net/http"
 )
 
+// GrantNZ error data
 type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Detail  string `json:"detail"`
 }
 
+// To json
 func (er ErrorResponse) ToJson() string {
 	jsonBytes, _ := json.Marshal(er)
 	return string(jsonBytes)
 }
 
+// BadRequest
 func BadRequest(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
@@ -28,6 +31,7 @@ func BadRequest(err ...string) *ErrorResponse {
 	}
 }
 
+// Unauthorized
 func Unauthorized(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
@@ -40,6 +44,7 @@ func Unauthorized(err ...string) *ErrorResponse {
 	}
 }
 
+// Forbidden
 func Forbidden(err ...string) ErrorResponse {
 	var detail string
 	if err != nil {
@@ -52,6 +57,7 @@ func Forbidden(err ...string) ErrorResponse {
 	}
 }
 
+// NotFound
 func NotFound(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
@@ -64,6 +70,7 @@ func NotFound(err ...string) *ErrorResponse {
 	}
 }
 
+// Conflict
 func Conflict(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
@@ -76,6 +83,7 @@ func Conflict(err ...string) *ErrorResponse {
 	}
 }
 
+// MethodNotAllowed
 func MethodNotAllowed(err ...string) *ErrorResponse {
 	var detail string
 	if err != nil {
@@ -88,6 +96,7 @@ func MethodNotAllowed(err ...string) *ErrorResponse {
 	}
 }
 
+// UnProcessableEntity
 func UnProcessableEntity(err ...string) ErrorResponse {
 	var detail string
 	if err != nil {
@@ -100,6 +109,7 @@ func UnProcessableEntity(err ...string) ErrorResponse {
 	}
 }
 
+// InternalServerError
 func InternalServerError(err ...string) *ErrorResponse {
 	return &ErrorResponse{
 		Code:    http.StatusInternalServerError,
