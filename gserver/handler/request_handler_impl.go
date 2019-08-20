@@ -9,7 +9,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/usecase/service"
+	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
 type RequestHandlerImpl struct {

@@ -12,7 +12,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 
-	"github.com/tomoyane/grant-n-z/gserver/usecase/repository"
+	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
 const BitSize = 2048

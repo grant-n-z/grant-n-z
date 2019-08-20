@@ -14,7 +14,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/router"
-	"github.com/tomoyane/grant-n-z/gserver/usecase/migration"
+	"github.com/tomoyane/grant-n-z/gserver/migration"
 )
 
 var (
