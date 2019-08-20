@@ -66,6 +66,7 @@ func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.Err
 		return nil, model.Unauthorized("Failed to token.")
 	}
 
+	// TODO: Read cache
 	id, _ := strconv.Atoi(userData["user_id"])
 	user, err := as.UserService.GetUserById(id)
 	if err != nil {
