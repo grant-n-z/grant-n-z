@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -44,6 +45,28 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	}
 
 	return &user, nil
+}
+
+func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse) {
+	var userOperatorMemberRole model.UserOperatorMemberRole
+	if err := uri.Db.Table(entity.User{}.TableName()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.OperatorMemberRole{}.TableName(),
+			entity.User{}.TableName(),
+			entity.UserId,
+			entity.OperatorMemberRole{}.TableName(),
+			entity.OperatorMemberRoleUserId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.User{}.TableName(),
+			entity.UserEmail), email).
+		Find(&userOperatorMemberRole).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError()
+	}
+
+	return &userOperatorMemberRole, nil
 }
 
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResponse) {

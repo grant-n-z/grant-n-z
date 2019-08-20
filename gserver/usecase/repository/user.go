@@ -10,6 +10,8 @@ type UserRepository interface {
 
 	FindByEmail(email string) (*entity.User, *model.ErrorResponse)
 
+	FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse)
+
 	Save(user entity.User) (*entity.User, *model.ErrorResponse)
 
 	Update(user entity.User) (*entity.User, *model.ErrorResponse)

@@ -61,6 +61,10 @@ func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.Err
 	return us.userRepository.FindByEmail(email)
 }
 
+func (us userServiceImpl) GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse) {
+	return us.userRepository.FindUserWithRoleByEmail(email)
+}
+
 func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.ErrorResponse) {
 	user.Uuid, _ = uuid.NewV4()
 	user.Password = us.EncryptPw(user.Password)
