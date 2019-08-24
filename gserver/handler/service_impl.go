@@ -18,8 +18,8 @@ type ServiceHandlerImpl struct {
 func NewServiceHandler() ServiceHandler {
 	log.Logger.Info("Inject `RequestHandler`, `Service` to `ServiceHandler`")
 	return ServiceHandlerImpl{
-		RequestHandler: NewRequestHandler(),
-		Service: service.NewServiceService(),
+		RequestHandler: GetRequestHandlerInstance(),
+		Service:        service.NewServiceService(),
 	}
 }
 

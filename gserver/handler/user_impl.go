@@ -19,7 +19,7 @@ type UserHandlerImpl struct {
 func NewUserHandler() UserHandler {
 	log.Logger.Info("Inject `RequestHandler`, `UserService` to `UserHandler`")
 	return UserHandlerImpl{
-		RequestHandler: NewRequestHandler(),
+		RequestHandler: GetRequestHandlerInstance(),
 		UserService:    service.NewUserService(),
 	}
 }

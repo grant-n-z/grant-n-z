@@ -18,7 +18,7 @@ type OperatorMemberRoleHandlerImpl struct {
 func NewOperatorMemberRoleHandler() OperateMemberRoleHandler {
 	log.Logger.Info("Inject `RequestHandler`, `OperatorMemberRoleService` to `OperateMemberRoleHandler`")
 	return OperatorMemberRoleHandlerImpl{
-		RequestHandler: NewRequestHandler(),
+		RequestHandler:    GetRequestHandlerInstance(),
 		RoleMemberService: service.NewOperatorMemberRoleService(),
 	}
 }

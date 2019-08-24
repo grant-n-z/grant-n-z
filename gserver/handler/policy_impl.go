@@ -18,8 +18,8 @@ type PolicyHandlerImpl struct {
 func NewPolicyHandlerHandler() PolicyHandler {
 	log.Logger.Info("Inject `RequestHandler`, `PolicyService` to `PolicyHandler`")
 	return PolicyHandlerImpl{
-		RequestHandler: NewRequestHandler(),
-		PolicyService: service.NewPolicyService(),
+		RequestHandler: GetRequestHandlerInstance(),
+		PolicyService:  service.NewPolicyService(),
 	}
 }
 

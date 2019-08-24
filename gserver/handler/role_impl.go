@@ -18,7 +18,7 @@ type RoleHandlerImpl struct {
 func NewRoleHandler() RoleHandler {
 	log.Logger.Info("Inject `RequestHandler`, `RoleService` to `RoleHandler`")
 	return RoleHandlerImpl{
-		RequestHandler: NewRequestHandler(),
+		RequestHandler: GetRequestHandlerInstance(),
 		RoleService:    service.NewRoleService(),
 	}
 }

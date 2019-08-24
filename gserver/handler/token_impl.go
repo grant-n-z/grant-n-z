@@ -18,7 +18,7 @@ type TokenHandlerImpl struct {
 func NewTokenHandler() TokenHandler {
 	log.Logger.Info("Inject `RequestHandler`, `TokenService` to `TokenHandler`")
 	return TokenHandlerImpl{
-		RequestHandler: NewRequestHandler(),
+		RequestHandler: GetRequestHandlerInstance(),
 		TokenService:   service.NewTokenService(),
 	}
 }

@@ -12,12 +12,23 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var (
+	rhInstance RequestHandler
+)
+
 type RequestHandlerImpl struct {
 	AuthService service.AuthService
 }
 
+func GetRequestHandlerInstance() RequestHandler {
+	if rhInstance == nil {
+		rhInstance = NewRequestHandler()
+	}
+	return rhInstance
+}
+
 func NewRequestHandler() RequestHandler {
-	log.Logger.Info("Inject `AuthService` to `RequestHandler`")
+	log.Logger.Info("New `RequestHandler` rhInstance")
 	return RequestHandlerImpl{
 		AuthService: service.NewAuthService(),
 	}
@@ -63,7 +74,7 @@ func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request,
 func (rh RequestHandlerImpl) ValidateHttpRequest(w http.ResponseWriter, i interface{}) *model.ErrorResponse {
 	err := validator.New().Struct(i)
 	if err != nil {
-		log.Logger.Warn("Error request validation")
+		log.Logger.Info("Request is invalid")
 		errModel := model.BadRequest("Failed to request validation.")
 		http.Error(w, errModel.ToJson(), errModel.Code)
 		return errModel

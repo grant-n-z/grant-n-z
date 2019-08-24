@@ -17,7 +17,7 @@ type AuthHandlerImpl struct {
 func NewAuthHandler() AuthHandler {
 	log.Logger.Info("Inject `RequestHandler`, `UserService` to `TokenHandler`")
 	return AuthHandlerImpl{
-		RequestHandler: NewRequestHandler(),
+		RequestHandler: GetRequestHandlerInstance(),
 		AuthService: service.NewAuthService(),
 	}
 }

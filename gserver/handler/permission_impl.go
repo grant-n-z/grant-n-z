@@ -18,7 +18,7 @@ type PermissionHandlerImpl struct {
 func NewPermissionHandler() PermissionHandler {
 	log.Logger.Info("Inject `RequestHandler`, `PermissionService` to `PermissionHandler`")
 	return PermissionHandlerImpl{
-		RequestHandler: NewRequestHandler(),
+		RequestHandler:    GetRequestHandlerInstance(),
 		PermissionService: service.NewPermissionService(),
 	}
 }
