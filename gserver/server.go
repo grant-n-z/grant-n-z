@@ -21,7 +21,7 @@ var (
 	exitCode   = make(chan int)
 	signalCode = make(chan os.Signal, 1)
 	server     = &http.Server{Addr: ":8080", Handler: nil}
-	banner     = `start grant-n-z server :8080
+	banner     = `Start to grant-n-z server :8080
 ___________________________________________________
     ____                      _      
    / __/ _    ____   _____ __//_      _____   ____ 
@@ -90,22 +90,22 @@ func (g GrantNZServer) subscribeSignal(ctx context.Context, signalCode chan os.S
 		s := <-signalCode
 		switch s {
 		case syscall.SIGHUP:
-			log.Logger.Info("Catch signal SIGHUP")
+			log.Logger.Info("Caught signal SIGHUP")
 
 		case syscall.SIGINT:
-			log.Logger.Info("Catch signal SIGINT")
+			log.Logger.Info("Caught signal SIGINT")
 			exitCode <- 0
 
 		case syscall.SIGTERM:
-			log.Logger.Info("Catch signal SIGTERM")
+			log.Logger.Info("Caught signal SIGTERM")
 			exitCode <- 0
 
 		case syscall.SIGQUIT:
-			log.Logger.Info("Catch signal SIGQUIT")
+			log.Logger.Info("Caught signal SIGQUIT")
 			exitCode <- 0
 
 		case syscall.SIGKILL:
-			log.Logger.Info("Catch signal SIGKILL")
+			log.Logger.Info("Caught signal SIGKILL")
 			exitCode <- 0
 
 		default:

@@ -85,7 +85,7 @@ func (m Migration) checkAdminUser() bool {
 	}
 
 	if operatorAdminUser != nil && operatorAdminRole != nil && len(operatorAdminMemberRole) != 0 {
-		log.Logger.Info("Skip to migration")
+		log.Logger.Info("Skip to database migration")
 		return false
 	}
 
