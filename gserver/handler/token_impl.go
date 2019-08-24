@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var thInstance TokenHandler
+
 type TokenHandlerImpl struct {
 	RequestHandler RequestHandler
 	TokenService   service.TokenService
 }
 
+func GetTokenHandlerInstance() TokenHandler {
+	if thInstance == nil {
+		thInstance = NewTokenHandler()
+	}
+	return thInstance
+}
+
 func NewTokenHandler() TokenHandler {
+	log.Logger.Info("New `TokenHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `TokenService` to `TokenHandler`")
 	return TokenHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),

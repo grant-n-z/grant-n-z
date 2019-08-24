@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var rlhInstance RoleHandler
+
 type RoleHandlerImpl struct {
 	RequestHandler RequestHandler
 	RoleService    service.RoleService
 }
 
+func GetRoleHandlerInstance() RoleHandler {
+	if rlhInstance == nil {
+		rlhInstance = NewRoleHandler()
+	}
+	return rlhInstance
+}
+
 func NewRoleHandler() RoleHandler {
+	log.Logger.Info("New `RoleHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `RoleService` to `RoleHandler`")
 	return RoleHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),

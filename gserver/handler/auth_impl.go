@@ -9,13 +9,23 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var ahInstance AuthHandler
+
 type AuthHandlerImpl struct {
 	RequestHandler RequestHandler
 	AuthService    service.AuthService
 }
 
+func GetAuthHandlerInstance() AuthHandler {
+	if ahInstance == nil {
+		ahInstance = NewAuthHandler()
+	}
+	return ahInstance
+}
+
 func NewAuthHandler() AuthHandler {
-	log.Logger.Info("Inject `RequestHandler`, `UserService` to `TokenHandler`")
+	log.Logger.Info("New `AuthHandler` instance")
+	log.Logger.Info("Inject `RequestHandler`, `AuthService` to `AuthHandler`")
 	return AuthHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
 		AuthService: service.NewAuthService(),

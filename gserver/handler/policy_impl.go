@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var plhInstance PolicyHandler
+
 type PolicyHandlerImpl struct {
-	RequestHandler    RequestHandler
-	PolicyService service.PolicyService
+	RequestHandler RequestHandler
+	PolicyService  service.PolicyService
 }
 
-func NewPolicyHandlerHandler() PolicyHandler {
+func GetPolicyHandlerInstance() PolicyHandler {
+	if plhInstance == nil {
+		plhInstance = NewPolicyHandler()
+	}
+	return plhInstance
+}
+
+func NewPolicyHandler() PolicyHandler {
+	log.Logger.Info("New `PolicyHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `PolicyService` to `PolicyHandler`")
 	return PolicyHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),

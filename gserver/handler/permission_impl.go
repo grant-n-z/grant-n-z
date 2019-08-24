@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var phInstance PermissionHandler
+
 type PermissionHandlerImpl struct {
 	RequestHandler    RequestHandler
 	PermissionService service.PermissionService
 }
 
+func GetPermissionHandlerInstance() PermissionHandler {
+	if phInstance == nil {
+		phInstance = NewPermissionHandler()
+	}
+	return phInstance
+}
+
 func NewPermissionHandler() PermissionHandler {
+	log.Logger.Info("New `PermissionHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `PermissionService` to `PermissionHandler`")
 	return PermissionHandlerImpl{
 		RequestHandler:    GetRequestHandlerInstance(),

@@ -10,13 +10,23 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var ushInstance UserServiceHandler
+
 type UserServiceHandlerImpl struct {
 	RequestHandler RequestHandler
 	UserService    service.UserServiceService
 }
 
+func GetUserServiceHandlerInstance() UserServiceHandler {
+	if ushInstance == nil {
+		ushInstance = NewUserServiceHandler()
+	}
+	return ushInstance
+}
+
 func NewUserServiceHandler() UserServiceHandler {
-	log.Logger.Info("Inject `RequestHandler`, `UserServiceService` to `UserServiceHandler`")
+	log.Logger.Info("New `UserServiceHandler` instance")
+	log.Logger.Info("Inject `RequestHandler`, `UserService` to `UserServiceHandler`")
 	return UserServiceHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
 		UserService:    service.NewUserServiceService(),

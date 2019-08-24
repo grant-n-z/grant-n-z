@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var smrhInstance ServiceMemberRoleHandler
+
 type ServiceMemberRoleHandlerImpl struct {
 	RequestHandler           RequestHandler
 	ServiceMemberRoleService service.ServiceMemberRoleService
 }
 
+func GetServiceMemberRoleHandlerInstance() ServiceMemberRoleHandler {
+	if smrhInstance == nil {
+		smrhInstance = NewServiceMemberRoleHandler()
+	}
+	return smrhInstance
+}
+
 func NewServiceMemberRoleHandler() ServiceMemberRoleHandler {
+	log.Logger.Info("New `ServiceMemberRoleHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `ServiceMemberRoleService` to `ServiceMemberRoleHandler`")
 	return ServiceMemberRoleHandlerImpl{
 		RequestHandler:           GetRequestHandlerInstance(),

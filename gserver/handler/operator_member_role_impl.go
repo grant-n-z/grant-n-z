@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var omhInstance OperateMemberRoleHandler
+
 type OperatorMemberRoleHandlerImpl struct {
 	RequestHandler    RequestHandler
 	RoleMemberService service.OperatorMemberRoleService
 }
 
+func GetOperateMemberRoleHandlerInstance() OperateMemberRoleHandler {
+	if omhInstance == nil {
+		omhInstance = NewOperatorMemberRoleHandler()
+	}
+	return omhInstance
+}
+
 func NewOperatorMemberRoleHandler() OperateMemberRoleHandler {
+	log.Logger.Info("New `OperateMemberRoleHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `OperatorMemberRoleService` to `OperateMemberRoleHandler`")
 	return OperatorMemberRoleHandlerImpl{
 		RequestHandler:    GetRequestHandlerInstance(),

@@ -23,16 +23,16 @@ type Router struct {
 
 func NewRouter() Router {
 	return Router{
-		AuthHandler:               handler.NewAuthHandler(),
-		TokenHandler:              handler.NewTokenHandler(),
-		UserHandler:               handler.NewUserHandler(),
-		ServiceHandler:            handler.NewServiceHandler(),
-		RoleHandler:               handler.NewRoleHandler(),
-		OperatorMemberRoleHandler: handler.NewOperatorMemberRoleHandler(),
-		UserServiceHandler:        handler.NewUserServiceHandler(),
-		PermissionHandler:         handler.NewPermissionHandler(),
-		PolicyHandler:             handler.NewPolicyHandlerHandler(),
-		ServiceMemberRoleHandler:  handler.NewServiceMemberRoleHandler(),
+		AuthHandler:               handler.GetAuthHandlerInstance(),
+		TokenHandler:              handler.GetTokenHandlerInstance(),
+		UserHandler:               handler.GetUserHandlerInstance(),
+		ServiceHandler:            handler.GetServiceHandlerInstance(),
+		RoleHandler:               handler.GetRoleHandlerInstance(),
+		OperatorMemberRoleHandler: handler.GetOperateMemberRoleHandlerInstance(),
+		UserServiceHandler:        handler.GetUserServiceHandlerInstance(),
+		PermissionHandler:         handler.GetPermissionHandlerInstance(),
+		PolicyHandler:             handler.GetPolicyHandlerInstance(),
+		ServiceMemberRoleHandler:  handler.GetServiceMemberRoleHandlerInstance(),
 	}
 }
 

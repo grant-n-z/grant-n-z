@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+var shInstance ServiceHandler
+
 type ServiceHandlerImpl struct {
 	RequestHandler RequestHandler
 	Service        service.Service
 }
 
+func GetServiceHandlerInstance() ServiceHandler {
+	if shInstance == nil {
+		shInstance = NewServiceHandler()
+	}
+	return shInstance
+}
+
 func NewServiceHandler() ServiceHandler {
+	log.Logger.Info("New `ServiceHandler` instance")
 	log.Logger.Info("Inject `RequestHandler`, `Service` to `ServiceHandler`")
 	return ServiceHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),

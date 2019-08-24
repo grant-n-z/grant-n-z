@@ -23,7 +23,7 @@ func TestPolicyHandlerGet(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, endpointPolicies, nil)
 	recorder := httptest.NewRecorder()
 
-	NewPolicyHandlerHandler().Get(recorder, request)
+	NewPolicyHandler().Get(recorder, request)
 	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
@@ -43,6 +43,6 @@ func TestPolicyHandlerPost(t *testing.T) {
 	request.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 
-	NewPolicyHandlerHandler().Post(recorder, request)
+	NewPolicyHandler().Post(recorder, request)
 	assert.Equal(t, http.StatusCreated, recorder.Code)
 }
