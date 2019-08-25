@@ -70,6 +70,19 @@ func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *mode
 	return &service, nil
 }
 
+func (sri ServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse) {
+	var service entity.Service
+	if err := sri.Db.Where("api_key = ?", apiKey).First(&service).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return &service, nil
+}
+
 func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResponse) {
 	if err := sri.Db.Create(&service).Error; err != nil {
 		log.Logger.Warn(err.Error())

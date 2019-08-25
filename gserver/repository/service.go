@@ -12,6 +12,8 @@ type ServiceRepository interface {
 
 	FindByName(name string) (*entity.Service, *model.ErrorResponse)
 
+	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse)
+
 	Save(service entity.Service) (*entity.Service, *model.ErrorResponse)
 
 	Update(service entity.Service) *entity.Service
