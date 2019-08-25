@@ -74,5 +74,7 @@ func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 
 func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResponse) {
 	service.Uuid, _ = uuid.NewV4()
+	key, _ := uuid.NewV4()
+	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
 	return ss.serviceRepository.Save(*service)
 }
