@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"net/http"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
