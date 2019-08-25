@@ -34,7 +34,7 @@ CREATE TABLE services (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
-  public_key text NOT NULL,
+  api_key varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
