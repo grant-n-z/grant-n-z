@@ -8,18 +8,28 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var smrsInstance ServiceMemberRoleService
+
 type serviceMemberRoleServiceImpl struct {
 	serviceMemberRoleRepository repository.ServiceMemberRoleRepository
-	roleRepository repository.RoleRepository
-	userServiceRepository repository.UserServiceRepository
+	roleRepository              repository.RoleRepository
+	userServiceRepository       repository.UserServiceRepository
+}
+
+func GetServiceMemberRoleServiceInstance() ServiceMemberRoleService {
+	if smrsInstance == nil {
+		smrsInstance = NewServiceMemberRoleService()
+	}
+	return smrsInstance
 }
 
 func NewServiceMemberRoleService() ServiceMemberRoleService {
-	log.Logger.Info("Inject `serviceMemberRoleRepository` to `OperatorMemberRoleService`")
+	log.Logger.Info("New `ServiceMemberRoleService` instance")
+	log.Logger.Info("Inject `ServiceMemberRoleRepository`, `RoleRepository`, `UserServiceRepository` to `ServiceMemberRoleService`")
 	return serviceMemberRoleServiceImpl{
 		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(driver.Db),
-		roleRepository: repository.NewRoleRepository(driver.Db),
-		userServiceRepository: repository.NewUserServiceRepository(driver.Db),
+		roleRepository:              repository.NewRoleRepository(driver.Db),
+		userServiceRepository:       repository.NewUserServiceRepository(driver.Db),
 	}
 }
 

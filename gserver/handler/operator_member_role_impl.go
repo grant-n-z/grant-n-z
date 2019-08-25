@@ -26,7 +26,7 @@ func GetOperateMemberRoleHandlerInstance() OperateMemberRoleHandler {
 
 func NewOperatorMemberRoleHandler() OperateMemberRoleHandler {
 	log.Logger.Info("New `OperateMemberRoleHandler` instance")
-	log.Logger.Info("Inject `RequestHandler`, `OperatorMemberRoleService` to `OperateMemberRoleHandler`")
+	log.Logger.Info("Inject `RequestHandler`, `operatorMemberRoleService` to `OperateMemberRoleHandler`")
 	return OperatorMemberRoleHandlerImpl{
 		RequestHandler:    GetRequestHandlerInstance(),
 		RoleMemberService: service.NewOperatorMemberRoleService(),

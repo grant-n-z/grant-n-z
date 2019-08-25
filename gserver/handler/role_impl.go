@@ -29,7 +29,7 @@ func NewRoleHandler() RoleHandler {
 	log.Logger.Info("Inject `RequestHandler`, `RoleService` to `RoleHandler`")
 	return RoleHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
-		RoleService:    service.NewRoleService(),
+		RoleService:    service.GetRoleServiceInstance(),
 	}
 }
 

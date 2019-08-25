@@ -18,8 +18,9 @@ import (
 const BitSize = 2048
 
 var (
-	PrivateKey *rsa.PrivateKey = nil
-	PublicKey  *rsa.PublicKey  = nil
+	PrivateKey *rsa.PrivateKey
+	PublicKey  *rsa.PublicKey
+	plsInstance PolicyService
 )
 
 type policyServiceImpl struct {
@@ -29,8 +30,16 @@ type policyServiceImpl struct {
 	serviceMemberRoleRepository repository.ServiceMemberRoleRepository
 }
 
+func GetPolicyServiceInstance() PolicyService {
+	if plsInstance == nil {
+		plsInstance = NewPolicyService()
+	}
+	return plsInstance
+}
+
 func NewPolicyService() PolicyService {
-	log.Logger.Info("Inject `roleRepository`, `permissionRepository`, `roleRepository` to `PolicyService`")
+	log.Logger.Info("New `RequestHandler` instance")
+	log.Logger.Info("Inject `PolicyRepository`, `PermissionRepository`, `RoleRepository`, `ServiceMemberRoleRepository` to `PolicyService`")
 	return policyServiceImpl{
 		policyRepository:            repository.NewPolicyRepository(driver.Db),
 		permissionRepository:        repository.NewPermissionRepository(driver.Db),

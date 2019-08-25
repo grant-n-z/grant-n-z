@@ -11,14 +11,24 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var omrsInstance OperatorMemberRoleService
+
 type operatorMemberRoleServiceImpl struct {
 	operatorMemberRoleRepository repository.OperatorMemberRoleRepository
 	userRepository               repository.UserRepository
 	roleRepository               repository.RoleRepository
 }
 
+func GetRequestHandlerInstance() OperatorMemberRoleService {
+	if omrsInstance == nil {
+		omrsInstance = NewOperatorMemberRoleService()
+	}
+	return omrsInstance
+}
+
 func NewOperatorMemberRoleService() OperatorMemberRoleService {
-	log.Logger.Info("Inject `operatorMemberRoleRepository`,`userRepository`,`roleRepository` to `OperatorMemberRoleService`")
+	log.Logger.Info("New `OperatorMemberRoleService` instance")
+	log.Logger.Info("Inject `OperatorMemberRoleRepository`, `UserRepository`, `RoleRepository` to `OperatorMemberRoleService`")
 	return operatorMemberRoleServiceImpl{
 		operatorMemberRoleRepository: repository.NewOperatorMemberRoleRepository(driver.Db),
 		userRepository:               repository.NewUserRepository(driver.Db),

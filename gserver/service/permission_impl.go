@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var psInstance PermissionService
+
 type permissionServiceImpl struct {
 	permissionRepository repository.PermissionRepository
 }
 
+func GetPermissionServiceInstance() PermissionService {
+	if psInstance == nil {
+		psInstance = NewPermissionService()
+	}
+	return psInstance
+}
+
 func NewPermissionService() PermissionService {
-	log.Logger.Info("Inject `permissionRepository` to `PermissionService`")
+	log.Logger.Info("New `PermissionService` instance")
+	log.Logger.Info("Inject `PermissionRepository` to `PermissionService`")
 	return permissionServiceImpl{
 		permissionRepository: repository.NewPermissionRepository(driver.Db),
 	}

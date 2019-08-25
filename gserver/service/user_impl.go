@@ -18,13 +18,23 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var usInstance UserService
+
 type userServiceImpl struct {
 	userRepository repository.UserRepository
 	appConfig      config.AppConfig
 	redisClient    cache.RedisClient
 }
 
+func GetUserServiceInstance() UserService {
+	if usInstance == nil {
+		usInstance = NewUserService()
+	}
+	return usInstance
+}
+
 func NewUserService() UserService {
+	log.Logger.Info("New `UserService` instance")
 	log.Logger.Info("Inject `UserRepository`, `AppConfig`, `RedisClient` to `UserService`")
 	return userServiceImpl{
 		userRepository: repository.NewUserRepository(driver.Db),

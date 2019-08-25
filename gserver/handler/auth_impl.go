@@ -28,7 +28,7 @@ func NewAuthHandler() AuthHandler {
 	log.Logger.Info("Inject `RequestHandler`, `AuthService` to `AuthHandler`")
 	return AuthHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
-		AuthService: service.NewAuthService(),
+		AuthService:    service.GetAuthServiceInstance(),
 	}
 }
 

@@ -29,7 +29,7 @@ func NewTokenHandler() TokenHandler {
 	log.Logger.Info("Inject `RequestHandler`, `TokenService` to `TokenHandler`")
 	return TokenHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
-		TokenService:   service.NewTokenService(),
+		TokenService:   service.GetTokenServiceInstance(),
 	}
 }
 

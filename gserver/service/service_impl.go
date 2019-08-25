@@ -12,16 +12,28 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var sInstance Service
+
 type serviceImpl struct {
 	serviceRepository repository.ServiceRepository
 }
 
-func NewServiceService() Service {
-	log.Logger.Info("Inject `serviceRepository` to `Service`")
-	return serviceImpl{serviceRepository: repository.ServiceRepositoryImpl{Db: driver.Db}}
+func GetServiceInstance() Service {
+	if sInstance == nil {
+		sInstance = NewServiceService()
+	}
+	return sInstance
 }
 
-func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse)  {
+func NewServiceService() Service {
+	log.Logger.Info("New `Service` instance")
+	log.Logger.Info("Inject `ServiceRepository` to `Service`")
+	return serviceImpl{
+		serviceRepository: repository.ServiceRepositoryImpl{Db: driver.Db},
+	}
+}
+
+func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse) {
 	if !strings.EqualFold(queryParam, "") {
 		serviceEntity, err := ss.GetServiceByName(queryParam)
 		if err != nil {
@@ -48,15 +60,15 @@ func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse)
 	}
 }
 
-func (ss serviceImpl) GetServices() ([]*entity.Service, *model.ErrorResponse)  {
+func (ss serviceImpl) GetServices() ([]*entity.Service, *model.ErrorResponse) {
 	return ss.serviceRepository.FindAll()
 }
 
-func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResponse)  {
+func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResponse) {
 	return ss.serviceRepository.FindById(id)
 }
 
-func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResponse)  {
+func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResponse) {
 	return ss.serviceRepository.FindByName(name)
 }
 

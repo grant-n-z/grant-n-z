@@ -11,14 +11,24 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var ussInstance UserServiceService
+
 type userServiceServiceImpl struct {
 	userServiceRepository repository.UserServiceRepository
 	userRepository        repository.UserRepository
 	serviceRepository     repository.ServiceRepository
 }
 
+func GetUserServiceServiceInstance() UserServiceService {
+	if ussInstance == nil {
+		ussInstance = NewUserServiceService()
+	}
+	return ussInstance
+}
+
 func NewUserServiceService() UserServiceService {
-	log.Logger.Info("Inject `userServiceRepository`, `userRepository`, `serviceRepository` to `UserServiceService`")
+	log.Logger.Info("New `UserServiceService` instance")
+	log.Logger.Info("Inject `UserServiceRepository`, `UserRepository`, `ServiceRepository` to `UserServiceService`")
 	return userServiceServiceImpl{
 		userServiceRepository: repository.NewUserServiceRepository(driver.Db),
 		userRepository:        repository.NewUserRepository(driver.Db),

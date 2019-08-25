@@ -29,7 +29,7 @@ func NewServiceHandler() ServiceHandler {
 	log.Logger.Info("Inject `RequestHandler`, `Service` to `ServiceHandler`")
 	return ServiceHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
-		Service:        service.NewServiceService(),
+		Service:        service.GetServiceInstance(),
 	}
 }
 

@@ -29,7 +29,7 @@ func NewRequestHandler() RequestHandler {
 	log.Logger.Info("New `RequestHandler` instance")
 	log.Logger.Info("Inject `AuthService` to `RequestHandler`")
 	return RequestHandlerImpl{
-		AuthService: service.NewAuthService(),
+		AuthService: service.GetAuthServiceInstance(),
 	}
 }
 

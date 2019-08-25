@@ -29,7 +29,7 @@ func NewPermissionHandler() PermissionHandler {
 	log.Logger.Info("Inject `RequestHandler`, `PermissionService` to `PermissionHandler`")
 	return PermissionHandlerImpl{
 		RequestHandler:    GetRequestHandlerInstance(),
-		PermissionService: service.NewPermissionService(),
+		PermissionService: service.GetPermissionServiceInstance(),
 	}
 }
 

@@ -10,12 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
+var rsInstance RoleService
+
 type roleServiceImpl struct {
 	roleRepository repository.RoleRepository
 }
 
+func GetRoleServiceInstance() RoleService {
+	if rsInstance == nil {
+		rsInstance = NewRoleService()
+	}
+	return rsInstance
+}
+
 func NewRoleService() RoleService {
-	log.Logger.Info("Inject `roleRepository` to `RoleService`")
+	log.Logger.Info("New `RoleService` instance")
+	log.Logger.Info("Inject `RoleRepository` to `RoleService`")
 	return roleServiceImpl{roleRepository: repository.RoleRepositoryImpl{Db: driver.Db}}
 }
 

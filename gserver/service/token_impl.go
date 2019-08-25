@@ -9,12 +9,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
+var tsInstance TokenService
+
 type tokenServiceImpl struct {
 	userService               UserService
 	operatorMemberRoleService OperatorMemberRoleService
 }
 
+func GetTokenServiceInstance() TokenService {
+	if tsInstance == nil {
+		tsInstance = NewTokenService()
+	}
+	return tsInstance
+}
+
 func NewTokenService() TokenService {
+	log.Logger.Info("New `TokenService` instance")
 	log.Logger.Info("Inject `UserService`, `OperatorMemberRoleService` to `TokenService`")
 	return tokenServiceImpl{
 		userService:               NewUserService(),

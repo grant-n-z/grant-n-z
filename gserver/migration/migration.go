@@ -15,8 +15,8 @@ type Migration struct {
 
 func NewMigration() Migration {
 	return Migration{
-		UserService:               service.NewUserService(),
-		RoleService:               service.NewRoleService(),
+		UserService:               service.GetUserServiceInstance(),
+		RoleService:               service.GetRoleServiceInstance(),
 		OperatorMemberRoleService: service.NewOperatorMemberRoleService(),
 	}
 }

@@ -6,22 +6,33 @@ import (
 
 	"github.com/satori/go.uuid"
 
+	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/cache"
 )
 
+var asInstance AuthService
+
 type AuthServiceImpl struct {
-	UserService               UserService
-	OperatorMemberRoleService OperatorMemberRoleService
-	RedisClient               cache.RedisClient
+	userService               UserService
+	operatorMemberRoleService OperatorMemberRoleService
+	redisClient               cache.RedisClient
+}
+
+func GetAuthServiceInstance() AuthService {
+	if asInstance == nil {
+		asInstance = NewAuthService()
+	}
+	return asInstance
 }
 
 func NewAuthService() AuthService {
+	log.Logger.Info("New `AuthService` instance")
+	log.Logger.Info("Inject `UserService`, `OperatorMemberRoleService`, `RedisClient` to `AuthService`")
 	return AuthServiceImpl{
-		UserService:               NewUserService(),
-		OperatorMemberRoleService: NewOperatorMemberRoleService(),
-		RedisClient:               cache.NewRedisClient(),
+		userService:               NewUserService(),
+		operatorMemberRoleService: NewOperatorMemberRoleService(),
+		redisClient:               cache.NewRedisClient(),
 	}
 }
 
@@ -31,7 +42,7 @@ func (as AuthServiceImpl) VerifyOperatorMember(token string) (*model.AuthUser, *
 		return nil, err
 	}
 
-	operatorRole, err := as.OperatorMemberRoleService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
+	operatorRole, err := as.operatorMemberRoleService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +71,7 @@ func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.Err
 	}
 
 	jwt := strings.Replace(token, "Bearer ", "", 1)
-	userData, result := as.UserService.ParseJwt(jwt)
+	userData, result := as.userService.ParseJwt(jwt)
 	if !result {
 		log.Logger.Info("Failed to parse token")
 		return nil, model.Unauthorized("Failed to token.")
@@ -68,7 +79,7 @@ func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.Err
 
 	// TODO: Read cache
 	id, _ := strconv.Atoi(userData["user_id"])
-	user, err := as.UserService.GetUserById(id)
+	user, err := as.userService.GetUserById(id)
 	if err != nil {
 		return nil, err
 	}

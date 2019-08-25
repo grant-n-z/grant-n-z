@@ -27,10 +27,10 @@ func GetUserHandlerInstance() UserHandler {
 
 func NewUserHandler() UserHandler {
 	log.Logger.Info("New `UserHandler` instance")
-	log.Logger.Info("Inject `RequestHandler`, `UserService` to `UserHandler`")
+	log.Logger.Info("Inject `RequestHandler`, `userService` to `UserHandler`")
 	return UserHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
-		UserService:    service.NewUserService(),
+		UserService:    service.GetUserServiceInstance(),
 	}
 }
 
