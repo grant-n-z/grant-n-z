@@ -42,6 +42,8 @@ func (as AuthServiceImpl) VerifyOperatorMember(token string) (*model.AuthUser, *
 		return nil, err
 	}
 
+	// TODO: Read cache
+
 	operatorRole, err := as.operatorMemberRoleService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
 	if err != nil {
 		return nil, err
@@ -81,7 +83,7 @@ func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.Err
 	id, _ := strconv.Atoi(userData["user_id"])
 	user, err := as.userService.GetUserById(id)
 	if err != nil {
-		return nil, err
+		return nil, model.Unauthorized("Failed to token.")
 	}
 
 	if user == nil {
