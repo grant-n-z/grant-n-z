@@ -16,6 +16,7 @@ var uhInstance UserHandler
 type UserHandlerImpl struct {
 	RequestHandler RequestHandler
 	UserService    service.UserService
+	Service        service.Service
 }
 
 func GetUserHandlerInstance() UserHandler {
@@ -27,10 +28,11 @@ func GetUserHandlerInstance() UserHandler {
 
 func NewUserHandler() UserHandler {
 	log.Logger.Info("New `UserHandler` instance")
-	log.Logger.Info("Inject `RequestHandler`, `userService` to `UserHandler`")
+	log.Logger.Info("Inject `RequestHandler`, `UserService`, `Service` to `UserHandler`")
 	return UserHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
 		UserService:    service.GetUserServiceInstance(),
+		Service:        service.GetServiceInstance(),
 	}
 }
 
@@ -68,8 +70,23 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := uh.UserService.InsertUser(userEntity); err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+	serviceEntity, err := uh.Service.GetServiceByApiKey(r.Header.Get("Api-Key"))
+	if err != nil {
+		return
+	}
+
+	var errorResponse *model.ErrorResponse
+	if serviceEntity == nil {
+		_, errorResponse = uh.UserService.InsertUser(userEntity)
+	} else {
+		userServiceEntity := &entity.UserService{
+			UserId: userEntity.Id,
+			ServiceId: serviceEntity.Id,
+		}
+		_, errorResponse = uh.UserService.InsertUserWithService(userEntity, userServiceEntity)
+	}
+	if errorResponse != nil {
+		http.Error(w, errorResponse.ToJson(), errorResponse.Code)
 		return
 	}
 
