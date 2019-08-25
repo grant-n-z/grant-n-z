@@ -32,7 +32,7 @@ func (m Migration) V1() {
 		Id:       1,
 		Username: "operator",
 		Email:    "operator@gmail.com",
-		Password: "grant_n_z_admin",
+		Password: "grant_n_z_operator",
 	}
 	_, userErr := m.UserService.InsertUser(&operatorUser)
 	if userErr != nil {
