@@ -66,8 +66,8 @@ func (as AuthServiceImpl) VerifyServiceMember(token string) (*model.AuthUser, *m
 
 func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.ErrorResponse) {
 	if !strings.Contains(token, "Bearer") {
-		log.Logger.Info("Not contain `Bearer` authorization header")
-		return nil, model.Unauthorized("Not contain `Bearer` authorization header.")
+		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
+		return nil, model.Unauthorized("Unauthorized.")
 	}
 
 	jwt := strings.Replace(token, "Bearer ", "", 1)

@@ -35,6 +35,7 @@ func NewOperatorMemberRoleRepository(db *gorm.DB) OperatorMemberRoleRepository {
 func (omrri OperatorMemberRoleRepositoryImpl) FindAll() ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
 	var entities []*entity.OperatorMemberRole
 	if err := omrri.Db.Find(&entities).Error; err != nil {
+		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -48,6 +49,7 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindAll() ([]*entity.OperatorMembe
 func (omrri OperatorMemberRoleRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
 	var entities []*entity.OperatorMemberRole
 	if err := omrri.Db.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
+		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -59,8 +61,9 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindByUserId(userId int) ([]*entit
 }
 
 func (omrri OperatorMemberRoleRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorMemberRole, *model.ErrorResponse) {
-	var operatorMemberRole *entity.OperatorMemberRole
+	var operatorMemberRole entity.OperatorMemberRole
 	if err := omrri.Db.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
+		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -68,7 +71,7 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindByUserIdAndRoleId(userId int, 
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return operatorMemberRole, nil
+	return &operatorMemberRole, nil
 }
 
 func (omrri OperatorMemberRoleRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
@@ -86,6 +89,7 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindRoleNameByUserId(userId int) (
 
 	rows, err := query.Rows()
 	if err != nil {
+		log.Logger.Warn(err.Error())
 		return nil, model.InternalServerError(err.Error())
 	}
 
@@ -116,7 +120,7 @@ func (omrri OperatorMemberRoleRepositoryImpl) Save(entity entity.OperatorMemberR
 			return nil, model.BadRequest("Not register relational id.")
 		}
 
-		return nil, model.InternalServerError("Error internal processing.")
+		return nil, model.InternalServerError()
 	}
 
 	return &entity, nil

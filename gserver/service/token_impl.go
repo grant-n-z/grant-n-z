@@ -45,18 +45,23 @@ func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) 
 func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResponse) {
 	// TODO: Cache
 
-	user, err := tsi.userService.GetUserWithRoleByEmail(userEntity.Email)
-	if err != nil || user == nil {
+	userWithRole, err := tsi.userService.GetUserWithRoleByEmail(userEntity.Email)
+	if err != nil || userWithRole == nil {
 		return nil, model.BadRequest("Failed to email or password")
 	}
-	if !tsi.userService.ComparePw(user.Password, userEntity.Password) {
+	if !tsi.userService.ComparePw(userWithRole.Password, userEntity.Password) {
 		return nil, model.BadRequest("Failed to email or password")
 	}
-	if user.RoleId != property.OperatorRoleId {
+	if userWithRole.RoleId != property.OperatorRoleId {
 		return nil, model.BadRequest("Can not issue token")
 	}
 
-	return tsi.userService.GenerateJwt(&userEntity, property.OperatorRoleId), nil
+	user := entity.User{
+		Id: userWithRole.UserId,
+		Username: userWithRole.Username,
+		Uuid: userWithRole.Uuid,
+	}
+	return tsi.userService.GenerateJwt(&user, property.OperatorRoleId), nil
 }
 
 func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *model.ErrorResponse) {

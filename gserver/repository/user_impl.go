@@ -35,8 +35,9 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResponse) {
 	var user entity.User
 	if err := uri.Db.Where("id = ?", id).Find(&user).Error; err != nil {
+		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound()
 		}
 
 		return nil, model.InternalServerError()
@@ -48,8 +49,9 @@ func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorRespon
 func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.ErrorResponse) {
 	var user entity.User
 	if err := uri.Db.Where("email = ?", email).Find(&user).Error; err != nil {
+		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound()
 		}
 
 		return nil, model.InternalServerError()
@@ -76,7 +78,6 @@ func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.User
 		log.Logger.Warn(err.Error())
 		return nil, model.InternalServerError()
 	}
-
 	return &userOperatorMemberRole, nil
 }
 

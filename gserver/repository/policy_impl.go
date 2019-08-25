@@ -66,7 +66,7 @@ func (pri PolicyRepositoryImpl) Save(policy entity.Policy) (*entity.Policy, *mod
 			return nil, model.BadRequest("Not register relational id.")
 		}
 
-		return nil, model.InternalServerError("Error internal processing.")
+		return nil, model.InternalServerError()
 	}
 
 	return &policy, nil

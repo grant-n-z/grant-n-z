@@ -13,8 +13,8 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
-	"github.com/tomoyane/grant-n-z/gserver/router"
 	"github.com/tomoyane/grant-n-z/gserver/migration"
+	"github.com/tomoyane/grant-n-z/gserver/router"
 )
 
 var (
@@ -44,6 +44,7 @@ func init() {
 }
 
 func NewGrantNZServer() GrantNZServer {
+	log.Logger.Info("New GrantNZServer")
 	log.Logger.Info("Inject `Router`, `CronHandler`, `PolicyService` to `GrantNZServer`")
 	signal.Notify(
 		signalCode,
