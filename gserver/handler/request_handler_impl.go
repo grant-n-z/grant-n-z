@@ -51,7 +51,7 @@ func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Reques
 func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResponse) {
 	switch authType {
 	case property.AuthOperator:
-		authUser, err := rh.AuthService.VerifyOperatorMember(r.Header.Get("GrantNZ-Operator-Auth"))
+		authUser, err := rh.AuthService.VerifyOperatorMember(r.Header.Get("Operator-Authorization"))
 		if err != nil {
 			http.Error(w, err.ToJson(), err.Code)
 			return nil, err
