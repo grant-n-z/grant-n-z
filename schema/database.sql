@@ -100,8 +100,6 @@ CREATE TABLE operator_member_roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `user_services`
--- If we want to know how many user of service, read this table.
--- If we want to know how many service of user, read this table.
 CREATE TABLE user_services (
   id int(11) NOT NULL AUTO_INCREMENT,
   user_id int(11) NOT NULL,
@@ -122,8 +120,6 @@ CREATE TABLE user_services (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_member_roles`
--- It can operate any service.
--- Any service member role.
 CREATE TABLE service_member_roles (
   id int(11) NOT NULL AUTO_INCREMENT,
   role_id int(11) NOT NULL,
@@ -144,7 +140,6 @@ CREATE TABLE service_member_roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `policies`
--- Access policy.
 CREATE TABLE policies (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(128) NOT NULL,
