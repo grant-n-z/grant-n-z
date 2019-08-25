@@ -72,6 +72,10 @@ func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 	return ss.serviceRepository.FindByName(name)
 }
 
+func (ss serviceImpl) GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse) {
+	return ss.serviceRepository.FindByApiKey(apiKey)
+}
+
 func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResponse) {
 	service.Uuid, _ = uuid.NewV4()
 	key, _ := uuid.NewV4()

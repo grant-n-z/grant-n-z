@@ -14,5 +14,7 @@ type Service interface {
 
 	GetServiceByName(name string) (*entity.Service, *model.ErrorResponse)
 
+	GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse)
+
 	InsertService(service *entity.Service) (*entity.Service, *model.ErrorResponse)
 }
