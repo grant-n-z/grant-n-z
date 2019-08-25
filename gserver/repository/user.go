@@ -14,5 +14,7 @@ type UserRepository interface {
 
 	Save(user entity.User) (*entity.User, *model.ErrorResponse)
 
+	SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse)
+
 	Update(user entity.User) (*entity.User, *model.ErrorResponse)
 }

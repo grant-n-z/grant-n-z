@@ -81,6 +81,12 @@ func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.Er
 	return us.userRepository.Save(*user)
 }
 
+func (us userServiceImpl) InsertUserWithService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse) {
+	user.Uuid, _ = uuid.NewV4()
+	user.Password = us.EncryptPw(user.Password)
+	return us.userRepository.SaveUserWithUserService(*user, userService)
+}
+
 func (us userServiceImpl) UpdateUser(user *entity.User) (*entity.User, *model.ErrorResponse) {
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.Update(*user)

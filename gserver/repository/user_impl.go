@@ -94,6 +94,34 @@ func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.Error
 	return &user, nil
 }
 
+func (uri UserRepositoryImpl) SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse) {
+	tx := uri.Db.Begin()
+
+	if err := tx.Create(&user).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit user data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	userService.UserId = user.Id
+	if err := tx.Create(&userService).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	tx.Commit()
+	return &user, nil
+}
+
 func (uri UserRepositoryImpl) Update(user entity.User) (*entity.User, *model.ErrorResponse) {
 	if err := uri.Db.Save(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
