@@ -19,7 +19,7 @@ type operatorMemberRoleServiceImpl struct {
 	roleRepository               repository.RoleRepository
 }
 
-func GetRequestHandlerInstance() OperatorMemberRoleService {
+func GetOperatorMemberRoleServiceInstance() OperatorMemberRoleService {
 	if omrsInstance == nil {
 		omrsInstance = NewOperatorMemberRoleService()
 	}
@@ -30,9 +30,9 @@ func NewOperatorMemberRoleService() OperatorMemberRoleService {
 	log.Logger.Info("New `OperatorMemberRoleService` instance")
 	log.Logger.Info("Inject `OperatorMemberRoleRepository`, `UserRepository`, `RoleRepository` to `OperatorMemberRoleService`")
 	return operatorMemberRoleServiceImpl{
-		operatorMemberRoleRepository: repository.NewOperatorMemberRoleRepository(driver.Db),
-		userRepository:               repository.NewUserRepository(driver.Db),
-		roleRepository:               repository.NewRoleRepository(driver.Db),
+		operatorMemberRoleRepository: repository.GetOperatorMemberRoleRepositoryInstance(driver.Db),
+		userRepository:               repository.GetUserRepositoryInstance(driver.Db),
+		roleRepository:               repository.GetRoleRepositoryInstance(driver.Db),
 	}
 }
 

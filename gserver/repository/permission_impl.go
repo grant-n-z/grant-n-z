@@ -10,11 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 )
 
+var prInstance PermissionRepository
+
 type PermissionRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetPermissionRepositoryInstance(db *gorm.DB) PermissionRepository {
+	if prInstance == nil {
+		prInstance = NewPermissionRepository(db)
+	}
+	return prInstance
+}
+
 func NewPermissionRepository(db *gorm.DB) PermissionRepository {
+	log.Logger.Info("New `PermissionRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `PermissionRepository`")
 	return PermissionRepositoryImpl{
 		Db: db,
 	}

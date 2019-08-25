@@ -11,11 +11,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
+var rmrInstance OperatorMemberRoleRepository
+
 type OperatorMemberRoleRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetOperatorMemberRoleRepositoryInstance(db *gorm.DB) OperatorMemberRoleRepository {
+	if rmrInstance == nil {
+		rmrInstance = NewOperatorMemberRoleRepository(db)
+	}
+	return rmrInstance
+}
+
 func NewOperatorMemberRoleRepository(db *gorm.DB) OperatorMemberRoleRepository {
+	log.Logger.Info("New `OperatorMemberRoleRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `OperatorMemberRoleRepository`")
 	return OperatorMemberRoleRepositoryImpl{
 		Db: db,
 	}

@@ -30,9 +30,9 @@ func NewAuthService() AuthService {
 	log.Logger.Info("New `AuthService` instance")
 	log.Logger.Info("Inject `UserService`, `OperatorMemberRoleService`, `RedisClient` to `AuthService`")
 	return AuthServiceImpl{
-		userService:               NewUserService(),
-		operatorMemberRoleService: NewOperatorMemberRoleService(),
-		redisClient:               cache.NewRedisClient(),
+		userService:               GetUserServiceInstance(),
+		operatorMemberRoleService: GetOperatorMemberRoleServiceInstance(),
+		redisClient:               cache.GetRedisClientInstance(),
 	}
 }
 

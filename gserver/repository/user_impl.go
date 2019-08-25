@@ -11,11 +11,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
+var urInstance UserRepository
+
 type UserRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetUserRepositoryInstance(db *gorm.DB) UserRepository {
+	if urInstance == nil {
+		urInstance = NewUserRepository(db)
+	}
+	return urInstance
+}
+
 func NewUserRepository(db *gorm.DB) UserRepository {
+	log.Logger.Info("New `UserRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `UserRepository`")
 	return UserRepositoryImpl{
 		Db: db,
 	}

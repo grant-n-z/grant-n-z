@@ -1,20 +1,31 @@
 package repository
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/model"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 
+	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 )
+
+var usrInstance UserServiceRepository
 
 type UserServiceRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetUserServiceRepositoryInstance(db *gorm.DB) UserServiceRepository {
+	if usrInstance == nil {
+		usrInstance = NewUserServiceRepository(db)
+	}
+	return usrInstance
+}
+
 func NewUserServiceRepository(db *gorm.DB) UserServiceRepository {
+	log.Logger.Info("New `UserServiceRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `UserServiceRepository`")
 	return UserServiceRepositoryImpl {
 		Db: db,
 	}

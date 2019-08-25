@@ -1,10 +1,11 @@
 package migration
 
 import (
+	"net/http"
+
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/service"
-	"net/http"
 )
 
 type Migration struct {
@@ -17,7 +18,7 @@ func NewMigration() Migration {
 	return Migration{
 		UserService:               service.GetUserServiceInstance(),
 		RoleService:               service.GetRoleServiceInstance(),
-		OperatorMemberRoleService: service.NewOperatorMemberRoleService(),
+		OperatorMemberRoleService: service.GetOperatorMemberRoleServiceInstance(),
 	}
 }
 

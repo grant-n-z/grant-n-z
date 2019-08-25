@@ -10,11 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/log"
 )
 
+var plrInstance PolicyRepository
+
 type PolicyRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetPolicyRepositoryInstance(db *gorm.DB) PolicyRepository {
+	if plrInstance == nil {
+		plrInstance = NewPolicyRepository(db)
+	}
+	return plrInstance
+}
+
 func NewPolicyRepository(db *gorm.DB) PolicyRepository {
+	log.Logger.Info("New `PolicyRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `PolicyRepository`")
 	return PolicyRepositoryImpl{
 		Db: db,
 	}

@@ -27,8 +27,8 @@ func NewServiceMemberRoleService() ServiceMemberRoleService {
 	log.Logger.Info("New `ServiceMemberRoleService` instance")
 	log.Logger.Info("Inject `ServiceMemberRoleRepository`, `RoleRepository`, `UserServiceRepository` to `ServiceMemberRoleService`")
 	return serviceMemberRoleServiceImpl{
-		serviceMemberRoleRepository: repository.NewServiceMemberRoleRepository(driver.Db),
-		roleRepository:              repository.NewRoleRepository(driver.Db),
+		serviceMemberRoleRepository: repository.GetServiceMemberRoleRepositoryInstance(driver.Db),
+		roleRepository:              repository.GetRoleRepositoryInstance(driver.Db),
 		userServiceRepository:       repository.NewUserServiceRepository(driver.Db),
 	}
 }

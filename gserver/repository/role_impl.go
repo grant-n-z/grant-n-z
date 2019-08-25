@@ -10,11 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
+var rrInstance RoleRepository
+
 type RoleRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetRoleRepositoryInstance(db *gorm.DB) RoleRepository {
+	if rrInstance == nil {
+		rrInstance = NewRoleRepository(db)
+	}
+	return rrInstance
+}
+
 func NewRoleRepository(db *gorm.DB) RoleRepository {
+	log.Logger.Info("New `RoleRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `RoleRepository`")
 	return RoleRepositoryImpl{
 		Db: db,
 	}

@@ -30,9 +30,9 @@ func NewUserServiceService() UserServiceService {
 	log.Logger.Info("New `UserServiceService` instance")
 	log.Logger.Info("Inject `UserServiceRepository`, `UserRepository`, `ServiceRepository` to `UserServiceService`")
 	return userServiceServiceImpl{
-		userServiceRepository: repository.NewUserServiceRepository(driver.Db),
-		userRepository:        repository.NewUserRepository(driver.Db),
-		serviceRepository:     repository.NewServiceRepository(driver.Db),
+		userServiceRepository: repository.GetUserServiceRepositoryInstance(driver.Db),
+		userRepository:        repository.GetUserRepositoryInstance(driver.Db),
+		serviceRepository:     repository.GetServiceRepositoryInstance(driver.Db),
 	}
 }
 

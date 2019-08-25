@@ -2,14 +2,27 @@ package cache
 
 import (
 	"github.com/go-redis/redis"
+
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/log"
 )
+
+var rcInstance RedisClient
 
 type RedisClientImpl struct {
 	client *redis.Client
 }
 
+func GetRedisClientInstance() RedisClient {
+	if rcInstance == nil {
+		rcInstance = NewRedisClient()
+	}
+	return rcInstance
+}
+
 func NewRedisClient() RedisClient {
+	log.Logger.Info("New `RedisClient` instance")
+	log.Logger.Info("Inject `redis.Client` to `RedisClient`")
 	return RedisClientImpl{
 		client: driver.Redis,
 	}

@@ -10,11 +10,22 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
+var srInstance ServiceRepository
+
 type ServiceRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+func GetServiceRepositoryInstance(db *gorm.DB) ServiceRepository {
+	if srInstance == nil {
+		srInstance = NewServiceRepository(db)
+	}
+	return srInstance
+}
+
 func NewServiceRepository(db *gorm.DB) ServiceRepository {
+	log.Logger.Info("New `ServiceRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `ServiceRepository`")
 	return ServiceRepositoryImpl{
 		Db: db,
 	}
