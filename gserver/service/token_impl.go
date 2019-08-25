@@ -72,14 +72,19 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 	// TODO: Cache
 	// TODO: Set user policy
 
-	user, err := tsi.userService.GetUserByEmail(userEntity.Email)
-	if err != nil || user == nil {
+	userData, err := tsi.userService.GetUserByEmail(userEntity.Email)
+	if err != nil || userData == nil {
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	if !tsi.userService.ComparePw(user.Password, userEntity.Password) {
+	if !tsi.userService.ComparePw(userData.Password, userEntity.Password) {
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	return tsi.userService.GenerateJwt(&userEntity, property.OperatorRoleId), nil
+	user := entity.User{
+		Id: userData.Id,
+		Username: userData.Username,
+		Uuid: userData.Uuid,
+	}
+	return tsi.userService.GenerateJwt(&user, property.UserRoleId), nil
 }
