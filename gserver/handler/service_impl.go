@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -54,6 +55,11 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("GET services")
 	name := r.URL.Query().Get(entity.ServiceName.String())
 
+	_, err := sh.RequestHandler.VerifyToken(w, r, property.AuthOperator)
+	if err != nil {
+		return
+	}
+
 	result, err := sh.Service.Get(name)
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
@@ -68,6 +74,11 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST services")
 	var serviceEntity *entity.Service
+
+	_, err := sh.RequestHandler.VerifyToken(w, r, property.AuthOperator)
+	if err != nil {
+		return
+	}
 
 	body, err := sh.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
