@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -35,6 +36,11 @@ func NewRoleHandler() RoleHandler {
 
 func (rh RoleHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	_, err := rh.RequestHandler.VerifyToken(w, r, property.AuthOperator)
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		rh.Get(w, r)

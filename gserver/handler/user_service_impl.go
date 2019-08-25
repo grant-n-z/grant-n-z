@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -35,11 +36,16 @@ func NewUserServiceHandler() UserServiceHandler {
 
 func (ush UserServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	authUser, err := ush.RequestHandler.VerifyToken(w, r, property.AuthUser)
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
-		ush.Get(w, r)
+		ush.Get(w, r, authUser)
 	case http.MethodPost:
-		ush.Post(w, r)
+		ush.Post(w, r, authUser)
 	case http.MethodPut:
 		ush.Put(w, r)
 	case http.MethodDelete:
@@ -50,7 +56,7 @@ func (ush UserServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
+func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request, authUser *model.AuthUser) {
 	log.Logger.Info("GET user_services")
 	id := r.URL.Query().Get(entity.UserServiceId.String())
 
@@ -65,7 +71,7 @@ func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(res)
 }
 
-func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
+func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, authUser *model.AuthUser) {
 	log.Logger.Info("POST user_services")
 	var userServiceEntity *entity.UserService
 

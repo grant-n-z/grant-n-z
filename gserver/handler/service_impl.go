@@ -36,6 +36,11 @@ func NewServiceHandler() ServiceHandler {
 
 func (sh ServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	_, err := sh.RequestHandler.VerifyToken(w, r, property.AuthOperator)
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		sh.Get(w, r)
@@ -55,11 +60,6 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("GET services")
 	name := r.URL.Query().Get(entity.ServiceName.String())
 
-	_, err := sh.RequestHandler.VerifyToken(w, r, property.AuthOperator)
-	if err != nil {
-		return
-	}
-
 	result, err := sh.Service.Get(name)
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
@@ -74,11 +74,6 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	log.Logger.Info("POST services")
 	var serviceEntity *entity.Service
-
-	_, err := sh.RequestHandler.VerifyToken(w, r, property.AuthOperator)
-	if err != nil {
-		return
-	}
 
 	body, err := sh.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
