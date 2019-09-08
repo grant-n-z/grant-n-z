@@ -9,30 +9,28 @@ import (
 )
 
 type Router struct {
-	AuthHandler               handler.AuthHandler
-	TokenHandler              handler.TokenHandler
-	UserHandler               handler.UserHandler
-	ServiceHandler            handler.ServiceHandler
-	RoleHandler               handler.RoleHandler
-	OperatorMemberRoleHandler handler.OperateMemberRoleHandler
-	UserServiceHandler        handler.UserServiceHandler
-	PermissionHandler         handler.PermissionHandler
-	PolicyHandler             handler.PolicyHandler
-	ServiceMemberRoleHandler  handler.ServiceMemberRoleHandler
+	AuthHandler              handler.AuthHandler
+	TokenHandler             handler.TokenHandler
+	UserHandler              handler.UserHandler
+	ServiceHandler           handler.ServiceHandler
+	RoleHandler              handler.RoleHandler
+	OperatePolicyHandler     handler.OperatePolicyHandler
+	UserServiceHandler       handler.UserServiceHandler
+	PermissionHandler        handler.PermissionHandler
+	PolicyHandler            handler.PolicyHandler
 }
 
 func NewRouter() Router {
 	return Router{
-		AuthHandler:               handler.GetAuthHandlerInstance(),
-		TokenHandler:              handler.GetTokenHandlerInstance(),
-		UserHandler:               handler.GetUserHandlerInstance(),
-		ServiceHandler:            handler.GetServiceHandlerInstance(),
-		RoleHandler:               handler.GetRoleHandlerInstance(),
-		OperatorMemberRoleHandler: handler.GetOperateMemberRoleHandlerInstance(),
-		UserServiceHandler:        handler.GetUserServiceHandlerInstance(),
-		PermissionHandler:         handler.GetPermissionHandlerInstance(),
-		PolicyHandler:             handler.GetPolicyHandlerInstance(),
-		ServiceMemberRoleHandler:  handler.GetServiceMemberRoleHandlerInstance(),
+		AuthHandler:              handler.GetAuthHandlerInstance(),
+		TokenHandler:             handler.GetTokenHandlerInstance(),
+		UserHandler:              handler.GetUserHandlerInstance(),
+		ServiceHandler:           handler.GetServiceHandlerInstance(),
+		RoleHandler:              handler.GetRoleHandlerInstance(),
+		OperatePolicyHandler:     handler.GetOperatorPolicyHandlerInstance(),
+		UserServiceHandler:       handler.GetUserServiceHandlerInstance(),
+		PermissionHandler:        handler.GetPermissionHandlerInstance(),
+		PolicyHandler:            handler.GetPolicyHandlerInstance(),
 	}
 }
 
@@ -51,11 +49,10 @@ func (r Router) V1() {
 	http.HandleFunc("/api/v1/users", r.UserHandler.Api)
 	http.HandleFunc("/api/v1/services", r.ServiceHandler.Api)
 	http.HandleFunc("/api/v1/roles", r.RoleHandler.Api)
-	http.HandleFunc("/api/v1/user-services", r.UserServiceHandler.Api)
+	http.HandleFunc("/api/v1/user_services", r.UserServiceHandler.Api)
 	http.HandleFunc("/api/v1/permissions", r.PermissionHandler.Api)
 	http.HandleFunc("/api/v1/policies", r.PolicyHandler.Api)
-	http.HandleFunc("/api/v1/operator-member-roles", r.OperatorMemberRoleHandler.Api)
-	http.HandleFunc("/api/v1/service-member-roles", r.ServiceMemberRoleHandler.Api)
+	http.HandleFunc("/api/v1/operator_policies", r.OperatePolicyHandler.Api)
 
 	log.Logger.Info("------ Routing info ------")
 	log.Logger.Info("HTTP Method: `POST` Routing: /api/v1/oauth")
@@ -65,7 +62,7 @@ func (r Router) V1() {
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/user-services`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/permissions`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/policies`")
-	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/operator-member-roles`")
+	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/operator_policies`")
 	log.Logger.Info("HTTP Method: `POST`, `GET` Routing: `/api/v1/service-member-roles`")
 	log.Logger.Info("------ Routing info ------")
 }
