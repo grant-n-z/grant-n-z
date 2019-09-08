@@ -75,17 +75,17 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId
 }
 
 func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
-	query := opr.Db.Table(entity.OperatorPolicy{}.TableName()).
+	query := opr.Db.Table(entity.OperatorPolicyTable.String()).
 		Select("name").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
-			entity.Role{}.TableName(),
-			entity.OperatorPolicy{}.TableName(),
-			entity.OperatorMemberRoleRoleId,
-			entity.Role{}.TableName(),
+			entity.RoleTable.String(),
+			entity.OperatorPolicyTable.String(),
+			entity.OperatorPolicyId,
+			entity.RoleTable.String(),
 			entity.RoleId)).
 		Where(fmt.Sprintf("%s.%s = ?",
-			entity.OperatorPolicy{}.TableName(),
-			entity.OperatorMemberRoleUserId), userId)
+			entity.OperatorPolicyTable.String(),
+			entity.OperatorPolicyUserId), userId)
 
 	rows, err := query.Rows()
 	if err != nil {
