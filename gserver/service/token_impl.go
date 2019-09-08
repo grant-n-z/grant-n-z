@@ -13,7 +13,7 @@ var tsInstance TokenService
 
 type tokenServiceImpl struct {
 	userService               UserService
-	operatorMemberRoleService OperatorMemberRoleService
+	operatorMemberRoleService OperatorPolicyService
 }
 
 func GetTokenServiceInstance() TokenService {
@@ -25,10 +25,10 @@ func GetTokenServiceInstance() TokenService {
 
 func NewTokenService() TokenService {
 	log.Logger.Info("New `TokenService` instance")
-	log.Logger.Info("Inject `UserService`, `OperatorMemberRoleService` to `TokenService`")
+	log.Logger.Info("Inject `UserGroup`, `OperatorPolicyService` to `TokenService`")
 	return tokenServiceImpl{
 		userService:               NewUserService(),
-		operatorMemberRoleService: NewOperatorMemberRoleService(),
+		operatorMemberRoleService: NewOperatorPolicyServiceService(),
 	}
 }
 
