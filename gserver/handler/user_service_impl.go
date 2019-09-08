@@ -71,7 +71,7 @@ func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request, au
 }
 
 func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, authUser *model.AuthUser) {
-	var userServiceEntity *entity.UserService
+	var userServiceEntity *entity.UserGroup
 
 	body, err := ush.RequestHandler.InterceptHttp(w, r)
 	if err != nil {

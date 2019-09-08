@@ -28,7 +28,7 @@ func GetUserHandlerInstance() UserHandler {
 
 func NewUserHandler() UserHandler {
 	log.Logger.Info("New `UserHandler` instance")
-	log.Logger.Info("Inject `RequestHandler`, `UserService`, `Service` to `UserHandler`")
+	log.Logger.Info("Inject `RequestHandler`, `UserGroup`, `Service` to `UserHandler`")
 	return UserHandlerImpl{
 		RequestHandler: GetRequestHandlerInstance(),
 		UserService:    service.GetUserServiceInstance(),
@@ -78,7 +78,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	if serviceEntity == nil {
 		_, errorResponse = uh.UserService.InsertUser(userEntity)
 	} else {
-		userServiceEntity := &entity.UserService{
+		userServiceEntity := &entity.UserGroup{
 			UserId: userEntity.Id,
 			ServiceId: serviceEntity.Id,
 		}

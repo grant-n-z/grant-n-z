@@ -26,7 +26,7 @@ func TestUserServiceHandlerGet(t *testing.T) {
 }
 
 func TestUserServiceHandlerPost(t *testing.T) {
-	userService := entity.UserService{
+	userService := entity.UserGroup{
 		UserId: 1,
 		ServiceId: 1,
 	}
