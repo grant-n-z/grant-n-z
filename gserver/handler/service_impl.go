@@ -57,7 +57,6 @@ func (sh ServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET services")
 	name := r.URL.Query().Get(entity.ServiceName.String())
 
 	result, err := sh.Service.Get(name)
@@ -72,7 +71,6 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST services")
 	var serviceEntity *entity.Service
 
 	body, err := sh.RequestHandler.InterceptHttp(w, r)

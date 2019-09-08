@@ -57,8 +57,6 @@ func (smrhi ServiceMemberRoleHandlerImpl) Api(w http.ResponseWriter, r *http.Req
 }
 
 func (smrhi ServiceMemberRoleHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET service_member_roles")
-
 	serviceMemberRoleEntities, err := smrhi.ServiceMemberRoleService.GetAll()
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
@@ -71,7 +69,6 @@ func (smrhi ServiceMemberRoleHandlerImpl) Get(w http.ResponseWriter, r *http.Req
 }
 
 func (smrhi ServiceMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST service_member_roles")
 	var serviceMemberRoleEntity *entity.ServiceMemberRole
 
 	body, err := smrhi.RequestHandler.InterceptHttp(w, r)

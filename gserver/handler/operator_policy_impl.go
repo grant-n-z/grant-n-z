@@ -57,8 +57,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Reques
 }
 
 func (rmrhi OperatorPolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET operator_policies")
-	id := r.URL.Query().Get(entity.OperatorMemberRoleUserId.String())
+	id := r.URL.Query().Get(entity.OperatorPolicyUserId.String())
 
 	roleMemberEntities, err := rmrhi.OperatorPolicyService.Get(id)
 	if err != nil {
@@ -72,7 +71,6 @@ func (rmrhi OperatorPolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Reques
 }
 
 func (rmrhi OperatorPolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST operator_policies")
 	var roleMemberEntity *entity.OperatorPolicy
 
 	body, err := rmrhi.RequestHandler.InterceptHttp(w, r)

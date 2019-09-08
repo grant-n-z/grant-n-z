@@ -45,7 +45,6 @@ func (th TokenHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST token")
 	var userEntity *entity.User
 
 	body, err := th.RequestHandler.InterceptHttp(w, r)

@@ -57,8 +57,6 @@ func (rh RoleHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rh RoleHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET roles list")
-
 	roleEntities, err := rh.RoleService.GetRoles()
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
@@ -71,7 +69,6 @@ func (rh RoleHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rh RoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST roles")
 	var roleEntity *entity.Role
 
 	body, err := rh.RequestHandler.InterceptHttp(w, r)

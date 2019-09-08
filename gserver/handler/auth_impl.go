@@ -44,8 +44,6 @@ func (ah AuthHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah AuthHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET auth")
-
 	_, err := ah.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return

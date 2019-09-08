@@ -57,8 +57,6 @@ func (ph PermissionHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PermissionHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET permissions")
-
 	permissionEntities, err := ph.PermissionService.GetPermissions()
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
@@ -71,7 +69,6 @@ func (ph PermissionHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST permissions")
 	var permissionEntity *entity.Permission
 
 	body, err := ph.RequestHandler.InterceptHttp(w, r)

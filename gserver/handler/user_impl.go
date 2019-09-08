@@ -57,7 +57,6 @@ func (uh UserHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST users")
 	var userEntity *entity.User
 
 	body, err := uh.RequestHandler.InterceptHttp(w, r)
@@ -96,7 +95,6 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh UserHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("PUT users")
 	var userEntity *entity.User
 
 	authUser, err := uh.RequestHandler.VerifyToken(w, r, property.AuthUser)

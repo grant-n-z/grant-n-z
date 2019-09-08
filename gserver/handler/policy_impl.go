@@ -57,7 +57,6 @@ func (ph PolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET policies")
 	id := r.URL.Query().Get(entity.PolicyId.String())
 
 	roleMemberEntities, err := ph.PolicyService.Get(id)
@@ -72,7 +71,6 @@ func (ph PolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST policies")
 	var policyEntity *entity.Policy
 
 	body, err := ph.RequestHandler.InterceptHttp(w, r)

@@ -57,7 +57,6 @@ func (ush UserServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request, authUser *model.AuthUser) {
-	log.Logger.Info("GET user_services")
 	id := r.URL.Query().Get(entity.UserServiceId.String())
 
 	userServiceEntities, err := ush.UserService.Get(id)
@@ -72,7 +71,6 @@ func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request, au
 }
 
 func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, authUser *model.AuthUser) {
-	log.Logger.Info("POST user_services")
 	var userServiceEntity *entity.UserService
 
 	body, err := ush.RequestHandler.InterceptHttp(w, r)
