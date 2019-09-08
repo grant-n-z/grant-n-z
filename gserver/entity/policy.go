@@ -42,6 +42,6 @@ func (pc PolicyColumn) String() string {
 	panic("Unknown value")
 }
 
-func (p Policy) TableName() string {
+func (pc PolicyColumn) TableName() string {
 	return "policies"
 }

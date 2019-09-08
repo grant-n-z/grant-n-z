@@ -40,6 +40,6 @@ func (rc RoleColumn) String() string {
 	panic("Unknown value")
 }
 
-func (r Role) TableName() string {
+func (rc RoleColumn) TableName() string {
 	return "roles"
 }

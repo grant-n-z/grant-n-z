@@ -48,7 +48,7 @@ func (uc UserColumn) String() string {
 	panic("Unknown value")
 }
 
-func (u User) TableName() string {
+func (uc UserColumn) TableName() string {
 	return "users"
 }
 

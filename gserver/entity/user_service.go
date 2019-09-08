@@ -38,6 +38,6 @@ func (usc UserServiceColumn) String() string {
 	panic("Unknown value")
 }
 
-func (u UserService) TableName() string {
+func (usc UserServiceColumn) TableName() string {
 	return "user_services"
 }

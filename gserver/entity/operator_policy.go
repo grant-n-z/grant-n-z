@@ -5,11 +5,11 @@ import (
 )
 
 const (
-	OperatorMemberRoleId OperatorPolicyColumn = iota
-	OperatorMemberRoleRoleId
-	OperatorMemberRoleUserId
-	OperatorMemberRoleCreatedAt
-	OperatorMemberRoleUpdatedAt
+	OperatorPolicyId OperatorPolicyColumn = iota
+	OperatorPolicyRoleId
+	OperatorPolicyUserId
+	OperatorPolicyCreatedAt
+	OperatorPolicyUpdatedAt
 )
 
 type OperatorPolicy struct {
@@ -24,15 +24,15 @@ type OperatorPolicyColumn int
 
 func (opc OperatorPolicyColumn) String() string {
 	switch opc {
-	case OperatorMemberRoleId:
+	case OperatorPolicyId:
 		return "id"
-	case OperatorMemberRoleRoleId:
+	case OperatorPolicyRoleId:
 		return "role_id"
-	case OperatorMemberRoleUserId:
+	case OperatorPolicyUserId:
 		return "user_id"
-	case OperatorMemberRoleCreatedAt:
+	case OperatorPolicyCreatedAt:
 		return "created_at"
-	case OperatorMemberRoleUpdatedAt:
+	case OperatorPolicyUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")

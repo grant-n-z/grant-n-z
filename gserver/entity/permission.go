@@ -40,6 +40,6 @@ func (pc PermissionColumn) String() string {
 	panic("Unknown value")
 }
 
-func (p Permission) TableName() string {
+func (pc PermissionColumn) TableName() string {
 	return "permissions"
 }

@@ -38,6 +38,6 @@ func (smr ServiceMemberRoleColumn) String() string {
 	panic("Unknown value")
 }
 
-func (smr ServiceMemberRole) TableName() string {
+func (smr ServiceMemberRoleColumn) TableName() string {
 	return "service_member_roles"
 }
