@@ -14,9 +14,9 @@ import (
 var asInstance AuthService
 
 type AuthServiceImpl struct {
-	userService               UserService
-	operatorMemberRoleService OperatorMemberRoleService
-	redisClient               cache.RedisClient
+	userService           UserService
+	operatorPolicyService OperatorPolicyService
+	redisClient           cache.RedisClient
 }
 
 func GetAuthServiceInstance() AuthService {
@@ -28,11 +28,11 @@ func GetAuthServiceInstance() AuthService {
 
 func NewAuthService() AuthService {
 	log.Logger.Info("New `AuthService` instance")
-	log.Logger.Info("Inject `UserService`, `OperatorMemberRoleService`, `RedisClient` to `AuthService`")
+	log.Logger.Info("Inject `UserService`, `OperatorPolicyService`, `RedisClient` to `AuthService`")
 	return AuthServiceImpl{
-		userService:               GetUserServiceInstance(),
-		operatorMemberRoleService: GetOperatorMemberRoleServiceInstance(),
-		redisClient:               cache.GetRedisClientInstance(),
+		userService:           GetUserServiceInstance(),
+		operatorPolicyService: GetOperatorPolicyServiceInstance(),
+		redisClient:           cache.GetRedisClientInstance(),
 	}
 }
 
@@ -44,7 +44,7 @@ func (as AuthServiceImpl) VerifyOperatorMember(token string) (*model.AuthUser, *
 
 	// TODO: Read cache
 
-	operatorRole, err := as.operatorMemberRoleService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
+	operatorRole, err := as.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
 	if err != nil {
 		return nil, err
 	}
