@@ -22,12 +22,12 @@ func TestOperateMemberRoleHandlerGet(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, endpointOperatorMemberRoles, nil)
 	recorder := httptest.NewRecorder()
 
-	NewOperatorMemberRoleHandler().Get(recorder, request)
+	NewOperatorPolicyHandler().Get(recorder, request)
 	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
 func TestOperateMemberRoleHandlerPost(t *testing.T) {
-	roleMember := entity.OperatorMemberRole{
+	roleMember := entity.OperatorPolicy{
 		RoleId: 1,
 		UserId: 1,
 	}
@@ -38,6 +38,6 @@ func TestOperateMemberRoleHandlerPost(t *testing.T) {
 	request.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 
-	NewOperatorMemberRoleHandler().Post(recorder, request)
+	NewOperatorPolicyHandler().Post(recorder, request)
 	assert.Equal(t, http.StatusCreated, recorder.Code)
 }

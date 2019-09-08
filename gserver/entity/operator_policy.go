@@ -5,14 +5,14 @@ import (
 )
 
 const (
-	OperatorMemberRoleId OperatorMemberRoleColumn = iota
+	OperatorMemberRoleId OperatorPolicyColumn = iota
 	OperatorMemberRoleRoleId
 	OperatorMemberRoleUserId
 	OperatorMemberRoleCreatedAt
 	OperatorMemberRoleUpdatedAt
 )
 
-type OperatorMemberRole struct {
+type OperatorPolicy struct {
 	Id        int       `json:"id"`
 	RoleId    int       `validate:"required"json:"role_id"`
 	UserId    int       `validate:"required"json:"user_id"`
@@ -20,10 +20,10 @@ type OperatorMemberRole struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type OperatorMemberRoleColumn int
+type OperatorPolicyColumn int
 
-func (omrc OperatorMemberRoleColumn) String() string {
-	switch omrc {
+func (opc OperatorPolicyColumn) String() string {
+	switch opc {
 	case OperatorMemberRoleId:
 		return "id"
 	case OperatorMemberRoleRoleId:
@@ -38,6 +38,6 @@ func (omrc OperatorMemberRoleColumn) String() string {
 	panic("Unknown value")
 }
 
-func (omr OperatorMemberRole) TableName() string {
-	return "operator_member_roles"
+func (opc OperatorPolicyColumn) TableName() string {
+	return "operator_policies"
 }

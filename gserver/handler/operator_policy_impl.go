@@ -11,30 +11,30 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
-var omhInstance OperateMemberRoleHandler
+var omhInstance OperatePolicyHandler
 
-type OperatorMemberRoleHandlerImpl struct {
-	RequestHandler    RequestHandler
-	RoleMemberService service.OperatorMemberRoleService
+type OperatorPolicyHandlerImpl struct {
+	RequestHandler        RequestHandler
+	OperatorPolicyService service.OperatorPolicyService
 }
 
-func GetOperateMemberRoleHandlerInstance() OperateMemberRoleHandler {
+func GetOperatorPolicyHandlerInstance() OperatePolicyHandler {
 	if omhInstance == nil {
-		omhInstance = NewOperatorMemberRoleHandler()
+		omhInstance = NewOperatorPolicyHandler()
 	}
 	return omhInstance
 }
 
-func NewOperatorMemberRoleHandler() OperateMemberRoleHandler {
-	log.Logger.Info("New `OperateMemberRoleHandler` instance")
-	log.Logger.Info("Inject `RequestHandler`, `operatorMemberRoleService` to `OperateMemberRoleHandler`")
-	return OperatorMemberRoleHandlerImpl{
-		RequestHandler:    GetRequestHandlerInstance(),
-		RoleMemberService: service.NewOperatorMemberRoleService(),
+func NewOperatorPolicyHandler() OperatePolicyHandler {
+	log.Logger.Info("New `OperatePolicyHandler` instance")
+	log.Logger.Info("Inject `RequestHandler`, `operatorMemberRoleService` to `OperatePolicyHandler`")
+	return OperatorPolicyHandlerImpl{
+		RequestHandler:        GetRequestHandlerInstance(),
+		OperatorPolicyService: service.NewOperatorPolicyServiceService(),
 	}
 }
 
-func (rmrhi OperatorMemberRoleHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, err := rmrhi.RequestHandler.VerifyToken(w, r, property.AuthOperator)
 	if err != nil {
@@ -56,11 +56,11 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Api(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func (rmrhi OperatorMemberRoleHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("GET operator_member_roles")
+func (rmrhi OperatorPolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
+	log.Logger.Info("GET operator_policies")
 	id := r.URL.Query().Get(entity.OperatorMemberRoleUserId.String())
 
-	roleMemberEntities, err := rmrhi.RoleMemberService.Get(id)
+	roleMemberEntities, err := rmrhi.OperatorPolicyService.Get(id)
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
 		return
@@ -71,9 +71,9 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Get(w http.ResponseWriter, r *http.Re
 	_, _ = w.Write(res)
 }
 
-func (rmrhi OperatorMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("POST operator_member_roles")
-	var roleMemberEntity *entity.OperatorMemberRole
+func (rmrhi OperatorPolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
+	log.Logger.Info("POST operator_policies")
+	var roleMemberEntity *entity.OperatorPolicy
 
 	body, err := rmrhi.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
@@ -85,7 +85,7 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	roleMemberEntity, err = rmrhi.RoleMemberService.Insert(roleMemberEntity)
+	roleMemberEntity, err = rmrhi.OperatorPolicyService.Insert(roleMemberEntity)
 	if err != nil {
 		http.Error(w, err.ToJson(), err.Code)
 		return
@@ -96,8 +96,8 @@ func (rmrhi OperatorMemberRoleHandlerImpl) Post(w http.ResponseWriter, r *http.R
 	_, _ = w.Write(res)
 }
 
-func (rmrhi OperatorMemberRoleHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {
 }
 
-func (rmrhi OperatorMemberRoleHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
 }

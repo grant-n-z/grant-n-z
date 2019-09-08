@@ -11,30 +11,30 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
-var rmrInstance OperatorMemberRoleRepository
+var oprInstance OperatorPolicyRepository
 
-type OperatorMemberRoleRepositoryImpl struct {
+type OperatorPolicyRepositoryImpl struct {
 	Db *gorm.DB
 }
 
-func GetOperatorMemberRoleRepositoryInstance(db *gorm.DB) OperatorMemberRoleRepository {
-	if rmrInstance == nil {
-		rmrInstance = NewOperatorMemberRoleRepository(db)
+func GetOperatorPolicyRepositoryInstance(db *gorm.DB) OperatorPolicyRepository {
+	if oprInstance == nil {
+		oprInstance = NewOperatorPolicyRepository(db)
 	}
-	return rmrInstance
+	return oprInstance
 }
 
-func NewOperatorMemberRoleRepository(db *gorm.DB) OperatorMemberRoleRepository {
-	log.Logger.Info("New `OperatorMemberRoleRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `OperatorMemberRoleRepository`")
-	return OperatorMemberRoleRepositoryImpl{
+func NewOperatorPolicyRepository(db *gorm.DB) OperatorPolicyRepository {
+	log.Logger.Info("New `OperatorPolicyRepository` instance")
+	log.Logger.Info("Inject `gorm.DB` to `OperatorPolicyRepository`")
+	return OperatorPolicyRepositoryImpl{
 		Db: db,
 	}
 }
 
-func (omrri OperatorMemberRoleRepositoryImpl) FindAll() ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
-	var entities []*entity.OperatorMemberRole
-	if err := omrri.Db.Find(&entities).Error; err != nil {
+func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+	var entities []*entity.OperatorPolicy
+	if err := opr.Db.Find(&entities).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -46,9 +46,9 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindAll() ([]*entity.OperatorMembe
 	return entities, nil
 }
 
-func (omrri OperatorMemberRoleRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorMemberRole, *model.ErrorResponse) {
-	var entities []*entity.OperatorMemberRole
-	if err := omrri.Db.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
+func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+	var entities []*entity.OperatorPolicy
+	if err := opr.Db.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -60,9 +60,9 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindByUserId(userId int) ([]*entit
 	return entities, nil
 }
 
-func (omrri OperatorMemberRoleRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorMemberRole, *model.ErrorResponse) {
-	var operatorMemberRole entity.OperatorMemberRole
-	if err := omrri.Db.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
+func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResponse) {
+	var operatorMemberRole entity.OperatorPolicy
+	if err := opr.Db.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -74,17 +74,17 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindByUserIdAndRoleId(userId int, 
 	return &operatorMemberRole, nil
 }
 
-func (omrri OperatorMemberRoleRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
-	query := omrri.Db.Table(entity.OperatorMemberRole{}.TableName()).
+func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
+	query := opr.Db.Table(entity.OperatorPolicy{}.TableName()).
 		Select("name").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.Role{}.TableName(),
-			entity.OperatorMemberRole{}.TableName(),
+			entity.OperatorPolicy{}.TableName(),
 			entity.OperatorMemberRoleRoleId,
 			entity.Role{}.TableName(),
 			entity.RoleId)).
 		Where(fmt.Sprintf("%s.%s = ?",
-			entity.OperatorMemberRole{}.TableName(),
+			entity.OperatorPolicy{}.TableName(),
 			entity.OperatorMemberRoleUserId), userId)
 
 	rows, err := query.Rows()
@@ -111,8 +111,8 @@ func (omrri OperatorMemberRoleRepositoryImpl) FindRoleNameByUserId(userId int) (
 	return names, nil
 }
 
-func (omrri OperatorMemberRoleRepositoryImpl) Save(entity entity.OperatorMemberRole) (*entity.OperatorMemberRole, *model.ErrorResponse) {
-	if err := omrri.Db.Create(&entity).Error; err != nil {
+func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResponse) {
+	if err := opr.Db.Create(&entity).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")

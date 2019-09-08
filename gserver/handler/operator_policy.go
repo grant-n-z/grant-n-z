@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-type OperateMemberRoleHandler interface {
+type OperatePolicyHandler interface {
 	Api(w http.ResponseWriter, r *http.Request)
 
 	Get(w http.ResponseWriter, r *http.Request)
