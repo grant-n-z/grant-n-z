@@ -78,7 +78,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	if serviceEntity == nil {
 		_, errorResponse = uh.UserService.InsertUser(userEntity)
 	} else {
-		userServiceEntity := &entity.UserGroup{
+		userServiceEntity := &entity.UserService{
 			UserId: userEntity.Id,
 			ServiceId: serviceEntity.Id,
 		}

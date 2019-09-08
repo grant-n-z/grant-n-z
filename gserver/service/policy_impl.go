@@ -27,7 +27,6 @@ type policyServiceImpl struct {
 	policyRepository            repository.PolicyRepository
 	permissionRepository        repository.PermissionRepository
 	roleRepository              repository.RoleRepository
-	serviceMemberRoleRepository repository.ServiceMemberRoleRepository
 }
 
 func GetPolicyServiceInstance() PolicyService {
@@ -44,7 +43,6 @@ func NewPolicyService() PolicyService {
 		policyRepository:            repository.GetPolicyRepositoryInstance(driver.Db),
 		permissionRepository:        repository.NewPermissionRepository(driver.Db),
 		roleRepository:              repository.GetRoleRepositoryInstance(driver.Db),
-		serviceMemberRoleRepository: repository.GetServiceMemberRoleRepositoryInstance(driver.Db),
 	}
 }
 
@@ -83,11 +81,6 @@ func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy,
 	if permissionEntity, _ := ps.permissionRepository.FindById(policy.PermissionId); permissionEntity == nil {
 		log.Logger.Warn("Not found permission id")
 		return nil, model.BadRequest("Not found permission id")
-	}
-
-	if roleEntity, _ := ps.serviceMemberRoleRepository.FindById(policy.ServiceMemberRoleId); roleEntity == nil {
-		log.Logger.Warn("Not found service member role id")
-		return nil, model.BadRequest("Not found service member role id")
 	}
 
 	return ps.policyRepository.Save(*policy)
