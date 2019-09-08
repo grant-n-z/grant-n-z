@@ -11,6 +11,9 @@ DROP TABLE IF EXISTS services;
 -- If groups exit, drop groups
 DROP TABLE IF EXISTS groups;
 
+-- If roles exit, drop roles
+DROP TABLE IF EXISTS roles;
+
 -- If users exit, drop users
 DROP TABLE IF EXISTS users;
 
@@ -76,6 +79,17 @@ CREATE TABLE groups (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- `roles`
+CREATE TABLE roles (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  uuid varchar(128) NOT NULL,
+  name varchar(128) NOT NULL,
+  created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `user_services`

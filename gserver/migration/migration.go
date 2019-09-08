@@ -71,21 +71,22 @@ func (m Migration) V1() {
 
 func (m Migration) checkAdminUser() bool {
 	operatorAdminUser, err := m.UserService.GetUserById(1)
-	if err != nil {
+	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 	operatorAdminRole, err := m.RoleService.GetRoleById(1)
-	if err != nil {
+	if err != nil && err.Code != http.StatusNotFound {
+		log.Logger.Fatal("Not found operator role")
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	var operatorAdminMemberRole []*entity.OperatorPolicy
-	operatorAdminMemberRole, err = m.OperatorPolicyService.GetByUserId(1)
-	if err != nil {
+	var operatorPolicy []*entity.OperatorPolicy
+	operatorPolicy, err = m.OperatorPolicyService.GetByUserId(1)
+	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	if operatorAdminUser != nil && operatorAdminRole != nil && len(operatorAdminMemberRole) != 0 {
+	if operatorAdminUser != nil && operatorAdminRole != nil && len(operatorPolicy) != 0 {
 		log.Logger.Info("Skip to database migration")
 		return false
 	}
