@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	PermissionId PermissionColumn = iota
+	PermissionTable PermissionTableConfig = iota
+	PermissionId
 	PermissionUuid
 	PermissionName
 	PermissionCreatedAt
@@ -22,10 +23,12 @@ type Permission struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-type PermissionColumn int
+type PermissionTableConfig int
 
-func (pc PermissionColumn) String() string {
+func (pc PermissionTableConfig) String() string {
 	switch pc {
+	case PermissionTable:
+		return "permissions"
 	case PermissionId:
 		return "id"
 	case PermissionName:
@@ -38,8 +41,4 @@ func (pc PermissionColumn) String() string {
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (pc PermissionColumn) TableName() string {
-	return "permissions"
 }

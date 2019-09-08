@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	OperatorPolicyId OperatorPolicyColumn = iota
+	OperatorPolicyTable OperatorPolicyTableConfig = iota
+	OperatorPolicyId
 	OperatorPolicyRoleId
 	OperatorPolicyUserId
 	OperatorPolicyCreatedAt
@@ -20,10 +21,12 @@ type OperatorPolicy struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type OperatorPolicyColumn int
+type OperatorPolicyTableConfig int
 
-func (opc OperatorPolicyColumn) String() string {
+func (opc OperatorPolicyTableConfig) String() string {
 	switch opc {
+	case OperatorPolicyTable:
+		return "operator_policies"
 	case OperatorPolicyId:
 		return "id"
 	case OperatorPolicyRoleId:
@@ -36,8 +39,4 @@ func (opc OperatorPolicyColumn) String() string {
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (opc OperatorPolicyColumn) TableName() string {
-	return "operator_policies"
 }

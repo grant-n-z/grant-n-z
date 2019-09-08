@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	UserId UserColumn = iota
+	UserTable UserTableConfig = iota
+	UserId
 	UserUuid
 	UserUsername
 	UserEmail
@@ -26,10 +27,12 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserColumn int
+type UserTableConfig int
 
-func (uc UserColumn) String() string {
+func (uc UserTableConfig) String() string {
 	switch uc {
+	case UserTable:
+		return "users"
 	case UserId:
 		return "id"
 	case UserUuid:
@@ -47,8 +50,3 @@ func (uc UserColumn) String() string {
 	}
 	panic("Unknown value")
 }
-
-func (uc UserColumn) TableName() string {
-	return "users"
-}
-

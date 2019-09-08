@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	ServiceId ServiceColumn = iota
+	ServiceTable ServiceTableConfig = iota
+	ServiceId
 	ServiceUuid
 	ServiceName
 	ServiceApiKey
@@ -24,10 +25,12 @@ type Service struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type ServiceColumn int
+type ServiceTableConfig int
 
-func (sc ServiceColumn) String() string {
+func (sc ServiceTableConfig) String() string {
 	switch sc {
+	case ServiceTable:
+		return "services"
 	case ServiceId:
 		return "id"
 	case ServiceUuid:
@@ -42,8 +45,4 @@ func (sc ServiceColumn) String() string {
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (sc ServiceColumn) TableName() string {
-	return "services"
 }

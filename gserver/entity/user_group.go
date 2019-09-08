@@ -5,14 +5,15 @@ import (
 )
 
 const (
-	GroupServiceId GroupServiceColumn = iota
-	GroupServiceUserId
-	GroupServiceGroupId
-	GroupServiceCreatedAt
-	GroupServiceUpdatedAt
+	UserGroupTable UserGroupTableConfig = iota
+	UserGroupId
+	UserGroupUserId
+	UserGroupGroupId
+	UserGroupCreatedAt
+	UserGroupUpdatedAt
 )
 
-type GroupService struct {
+type UserGroup struct {
 	Id        int       `gorm:"primary_key"json:"id"`
 	UserId    int       `validate:"required"json:"user_id"`
 	GroupId   int       `validate:"required"json:"group_id"`
@@ -20,24 +21,22 @@ type GroupService struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type GroupServiceColumn int
+type UserGroupTableConfig int
 
-func (gsc GroupServiceColumn) String() string {
-	switch gsc {
-	case GroupServiceId:
+func (ugc UserGroupTableConfig) String() string {
+	switch ugc {
+	case UserGroupTable:
+		return "user_groups"
+	case UserGroupId:
 		return "id"
-	case GroupServiceUserId:
+	case UserGroupUserId:
 		return "user_id"
-	case GroupServiceGroupId:
+	case UserGroupGroupId:
 		return "group_id"
-	case GroupServiceCreatedAt:
+	case UserGroupCreatedAt:
 		return "created_at"
-	case GroupServiceUpdatedAt:
+	case UserGroupUpdatedAt:
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (gsc GroupServiceColumn) TableName() string {
-	return "groups"
 }

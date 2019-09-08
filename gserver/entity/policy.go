@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	PolicyId PolicyColumn = iota
+	PolicyTable PolicyTableConfig = iota
+	PolicyId
 	PolicyName
 	PolicyPermissionId
 	PolicyServiceMemberRoleId
@@ -22,10 +23,12 @@ type Policy struct {
 	UpdatedAt           time.Time `json:"updated_at"`
 }
 
-type PolicyColumn int
+type PolicyTableConfig int
 
-func (pc PolicyColumn) String() string {
+func (pc PolicyTableConfig) String() string {
 	switch pc {
+	case PolicyTable:
+		return "policies"
 	case PolicyId:
 		return "id"
 	case PolicyName:
@@ -40,8 +43,4 @@ func (pc PolicyColumn) String() string {
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (pc PolicyColumn) TableName() string {
-	return "policies"
 }

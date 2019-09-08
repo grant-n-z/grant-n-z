@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	GroupId GroupColumn = iota
+	GroupTable GroupTableConfig = iota
+	GroupId
 	GroupUuid
 	GroupName
 	GroupCreatedAt
@@ -22,10 +23,12 @@ type Group struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type GroupColumn int
+type GroupTableConfig int
 
-func (gc GroupColumn) String() string {
+func (gc GroupTableConfig) String() string {
 	switch gc {
+	case GroupTable:
+		return "groups"
 	case GroupId:
 		return "id"
 	case GroupUuid:
@@ -38,8 +41,4 @@ func (gc GroupColumn) String() string {
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (gc GroupColumn) TableName() string {
-	return "groups"
 }

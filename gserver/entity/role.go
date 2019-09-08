@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	RoleId RoleColumn = iota
+	RoleTable RoleTableConfig = iota
+	RoleId
 	RoleUuid
 	RoleName
 	RoleCreatedAt
@@ -22,10 +23,12 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type RoleColumn int
+type RoleTableConfig int
 
-func (rc RoleColumn) String() string {
+func (rc RoleTableConfig) String() string {
 	switch rc {
+	case RoleTable:
+		return "roles"
 	case RoleId:
 		return "id"
 	case RoleUuid:
@@ -38,8 +41,4 @@ func (rc RoleColumn) String() string {
 		return "updated_at"
 	}
 	panic("Unknown value")
-}
-
-func (rc RoleColumn) TableName() string {
-	return "roles"
 }
