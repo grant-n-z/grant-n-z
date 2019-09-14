@@ -51,5 +51,5 @@ func (sgh ServiceGroupHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(map[string]bool{"grant": true})
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }

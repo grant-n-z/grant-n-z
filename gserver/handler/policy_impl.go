@@ -67,7 +67,7 @@ func (ph PolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(roleMemberEntities)
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.Unmarshal(body, &policyEntity)
+	json.Unmarshal(body, &policyEntity)
 	if err := ph.RequestHandler.ValidateHttpRequest(w, policyEntity); err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(policyEntity)
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (ph PolicyHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {

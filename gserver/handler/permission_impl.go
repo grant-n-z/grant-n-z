@@ -65,7 +65,7 @@ func (ph PermissionHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(permissionEntities)
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +76,7 @@ func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.Unmarshal(body, &permissionEntity)
+	json.Unmarshal(body, &permissionEntity)
 	if err := ph.RequestHandler.ValidateHttpRequest(w, permissionEntity); err != nil {
 		return
 	}
@@ -89,7 +89,7 @@ func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(permissionEntity)
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (ph PermissionHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {

@@ -67,7 +67,7 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(result)
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.Unmarshal(body, &serviceEntity)
+	json.Unmarshal(body, &serviceEntity)
 	if err := sh.RequestHandler.ValidateHttpRequest(w, serviceEntity); err != nil {
 		return
 	}
@@ -91,13 +91,11 @@ func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(serviceEntity)
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (sh ServiceHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("PUT services")
 }
 
 func (sh ServiceHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
-	log.Logger.Info("DELETE services")
 }

@@ -50,7 +50,6 @@ func (ah AuthHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, _ := json.Marshal(map[string]bool{"grant": true})
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }

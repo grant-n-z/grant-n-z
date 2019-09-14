@@ -67,7 +67,7 @@ func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request, au
 
 	res, _ := json.Marshal(userServiceEntities)
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, authUser *model.AuthUser) {
@@ -78,7 +78,7 @@ func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, a
 		return
 	}
 
-	_ = json.Unmarshal(body, &userServiceEntity)
+	json.Unmarshal(body, &userServiceEntity)
 	if err := ush.RequestHandler.ValidateHttpRequest(w, userServiceEntity); err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, a
 
 	res, _ := json.Marshal(userServiceEntity)
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (ush UserServiceHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {

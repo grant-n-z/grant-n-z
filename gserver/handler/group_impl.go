@@ -51,7 +51,7 @@ func (gh GroupHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(map[string]bool{"grant": true})
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (gh GroupHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func (gh GroupHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(map[string]bool{"grant": true})
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (gh GroupHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {

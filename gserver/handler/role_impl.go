@@ -76,7 +76,7 @@ func (rh RoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.Unmarshal(body, &roleEntity)
+	json.Unmarshal(body, &roleEntity)
 	if err := rh.RequestHandler.ValidateHttpRequest(w, roleEntity); err != nil {
 		return
 	}
@@ -89,7 +89,7 @@ func (rh RoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(roleEntity)
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (rh RoleHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {

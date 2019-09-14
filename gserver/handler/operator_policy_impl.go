@@ -67,7 +67,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Reques
 
 	res, _ := json.Marshal(roleMemberEntities)
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (rmrhi OperatorPolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	_ = json.Unmarshal(body, &roleMemberEntity)
+	json.Unmarshal(body, &roleMemberEntity)
 	if err := rmrhi.RequestHandler.ValidateHttpRequest(w, roleMemberEntity); err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Reque
 
 	res, _ := json.Marshal(roleMemberEntity)
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (rmrhi OperatorPolicyHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {

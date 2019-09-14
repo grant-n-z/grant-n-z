@@ -52,7 +52,7 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.Unmarshal(body, &userEntity)
+	json.Unmarshal(body, &userEntity)
 	userEntity.Username = userEntity.Email
 	if err := th.RequestHandler.ValidateHttpRequest(w, userEntity); err != nil {
 		return
@@ -66,5 +66,5 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(map[string]string{"token": *token})
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }

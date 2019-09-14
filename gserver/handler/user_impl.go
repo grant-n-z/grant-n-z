@@ -64,7 +64,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.Unmarshal(body, &userEntity)
+	json.Unmarshal(body, &userEntity)
 	if err := uh.RequestHandler.ValidateHttpRequest(w, userEntity); err != nil {
 		return
 	}
@@ -84,6 +84,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		}
 		_, errorResponse = uh.UserService.InsertUserWithService(userEntity, userServiceEntity)
 	}
+
 	if errorResponse != nil {
 		http.Error(w, errorResponse.ToJson(), errorResponse.Code)
 		return
@@ -91,7 +92,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	res, _ := json.Marshal(map[string]string{"message": "User creation succeeded."})
 	w.WriteHeader(http.StatusCreated)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (uh UserHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {
