@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -28,13 +30,24 @@ func NewUserGroupRepository(db *gorm.DB) UserGroupRepository {
 }
 
 func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResponse) {
-
+	return nil, nil
 }
 
 func (ugr UserGroupRepositoryImpl) FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResponse) {
-
+	return nil, nil
 }
 
-func (ugr UserGroupRepositoryImpl) Save(userGroup entity.UserGroup) (*entity.Group, *model.ErrorResponse) {
+func (ugr UserGroupRepositoryImpl) Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResponse) {
+	if err := ugr.Db.Create(&userGroup).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		}
 
+		return nil, model.InternalServerError()
+	}
+
+	return &userGroup, nil
 }

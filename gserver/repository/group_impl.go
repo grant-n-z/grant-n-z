@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -28,13 +30,42 @@ func NewGroupRepository(db *gorm.DB) GroupRepository {
 
 
 func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResponse) {
+	var groups []*entity.Group
+	if err := gr.Db.Find(&groups).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
 
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindByName(name string) ([]*entity.Group, *model.ErrorResponse) {
+func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResponse) {
+	var groups []*entity.Group
+	if err := gr.Db.Where("name = ?", name).Find(&groups).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
 
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return groups, nil
 }
 
 func (gr GroupRepositoryImpl) Save(group entity.Group) (*entity.Group, *model.ErrorResponse) {
+	if err := gr.Db.Create(&group).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		}
 
+		return nil, model.InternalServerError()
+	}
+
+	return &group, nil
 }

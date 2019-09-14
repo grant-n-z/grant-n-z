@@ -8,7 +8,7 @@ import (
 type GroupRepository interface {
 	FindAll() ([]*entity.Group, *model.ErrorResponse)
 
-	FindByName(name string) ([]*entity.Group, *model.ErrorResponse)
+	FindByName(name string) (*entity.Group, *model.ErrorResponse)
 
 	Save(group entity.Group) (*entity.Group, *model.ErrorResponse)
 }

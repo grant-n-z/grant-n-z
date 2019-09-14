@@ -10,5 +10,5 @@ type UserGroupRepository interface {
 
 	FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResponse)
 
-	Save(userGroup entity.UserGroup) (*entity.Group, *model.ErrorResponse)
+	Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResponse)
 }

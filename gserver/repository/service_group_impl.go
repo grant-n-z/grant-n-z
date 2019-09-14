@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -28,13 +30,24 @@ func NewServiceGroupRepository(db *gorm.DB) ServiceGroupRepository {
 }
 
 func (sgr ServiceGroupRepositoryImpl) FindServiceByGroupId(groupId int) ([]*entity.Service, *model.ErrorResponse) {
-
+	return nil, nil
 }
 
 func (sgr ServiceGroupRepositoryImpl) FindGroupByServiceId(serviceId int) ([]*entity.Group, *model.ErrorResponse) {
-
+	return nil, nil
 }
 
-func (sgr ServiceGroupRepositoryImpl) Save(group entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResponse) {
+func (sgr ServiceGroupRepositoryImpl) Save(serviceGroup entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResponse) {
+	if err := sgr.Db.Create(&serviceGroup).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		}
 
+		return nil, model.InternalServerError()
+	}
+
+	return &serviceGroup, nil
 }
