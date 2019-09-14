@@ -32,19 +32,19 @@ func NewGroupHandler() GroupHandler {
 	}
 }
 
-func (ah GroupHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
+func (gh GroupHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodGet:
-		ah.Get(w, r)
+		gh.Get(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		http.Error(w, err.ToJson(), err.Code)
 	}
 }
 
-func (ah GroupHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
-	_, err := ah.RequestHandler.InterceptHttp(w, r)
+func (gh GroupHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
+	_, err := gh.RequestHandler.InterceptHttp(w, r)
 	if err != nil {
 		return
 	}
@@ -52,4 +52,18 @@ func (ah GroupHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	res, _ := json.Marshal(map[string]bool{"grant": true})
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(res)
+}
+
+func (gh GroupHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
+	_, err := gh.RequestHandler.InterceptHttp(w, r)
+	if err != nil {
+		return
+	}
+
+	res, _ := json.Marshal(map[string]bool{"grant": true})
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(res)
+}
+
+func (gh GroupHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
 }
