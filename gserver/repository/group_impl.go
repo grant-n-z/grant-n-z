@@ -43,7 +43,7 @@ func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResponse) 
 }
 
 func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResponse) {
-	var groups []*entity.Group
+	var groups *entity.Group
 	if err := gr.Db.Where("name = ?", name).Find(&groups).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
