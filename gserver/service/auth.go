@@ -5,9 +5,9 @@ import (
 )
 
 type AuthService interface {
-	VerifyOperatorMember(token string) (*model.AuthUser, *model.ErrorResponse)
+	VerifyOperatorMember(token string) (*model.AuthUser, *model.ErrorResBody)
 
-	VerifyServiceMember(token string) (*model.AuthUser, *model.ErrorResponse)
+	VerifyServiceMember(token string) (*model.AuthUser, *model.ErrorResBody)
 
-	verifyToken(token string) (*model.AuthUser, *model.ErrorResponse)
+	verifyToken(token string) (*model.AuthUser, *model.ErrorResBody)
 }

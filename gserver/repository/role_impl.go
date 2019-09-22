@@ -31,7 +31,7 @@ func NewRoleRepository(db *gorm.DB) RoleRepository {
 	}
 }
 
-func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResponse) {
+func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
 	if err := rri.Db.Find(&roles).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -44,7 +44,7 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResponse) {
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResponse) {
+func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBody) {
 	var role entity.Role
 	if err := rri.Db.Where("id = ?", id).Find(&role).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -57,7 +57,7 @@ func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorRespon
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResponse) {
+func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResBody) {
 	if err := rri.Db.Create(&role).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

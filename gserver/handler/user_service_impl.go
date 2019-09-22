@@ -52,7 +52,7 @@ func (ush UserServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ush.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -61,7 +61,7 @@ func (ush UserServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request, au
 
 	userServiceEntities, err := ush.UserService.Get(id)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (ush UserServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request, a
 
 	userServiceEntity, err = ush.UserService.InsertUserService(userServiceEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

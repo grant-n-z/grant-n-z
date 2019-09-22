@@ -6,13 +6,13 @@ import (
 )
 
 type OperatorPolicyRepository interface {
-	FindAll() ([]*entity.OperatorPolicy, *model.ErrorResponse)
+	FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody)
 
-	FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResponse)
+	FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody)
 
-	FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResponse)
+	FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody)
 
-	FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse)
+	FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody)
 
-	Save(role entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResponse)
+	Save(role entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody)
 }

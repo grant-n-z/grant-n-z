@@ -28,7 +28,7 @@ func NewGroupService() GroupService {
 	return GroupServiceImpl{groupRepository: repository.GetGroupRepositoryInstance(driver.Db)}
 }
 
-func (gs GroupServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse) {
+func (gs GroupServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResBody) {
 	if strings.EqualFold(queryParam, "") {
 		return gs.GetGroups()
 	}
@@ -45,14 +45,14 @@ func (gs GroupServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResp
 	return groupEntities, nil
 }
 
-func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResponse) {
+func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
 	return gs.groupRepository.FindAll()
 }
 
-func (gs GroupServiceImpl) GetGroupByName(name string) (*entity.Group, *model.ErrorResponse) {
+func (gs GroupServiceImpl) GetGroupByName(name string) (*entity.Group, *model.ErrorResBody) {
 	return gs.groupRepository.FindByName(name)
 }
 
-func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResponse) {
+func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody) {
 	return gs.groupRepository.Save(*group)
 }

@@ -39,7 +39,7 @@ func (ah AuthHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ah.Get(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 

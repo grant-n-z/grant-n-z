@@ -29,7 +29,7 @@ func NewRoleService() RoleService {
 	return roleServiceImpl{roleRepository: repository.RoleRepositoryImpl{Db: driver.Db}}
 }
 
-func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResponse) {
+func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
 	roles, err := rs.roleRepository.FindAll()
 	if roles == nil {
 		return []*entity.Role{}, err
@@ -37,11 +37,11 @@ func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResponse) {
 	return []*entity.Role{}, err
 }
 
-func (rs roleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResponse) {
+func (rs roleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
 	return rs.roleRepository.FindById(id)
 }
 
-func (rs roleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResponse) {
+func (rs roleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
 	role.Uuid, _ = uuid.NewV4()
 	return rs.roleRepository.Save(*role)
 }

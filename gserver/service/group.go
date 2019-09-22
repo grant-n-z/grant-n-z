@@ -6,11 +6,11 @@ import (
 )
 
 type GroupService interface {
-	Get(queryParam string) (interface{}, *model.ErrorResponse)
+	Get(queryParam string) (interface{}, *model.ErrorResBody)
 
-	GetGroups() ([]*entity.Group, *model.ErrorResponse)
+	GetGroups() ([]*entity.Group, *model.ErrorResBody)
 
-	GetGroupByName(name string) (*entity.Group, *model.ErrorResponse)
+	GetGroupByName(name string) (*entity.Group, *model.ErrorResBody)
 
-	InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResponse)
+	InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody)
 }

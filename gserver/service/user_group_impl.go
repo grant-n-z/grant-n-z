@@ -27,6 +27,6 @@ func NewUserGroupService() UserGroupService {
 	return UserGroupServiceImpl{userGroupRepository: repository.GetUserGroupRepositoryInstance(driver.Db)}
 }
 
-func (ugs UserGroupServiceImpl) InsertUserGroup(userGroup *entity.UserGroup) (*entity.UserGroup, *model.ErrorResponse) {
+func (ugs UserGroupServiceImpl) InsertUserGroup(userGroup *entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
 	return ugs.userGroupRepository.Save(*userGroup)
 }

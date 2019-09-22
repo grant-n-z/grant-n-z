@@ -42,7 +42,7 @@ func (sgh ServiceGroupHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		sgh.Post(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -61,7 +61,7 @@ func (sgh ServiceGroupHandlerImpl) Post(w http.ResponseWriter, r *http.Request) 
 
 	serviceGroupEntity, err = sgh.ServiceGroupService.InsertServiceGroup(serviceGroupEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

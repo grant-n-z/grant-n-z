@@ -6,11 +6,11 @@ import (
 )
 
 type UserServiceService interface {
-	Get(queryParam string) (interface{}, *model.ErrorResponse)
+	Get(queryParam string) (interface{}, *model.ErrorResBody)
 
-	GetUserServices() ([]*entity.UserService, *model.ErrorResponse)
+	GetUserServices() ([]*entity.UserService, *model.ErrorResBody)
 
-	GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResponse)
+	GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody)
 
-	InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResponse)
+	InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResBody)
 }

@@ -42,7 +42,7 @@ func (ugh UserGroupHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ugh.Post(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -61,7 +61,7 @@ func (ugh UserGroupHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	userGroupEntity, err = ugh.UserGroupService.InsertUserGroup(userGroupEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

@@ -31,7 +31,7 @@ func NewPermissionService() PermissionService {
 	}
 }
 
-func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.ErrorResponse) {
+func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.ErrorResBody) {
 	permissions, err := ps.permissionRepository.FindAll()
 	if permissions == nil {
 		return []*entity.Permission{}, err
@@ -40,11 +40,11 @@ func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.E
 	return permissions, err
 }
 
-func (ps permissionServiceImpl) GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResponse) {
+func (ps permissionServiceImpl) GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResBody) {
 	return ps.permissionRepository.FindById(id)
 }
 
-func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResponse) {
+func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	permission.Uuid, _ = uuid.NewV4()
 	return ps.permissionRepository.Save(*permission)
 }

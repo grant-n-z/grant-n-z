@@ -6,15 +6,15 @@ import (
 )
 
 type ServiceRepository interface {
-	FindAll() ([]*entity.Service, *model.ErrorResponse)
+	FindAll() ([]*entity.Service, *model.ErrorResBody)
 
-	FindById(id int) (*entity.Service, *model.ErrorResponse)
+	FindById(id int) (*entity.Service, *model.ErrorResBody)
 
-	FindByName(name string) (*entity.Service, *model.ErrorResponse)
+	FindByName(name string) (*entity.Service, *model.ErrorResBody)
 
-	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse)
+	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
 
-	Save(service entity.Service) (*entity.Service, *model.ErrorResponse)
+	Save(service entity.Service) (*entity.Service, *model.ErrorResBody)
 
 	Update(service entity.Service) *entity.Service
 }

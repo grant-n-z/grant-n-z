@@ -6,9 +6,9 @@ import (
 )
 
 type PolicyRepository interface {
-	FindAll() ([]*entity.Policy, *model.ErrorResponse)
+	FindAll() ([]*entity.Policy, *model.ErrorResBody)
 
-	FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResponse)
+	FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
-	Save(policy entity.Policy) (*entity.Policy, *model.ErrorResponse)
+	Save(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
 }

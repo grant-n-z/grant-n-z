@@ -6,25 +6,32 @@ import (
 )
 
 // GrantNZ error data
-type ErrorResponse struct {
+type ErrorResBody struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Detail  string `json:"detail"`
 }
 
 // To json
-func (er ErrorResponse) ToJson() string {
+func (er ErrorResBody) ToJson() string {
 	jsonBytes, _ := json.Marshal(er)
 	return string(jsonBytes)
 }
 
+// Error response
+func Error(w http.ResponseWriter, error string, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write([]byte(error))
+}
+
 // BadRequest
-func BadRequest(err ...string) *ErrorResponse {
+func BadRequest(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return &ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusBadRequest,
 		Message: "Bad request.",
 		Detail:  detail,
@@ -32,12 +39,12 @@ func BadRequest(err ...string) *ErrorResponse {
 }
 
 // Unauthorized
-func Unauthorized(err ...string) *ErrorResponse {
+func Unauthorized(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return &ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusUnauthorized,
 		Message: "Unauthorized.",
 		Detail:  detail,
@@ -45,12 +52,12 @@ func Unauthorized(err ...string) *ErrorResponse {
 }
 
 // Forbidden
-func Forbidden(err ...string) ErrorResponse {
+func Forbidden(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusForbidden,
 		Message: "Forbidden.",
 		Detail:  detail,
@@ -58,12 +65,12 @@ func Forbidden(err ...string) ErrorResponse {
 }
 
 // NotFound
-func NotFound(err ...string) *ErrorResponse {
+func NotFound(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return &ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusNotFound,
 		Message: "Not found.",
 		Detail:  detail,
@@ -71,12 +78,12 @@ func NotFound(err ...string) *ErrorResponse {
 }
 
 // Conflict
-func Conflict(err ...string) *ErrorResponse {
+func Conflict(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return &ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusConflict,
 		Message: "Conflict.",
 		Detail:  detail,
@@ -84,12 +91,12 @@ func Conflict(err ...string) *ErrorResponse {
 }
 
 // MethodNotAllowed
-func MethodNotAllowed(err ...string) *ErrorResponse {
+func MethodNotAllowed(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return &ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusMethodNotAllowed,
 		Message: "Method Not Allowed.",
 		Detail:  detail,
@@ -97,12 +104,12 @@ func MethodNotAllowed(err ...string) *ErrorResponse {
 }
 
 // UnProcessableEntity
-func UnProcessableEntity(err ...string) ErrorResponse {
+func UnProcessableEntity(err ...string) *ErrorResBody {
 	var detail string
 	if err != nil {
 		detail = err[0]
 	}
-	return ErrorResponse{
+	return &ErrorResBody{
 		Code:    http.StatusUnprocessableEntity,
 		Message: "UnProcessable Entity.",
 		Detail:  detail,
@@ -110,8 +117,8 @@ func UnProcessableEntity(err ...string) ErrorResponse {
 }
 
 // InternalServerError
-func InternalServerError(err ...string) *ErrorResponse {
-	return &ErrorResponse{
+func InternalServerError(err ...string) *ErrorResBody {
+	return &ErrorResBody{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal server error.",
 		Detail:  "Error internal processing.",

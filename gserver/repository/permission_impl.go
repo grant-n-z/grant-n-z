@@ -31,7 +31,7 @@ func NewPermissionRepository(db *gorm.DB) PermissionRepository {
 	}
 }
 
-func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResponse) {
+func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
 	if err := pri.Db.Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -44,7 +44,7 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.Erro
 	return permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResponse) {
+func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResBody) {
 	var permissions entity.Permission
 	if err := pri.Db.Where("id = ?", id).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -57,7 +57,7 @@ func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model
 	return &permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, *model.ErrorResponse) {
+func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	if err := pri.Db.Create(&permission).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

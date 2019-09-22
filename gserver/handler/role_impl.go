@@ -52,14 +52,14 @@ func (rh RoleHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		rh.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
 func (rh RoleHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	roleEntities, err := rh.RoleService.GetRoles()
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (rh RoleHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	roleEntity, err = rh.RoleService.InsertRole(roleEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

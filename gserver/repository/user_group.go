@@ -6,9 +6,9 @@ import (
 )
 
 type UserGroupRepository interface {
-	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResponse)
+	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
 
-	FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResponse)
+	FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody)
 
-	Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResponse)
+	Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
 }

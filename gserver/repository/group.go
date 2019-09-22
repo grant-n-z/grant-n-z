@@ -6,9 +6,9 @@ import (
 )
 
 type GroupRepository interface {
-	FindAll() ([]*entity.Group, *model.ErrorResponse)
+	FindAll() ([]*entity.Group, *model.ErrorResBody)
 
-	FindByName(name string) (*entity.Group, *model.ErrorResponse)
+	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
-	Save(group entity.Group) (*entity.Group, *model.ErrorResponse)
+	Save(group entity.Group) (*entity.Group, *model.ErrorResBody)
 }

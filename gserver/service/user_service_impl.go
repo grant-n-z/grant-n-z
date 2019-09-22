@@ -36,7 +36,7 @@ func NewUserServiceService() UserServiceService {
 	}
 }
 
-func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse) {
+func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResBody) {
 	var result interface{}
 
 	if strings.EqualFold(queryParam, "") {
@@ -63,15 +63,15 @@ func (uss userServiceServiceImpl) Get(queryParam string) (interface{}, *model.Er
 	return result, nil
 }
 
-func (uss userServiceServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResponse) {
+func (uss userServiceServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	return uss.userServiceRepository.FindAll()
 }
 
-func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResponse) {
+func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody) {
 	return uss.userServiceRepository.FindByUserId(userId)
 }
 
-func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResponse) {
+func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResBody) {
 	if userEntity, _ := uss.userRepository.FindById(userService.UserId); userEntity == nil {
 		log.Logger.Warn("Not found user id")
 		return nil, model.BadRequest("Not found user id")

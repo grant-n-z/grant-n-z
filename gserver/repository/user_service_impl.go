@@ -31,7 +31,7 @@ func NewUserServiceRepository(db *gorm.DB) UserServiceRepository {
 	}
 }
 
-func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.ErrorResponse) {
+func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.ErrorResBody) {
 	var userServices []*entity.UserService
 	if err := usri.Db.Find(&userServices).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -44,7 +44,7 @@ func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.E
 	return userServices, nil
 }
 
-func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *model.ErrorResponse) {
+func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *model.ErrorResBody) {
 	var userServices []*entity.UserService
 	if err := usri.Db.Where("id = ?", id).Find(&userServices).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -57,7 +57,7 @@ func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *
 	return userServices, nil
 }
 
-func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResponse) {
+func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody) {
 	var userServices []*entity.UserService
 	if err := usri.Db.Where("user_id = ?", userId).Find(&userServices).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -70,7 +70,7 @@ func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserSe
 	return userServices, nil
 }
 
-func (usri UserServiceRepositoryImpl) Save(userService entity.UserService) (*entity.UserService, *model.ErrorResponse) {
+func (usri UserServiceRepositoryImpl) Save(userService entity.UserService) (*entity.UserService, *model.ErrorResBody) {
 	if err := usri.Db.Create(&userService).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

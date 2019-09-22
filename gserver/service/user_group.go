@@ -6,5 +6,5 @@ import (
 )
 
 type UserGroupService interface {
-	InsertUserGroup(userGroup *entity.UserGroup) (*entity.UserGroup, *model.ErrorResponse)
+	InsertUserGroup(userGroup *entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
 }

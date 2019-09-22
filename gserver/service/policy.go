@@ -6,13 +6,13 @@ import (
 )
 
 type PolicyService interface {
-	Get(queryParam string) ([]*entity.Policy, *model.ErrorResponse)
+	Get(queryParam string) ([]*entity.Policy, *model.ErrorResBody)
 
-	GetPolicies() ([]*entity.Policy, *model.ErrorResponse)
+	GetPolicies() ([]*entity.Policy, *model.ErrorResBody)
 
-	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResponse)
+	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
-	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResponse)
+	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
 
 	EncryptData(data string) (*string, error)
 

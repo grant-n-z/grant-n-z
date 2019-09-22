@@ -52,14 +52,14 @@ func (ph PermissionHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ph.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
 func (ph PermissionHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 	permissionEntities, err := ph.PermissionService.GetPermissions()
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (ph PermissionHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	permissionEntity, err = ph.PermissionService.InsertPermission(permissionEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

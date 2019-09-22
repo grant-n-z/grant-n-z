@@ -29,15 +29,15 @@ func NewServiceGroupRepository(db *gorm.DB) ServiceGroupRepository {
 	return ServiceGroupRepositoryImpl{Db: db}
 }
 
-func (sgr ServiceGroupRepositoryImpl) FindServiceByGroupId(groupId int) ([]*entity.Service, *model.ErrorResponse) {
+func (sgr ServiceGroupRepositoryImpl) FindServiceByGroupId(groupId int) ([]*entity.Service, *model.ErrorResBody) {
 	return nil, nil
 }
 
-func (sgr ServiceGroupRepositoryImpl) FindGroupByServiceId(serviceId int) ([]*entity.Group, *model.ErrorResponse) {
+func (sgr ServiceGroupRepositoryImpl) FindGroupByServiceId(serviceId int) ([]*entity.Group, *model.ErrorResBody) {
 	return nil, nil
 }
 
-func (sgr ServiceGroupRepositoryImpl) Save(serviceGroup entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResponse) {
+func (sgr ServiceGroupRepositoryImpl) Save(serviceGroup entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResBody) {
 	if err := sgr.Db.Create(&serviceGroup).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

@@ -46,7 +46,7 @@ func NewPolicyService() PolicyService {
 	}
 }
 
-func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *model.ErrorResponse) {
+func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *model.ErrorResBody) {
 	if strings.EqualFold(queryParam, "") {
 		return ps.GetPolicies()
 	}
@@ -69,15 +69,15 @@ func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *model.Err
 	return policyEntities, nil
 }
 
-func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResponse) {
+func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody) {
 	return ps.policyRepository.FindAll()
 }
 
-func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResponse) {
+func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
 	return ps.policyRepository.FindByRoleId(roleId)
 }
 
-func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResponse) {
+func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody) {
 	if permissionEntity, _ := ps.permissionRepository.FindById(policy.PermissionId); permissionEntity == nil {
 		log.Logger.Warn("Not found permission id")
 		return nil, model.BadRequest("Not found permission id")

@@ -52,7 +52,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Reques
 		rmrhi.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -61,7 +61,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Reques
 
 	roleMemberEntities, err := rmrhi.OperatorPolicyService.Get(id)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (rmrhi OperatorPolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Reque
 
 	roleMemberEntity, err = rmrhi.OperatorPolicyService.Insert(roleMemberEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

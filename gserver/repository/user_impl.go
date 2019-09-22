@@ -32,7 +32,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResponse) {
+func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResBody) {
 	var user entity.User
 	if err := uri.Db.Where("id = ?", id).Find(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
@@ -46,7 +46,7 @@ func (uri UserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorRespon
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.ErrorResponse) {
+func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.ErrorResBody) {
 	var user entity.User
 	if err := uri.Db.Where("email = ?", email).Find(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
@@ -60,7 +60,7 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse) {
+func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody) {
 	var userOperatorMemberRole model.UserOperatorMemberRole
 	if err := uri.Db.Table(entity.UserTable.String()).
 		Select("*").
@@ -81,7 +81,7 @@ func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.User
 	return &userOperatorMemberRole, nil
 }
 
-func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResponse) {
+func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResBody) {
 	if err := uri.Db.Create(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
@@ -94,7 +94,7 @@ func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.Error
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse) {
+func (uri UserRepositoryImpl) SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody) {
 	tx := uri.Db.Begin()
 
 	if err := tx.Create(&user).Error; err != nil {
@@ -122,7 +122,7 @@ func (uri UserRepositoryImpl) SaveUserWithUserService(user entity.User, userServ
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) Update(user entity.User) (*entity.User, *model.ErrorResponse) {
+func (uri UserRepositoryImpl) Update(user entity.User) (*entity.User, *model.ErrorResBody) {
 	if err := uri.Db.Save(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		return nil, model.InternalServerError(	)

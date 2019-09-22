@@ -52,7 +52,7 @@ func (ph PolicyHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ph.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -61,7 +61,7 @@ func (ph PolicyHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	roleMemberEntities, err := ph.PolicyService.Get(id)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (ph PolicyHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	policyEntity, err = ph.PolicyService.InsertPolicy(policyEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

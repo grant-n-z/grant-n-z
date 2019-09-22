@@ -32,7 +32,7 @@ func NewOperatorPolicyRepository(db *gorm.DB) OperatorPolicyRepository {
 	}
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	var entities []*entity.OperatorPolicy
 	if err := opr.Db.Find(&entities).Error; err != nil {
 		log.Logger.Warn(err.Error())
@@ -46,7 +46,7 @@ func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *mo
 	return entities, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	var entities []*entity.OperatorPolicy
 	if err := opr.Db.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
 		log.Logger.Warn(err.Error())
@@ -60,7 +60,7 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.Oper
 	return entities, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResponse) {
+func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	var operatorMemberRole entity.OperatorPolicy
 	if err := opr.Db.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
 		log.Logger.Warn(err.Error())
@@ -74,7 +74,7 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId
 	return &operatorMemberRole, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
+func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
 	query := opr.Db.Table(entity.OperatorPolicyTable.String()).
 		Select("name").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
@@ -111,7 +111,7 @@ func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]stri
 	return names, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResponse) {
+func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	if err := opr.Db.Create(&entity).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

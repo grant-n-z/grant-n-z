@@ -33,7 +33,7 @@ func NewServiceService() Service {
 	}
 }
 
-func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse) {
+func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResBody) {
 	if !strings.EqualFold(queryParam, "") {
 		serviceEntity, err := ss.GetServiceByName(queryParam)
 		if err != nil {
@@ -60,23 +60,23 @@ func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResponse)
 	}
 }
 
-func (ss serviceImpl) GetServices() ([]*entity.Service, *model.ErrorResponse) {
+func (ss serviceImpl) GetServices() ([]*entity.Service, *model.ErrorResBody) {
 	return ss.serviceRepository.FindAll()
 }
 
-func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResponse) {
+func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResBody) {
 	return ss.serviceRepository.FindById(id)
 }
 
-func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResponse) {
+func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResBody) {
 	return ss.serviceRepository.FindByName(name)
 }
 
-func (ss serviceImpl) GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse) {
+func (ss serviceImpl) GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
 	return ss.serviceRepository.FindByApiKey(apiKey)
 }
 
-func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResponse) {
+func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid, _ = uuid.NewV4()
 	key, _ := uuid.NewV4()
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)

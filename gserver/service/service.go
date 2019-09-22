@@ -6,15 +6,15 @@ import (
 )
 
 type Service interface {
-	Get(queryParam string) (interface{}, *model.ErrorResponse)
+	Get(queryParam string) (interface{}, *model.ErrorResBody)
 
-	GetServices() ([]*entity.Service, *model.ErrorResponse)
+	GetServices() ([]*entity.Service, *model.ErrorResBody)
 
-	GetServiceById(id int) (*entity.Service, *model.ErrorResponse)
+	GetServiceById(id int) (*entity.Service, *model.ErrorResBody)
 
-	GetServiceByName(name string) (*entity.Service, *model.ErrorResponse)
+	GetServiceByName(name string) (*entity.Service, *model.ErrorResBody)
 
-	GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse)
+	GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
 
-	InsertService(service *entity.Service) (*entity.Service, *model.ErrorResponse)
+	InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody)
 }

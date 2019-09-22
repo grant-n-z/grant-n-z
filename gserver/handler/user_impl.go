@@ -49,7 +49,7 @@ func (uh UserHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		uh.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -74,7 +74,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var errorResponse *model.ErrorResponse
+	var errorResponse *model.ErrorResBody
 	if serviceEntity == nil {
 		_, errorResponse = uh.UserService.InsertUser(userEntity)
 	} else {
@@ -86,7 +86,7 @@ func (uh UserHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if errorResponse != nil {
-		http.Error(w, errorResponse.ToJson(), errorResponse.Code)
+		model.Error(w, errorResponse.ToJson(), errorResponse.Code)
 		return
 	}
 
@@ -116,7 +116,7 @@ func (uh UserHandlerImpl) Put(w http.ResponseWriter, r *http.Request) {
 	userEntity.Id = authUser.UserId
 	userEntity.Uuid = authUser.UserUuid
 	if _, err := uh.UserService.UpdateUser(userEntity); err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

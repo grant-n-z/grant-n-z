@@ -6,9 +6,9 @@ import (
 )
 
 type RoleService interface {
-	GetRoles() ([]*entity.Role, *model.ErrorResponse)
+	GetRoles() ([]*entity.Role, *model.ErrorResBody)
 
-	GetRoleById(id int) (*entity.Role, *model.ErrorResponse)
+	GetRoleById(id int) (*entity.Role, *model.ErrorResBody)
 
-	InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResponse)
+	InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody)
 }

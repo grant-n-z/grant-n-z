@@ -42,7 +42,7 @@ func (gh GroupHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		gh.Get(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -51,7 +51,7 @@ func (gh GroupHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	groupEntities, err := gh.GroupService.Get(name)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (gh GroupHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	groupEntity, err = gh.GroupService.InsertGroup(groupEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

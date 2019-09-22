@@ -10,17 +10,17 @@ type UserService interface {
 
 	ComparePw(passwordHash string, password string) bool
 
-	GetUserById(id int) (*entity.User, *model.ErrorResponse)
+	GetUserById(id int) (*entity.User, *model.ErrorResBody)
 
-	GetUserByEmail(email string) (*entity.User, *model.ErrorResponse)
+	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse)
+	GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody)
 
-	InsertUser(user *entity.User) (*entity.User, *model.ErrorResponse)
+	InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody)
 
-	InsertUserWithService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse)
+	InsertUserWithService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
 
-	UpdateUser(user *entity.User) (*entity.User, *model.ErrorResponse)
+	UpdateUser(user *entity.User) (*entity.User, *model.ErrorResBody)
 
 	GenerateJwt(user *entity.User, roleId int) *string
 

@@ -6,9 +6,9 @@ import (
 )
 
 type PermissionRepository interface {
-	FindAll() ([]*entity.Permission, *model.ErrorResponse)
+	FindAll() ([]*entity.Permission, *model.ErrorResBody)
 
-	FindById(id int) (*entity.Permission, *model.ErrorResponse)
+	FindById(id int) (*entity.Permission, *model.ErrorResBody)
 
-	Save(permission entity.Permission) (*entity.Permission, *model.ErrorResponse)
+	Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }

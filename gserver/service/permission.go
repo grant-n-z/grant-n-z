@@ -6,9 +6,9 @@ import (
 )
 
 type PermissionService interface {
-	GetPermissions() ([]*entity.Permission, *model.ErrorResponse)
+	GetPermissions() ([]*entity.Permission, *model.ErrorResBody)
 
-	GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResponse)
+	GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResBody)
 
-	InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResponse)
+	InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }

@@ -40,7 +40,7 @@ func (th TokenHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		th.Post(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -60,7 +60,7 @@ func (th TokenHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	token, err := th.TokenService.Generate(r.URL.Query().Get("type"), *userEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

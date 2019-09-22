@@ -36,7 +36,7 @@ func NewOperatorPolicyServiceService() OperatorPolicyService {
 	}
 }
 
-func (ops operatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+func (ops operatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	if strings.EqualFold(queryParam, "") {
 		return ops.GetAll()
 	}
@@ -59,23 +59,23 @@ func (ops operatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorP
 	return entities, nil
 }
 
-func (ops operatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+func (ops operatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	return ops.operatorPolicyRepository.FindAll()
 }
 
-func (ops operatorPolicyServiceImpl) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResponse) {
+func (ops operatorPolicyServiceImpl) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	return ops.operatorPolicyRepository.FindByUserId(userId)
 }
 
-func (ops operatorPolicyServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResponse) {
+func (ops operatorPolicyServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	return ops.operatorPolicyRepository.FindByUserIdAndRoleId(userId, roleId)
 }
 
-func (ops operatorPolicyServiceImpl) GetRoleNameByUserId(userId int) ([]string, *model.ErrorResponse) {
+func (ops operatorPolicyServiceImpl) GetRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
 	return nil, nil
 }
 
-func (ops operatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResponse) {
+func (ops operatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	if userEntity, _ := ops.userRepository.FindById(entity.UserId); userEntity == nil {
 		log.Logger.Warn("Not found user id")
 		return nil, model.BadRequest("Not found user id")

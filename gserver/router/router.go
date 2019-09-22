@@ -1,11 +1,11 @@
 package router
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/handler"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
 type Router struct {
@@ -42,10 +42,10 @@ func NewRouter() Router {
 
 func (r Router) Init() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		res := model.NotFound("Not found resource path.")
 		w.Header().Set("Content-Type", "application/json")
-		res, _ := json.Marshal(map[string]string{"message": "Not found."})
 		w.WriteHeader(http.StatusNotFound)
-		w.Write(res)
+		w.Write([]byte(res.ToJson()))
 	})
 }
 

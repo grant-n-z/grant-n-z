@@ -32,7 +32,7 @@ func NewTokenService() TokenService {
 	}
 }
 
-func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResponse) {
+func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResBody) {
 	if strings.EqualFold(queryParam, property.AuthOperator) {
 		return tsi.operatorToken(userEntity)
 	} else if strings.EqualFold(queryParam, "") {
@@ -42,7 +42,7 @@ func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) 
 	}
 }
 
-func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResponse) {
+func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
 	// TODO: Cache
 
 	userWithRole, err := tsi.userService.GetUserWithRoleByEmail(userEntity.Email)
@@ -64,11 +64,11 @@ func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *mod
 	return tsi.userService.GenerateJwt(&user, property.OperatorRoleId), nil
 }
 
-func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *model.ErrorResponse) {
+func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *model.ErrorResBody) {
 	return nil, nil
 }
 
-func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResponse) {
+func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResBody) {
 	// TODO: Cache
 	// TODO: Set user policy
 

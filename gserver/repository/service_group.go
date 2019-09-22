@@ -6,9 +6,9 @@ import (
 )
 
 type ServiceGroupRepository interface {
-	FindServiceByGroupId(groupId int) ([]*entity.Service, *model.ErrorResponse)
+	FindServiceByGroupId(groupId int) ([]*entity.Service, *model.ErrorResBody)
 
-	FindGroupByServiceId(serviceId int) ([]*entity.Group, *model.ErrorResponse)
+	FindGroupByServiceId(serviceId int) ([]*entity.Group, *model.ErrorResBody)
 
-	Save(group entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResponse)
+	Save(group entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResBody)
 }

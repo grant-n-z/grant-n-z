@@ -6,15 +6,15 @@ import (
 )
 
 type UserRepository interface {
-	FindById(id int) (*entity.User, *model.ErrorResponse)
+	FindById(id int) (*entity.User, *model.ErrorResBody)
 
-	FindByEmail(email string) (*entity.User, *model.ErrorResponse)
+	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse)
+	FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody)
 
-	Save(user entity.User) (*entity.User, *model.ErrorResponse)
+	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
-	SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse)
+	SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
 
-	Update(user entity.User) (*entity.User, *model.ErrorResponse)
+	Update(user entity.User) (*entity.User, *model.ErrorResBody)
 }

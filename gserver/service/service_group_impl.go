@@ -27,6 +27,6 @@ func NewServiceGroupService() ServiceGroupService {
 	return ServiceGroupServiceImpl{serviceGroupRepository: repository.GetServiceGroupRepositoryInstance(driver.Db)}
 }
 
-func (sgs ServiceGroupServiceImpl) InsertServiceGroup(serviceGroup *entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResponse) {
+func (sgs ServiceGroupServiceImpl) InsertServiceGroup(serviceGroup *entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResBody) {
 	return sgs.serviceGroupRepository.Save(*serviceGroup)
 }

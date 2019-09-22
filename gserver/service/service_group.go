@@ -6,5 +6,5 @@ import (
 )
 
 type ServiceGroupService interface {
-	InsertServiceGroup(serviceGroup *entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResponse)
+	InsertServiceGroup(serviceGroup *entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResBody)
 }

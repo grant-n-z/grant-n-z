@@ -52,7 +52,7 @@ func (sh ServiceHandlerImpl) Api(w http.ResponseWriter, r *http.Request) {
 		sh.Delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -61,7 +61,7 @@ func (sh ServiceHandlerImpl) Get(w http.ResponseWriter, r *http.Request) {
 
 	result, err := sh.Service.Get(name)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (sh ServiceHandlerImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	serviceEntity, err = sh.Service.InsertService(serviceEntity)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 

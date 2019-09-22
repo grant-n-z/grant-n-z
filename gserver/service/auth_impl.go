@@ -36,7 +36,7 @@ func NewAuthService() AuthService {
 	}
 }
 
-func (as AuthServiceImpl) VerifyOperatorMember(token string) (*model.AuthUser, *model.ErrorResponse) {
+func (as AuthServiceImpl) VerifyOperatorMember(token string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := as.verifyToken(token)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (as AuthServiceImpl) VerifyOperatorMember(token string) (*model.AuthUser, *
 	return authUser, nil
 }
 
-func (as AuthServiceImpl) VerifyServiceMember(token string) (*model.AuthUser, *model.ErrorResponse) {
+func (as AuthServiceImpl) VerifyServiceMember(token string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := as.verifyToken(token)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (as AuthServiceImpl) VerifyServiceMember(token string) (*model.AuthUser, *m
 	return authUser, nil
 }
 
-func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.ErrorResponse) {
+func (as AuthServiceImpl) verifyToken(token string) (*model.AuthUser, *model.ErrorResBody) {
 	if !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")

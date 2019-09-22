@@ -29,7 +29,7 @@ func NewGroupRepository(db *gorm.DB) GroupRepository {
 }
 
 
-func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResponse) {
+func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 	if err := gr.Db.Find(&groups).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -42,7 +42,7 @@ func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResponse) 
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResponse) {
+func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResBody) {
 	var groups *entity.Group
 	if err := gr.Db.Where("name = ?", name).Find(&groups).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -55,7 +55,7 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) Save(group entity.Group) (*entity.Group, *model.ErrorResponse) {
+func (gr GroupRepositoryImpl) Save(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	if err := gr.Db.Create(&group).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

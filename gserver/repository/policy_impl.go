@@ -31,7 +31,7 @@ func NewPolicyRepository(db *gorm.DB) PolicyRepository {
 	}
 }
 
-func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResponse) {
+func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
 	if err := pri.Db.Find(&policies).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -44,7 +44,7 @@ func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorRespons
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResponse) {
+func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
 	if err := pri.Db.Where("role_id = ?", roleId).Find(&policies).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -57,7 +57,7 @@ func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *mod
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) Save(policy entity.Policy) (*entity.Policy, *model.ErrorResponse) {
+func (pri PolicyRepositoryImpl) Save(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
 	if err := pri.Db.Create(&policy).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

@@ -6,11 +6,11 @@ import (
 )
 
 type TokenService interface {
-	Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResponse)
+	Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResBody)
 
-	operatorToken(userEntity entity.User) (*string, *model.ErrorResponse)
+	operatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
-	serviceToken(userEntity entity.User) (*string, *model.ErrorResponse)
+	serviceToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
-	userToken(userEntity entity.User) (*string, *model.ErrorResponse)
+	userToken(userEntity entity.User) (*string, *model.ErrorResBody)
 }

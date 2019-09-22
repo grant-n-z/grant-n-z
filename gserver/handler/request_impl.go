@@ -33,27 +33,27 @@ func NewRequestHandler() RequestHandler {
 	}
 }
 
-func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Request) ([]byte, *model.ErrorResponse) {
+func (rh RequestHandlerImpl) InterceptHttp(w http.ResponseWriter, r *http.Request) ([]byte, *model.ErrorResBody) {
 	if err := rh.validateHttpHeader(r); err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return nil, err
 	}
 
 	bodyBytes, err := rh.bindRequestBody(r)
 	if err != nil {
-		http.Error(w, err.ToJson(), err.Code)
+		model.Error(w, err.ToJson(), err.Code)
 		return nil, err
 	}
 
 	return bodyBytes, nil
 }
 
-func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResponse) {
+func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody) {
 	switch authType {
 	case property.AuthOperator:
 		authUser, err := rh.AuthService.VerifyOperatorMember(r.Header.Get("Operator-Authorization"))
 		if err != nil {
-			http.Error(w, err.ToJson(), err.Code)
+			model.Error(w, err.ToJson(), err.Code)
 			return nil, err
 		}
 		return authUser, err
@@ -61,7 +61,7 @@ func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request,
 	case property.AuthUser:
 		authUser, err := rh.AuthService.VerifyServiceMember(r.Header.Get("Authorization"))
 		if err != nil {
-			http.Error(w, err.ToJson(), err.Code)
+			model.Error(w, err.ToJson(), err.Code)
 			return nil, err
 		}
 		return authUser, err
@@ -70,18 +70,18 @@ func (rh RequestHandlerImpl) VerifyToken(w http.ResponseWriter, r *http.Request,
 	return nil, nil
 }
 
-func (rh RequestHandlerImpl) ValidateHttpRequest(w http.ResponseWriter, i interface{}) *model.ErrorResponse {
+func (rh RequestHandlerImpl) ValidateHttpRequest(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
 	err := validator.New().Struct(i)
 	if err != nil {
 		log.Logger.Info("Request is invalid")
 		errModel := model.BadRequest("Failed to request validation.")
-		http.Error(w, errModel.ToJson(), errModel.Code)
+		model.Error(w, errModel.ToJson(), errModel.Code)
 		return errModel
 	}
 	return nil
 }
 
-func (rh RequestHandlerImpl) validateHttpHeader(r *http.Request) *model.ErrorResponse {
+func (rh RequestHandlerImpl) validateHttpHeader(r *http.Request) *model.ErrorResBody {
 	if r.Header.Get("Content-Type") != "application/json" {
 		log.Logger.Info("Not allowed content-type")
 		return model.BadRequest("Need to content type is only json.")
@@ -90,7 +90,7 @@ func (rh RequestHandlerImpl) validateHttpHeader(r *http.Request) *model.ErrorRes
 	return nil
 }
 
-func (rh RequestHandlerImpl) bindRequestBody(r *http.Request) ([]byte, *model.ErrorResponse) {
+func (rh RequestHandlerImpl) bindRequestBody(r *http.Request) ([]byte, *model.ErrorResBody) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {

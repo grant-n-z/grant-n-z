@@ -31,7 +31,7 @@ func NewServiceRepository(db *gorm.DB) ServiceRepository {
 	}
 }
 
-func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorResponse) {
+func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorResBody) {
 	var services []*entity.Service
 	if err := sri.Db.Find(&services).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -44,7 +44,7 @@ func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorRespo
 	return services, nil
 }
 
-func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.ErrorResponse) {
+func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.ErrorResBody) {
 	var service entity.Service
 	if err := sri.Db.Where("id = ?", id).First(&service).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -57,7 +57,7 @@ func (sri ServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.Error
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *model.ErrorResponse) {
+func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *model.ErrorResBody) {
 	var service entity.Service
 	if err := sri.Db.Where("name = ?", name).First(&service).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -70,7 +70,7 @@ func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *mode
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResponse) {
+func (sri ServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
 	var service entity.Service
 	if err := sri.Db.Where("api_key = ?", apiKey).First(&service).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
@@ -83,7 +83,7 @@ func (sri ServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResponse) {
+func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResBody) {
 	if err := sri.Db.Create(&service).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

@@ -63,31 +63,31 @@ func (us userServiceImpl) ComparePw(passwordHash string, password string) bool {
 	return true
 }
 
-func (us userServiceImpl) GetUserById(id int) (*entity.User, *model.ErrorResponse) {
+func (us userServiceImpl) GetUserById(id int) (*entity.User, *model.ErrorResBody) {
 	return us.userRepository.FindById(id)
 }
 
-func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.ErrorResponse) {
+func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.ErrorResBody) {
 	return us.userRepository.FindByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResponse) {
+func (us userServiceImpl) GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody) {
 	return us.userRepository.FindUserWithRoleByEmail(email)
 }
 
-func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.ErrorResponse) {
+func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Uuid, _ = uuid.NewV4()
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.Save(*user)
 }
 
-func (us userServiceImpl) InsertUserWithService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResponse) {
+func (us userServiceImpl) InsertUserWithService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody) {
 	user.Uuid, _ = uuid.NewV4()
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.SaveUserWithUserService(*user, userService)
 }
 
-func (us userServiceImpl) UpdateUser(user *entity.User) (*entity.User, *model.ErrorResponse) {
+func (us userServiceImpl) UpdateUser(user *entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.Update(*user)
 }
