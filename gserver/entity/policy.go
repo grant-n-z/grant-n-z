@@ -8,6 +8,7 @@ const (
 	PolicyTable PolicyTableConfig = iota
 	PolicyId
 	PolicyName
+	PolicyRoleId
 	PolicyPermissionId
 	PolicyServiceMemberRoleId
 	PolicyCreatedAt
@@ -17,6 +18,7 @@ const (
 type Policy struct {
 	Id                  int       `json:"id"`
 	Name                string    `validate:"required"json:"name"`
+	RoleId              int       `validate:"required"json:"role_id"`
 	PermissionId        int       `validate:"required"json:"permission_id"`
 	ServiceMemberRoleId int       `validate:"required"json:"service_member_role_id"`
 	CreatedAt           time.Time `json:"created_at"`
@@ -33,6 +35,8 @@ func (pc PolicyTableConfig) String() string {
 		return "id"
 	case PolicyName:
 		return "name"
+	case PolicyRoleId:
+		return "role_id"
 	case PolicyPermissionId:
 		return "permission_id"
 	case PolicyServiceMemberRoleId:

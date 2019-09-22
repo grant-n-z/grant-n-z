@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	ServiceGroupTAble ServiceGroupTableConfig = iota
+	ServiceGroupTable ServiceGroupTableConfig = iota
 	ServiceGroupId
 	ServiceGroupGroupId
 	ServiceGroupServiceId
@@ -25,7 +25,7 @@ type ServiceGroupTableConfig int
 
 func (uc ServiceGroupTableConfig) String() string {
 	switch uc {
-	case ServiceGroupTAble:
+	case ServiceGroupTable:
 		return "service_groups"
 	case ServiceGroupId:
 		return "id"
