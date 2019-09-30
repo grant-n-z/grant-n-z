@@ -3,45 +3,46 @@ package router
 import (
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/handler"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
+	"github.com/tomoyane/grant-n-z/gserver/v1"
 )
 
 type Router struct {
-	AuthHandler          handler.AuthHandler
-	TokenHandler         handler.TokenHandler
-	GroupHandler         handler.GroupHandler
-	UserHandler          handler.UserHandler
-	UserGroupHandler     handler.UserGroupHandler
-	ServiceHandler       handler.ServiceHandler
-	ServiceGroupHandler  handler.ServiceGroupHandler
-	RoleHandler          handler.RoleHandler
-	OperatePolicyHandler handler.OperatePolicyHandler
-	UserServiceHandler   handler.UserServiceHandler
-	PermissionHandler    handler.PermissionHandler
-	PolicyHandler        handler.PolicyHandler
+	Auth           v1.Auth
+	Token          v1.Token
+	Group          v1.Group
+	User           v1.User
+	UserGroup      v1.UserGroup
+	Service        v1.Service
+	ServiceGroup   v1.ServiceGroup
+	Role           v1.Role
+	OperatorPolicy v1.OperatorPolicy
+	UserService    v1.UserService
+	Permission     v1.Permission
+	Policy         v1.Policy
 }
 
 func NewRouter() Router {
 	return Router{
-		AuthHandler:          handler.GetAuthHandlerInstance(),
-		TokenHandler:         handler.GetTokenHandlerInstance(),
-		GroupHandler:         handler.GetGroupHandlerInstance(),
-		UserHandler:          handler.GetUserHandlerInstance(),
-		UserGroupHandler:     handler.GetUserGroupHandlerInstance(),
-		ServiceHandler:       handler.GetServiceHandlerInstance(),
-		ServiceGroupHandler:  handler.GetServiceGroupHandlerInstance(),
-		RoleHandler:          handler.GetRoleHandlerInstance(),
-		OperatePolicyHandler: handler.GetOperatorPolicyHandlerInstance(),
-		UserServiceHandler:   handler.GetUserServiceHandlerInstance(),
-		PermissionHandler:    handler.GetPermissionHandlerInstance(),
-		PolicyHandler:        handler.GetPolicyHandlerInstance(),
+		Auth:           v1.GetAuthInstance(),
+		Token:          v1.GetTokenInstance(),
+		Group:          v1.GetGroupInstance(),
+		User:           v1.GetUserInstance(),
+		UserGroup:      v1.GetUserGroupInstance(),
+		Service:        v1.GetServiceInstance(),
+		ServiceGroup:   v1.GetServiceGroupInstance(),
+		Role:           v1.GetRoleInstance(),
+		OperatorPolicy: v1.GetOperatorPolicyInstance(),
+		UserService:    v1.GetUserServiceInstance(),
+		Permission:     v1.GetPermissionInstance(),
+		Policy:         v1.GetPolicyInstance(),
 	}
 }
 
 func (r Router) Init() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Logger.Info("====test")
 		res := model.NotFound("Not found resource path.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
@@ -50,23 +51,23 @@ func (r Router) Init() {
 }
 
 func (r Router) V1() {
-	http.HandleFunc("/api/v1/auth", r.AuthHandler.Api)
-	http.HandleFunc("/api/v1/token", r.TokenHandler.Api)
+	http.HandleFunc("/api/v1/auth", r.Auth.Api)
+	http.HandleFunc("/api/v1/token", r.Token.Api)
 
-	http.HandleFunc("/api/v1/groups", r.GroupHandler.Api)
+	http.HandleFunc("/api/v1/groups", r.Group.Api)
 
-	http.HandleFunc("/api/v1/users", r.UserHandler.Api)
-	http.HandleFunc("/api/v1/user_services", r.UserServiceHandler.Api)
-	http.HandleFunc("/api/v1/user_groups", r.UserGroupHandler.Api)
+	http.HandleFunc("/api/v1/users", r.User.Api)
+	http.HandleFunc("/api/v1/user_services", r.UserService.Api)
+	http.HandleFunc("/api/v1/user_groups", r.UserGroup.Api)
 
-	http.HandleFunc("/api/v1/services", r.ServiceHandler.Api)
-	http.HandleFunc("/api/v1/service_groups", r.ServiceGroupHandler.Api)
+	http.HandleFunc("/api/v1/services", r.Service.Api)
+	http.HandleFunc("/api/v1/service_groups", r.ServiceGroup.Api)
 
-	http.HandleFunc("/api/v1/roles", r.RoleHandler.Api)
-	http.HandleFunc("/api/v1/permissions", r.PermissionHandler.Api)
+	http.HandleFunc("/api/v1/roles", r.Role.Api)
+	http.HandleFunc("/api/v1/permissions", r.Permission.Api)
 
-	http.HandleFunc("/api/v1/policies", r.PolicyHandler.Api)
-	http.HandleFunc("/api/v1/operator_policies", r.OperatePolicyHandler.Api)
+	http.HandleFunc("/api/v1/policies", r.Policy.Api)
+	http.HandleFunc("/api/v1/operator_policies", r.OperatorPolicy.Api)
 
 	log.Logger.Info("------ Routing info ------")
 	log.Logger.Info("HTTP Method: `POST` Routing: /api/v1/oauth")

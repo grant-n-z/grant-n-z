@@ -57,9 +57,9 @@ func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *mod
 	}
 
 	user := entity.User{
-		Id: userWithRole.UserId,
+		Id:       userWithRole.UserId,
 		Username: userWithRole.Username,
-		Uuid: userWithRole.Uuid,
+		Uuid:     userWithRole.Uuid,
 	}
 	return tsi.userService.GenerateJwt(&user, property.OperatorRoleId), nil
 }
@@ -82,9 +82,9 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 	}
 
 	user := entity.User{
-		Id: userData.Id,
+		Id:       userData.Id,
 		Username: userData.Username,
-		Uuid: userData.Uuid,
+		Uuid:     userData.Uuid,
 	}
 	return tsi.userService.GenerateJwt(&user, property.UserRoleId), nil
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/tomoyane/grant-n-z/gserver/handler"
 	"strconv"
 	"time"
 
@@ -71,7 +72,7 @@ func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.Err
 	return us.userRepository.FindByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody) {
+func (us userServiceImpl) GetUserWithRoleByEmail(email string) (*model.UserOperatorPolicy, *model.ErrorResBody) {
 	return us.userRepository.FindUserWithRoleByEmail(email)
 }
 
@@ -99,6 +100,7 @@ func (us userServiceImpl) GenerateJwt(user *entity.User, roleId int) *string {
 	claims["username"] = user.Username
 	claims["user_uuid"] = user.Uuid
 	claims["user_id"] = strconv.Itoa(user.Id)
+	claims["service_id"] = handler.ApiKey
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
 	claims["role"] = strconv.Itoa(roleId)
 

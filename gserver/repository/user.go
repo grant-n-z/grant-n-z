@@ -10,7 +10,7 @@ type UserRepository interface {
 
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody)
+	FindUserWithRoleByEmail(email string) (*model.UserOperatorPolicy, *model.ErrorResBody)
 
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 

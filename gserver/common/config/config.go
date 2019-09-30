@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	App         AppConfig
-	Redis       RedisConfig
-	Db          DbConfig
+	App   AppConfig
+	Redis RedisConfig
+	Db    DbConfig
 )
 
 func InitConfig() {

@@ -6,8 +6,8 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-// User entity with OperatorMemberRole entity
-type UserOperatorMemberRole struct {
+// User entity with OperatorPolicy entity
+type UserOperatorPolicy struct {
 	Id        int       `json:"id"`
 	Uuid      uuid.UUID `json:"uuid"`
 	Username  string    `json:"username"`

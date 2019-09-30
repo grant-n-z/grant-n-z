@@ -60,8 +60,8 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody) {
-	var userOperatorMemberRole model.UserOperatorMemberRole
+func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.UserOperatorPolicy, *model.ErrorResBody) {
+	var userOperatorMemberRole model.UserOperatorPolicy
 	if err := uri.Db.Table(entity.UserTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",

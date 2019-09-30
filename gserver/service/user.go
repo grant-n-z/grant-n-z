@@ -14,7 +14,7 @@ type UserService interface {
 
 	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	GetUserWithRoleByEmail(email string) (*model.UserOperatorMemberRole, *model.ErrorResBody)
+	GetUserWithRoleByEmail(email string) (*model.UserOperatorPolicy, *model.ErrorResBody)
 
 	InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody)
 
