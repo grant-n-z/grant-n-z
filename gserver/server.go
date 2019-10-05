@@ -3,6 +3,7 @@ package gserver
 import (
 	"context"
 	"fmt"
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"os"
 	"syscall"
 	"time"
@@ -14,7 +15,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/migration"
-	"github.com/tomoyane/grant-n-z/gserver/router"
+	"github.com/tomoyane/grant-n-z/gserver/route"
 )
 
 var (
@@ -34,10 +35,11 @@ High performance authentication and authorization. version is %s
 )
 
 type GrantNZServer struct {
-	router router.Router
+	router route.Router
 }
 
 func init() {
+	ctx.InitContext()
 	config.InitConfig()
 	log.InitLogger(config.App.LogLevel)
 	driver.InitDriver()
@@ -56,14 +58,14 @@ func NewGrantNZServer() GrantNZServer {
 	)
 
 	return GrantNZServer{
-		router: router.NewRouter(),
+		router: route.NewRouter(),
 	}
 }
 
 func (g GrantNZServer) Run() {
 	g.migration()
 	g.runRouter()
-	go g.subscribeSignal(context.TODO(), signalCode, exitCode)
+	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
 	g.runServer(*server)
@@ -86,7 +88,7 @@ func (g GrantNZServer) runServer(server http.Server) {
 	}
 }
 
-func (g GrantNZServer) subscribeSignal(ctx context.Context, signalCode chan os.Signal, exitCode chan int) {
+func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan int) {
 	for {
 		s := <-signalCode
 		switch s {
