@@ -38,6 +38,11 @@ func NewAuth() Auth {
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	_, _, err := ah.Request.Intercept(w, r, "")
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		ah.get(w, r)
@@ -48,11 +53,6 @@ func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
-	_, err := ah.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
-
 	res, _ := json.Marshal(map[string]bool{"grant": true})
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)

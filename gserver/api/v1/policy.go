@@ -19,7 +19,7 @@ type Policy interface {
 
 	get(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 
 	put(w http.ResponseWriter, r *http.Request)
 
@@ -49,7 +49,7 @@ func NewPolicy() Policy {
 
 func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := ph.Request.VerifyToken(w, r, property.AuthOperator)
+	body, _, err := ph.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		ph.get(w, r)
 	case http.MethodPost:
-		ph.post(w, r)
+		ph.post(w, r, body)
 	case http.MethodPut:
 		ph.put(w, r)
 	case http.MethodDelete:
@@ -83,26 +83,21 @@ func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (ph PolicyImpl) post(w http.ResponseWriter, r *http.Request) {
+func (ph PolicyImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var policyEntity *entity.Policy
-
-	body, err := ph.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &policyEntity)
 	if err := ph.Request.ValidateBody(w, policyEntity); err != nil {
 		return
 	}
 
-	policyEntity, err = ph.PolicyService.InsertPolicy(policyEntity)
+	policy, err := ph.PolicyService.InsertPolicy(policyEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(policyEntity)
+	res, _ := json.Marshal(policy)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

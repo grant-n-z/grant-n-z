@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -16,7 +17,7 @@ var sghInstance ServiceGroup
 type ServiceGroup interface {
 	Api(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 }
 
 type ServiceGroupImpl struct {
@@ -42,35 +43,35 @@ func NewServiceGroup() ServiceGroup {
 
 func (sgh ServiceGroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	body, _, err := sgh.Request.Intercept(w, r, property.AuthOperator)
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodPost:
-		sgh.post(w, r)
+		sgh.post(w, r, body)
 	default:
 		err := model.MethodNotAllowed()
 		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
-func (sgh ServiceGroupImpl) post(w http.ResponseWriter, r *http.Request) {
+func (sgh ServiceGroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var serviceGroupEntity *entity.ServiceGroup
-
-	body, err := sgh.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &serviceGroupEntity)
 	if err := sgh.Request.ValidateBody(w, serviceGroupEntity); err != nil {
 		return
 	}
 
-	serviceGroupEntity, err = sgh.ServiceGroupService.InsertServiceGroup(serviceGroupEntity)
+	serviceGroup, err := sgh.ServiceGroupService.InsertServiceGroup(serviceGroupEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(serviceGroupEntity)
+	res, _ := json.Marshal(serviceGroup)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

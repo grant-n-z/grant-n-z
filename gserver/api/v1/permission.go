@@ -19,7 +19,7 @@ type Permission interface {
 
 	get(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 
 	put(w http.ResponseWriter, r *http.Request)
 
@@ -49,7 +49,7 @@ func NewPermission() Permission {
 
 func (ph PermissionImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := ph.Request.VerifyToken(w, r, property.AuthOperator)
+	body, _, err := ph.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ func (ph PermissionImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		ph.get(w, r)
 	case http.MethodPost:
-		ph.post(w, r)
+		ph.post(w, r, body)
 	case http.MethodPut:
 		ph.put(w, r)
 	case http.MethodDelete:
@@ -81,26 +81,21 @@ func (ph PermissionImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (ph PermissionImpl) post(w http.ResponseWriter, r *http.Request) {
+func (ph PermissionImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var permissionEntity *entity.Permission
-
-	body, err := ph.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &permissionEntity)
 	if err := ph.Request.ValidateBody(w, permissionEntity); err != nil {
 		return
 	}
 
-	permissionEntity, err = ph.PermissionService.InsertPermission(permissionEntity)
+	permission, err := ph.PermissionService.InsertPermission(permissionEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(permissionEntity)
+	res, _ := json.Marshal(permission)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

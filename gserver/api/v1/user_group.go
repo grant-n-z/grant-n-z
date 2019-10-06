@@ -16,7 +16,7 @@ var ughInstance UserGroup
 type UserGroup interface {
 	Api(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 }
 
 type UserGroupImpl struct {
@@ -42,35 +42,35 @@ func NewUserGroup() UserGroup {
 
 func (ugh UserGroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	body, _, err := ugh.Request.Intercept(w, r, "")
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodPost:
-		ugh.post(w, r)
+		ugh.post(w, r, body)
 	default:
 		err := model.MethodNotAllowed()
 		model.Error(w, err.ToJson(), err.Code)
 	}
 }
 
-func (ugh UserGroupImpl) post(w http.ResponseWriter, r *http.Request) {
+func (ugh UserGroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var userGroupEntity *entity.UserGroup
-
-	body, err := ugh.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &userGroupEntity)
 	if err := ugh.Request.ValidateBody(w, userGroupEntity); err != nil {
 		return
 	}
 
-	userGroupEntity, err = ugh.UserGroupService.InsertUserGroup(userGroupEntity)
+	userGroup, err := ugh.UserGroupService.InsertUserGroup(userGroupEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(userGroupEntity)
+	res, _ := json.Marshal(userGroup)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

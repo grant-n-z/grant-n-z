@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -72,7 +73,7 @@ func (uh UserImpl) get(w http.ResponseWriter, r *http.Request) {
 func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 	var userEntity *entity.User
 
-	body, err := uh.Request.Intercept(w, r)
+	body, _, err := uh.Request.Intercept(w, r, "")
 	if err != nil {
 		return
 	}
@@ -82,7 +83,7 @@ func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceEntity, err := uh.Service.GetServiceByApiKey(r.Header.Get("Api-Key"))
+	serviceEntity, err := uh.Service.GetServiceByApiKey(ctx.GetApiKey().(string))
 	if err != nil {
 		return
 	}
@@ -111,17 +112,12 @@ func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 func (uh UserImpl) put(w http.ResponseWriter, r *http.Request) {
 	var userEntity *entity.User
 
-	authUser, err := uh.Request.VerifyToken(w, r, property.AuthUser)
+	body, authUser, err := uh.Request.Intercept(w, r, property.AuthUser)
 	if err != nil {
 		return
 	}
 
-	body, err := uh.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
-
-	_ = json.Unmarshal(body, &userEntity)
+	json.Unmarshal(body, &userEntity)
 	if err := uh.Request.ValidateBody(w, userEntity); err != nil {
 		return
 	}

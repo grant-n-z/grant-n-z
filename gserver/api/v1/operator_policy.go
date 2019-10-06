@@ -19,7 +19,7 @@ type OperatorPolicy interface {
 
 	get(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 
 	put(w http.ResponseWriter, r *http.Request)
 
@@ -49,7 +49,7 @@ func NewOperatorPolicy() OperatorPolicy {
 
 func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := rmrhi.Request.VerifyToken(w, r, property.AuthOperator)
+	body, _, err := rmrhi.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		rmrhi.get(w, r)
 	case http.MethodPost:
-		rmrhi.post(w, r)
+		rmrhi.post(w, r, body)
 	case http.MethodPut:
 		rmrhi.put(w, r)
 	case http.MethodDelete:
@@ -83,26 +83,21 @@ func (rmrhi OperatorPolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var roleMemberEntity *entity.OperatorPolicy
-
-	body, err := rmrhi.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &roleMemberEntity)
 	if err := rmrhi.Request.ValidateBody(w, roleMemberEntity); err != nil {
 		return
 	}
 
-	roleMemberEntity, err = rmrhi.OperatorPolicyService.Insert(roleMemberEntity)
+	roleMember, err := rmrhi.OperatorPolicyService.Insert(roleMemberEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(roleMemberEntity)
+	res, _ := json.Marshal(roleMember)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

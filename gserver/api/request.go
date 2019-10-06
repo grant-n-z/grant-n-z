@@ -24,10 +24,7 @@ type Request interface {
 	// Http interceptor
 	// Verify http header
 	// If it has request body, verify bind request body
-	Intercept(w http.ResponseWriter, r *http.Request) ([]byte, *model.ErrorResBody)
-
-	// If need to verify authentication, verify authentication and authorization
-	VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody)
+	Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.AuthUser, *model.ErrorResBody)
 
 	// Validate http request
 	ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody
@@ -38,11 +35,14 @@ type Request interface {
 	// Bind http request body
 	bindBody(r *http.Request) ([]byte, *model.ErrorResBody)
 
-	verifyOperatorMember(token string) (*model.AuthUser, *model.ErrorResBody)
+	// If need to verify authentication, verify authentication and authorization
+	verifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody)
 
-	verifyServiceMember(token string) (*model.AuthUser, *model.ErrorResBody)
+	verifyOperator(token string) (*model.AuthUser, *model.ErrorResBody)
 
-	verifyToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	verifyUser(token string) (*model.AuthUser, *model.ErrorResBody)
+
+	verify(token string) (*model.AuthUser, *model.ErrorResBody)
 }
 
 type RequestImpl struct {
@@ -68,25 +68,34 @@ func NewRequest() Request {
 	}
 }
 
-func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request) ([]byte, *model.ErrorResBody) {
-	if err := rh.validateHeader(r); err != nil {
-		model.Error(w, err.ToJson(), err.Code)
-		return nil, err
+func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.AuthUser, *model.ErrorResBody) {
+	var authUser *model.AuthUser
+	var err *model.ErrorResBody
+	if !strings.EqualFold(authType, "") {
+		token := r.Header.Get("Authorization")
+		ctx.SetToken(token)
+		authUser, err = rh.verifyToken(w, r, authType)
+		if err != nil {
+			model.Error(w, err.ToJson(), err.Code)
+			return nil, nil, err
+		}
 	}
 
-	// Set request scope
+	if err := rh.validateHeader(r); err != nil {
+		model.Error(w, err.ToJson(), err.Code)
+		return nil, nil, err
+	}
+
 	apiKey := r.Header.Get("Api-Key")
-	token := r.Header.Get("Authorization")
 	ctx.SetApiKey(apiKey)
-	ctx.SetToken(token)
 
 	bodyBytes, err := rh.bindBody(r)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
-		return nil, err
+		return nil, nil, err
 	}
 
-	return bodyBytes, nil
+	return bodyBytes, authUser, nil
 }
 
 func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
@@ -98,23 +107,6 @@ func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.
 		return errModel
 	}
 	return nil
-}
-
-func (rh RequestImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody) {
-	var authUser *model.AuthUser
-	var err *model.ErrorResBody
-	switch authType {
-	case property.AuthOperator:
-		authUser, err = rh.verifyOperatorMember(ctx.GetToken().(string))
-	case property.AuthUser:
-		authUser, err = rh.verifyServiceMember(ctx.GetToken().(string))
-	}
-
-	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
-		return nil, err
-	}
-	return authUser, err
 }
 
 func (rh RequestImpl) validateHeader(r *http.Request) *model.ErrorResBody {
@@ -136,37 +128,40 @@ func (rh RequestImpl) bindBody(r *http.Request) ([]byte, *model.ErrorResBody) {
 	return body, nil
 }
 
-func (rh RequestImpl) verifyOperatorMember(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := rh.verifyToken(token)
+func (rh RequestImpl) verifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody) {
+	var authUser *model.AuthUser
+	var err *model.ErrorResBody
+	if strings.EqualFold(authType, property.AuthOperator) {
+		authUser, err = rh.verifyOperator(ctx.GetToken().(string))
+	} else {
+		authUser, err = rh.verifyUser(ctx.GetToken().(string))
+	}
+	return authUser, err
+}
+
+func (rh RequestImpl) verifyOperator(token string) (*model.AuthUser, *model.ErrorResBody) {
+	authUser, err := rh.verify(token)
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: Read cache
-
 	operatorRole, err := rh.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
-	if err != nil {
-		return nil, err
-	}
 
 	if operatorRole == nil {
 		log.Logger.Info("OperatorMemberRole data is null")
 		return nil, model.Unauthorized("Failed to token.")
 	}
 
-	return authUser, nil
+	return authUser, err
 }
 
-func (rh RequestImpl) verifyServiceMember(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := rh.verifyToken(token)
-	if err != nil {
-		return nil, err
-	}
-
-	return authUser, nil
+func (rh RequestImpl) verifyUser(token string) (*model.AuthUser, *model.ErrorResBody) {
+	authUser, err := rh.verify(token)
+	return authUser, err
 }
 
-func (rh RequestImpl) verifyToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (rh RequestImpl) verify(token string) (*model.AuthUser, *model.ErrorResBody) {
 	if !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")

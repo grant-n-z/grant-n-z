@@ -19,7 +19,7 @@ type Role interface {
 
 	get(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 
 	put(w http.ResponseWriter, r *http.Request)
 
@@ -49,7 +49,7 @@ func NewRole() Role {
 
 func (rh RoleImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := rh.Request.VerifyToken(w, r, property.AuthOperator)
+	body, _, err := rh.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ func (rh RoleImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		rh.get(w, r)
 	case http.MethodPost:
-		rh.post(w, r)
+		rh.post(w, r, body)
 	case http.MethodPut:
 		rh.put(w, r)
 	case http.MethodDelete:
@@ -81,26 +81,21 @@ func (rh RoleImpl) get(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(res)
 }
 
-func (rh RoleImpl) post(w http.ResponseWriter, r *http.Request) {
+func (rh RoleImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var roleEntity *entity.Role
-
-	body, err := rh.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &roleEntity)
 	if err := rh.Request.ValidateBody(w, roleEntity); err != nil {
 		return
 	}
 
-	roleEntity, err = rh.RoleService.InsertRole(roleEntity)
+	role, err := rh.RoleService.InsertRole(roleEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(roleEntity)
+	res, _ := json.Marshal(role)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

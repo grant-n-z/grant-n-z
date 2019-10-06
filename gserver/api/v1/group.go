@@ -18,7 +18,7 @@ type Group interface {
 
 	get(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 
 	delete(w http.ResponseWriter, r *http.Request)
 }
@@ -46,9 +46,16 @@ func NewGroup() Group {
 
 func (gh GroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	body, _, err := gh.Request.Intercept(w, r, "")
+	if err != nil {
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		gh.get(w, r)
+	case http.MethodPost:
+		gh.post(w, r, body)
 	default:
 		err := model.MethodNotAllowed()
 		model.Error(w, err.ToJson(), err.Code)
@@ -69,26 +76,21 @@ func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
+func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var groupEntity *entity.Group
-
-	body, err := gh.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &groupEntity)
 	if err := gh.Request.ValidateBody(w, groupEntity); err != nil {
 		return
 	}
 
-	groupEntity, err = gh.GroupService.InsertGroup(groupEntity)
+	group, err := gh.GroupService.InsertGroup(groupEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(groupEntity)
+	res, _ := json.Marshal(group)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }

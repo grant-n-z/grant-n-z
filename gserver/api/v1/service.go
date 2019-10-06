@@ -19,7 +19,7 @@ type Service interface {
 
 	get(w http.ResponseWriter, r *http.Request)
 
-	post(w http.ResponseWriter, r *http.Request)
+	post(w http.ResponseWriter, r *http.Request, body []byte)
 
 	put(w http.ResponseWriter, r *http.Request)
 
@@ -49,7 +49,7 @@ func NewService() Service {
 
 func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := sh.Request.VerifyToken(w, r, property.AuthOperator)
+	body, _, err := sh.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		sh.get(w, r)
 	case http.MethodPost:
-		sh.post(w, r)
+		sh.post(w, r, body)
 	case http.MethodPut:
 		sh.put(w, r)
 	case http.MethodDelete:
@@ -83,26 +83,21 @@ func (sh ServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (sh ServiceImpl) post(w http.ResponseWriter, r *http.Request) {
+func (sh ServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var serviceEntity *entity.Service
-
-	body, err := sh.Request.Intercept(w, r)
-	if err != nil {
-		return
-	}
 
 	json.Unmarshal(body, &serviceEntity)
 	if err := sh.Request.ValidateBody(w, serviceEntity); err != nil {
 		return
 	}
 
-	serviceEntity, err = sh.Service.InsertService(serviceEntity)
+	service, err := sh.Service.InsertService(serviceEntity)
 	if err != nil {
 		model.Error(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(serviceEntity)
+	res, _ := json.Marshal(service)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }
