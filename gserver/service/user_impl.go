@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/handler"
 	"strconv"
 	"time"
 
@@ -10,12 +9,12 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/satori/go.uuid"
 
+	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/repository"
 )
 
@@ -100,7 +99,7 @@ func (us userServiceImpl) GenerateJwt(user *entity.User, roleId int) *string {
 	claims["username"] = user.Username
 	claims["user_uuid"] = user.Uuid
 	claims["user_id"] = strconv.Itoa(user.Id)
-	claims["service_id"] = handler.ApiKey
+	//claims["service_id"] = handler.ApiKey
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
 	claims["role"] = strconv.Itoa(roleId)
 

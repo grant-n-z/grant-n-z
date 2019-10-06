@@ -3,7 +3,6 @@ package gserver
 import (
 	"context"
 	"fmt"
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"os"
 	"syscall"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"os/signal"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/migration"
