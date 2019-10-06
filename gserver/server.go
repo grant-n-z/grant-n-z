@@ -18,11 +18,13 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/route"
 )
 
+const Port = "8080"
+
 var (
 	exitCode   = make(chan int)
 	signalCode = make(chan os.Signal, 1)
-	server     = &http.Server{Addr: ":8080", Handler: nil}
-	banner     = `Start to grant-n-z server :8080
+	server     = &http.Server{Addr: fmt.Sprintf(":%s", Port), Handler: nil}
+	banner     = `Start to grant-n-z server :%s
 ___________________________________________________
     ____                      _      
    / __/ _    ____   _____ __//_      _____   ____ 
@@ -81,7 +83,7 @@ func (g GrantNZServer) runRouter() {
 }
 
 func (g GrantNZServer) runServer(server http.Server) {
-	fmt.Printf(banner, config.App.Version)
+	fmt.Printf(banner, Port, config.App.Version)
 	if err := server.ListenAndServe(); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)
