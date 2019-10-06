@@ -1,13 +1,14 @@
 package config
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v2"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 )
 
 var (
