@@ -19,11 +19,27 @@ type Log struct {
 func InitLogger(logLevel string) {
 	Logger = Log{
 		level: logLevel,
-		d:     log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.LUTC),
-		i:     log.New(os.Stdout, "[INFO]", log.LstdFlags|log.LUTC),
-		w:     log.New(os.Stderr, "[WARN]", log.LstdFlags|log.LUTC),
-		e:     log.New(os.Stderr, "[ERROR]", log.LstdFlags|log.LUTC),
+		d:     NewLoglevelDebug(),
+		i:     NewLoglevelInfo(),
+		w:     NewLoglevelWarn(),
+		e:     NewLoglevelError(),
 	}
+}
+
+func NewLoglevelDebug() *log.Logger {
+	return log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.LUTC)
+}
+
+func NewLoglevelInfo() *log.Logger {
+	return log.New(os.Stdout, "[INFO]", log.LstdFlags|log.LUTC)
+}
+
+func NewLoglevelWarn() *log.Logger {
+	return log.New(os.Stderr, "[WARN]", log.LstdFlags|log.LUTC)
+}
+
+func NewLoglevelError() *log.Logger {
+	return log.New(os.Stderr, "[ERROR]", log.LstdFlags|log.LUTC)
 }
 
 func (l Log) Fatal(v ...interface{}) {
