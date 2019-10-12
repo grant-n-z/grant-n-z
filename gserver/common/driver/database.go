@@ -21,11 +21,11 @@ func InitDriver() {
 		panic("Current status, only support mysql.")
 	}
 
-	initMysql()
+	initDataBase()
 	initRedis()
 }
 
-func initMysql() {
+func initDataBase() {
 	if !strings.EqualFold(config.Db.Engine, "mysql") {
 		panic("Current status, only support mysql.")
 	}
@@ -42,6 +42,10 @@ func initMysql() {
 	if err != nil {
 		log.Logger.Warn(err.Error())
 		panic("Cannot connect MySQL")
+	}
+
+	if strings.EqualFold(config.App.LogLevel, "debug") || strings.EqualFold(config.App.LogLevel, "DEBUG") {
+		db.SetLogger(log.NewLoglevelDebug())
 	}
 
 	log.Logger.Info("Connected MySQL", config.Db.Host)
