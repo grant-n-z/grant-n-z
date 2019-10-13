@@ -25,6 +25,8 @@ type User struct {
 	Password  string    `validate:"min=8,required"json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+
+	*OperatorPolicy
 }
 
 type UserTableConfig int
