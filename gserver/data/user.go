@@ -18,11 +18,11 @@ type UserRepository interface {
 
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	FindUserWithRoleByEmail(email string) (*entity.User, *model.ErrorResBody)
+	FindWithOperatorPolicyByEmail(email string) (*entity.User, *model.ErrorResBody)
 
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
-	SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
+	SaveWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
 
 	Update(user entity.User) (*entity.User, *model.ErrorResBody)
 }
@@ -74,7 +74,7 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*entity.User, *model.ErrorResBody) {
+func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*entity.User, *model.ErrorResBody) {
 	var user entity.User
 
 	if err := uri.Db.Table(entity.UserTable.String()).
@@ -111,7 +111,7 @@ func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.Error
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) SaveUserWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody) {
+func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody) {
 	tx := uri.Db.Begin()
 
 	if err := tx.Create(&user).Error; err != nil {
