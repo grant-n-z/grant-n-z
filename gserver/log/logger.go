@@ -1,8 +1,10 @@
 package log
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -27,7 +29,7 @@ func InitLogger(logLevel string) {
 }
 
 func NewLoglevelDebug() *log.Logger {
-	return log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.LUTC)
+	return log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.Lshortfile|log.LUTC)
 }
 
 func NewLoglevelInfo() *log.Logger {
@@ -48,18 +50,38 @@ func (l Log) Fatal(v ...interface{}) {
 
 func (l Log) Debug(log ...interface{})  {
 	if strings.EqualFold(l.level, "DEBUG") || strings.EqualFold(l.level, "debug") {
-		l.d.Println(log...)
+		_, file, line, _ := runtime.Caller(1)
+		execFile := strings.Split(file, "/")
+		logData := log[0]
+		data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
+
+		l.d.Println(data)
 	}
 }
 
 func (l Log) Info(log ...interface{}) {
-	l.i.Println(log...)
+	_, file, line, _ := runtime.Caller(1)
+	execFile := strings.Split(file, "/")
+	logData := log[0]
+	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
+
+	l.i.Println(data)
 }
 
 func (l Log) Warn(log ...interface{}) {
-	l.w.Println(log...)
+	_, file, line, _ := runtime.Caller(1)
+	execFile := strings.Split(file, "/")
+	logData := log[0]
+	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
+
+	l.w.Println(data)
 }
 
 func (l Log) Error(log ...interface{}) {
-	l.e.Println(log...)
+	_, file, line, _ := runtime.Caller(1)
+	execFile := strings.Split(file, "/")
+	logData := log[0]
+	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
+
+	l.e.Println(data)
 }
