@@ -44,13 +44,12 @@ func initDataBase() {
 		panic("Cannot connect MySQL")
 	}
 
-	if strings.EqualFold(config.App.LogLevel, "debug") || strings.EqualFold(config.App.LogLevel, "DEBUG") {
-		db.SetLogger(log.NewLoglevelDebug())
+	if strings.EqualFold(config.App.LogLevel, "DEBUG") || strings.EqualFold(config.App.LogLevel, "debug") {
+		db.LogMode(true)
 	}
 
 	log.Logger.Info("Connected MySQL", config.Db.Host)
 	db.DB()
-	db.LogMode(false)
 	Db = db
 }
 
