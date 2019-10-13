@@ -96,7 +96,7 @@ func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 			UserId: userEntity.Id,
 			ServiceId: serviceEntity.Id,
 		}
-		_, errorResponse = uh.UserService.InsertUserWithService(userEntity, userServiceEntity)
+		_, errorResponse = uh.UserService.InsertUserWithUserService(userEntity, userServiceEntity)
 	}
 
 	if errorResponse != nil {
