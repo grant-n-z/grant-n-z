@@ -7,7 +7,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var rsInstance RoleService
@@ -21,7 +21,7 @@ type RoleService interface {
 }
 
 type roleServiceImpl struct {
-	roleRepository repository.RoleRepository
+	roleRepository data.RoleRepository
 }
 
 func GetRoleServiceInstance() RoleService {
@@ -34,7 +34,7 @@ func GetRoleServiceInstance() RoleService {
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
 	log.Logger.Info("Inject `RoleRepository` to `RoleService`")
-	return roleServiceImpl{roleRepository: repository.RoleRepositoryImpl{Db: driver.Db}}
+	return roleServiceImpl{roleRepository: data.RoleRepositoryImpl{Db: driver.Db}}
 }
 
 func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {

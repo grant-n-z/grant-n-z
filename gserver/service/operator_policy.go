@@ -8,7 +8,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var opsInstance OperatorPolicyService
@@ -28,9 +28,9 @@ type OperatorPolicyService interface {
 }
 
 type operatorPolicyServiceImpl struct {
-	operatorPolicyRepository repository.OperatorPolicyRepository
-	userRepository           repository.UserRepository
-	roleRepository           repository.RoleRepository
+	operatorPolicyRepository data.OperatorPolicyRepository
+	userRepository           data.UserRepository
+	roleRepository           data.RoleRepository
 }
 
 func GetOperatorPolicyServiceInstance() OperatorPolicyService {
@@ -44,9 +44,9 @@ func NewOperatorPolicyServiceService() OperatorPolicyService {
 	log.Logger.Info("New `OperatorPolicyService` instance")
 	log.Logger.Info("Inject `OperatorPolicyRepository`, `UserRepository`, `RoleRepository` to `OperatorPolicyService`")
 	return operatorPolicyServiceImpl{
-		operatorPolicyRepository: repository.GetOperatorPolicyRepositoryInstance(driver.Db),
-		userRepository:           repository.GetUserRepositoryInstance(driver.Db),
-		roleRepository:           repository.GetRoleRepositoryInstance(driver.Db),
+		operatorPolicyRepository: data.GetOperatorPolicyRepositoryInstance(driver.Db),
+		userRepository:           data.GetUserRepositoryInstance(driver.Db),
+		roleRepository:           data.GetRoleRepositoryInstance(driver.Db),
 	}
 }
 

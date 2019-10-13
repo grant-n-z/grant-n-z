@@ -11,7 +11,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 const BitSize = 2048
@@ -37,9 +37,9 @@ type PolicyService interface {
 }
 
 type policyServiceImpl struct {
-	policyRepository     repository.PolicyRepository
-	permissionRepository repository.PermissionRepository
-	roleRepository       repository.RoleRepository
+	policyRepository     data.PolicyRepository
+	permissionRepository data.PermissionRepository
+	roleRepository       data.RoleRepository
 }
 
 func GetPolicyServiceInstance() PolicyService {
@@ -53,9 +53,9 @@ func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	log.Logger.Info("Inject `PolicyRepository`, `PermissionRepository`, `RoleRepository`, `ServiceMemberRoleRepository` to `PolicyService`")
 	return policyServiceImpl{
-		policyRepository:     repository.GetPolicyRepositoryInstance(driver.Db),
-		permissionRepository: repository.NewPermissionRepository(driver.Db),
-		roleRepository:       repository.GetRoleRepositoryInstance(driver.Db),
+		policyRepository:     data.GetPolicyRepositoryInstance(driver.Db),
+		permissionRepository: data.NewPermissionRepository(driver.Db),
+		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
 	}
 }
 

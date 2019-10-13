@@ -5,7 +5,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var sgsInstance ServiceGroupService
@@ -15,7 +15,7 @@ type ServiceGroupService interface {
 }
 
 type ServiceGroupServiceImpl struct {
-	serviceGroupRepository repository.ServiceGroupRepository
+	serviceGroupRepository data.ServiceGroupRepository
 }
 
 func GetServiceGroupServiceInstance() ServiceGroupService {
@@ -28,7 +28,7 @@ func GetServiceGroupServiceInstance() ServiceGroupService {
 func NewServiceGroupService() ServiceGroupService {
 	log.Logger.Info("New `ServiceGroupService` instance")
 	log.Logger.Info("Inject `ServiceGroupRepository` to `ServiceGroupService`")
-	return ServiceGroupServiceImpl{serviceGroupRepository: repository.GetServiceGroupRepositoryInstance(driver.Db)}
+	return ServiceGroupServiceImpl{serviceGroupRepository: data.GetServiceGroupRepositoryInstance(driver.Db)}
 }
 
 func (sgs ServiceGroupServiceImpl) InsertServiceGroup(serviceGroup *entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResBody) {

@@ -1,8 +1,15 @@
 package service
 
 import (
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/tomoyane/grant-n-z/gserver/common/config"
+	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -14,16 +21,22 @@ var tsInstance TokenService
 type TokenService interface {
 	Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResBody)
 
+	ParseJwt(token string) (map[string]string, bool)
+
 	operatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
 	serviceToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
 	userToken(userEntity entity.User) (*string, *model.ErrorResBody)
+
+	generateJwt(user *entity.User, roleId int) *string
 }
 
 type tokenServiceImpl struct {
 	userService               UserService
 	operatorMemberRoleService OperatorPolicyService
+	userServiceRepository     data.UserServiceRepository
+	appConfig                 config.AppConfig
 }
 
 func GetTokenServiceInstance() TokenService {
@@ -37,8 +50,10 @@ func NewTokenService() TokenService {
 	log.Logger.Info("New `TokenService` instance")
 	log.Logger.Info("Inject `UserGroup`, `OperatorPolicyService` to `TokenService`")
 	return tokenServiceImpl{
-		userService:               NewUserService(),
-		operatorMemberRoleService: NewOperatorPolicyServiceService(),
+		userService:               GetUserServiceInstance(),
+		operatorMemberRoleService: GetOperatorPolicyServiceInstance(),
+		userServiceRepository:     data.GetUserServiceRepositoryInstance(driver.Db),
+		appConfig:      config.App,
 	}
 }
 
@@ -52,26 +67,73 @@ func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) 
 	}
 }
 
-func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
-	// TODO: Cache
+func (us tokenServiceImpl) ParseJwt(token string) (map[string]string, bool) {
+	resultMap := map[string]string{}
 
-	userWithRole, err := tsi.userService.GetUserWithRoleByEmail(userEntity.Email)
-	if err != nil || userWithRole == nil {
+	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(us.appConfig.PrivateKeyBase64), nil
+	})
+
+	if err != nil || !parseToken.Valid {
+		log.Logger.Error("Error parse token validation", err.Error())
+		return resultMap, false
+	}
+
+	claims := parseToken.Claims.(jwt.MapClaims)
+	if _, ok := claims["username"].(string); !ok {
+		log.Logger.Info("Can not get username from token")
+		return resultMap, false
+	}
+
+	if _, ok := claims["user_uuid"].(string); !ok {
+		log.Logger.Info("Can not get user_uuid from token")
+		return resultMap, false
+	}
+
+	if _, ok := claims["user_id"].(string); !ok {
+		log.Logger.Info("Can not get user_id from token")
+		return resultMap, false
+	}
+
+	if _, ok := claims["expires"].(string); !ok {
+		log.Logger.Info("Can not get expires from token")
+		return resultMap, false
+	}
+
+	if _, ok := claims["role"].(string); !ok {
+		log.Logger.Info("Can not get role from token")
+		return resultMap, false
+	}
+
+	resultMap["username"] = claims["username"].(string)
+	resultMap["user_uuid"] = claims["user_uuid"].(string)
+	resultMap["user_id"] = claims["user_id"].(string)
+	resultMap["expires"] = claims["expires"].(string)
+	resultMap["role"] = claims["role"].(string)
+
+	return resultMap, true
+}
+
+func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
+	selectedUser, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
+	if err != nil || selectedUser == nil {
 		return nil, model.BadRequest("Failed to email or password")
 	}
-	if !tsi.userService.ComparePw(userWithRole.Password, userEntity.Password) {
+
+	if !tsi.userService.ComparePw(selectedUser.Password, userEntity.Password) {
 		return nil, model.BadRequest("Failed to email or password")
 	}
-	if userWithRole.RoleId != property.OperatorRoleId {
+
+	if selectedUser.OperatorPolicy.RoleId != property.OperatorRoleId {
 		return nil, model.BadRequest("Can not issue token")
 	}
 
 	user := entity.User{
-		Id:       userWithRole.UserId,
-		Username: userWithRole.Username,
-		Uuid:     userWithRole.Uuid,
+		Id:       selectedUser.Id,
+		Username: selectedUser.Username,
+		Uuid:     selectedUser.Uuid,
 	}
-	return tsi.userService.GenerateJwt(&user, property.OperatorRoleId), nil
+	return tsi.generateJwt(&user, property.OperatorRoleId), nil
 }
 
 func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *model.ErrorResBody) {
@@ -81,6 +143,8 @@ func (tsi tokenServiceImpl) serviceToken(userEntity entity.User) (*string, *mode
 func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResBody) {
 	// TODO: Cache
 	// TODO: Set user policy
+
+	tsi.userServiceRepository.FindById(1)
 
 	userData, err := tsi.userService.GetUserByEmail(userEntity.Email)
 	if err != nil || userData == nil {
@@ -96,5 +160,25 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 		Username: userData.Username,
 		Uuid:     userData.Uuid,
 	}
-	return tsi.userService.GenerateJwt(&user, property.UserRoleId), nil
+	return tsi.generateJwt(&user, property.UserRoleId), nil
+}
+
+func (us tokenServiceImpl) generateJwt(user *entity.User, roleId int) *string {
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["username"] = user.Username
+	claims["user_uuid"] = user.Uuid
+	claims["user_id"] = strconv.Itoa(user.Id)
+	//claims["service_id"] = handler.ApiKey
+	claims["expires"] = time.Now().Add(time.Hour * 1).String()
+	claims["role"] = strconv.Itoa(roleId)
+
+	signedToken, err := token.SignedString([]byte(us.appConfig.PrivateKeyBase64))
+	if err != nil {
+		log.Logger.Error("Error signed token", err.Error())
+		return nil
+	}
+
+	return &signedToken
 }

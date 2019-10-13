@@ -7,7 +7,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var gsInstance GroupService
@@ -23,7 +23,7 @@ type GroupService interface {
 }
 
 type GroupServiceImpl struct {
-	groupRepository repository.GroupRepository
+	groupRepository data.GroupRepository
 }
 
 func GetGroupServiceInstance() GroupService {
@@ -36,7 +36,7 @@ func GetGroupServiceInstance() GroupService {
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	log.Logger.Info("Inject `GroupRepository` to `GroupService`")
-	return GroupServiceImpl{groupRepository: repository.GetGroupRepositoryInstance(driver.Db)}
+	return GroupServiceImpl{groupRepository: data.GetGroupRepositoryInstance(driver.Db)}
 }
 
 func (gs GroupServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResBody) {

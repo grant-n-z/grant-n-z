@@ -7,7 +7,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var psInstance PermissionService
@@ -21,7 +21,7 @@ type PermissionService interface {
 }
 
 type permissionServiceImpl struct {
-	permissionRepository repository.PermissionRepository
+	permissionRepository data.PermissionRepository
 }
 
 func GetPermissionServiceInstance() PermissionService {
@@ -35,7 +35,7 @@ func NewPermissionService() PermissionService {
 	log.Logger.Info("New `PermissionService` instance")
 	log.Logger.Info("Inject `PermissionRepository` to `PermissionService`")
 	return permissionServiceImpl{
-		permissionRepository: repository.GetPermissionRepositoryInstance(driver.Db),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
 	}
 }
 

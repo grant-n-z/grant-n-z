@@ -9,13 +9,13 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var sInstance Service
 
 type serviceImpl struct {
-	serviceRepository repository.ServiceRepository
+	serviceRepository data.ServiceRepository
 }
 
 type Service interface {
@@ -43,7 +43,7 @@ func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	log.Logger.Info("Inject `ServiceRepository` to `Service`")
 	return serviceImpl{
-		serviceRepository: repository.ServiceRepositoryImpl{Db: driver.Db},
+		serviceRepository: data.ServiceRepositoryImpl{Db: driver.Db},
 	}
 }
 

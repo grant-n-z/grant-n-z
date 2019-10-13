@@ -8,7 +8,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var ussInstance UserServiceService
@@ -24,9 +24,9 @@ type UserServiceService interface {
 }
 
 type userServiceServiceImpl struct {
-	userServiceRepository repository.UserServiceRepository
-	userRepository        repository.UserRepository
-	serviceRepository     repository.ServiceRepository
+	userServiceRepository data.UserServiceRepository
+	userRepository        data.UserRepository
+	serviceRepository     data.ServiceRepository
 }
 
 func GetUserServiceServiceInstance() UserServiceService {
@@ -40,9 +40,9 @@ func NewUserServiceService() UserServiceService {
 	log.Logger.Info("New `UserServiceService` instance")
 	log.Logger.Info("Inject `UserServiceRepository`, `UserRepository`, `ServiceRepository` to `UserServiceService`")
 	return userServiceServiceImpl{
-		userServiceRepository: repository.GetUserServiceRepositoryInstance(driver.Db),
-		userRepository:        repository.GetUserRepositoryInstance(driver.Db),
-		serviceRepository:     repository.GetServiceRepositoryInstance(driver.Db),
+		userServiceRepository: data.GetUserServiceRepositoryInstance(driver.Db),
+		userRepository:        data.GetUserRepositoryInstance(driver.Db),
+		serviceRepository:     data.GetServiceRepositoryInstance(driver.Db),
 	}
 }
 

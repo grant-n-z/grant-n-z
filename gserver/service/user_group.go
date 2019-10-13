@@ -5,7 +5,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/repository"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var ugsInstance UserGroupService
@@ -15,7 +15,7 @@ type UserGroupService interface {
 }
 
 type UserGroupServiceImpl struct {
-	userGroupRepository repository.UserGroupRepository
+	userGroupRepository data.UserGroupRepository
 }
 
 func GetUserGroupServiceInstance() UserGroupService {
@@ -28,7 +28,7 @@ func GetUserGroupServiceInstance() UserGroupService {
 func NewUserGroupService() UserGroupService {
 	log.Logger.Info("New `UserGroupService` instance")
 	log.Logger.Info("Inject `UserGroupService` to `UserGroupService`")
-	return UserGroupServiceImpl{userGroupRepository: repository.GetUserGroupRepositoryInstance(driver.Db)}
+	return UserGroupServiceImpl{userGroupRepository: data.GetUserGroupRepositoryInstance(driver.Db)}
 }
 
 func (ugs UserGroupServiceImpl) InsertUserGroup(userGroup *entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {

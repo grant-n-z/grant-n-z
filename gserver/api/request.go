@@ -46,6 +46,7 @@ type Request interface {
 }
 
 type RequestImpl struct {
+	tokenService          service.TokenService
 	userService           service.UserService
 	operatorPolicyService service.OperatorPolicyService
 	redisClient           cache.RedisClient
@@ -62,6 +63,7 @@ func NewRequest() Request {
 	log.Logger.Info("New `Request` instance")
 	log.Logger.Info("Inject `AuthService` to `Request`")
 	return RequestImpl{
+		tokenService:          service.GetTokenServiceInstance(),
 		userService:           service.GetUserServiceInstance(),
 		operatorPolicyService: service.GetOperatorPolicyServiceInstance(),
 		redisClient:           cache.GetRedisClientInstance(),
@@ -168,7 +170,7 @@ func (rh RequestImpl) verify(token string) (*model.AuthUser, *model.ErrorResBody
 	}
 
 	jwt := strings.Replace(token, "Bearer ", "", 1)
-	userData, result := rh.userService.ParseJwt(jwt)
+	userData, result := rh.tokenService.ParseJwt(jwt)
 	if !result {
 		log.Logger.Info("Failed to parse token")
 		return nil, model.Unauthorized("Failed to token.")
