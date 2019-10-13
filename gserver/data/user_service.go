@@ -1,4 +1,4 @@
-package repository
+package data
 
 import (
 	"strings"
@@ -15,7 +15,7 @@ var usrInstance UserServiceRepository
 type UserServiceRepository interface {
 	FindAll() ([]*entity.UserService, *model.ErrorResBody)
 
-	FindById(id int) ([]*entity.UserService, *model.ErrorResBody)
+	FindById(id int) (*entity.UserService, *model.ErrorResBody)
 
 	FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody)
 
@@ -54,9 +54,10 @@ func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.E
 	return userServices, nil
 }
 
-func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *model.ErrorResBody) {
-	var userServices []*entity.UserService
-	if err := usri.Db.Where("id = ?", id).Find(&userServices).Error; err != nil {
+func (usri UserServiceRepositoryImpl) FindById(id int) (*entity.UserService, *model.ErrorResBody) {
+	var userServices entity.UserService
+
+	if err := usri.Db.Preload("Service").Where("id = ?", id).Find(&userServices).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -64,7 +65,7 @@ func (usri UserServiceRepositoryImpl) FindById(id int) ([]*entity.UserService, *
 		return nil, model.InternalServerError()
 	}
 
-	return userServices, nil
+	return &userServices, nil
 }
 
 func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody) {

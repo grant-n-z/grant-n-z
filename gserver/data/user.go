@@ -1,4 +1,4 @@
-package repository
+package data
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type UserRepository interface {
 
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	FindUserWithRoleByEmail(email string) (*model.UserOperatorPolicy, *model.ErrorResBody)
+	FindUserWithRoleByEmail(email string) (*entity.User, *model.ErrorResBody)
 
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
@@ -74,8 +74,9 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.UserOperatorPolicy, *model.ErrorResBody) {
-	var userOperatorMemberRole model.UserOperatorPolicy
+func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*entity.User, *model.ErrorResBody) {
+	var user entity.User
+
 	if err := uri.Db.Table(entity.UserTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
@@ -87,12 +88,14 @@ func (uri UserRepositoryImpl) FindUserWithRoleByEmail(email string) (*model.User
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserTable.String(),
 			entity.UserEmail), email).
-		Find(&userOperatorMemberRole).Error; err != nil {
+		Scan(&user).
+		Error; err != nil {
 
-		log.Logger.Warn(err.Error())
-		return nil, model.InternalServerError()
+			log.Logger.Warn(err.Error())
+			return nil, model.InternalServerError()
 	}
-	return &userOperatorMemberRole, nil
+
+	return &user, nil
 }
 
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResBody) {
