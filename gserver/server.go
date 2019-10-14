@@ -49,7 +49,7 @@ func init() {
 
 func NewGrantNZServer() GrantNZServer {
 	log.Logger.Info("New GrantNZServer")
-	log.Logger.Info("Inject `Router`, `CronHandler`, `PolicyService` to `GrantNZServer`")
+	log.Logger.Info("Inject `Router`, `PolicyService` to `GrantNZServer`")
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,

@@ -21,26 +21,26 @@ type Log struct {
 func InitLogger(logLevel string) {
 	Logger = Log{
 		level: logLevel,
-		d:     NewLoglevelDebug(),
-		i:     NewLoglevelInfo(),
-		w:     NewLoglevelWarn(),
-		e:     NewLoglevelError(),
+		d:     NewDebugLog(),
+		i:     NewInfoLog(),
+		w:     NewWarnLog(),
+		e:     NewErrorLog(),
 	}
 }
 
-func NewLoglevelDebug() *log.Logger {
-	return log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.Lshortfile|log.LUTC)
+func NewDebugLog() *log.Logger {
+	return log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.LUTC)
 }
 
-func NewLoglevelInfo() *log.Logger {
+func NewInfoLog() *log.Logger {
 	return log.New(os.Stdout, "[INFO]", log.LstdFlags|log.LUTC)
 }
 
-func NewLoglevelWarn() *log.Logger {
+func NewWarnLog() *log.Logger {
 	return log.New(os.Stderr, "[WARN]", log.LstdFlags|log.LUTC)
 }
 
-func NewLoglevelError() *log.Logger {
+func NewErrorLog() *log.Logger {
 	return log.New(os.Stderr, "[ERROR]", log.LstdFlags|log.LUTC)
 }
 
