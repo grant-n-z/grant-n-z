@@ -48,40 +48,32 @@ func (l Log) Fatal(v ...interface{}) {
 	log.Fatal(v)
 }
 
-func (l Log) Debug(log ...interface{})  {
+func (l Log) Debug(log ...string)  {
 	if strings.EqualFold(l.level, "DEBUG") || strings.EqualFold(l.level, "debug") {
 		_, file, line, _ := runtime.Caller(1)
 		execFile := strings.Split(file, "/")
-		logData := log[0]
-		data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
-
-		l.d.Println(data)
+		data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
+		l.d.Println(data, strings.Join(log, " "))
 	}
 }
 
-func (l Log) Info(log ...interface{}) {
+func (l Log) Info(log ...string) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
-	logData := log[0]
-	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
-
-	l.i.Println(data)
+	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
+	l.i.Println(data, strings.Join(log, " "))
 }
 
-func (l Log) Warn(log ...interface{}) {
+func (l Log) Warn(log ...string) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
-	logData := log[0]
-	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
-
-	l.w.Println(data)
+	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
+	l.w.Println(data, strings.Join(log, " "))
 }
 
-func (l Log) Error(log ...interface{}) {
+func (l Log) Error(log ...string) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
-	logData := log[0]
-	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line, logData)
-
-	l.e.Println(data)
+	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
+	l.e.Println(data, strings.Join(log, " "))
 }
