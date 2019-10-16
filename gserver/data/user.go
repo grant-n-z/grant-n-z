@@ -18,7 +18,7 @@ type UserRepository interface {
 
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	FindWithOperatorPolicyByEmail(email string) (*entity.User, *model.ErrorResBody)
+	FindWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
@@ -74,8 +74,8 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*entity.User, *model.ErrorResBody) {
-	var user entity.User
+func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody) {
+	var uwo entity.UserWithOperatorPolicy
 
 	if err := uri.Db.Table(entity.UserTable.String()).
 		Select("*").
@@ -88,14 +88,13 @@ func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*enti
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserTable.String(),
 			entity.UserEmail), email).
-		Scan(&user).
-		Error; err != nil {
+		Scan(&uwo).Error; err != nil {
 
 			log.Logger.Warn(err.Error())
 			return nil, model.InternalServerError()
 	}
 
-	return &user, nil
+	return &uwo, nil
 }
 
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResBody) {

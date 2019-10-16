@@ -25,7 +25,7 @@ type UserService interface {
 
 	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	GetUserWithOperatorPolicyByEmail(email string) (*entity.User, *model.ErrorResBody)
+	GetUserWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
 	InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody)
 
@@ -85,7 +85,7 @@ func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.Err
 	return us.userRepository.FindByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*entity.User, *model.ErrorResBody) {
+func (us userServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody) {
 	return us.userRepository.FindWithOperatorPolicyByEmail(email)
 }
 

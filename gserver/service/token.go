@@ -115,23 +115,23 @@ func (us tokenServiceImpl) ParseJwt(token string) (map[string]string, bool) {
 }
 
 func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
-	selectedUser, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
-	if err != nil || selectedUser == nil {
+	uwo, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
+	if err != nil || uwo == nil {
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	if !tsi.userService.ComparePw(selectedUser.Password, userEntity.Password) {
+	if !tsi.userService.ComparePw(uwo.Password, userEntity.Password) {
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	if selectedUser.OperatorPolicy.RoleId != property.OperatorRoleId {
+	if uwo.OperatorPolicy.RoleId != property.OperatorRoleId {
 		return nil, model.BadRequest("Can not issue token")
 	}
 
 	user := entity.User{
-		Id:       selectedUser.Id,
-		Username: selectedUser.Username,
-		Uuid:     selectedUser.Uuid,
+		Id:       uwo.UserId,
+		Username: uwo.Username,
+		Uuid:     uwo.Uuid,
 	}
 	return tsi.generateJwt(&user, property.OperatorRoleId), nil
 }
