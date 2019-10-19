@@ -14,11 +14,11 @@ DROP TABLE IF EXISTS groups;
 -- If roles exit, drop roles
 DROP TABLE IF EXISTS roles;
 
--- If users exit, drop users
-DROP TABLE IF EXISTS users;
-
 -- If permissions exit, drop permissions
 DROP TABLE IF EXISTS permissions;
+
+-- If users exit, drop users
+DROP TABLE IF EXISTS users;
 
 -- If user_services exit, drop user_services
 DROP TABLE IF EXISTS user_services;
@@ -28,6 +28,12 @@ DROP TABLE IF EXISTS user_groups;
 
 -- If service_groups exit, drop service_groups
 DROP TABLE IF EXISTS service_groups;
+
+-- If service_roles exit, drop service_roles
+DROP TABLE IF EXISTS service_groups;
+
+-- If service_permissions exit, drop service_permissions
+DROP TABLE IF EXISTS service_permissions;
 
 -- If operator_policies exit, drop operator_policies
 DROP TABLE IF EXISTS operator_policies;
@@ -152,6 +158,46 @@ CREATE TABLE service_groups (
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- `service_roles`
+CREATE TABLE service_roles (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  role_id int(11) NOT NULL,
+  service_id int(11) NOT NULL,
+  created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX (role_id),
+  INDEX (service_id),
+  CONSTRAINT fk_service_roles_role_id
+  FOREIGN KEY (role_id)
+  REFERENCES roles (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_service_roles_service_id
+  FOREIGN KEY (service_id)
+  REFERENCES services (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- `service_permissions`
+CREATE TABLE service_permissions (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  permission_id int(11) NOT NULL,
+  service_id int(11) NOT NULL,
+  created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX (role_id),
+  INDEX (service_id),
+  CONSTRAINT fk_service_permissions_permission_id
+  FOREIGN KEY (permission_id)
+  REFERENCES permissions (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_service_permissions_service_id
+  FOREIGN KEY (service_id)
+  REFERENCES services (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- `operator_policies`
 CREATE TABLE operator_policies (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -175,13 +221,19 @@ CREATE TABLE operator_policies (
 CREATE TABLE policies (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(128) NOT NULL,
+  role_id int(11) NOT NULL,
   permission_id int(11) NOT NULL,
   user_group_id int(11) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  INDEX (role_id),
   INDEX (permission_id),
   INDEX (user_group_id),
+  CONSTRAINT fk_policies_role_id
+  FOREIGN KEY (role_id)
+  REFERENCES roles (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_policies_permission_id
   FOREIGN KEY (permission_id)
   REFERENCES permissions (id)
