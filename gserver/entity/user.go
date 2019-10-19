@@ -17,6 +17,7 @@ const (
 	UserUpdatedAt
 )
 
+// The table `users` struct
 type User struct {
 	Id        int       `json:"id"`
 	Uuid      uuid.UUID `json:"uuid"`
@@ -27,9 +28,17 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// The table `users` and `operator_policies` struct
 type UserWithOperatorPolicy struct {
 	User
 	OperatorPolicy
+}
+
+// The table `users` and `user_services` and `services` struct
+type UserWithUserServiceWithService struct {
+	User
+	UserService
+	Service
 }
 
 type UserTableConfig int

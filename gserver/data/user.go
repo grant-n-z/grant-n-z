@@ -20,6 +20,8 @@ type UserRepository interface {
 
 	FindWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
+	FindWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
+
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
 	SaveWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
@@ -95,6 +97,35 @@ func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*enti
 	}
 
 	return &uwo, nil
+}
+
+func (uri UserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody) {
+	var uus entity.UserWithUserServiceWithService
+
+	if err := uri.Db.Table(entity.UserTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserServiceTable.String(),
+			entity.UserTable.String(),
+			entity.UserId,
+			entity.UserServiceTable.String(),
+			entity.UserServiceUserId)).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.ServiceTable.String(),
+			entity.UserServiceTable.String(),
+			entity.UserServiceServiceId,
+			entity.ServiceTable.String(),
+			entity.ServiceId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserTable.String(),
+			entity.UserEmail), email).
+		Scan(&uus).Error; err != nil {
+
+			log.Logger.Warn(err.Error())
+			return nil, model.InternalServerError()
+	}
+
+	return &uus, nil
 }
 
 func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResBody) {
