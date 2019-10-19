@@ -26,7 +26,7 @@ type TokenService interface {
 
 	userToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
-	generateJwt(user *entity.User, roleId int) *string
+	generateJwt(user *entity.User, roleId int, apiKey string) *string
 }
 
 type tokenServiceImpl struct {
@@ -131,7 +131,7 @@ func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *mod
 		Username: uwo.Username,
 		Uuid:     uwo.Uuid,
 	}
-	return tsi.generateJwt(&user, uwo.OperatorPolicy.RoleId), nil
+	return tsi.generateJwt(&user, uwo.OperatorPolicy.RoleId, ctx.GetApiKey().(string)), nil
 }
 
 func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResBody) {
@@ -145,22 +145,27 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
+	apiKey := ctx.GetApiKey().(string)
+	if !strings.EqualFold(uus.Service.ApiKey, apiKey) {
+		return nil, model.BadRequest("Failed to Api-Key data")
+	}
+
 	user := entity.User{
 		Id:       uus.User.Id,
 		Username: uus.User.Username,
 		Uuid:     uus.User.Uuid,
 	}
-	return tsi.generateJwt(&user, 0), nil
+	return tsi.generateJwt(&user, 0, apiKey), nil
 }
 
-func (tsi tokenServiceImpl) generateJwt(user *entity.User, roleId int) *string {
+func (tsi tokenServiceImpl) generateJwt(user *entity.User, roleId int, apiKey string) *string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = user.Username
 	claims["user_uuid"] = user.Uuid
 	claims["user_id"] = strconv.Itoa(user.Id)
-	claims["service_api_key"] = ctx.GetApiKey()
+	claims["service_api_key"] = apiKey
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
 	claims["role_id"] = strconv.Itoa(roleId)
 
