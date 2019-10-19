@@ -17,6 +17,8 @@ type UserServiceRepository interface {
 
 	FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody)
 
+	FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
+
 	Save(userService entity.UserService) (*entity.UserService, *model.ErrorResBody)
 }
 
@@ -63,6 +65,19 @@ func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserSe
 	}
 
 	return userServices, nil
+}
+
+func (usri UserServiceRepositoryImpl) FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+	var userService *entity.UserService
+	if err := usri.Db.Where("user_id = ? AND service_id = ?", userId, serviceId).Find(&userService).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return userService, nil
 }
 
 func (usri UserServiceRepositoryImpl) Save(userService entity.UserService) (*entity.UserService, *model.ErrorResBody) {

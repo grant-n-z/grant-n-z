@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/data"
 )
 
 var ussInstance UserServiceService
@@ -19,6 +19,8 @@ type UserServiceService interface {
 	GetUserServices() ([]*entity.UserService, *model.ErrorResBody)
 
 	GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody)
+
+	GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
 
 	InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResBody)
 }
@@ -79,6 +81,10 @@ func (uss userServiceServiceImpl) GetUserServices() ([]*entity.UserService, *mod
 
 func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody) {
 	return uss.userServiceRepository.FindByUserId(userId)
+}
+
+func (uss userServiceServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+	return uss.userServiceRepository.FindByUserIdAndServiceId(userId, serviceId)
 }
 
 func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResBody) {

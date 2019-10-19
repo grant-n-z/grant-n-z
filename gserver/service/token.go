@@ -26,12 +26,11 @@ type TokenService interface {
 
 	userToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
-	generateJwt(user *entity.User, roleId int, apiKey string) *string
+	generateJwt(user *entity.User, roleId int, serviceId int) *string
 }
 
 type tokenServiceImpl struct {
 	userService               UserService
-	service                   Service
 	operatorMemberRoleService OperatorPolicyService
 	appConfig                 config.AppConfig
 }
@@ -48,7 +47,6 @@ func NewTokenService() TokenService {
 	log.Logger.Info("Inject `UserGroup`, `OperatorPolicyService` to `TokenService`")
 	return tokenServiceImpl{
 		userService:               GetUserServiceInstance(),
-		service:                   GetServiceInstance(),
 		operatorMemberRoleService: GetOperatorPolicyServiceInstance(),
 		appConfig:                 config.App,
 	}
@@ -131,7 +129,7 @@ func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *mod
 		Username: uwo.Username,
 		Uuid:     uwo.Uuid,
 	}
-	return tsi.generateJwt(&user, uwo.OperatorPolicy.RoleId, ctx.GetApiKey().(string)), nil
+	return tsi.generateJwt(&user, uwo.OperatorPolicy.RoleId, 0), nil
 }
 
 func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResBody) {
@@ -141,7 +139,7 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	if !tsi.userService.ComparePw(uus.Password, userEntity.Password) {
+	if !tsi.userService.ComparePw(uus.User.Password, userEntity.Password) {
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
@@ -155,17 +153,17 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 		Username: uus.User.Username,
 		Uuid:     uus.User.Uuid,
 	}
-	return tsi.generateJwt(&user, 0, apiKey), nil
+	return tsi.generateJwt(&user, 0, uus.Service.Id), nil
 }
 
-func (tsi tokenServiceImpl) generateJwt(user *entity.User, roleId int, apiKey string) *string {
+func (tsi tokenServiceImpl) generateJwt(user *entity.User, roleId int, serviceId int) *string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = user.Username
 	claims["user_uuid"] = user.Uuid
 	claims["user_id"] = strconv.Itoa(user.Id)
-	claims["service_api_key"] = apiKey
+	claims["service_id"] = serviceId
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
 	claims["role_id"] = strconv.Itoa(roleId)
 
