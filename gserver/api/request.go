@@ -8,8 +8,6 @@ import (
 
 	"gopkg.in/go-playground/validator.v9"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
@@ -22,8 +20,6 @@ var rhInstance Request
 
 type Request interface {
 	// Http interceptor
-	// Verify http header
-	// If it has request body, verify bind request body
 	Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.AuthUser, *model.ErrorResBody)
 
 	// Validate http request
@@ -38,16 +34,20 @@ type Request interface {
 	// If need to verify authentication, verify authentication and authorization
 	verifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Verify token that check to operator user
 	verifyOperator(token string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Verify token that check to user
 	verifyUser(token string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Verify token
 	verify(token string) (*model.AuthUser, *model.ErrorResBody)
 }
 
 type RequestImpl struct {
 	tokenService          service.TokenService
 	userService           service.UserService
+	userServiceService    service.UserServiceService
 	operatorPolicyService service.OperatorPolicyService
 	redisClient           cache.RedisClient
 }
@@ -65,6 +65,7 @@ func NewRequest() Request {
 	return RequestImpl{
 		tokenService:          service.GetTokenServiceInstance(),
 		userService:           service.GetUserServiceInstance(),
+		userServiceService:    service.GetUserServiceServiceInstance(),
 		operatorPolicyService: service.GetOperatorPolicyServiceInstance(),
 		redisClient:           cache.GetRedisClientInstance(),
 	}
@@ -138,7 +139,11 @@ func (rh RequestImpl) verifyToken(w http.ResponseWriter, r *http.Request, authTy
 	} else {
 		authUser, err = rh.verifyUser(ctx.GetToken().(string))
 	}
-	return authUser, err
+	if err != nil {
+		return nil, err
+	}
+
+	return authUser, nil
 }
 
 func (rh RequestImpl) verifyOperator(token string) (*model.AuthUser, *model.ErrorResBody) {
@@ -147,20 +152,28 @@ func (rh RequestImpl) verifyOperator(token string) (*model.AuthUser, *model.Erro
 		return nil, err
 	}
 
-	// TODO: Read cache
 	operatorRole, err := rh.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
-
-	if operatorRole == nil {
-		log.Logger.Info("OperatorMemberRole data is null")
-		return nil, model.Unauthorized("Failed to token.")
+	if operatorRole == nil || err != nil {
+		log.Logger.Info("Not contain operator role or failed to query", err.ToJson())
+		return nil, model.Unauthorized("Invalid token")
 	}
 
-	return authUser, err
+	return authUser, nil
 }
 
 func (rh RequestImpl) verifyUser(token string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := rh.verify(token)
-	return authUser, err
+	if err != nil {
+		return nil, err
+	}
+
+	userService, err := rh.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
+	if userService == nil || err != nil {
+		log.Logger.Info("Not contain service of user or failed to query", err.ToJson())
+		return nil, model.Unauthorized("Invalid token")
+	}
+
+	return authUser, nil
 }
 
 func (rh RequestImpl) verify(token string) (*model.AuthUser, *model.ErrorResBody) {
@@ -176,7 +189,7 @@ func (rh RequestImpl) verify(token string) (*model.AuthUser, *model.ErrorResBody
 		return nil, model.Unauthorized("Failed to token.")
 	}
 
-	// TODO: Read cache
+	// TODO: Cache user data
 	id, _ := strconv.Atoi(userData["user_id"])
 	user, err := rh.userService.GetUserById(id)
 	if err != nil {
@@ -189,13 +202,14 @@ func (rh RequestImpl) verify(token string) (*model.AuthUser, *model.ErrorResBody
 	}
 
 	roleId, _ := strconv.Atoi(userData["role"])
-	uid, _ := uuid.FromString(userData["user_uuid"])
-	authUser := model.AuthUser{
-		Username: userData["user_name"],
-		UserUuid: uid,
-		UserId:   id,
-		Expires:  userData["expires"],
-		RoleId:   roleId,
-	}
-	return &authUser, nil
+	serviceId, _ := strconv.Atoi(userData["service_id"])
+	return &model.AuthUser{
+		Username:  user.Username,
+		UserUuid:  user.Uuid,
+		UserId:    user.Id,
+		UserEmail: user.Email,
+		ServiceId: serviceId,
+		Expires:   userData["expires"],
+		RoleId:    roleId,
+	}, nil
 }
