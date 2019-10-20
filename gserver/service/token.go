@@ -221,7 +221,7 @@ func (tsi tokenServiceImpl) verifyOperatorToken(token string) (*model.AuthUser, 
 	operatorRole, err := tsi.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
 	if operatorRole == nil || err != nil {
 		log.Logger.Info("Not contain operator role or failed to query")
-		return nil, model.Unauthorized("Invalid token")
+		return nil, model.Forbidden("Forbidden this token")
 	}
 
 	return authUser, nil
@@ -236,7 +236,7 @@ func (tsi tokenServiceImpl) verifyUserToken(token string) (*model.AuthUser, *mod
 	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
 		log.Logger.Info("Not contain service of user or failed to query")
-		return nil, model.Unauthorized("Invalid token")
+		return nil, model.Forbidden("Forbidden this token")
 	}
 
 	return authUser, nil
