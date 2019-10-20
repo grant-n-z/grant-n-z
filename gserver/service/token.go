@@ -1,6 +1,7 @@
 package service
 
 import (
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -20,19 +21,28 @@ var tsInstance TokenService
 type TokenService interface {
 	Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResBody)
 
-	ParseJwt(token string) (map[string]string, bool)
+	ParseToken(token string) (map[string]string, bool)
 
-	operatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
+	VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody)
 
-	userToken(userEntity entity.User) (*string, *model.ErrorResBody)
+	generateSignedInToken(user *entity.User, roleId int, serviceId int) *string
 
-	generateJwt(user *entity.User, roleId int, serviceId int) *string
+	generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
+
+	generateUserToken(userEntity entity.User) (*string, *model.ErrorResBody)
+
+	verifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
+
+	verifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody)
+
+	getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
 }
 
 type tokenServiceImpl struct {
-	userService               UserService
-	operatorMemberRoleService OperatorPolicyService
-	appConfig                 config.AppConfig
+	userService           UserService
+	operatorPolicyService OperatorPolicyService
+	userServiceService    UserServiceService
+	appConfig             config.AppConfig
 }
 
 func GetTokenServiceInstance() TokenService {
@@ -46,27 +56,28 @@ func NewTokenService() TokenService {
 	log.Logger.Info("New `TokenService` instance")
 	log.Logger.Info("Inject `UserGroup`, `OperatorPolicyService` to `TokenService`")
 	return tokenServiceImpl{
-		userService:               GetUserServiceInstance(),
-		operatorMemberRoleService: GetOperatorPolicyServiceInstance(),
-		appConfig:                 config.App,
+		userService:           GetUserServiceInstance(),
+		operatorPolicyService: GetOperatorPolicyServiceInstance(),
+		userServiceService:    GetUserServiceServiceInstance(),
+		appConfig:             config.App,
 	}
 }
 
 func (tsi tokenServiceImpl) Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResBody) {
 	if strings.EqualFold(queryParam, property.AuthOperator) {
-		return tsi.operatorToken(userEntity)
+		return tsi.generateOperatorToken(userEntity)
 	} else if strings.EqualFold(queryParam, "") {
-		return tsi.userToken(userEntity)
+		return tsi.generateUserToken(userEntity)
 	} else {
 		return nil, model.BadRequest("Not support type of query parameter")
 	}
 }
 
-func (us tokenServiceImpl) ParseJwt(token string) (map[string]string, bool) {
+func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(us.appConfig.PrivateKeyBase64), nil
+		return []byte(tsi.appConfig.PrivateKeyBase64), nil
 	})
 
 	if err != nil || !parseToken.Valid {
@@ -79,22 +90,18 @@ func (us tokenServiceImpl) ParseJwt(token string) (map[string]string, bool) {
 		log.Logger.Info("Can not get username from token")
 		return resultMap, false
 	}
-
 	if _, ok := claims["user_uuid"].(string); !ok {
 		log.Logger.Info("Can not get user_uuid from token")
 		return resultMap, false
 	}
-
 	if _, ok := claims["user_id"].(string); !ok {
 		log.Logger.Info("Can not get user_id from token")
 		return resultMap, false
 	}
-
 	if _, ok := claims["expires"].(string); !ok {
 		log.Logger.Info("Can not get expires from token")
 		return resultMap, false
 	}
-
 	if _, ok := claims["role_id"].(string); !ok {
 		log.Logger.Info("Can not get role from token")
 		return resultMap, false
@@ -109,7 +116,22 @@ func (us tokenServiceImpl) ParseJwt(token string) (map[string]string, bool) {
 	return resultMap, true
 }
 
-func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody) {
+	var authUser *model.AuthUser
+	var err *model.ErrorResBody
+	if strings.EqualFold(authType, property.AuthOperator) {
+		authUser, err = tsi.verifyOperatorToken(ctx.GetToken().(string))
+	} else {
+		authUser, err = tsi.verifyUserToken(ctx.GetToken().(string))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return authUser, nil
+}
+
+func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
 	// TODO: Cache user data, operator_policy data
 	uwo, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
 	if err != nil || uwo == nil {
@@ -129,10 +151,10 @@ func (tsi tokenServiceImpl) operatorToken(userEntity entity.User) (*string, *mod
 		Username: uwo.Username,
 		Uuid:     uwo.Uuid,
 	}
-	return tsi.generateJwt(&user, uwo.OperatorPolicy.RoleId, 0), nil
+	return tsi.generateSignedInToken(&user, uwo.OperatorPolicy.RoleId, 0), nil
 }
 
-func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User) (*string, *model.ErrorResBody) {
 	// TODO: Cache user data, user_service, service data
 	uus, err := tsi.userService.GetUserWithUserServiceWithServiceByEmail(userEntity.Email)
 	if err != nil || uus == nil {
@@ -145,7 +167,7 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 
 	apiKey := ctx.GetApiKey().(string)
 	if !strings.EqualFold(uus.Service.ApiKey, apiKey) {
-		return nil, model.BadRequest("Failed to Api-Key data")
+		return nil, model.BadRequest("Can not issue token")
 	}
 
 	user := entity.User{
@@ -153,10 +175,10 @@ func (tsi tokenServiceImpl) userToken(userEntity entity.User) (*string, *model.E
 		Username: uus.User.Username,
 		Uuid:     uus.User.Uuid,
 	}
-	return tsi.generateJwt(&user, 0, uus.Service.Id), nil
+	return tsi.generateSignedInToken(&user, 0, uus.Service.Id), nil
 }
 
-func (tsi tokenServiceImpl) generateJwt(user *entity.User, roleId int, serviceId int) *string {
+func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int, serviceId int) *string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -174,4 +196,71 @@ func (tsi tokenServiceImpl) generateJwt(user *entity.User, roleId int, serviceId
 	}
 
 	return &signedToken
+}
+
+func (tsi tokenServiceImpl) verifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+	authUser, err := tsi.getAuthUserInToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	operatorRole, err := tsi.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
+	if operatorRole == nil || err != nil {
+		log.Logger.Info("Not contain operator role or failed to query", err.ToJson())
+		return nil, model.Unauthorized("Invalid token")
+	}
+
+	return authUser, nil
+}
+
+func (tsi tokenServiceImpl) verifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+	authUser, err := tsi.getAuthUserInToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
+	if userService == nil || err != nil {
+		log.Logger.Info("Not contain service of user or failed to query", err.ToJson())
+		return nil, model.Unauthorized("Invalid token")
+	}
+
+	return authUser, nil
+}
+
+func (tsi tokenServiceImpl) getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+	if !strings.Contains(token, "Bearer") {
+		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
+		return nil, model.Unauthorized("Unauthorized.")
+	}
+
+	userData, result := tsi.ParseToken(strings.Replace(token, "Bearer ", "", 1))
+	if !result {
+		log.Logger.Info("Failed to parse token")
+		return nil, model.Unauthorized("Failed to token.")
+	}
+
+	// TODO: Cache user data
+	id, _ := strconv.Atoi(userData["user_id"])
+	user, err := tsi.userService.GetUserById(id)
+	if err != nil {
+		return nil, model.Unauthorized("Failed to token.")
+	}
+
+	if user == nil {
+		log.Logger.Info("User data is null")
+		return nil, model.Unauthorized("Failed to token.")
+	}
+
+	roleId, _ := strconv.Atoi(userData["role"])
+	serviceId, _ := strconv.Atoi(userData["service_id"])
+	return &model.AuthUser{
+		Username:  user.Username,
+		UserUuid:  user.Uuid,
+		UserId:    user.Id,
+		UserEmail: user.Email,
+		ServiceId: serviceId,
+		Expires:   userData["expires"],
+		RoleId:    roleId,
+	}, nil
 }
