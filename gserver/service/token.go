@@ -1,10 +1,11 @@
 package service
 
 import (
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
 
@@ -19,22 +20,31 @@ import (
 var tsInstance TokenService
 
 type TokenService interface {
+	// Generate jwt token
 	Generate(queryParam string, userEntity entity.User) (*string, *model.ErrorResBody)
 
+	// Parse and check token
 	ParseToken(token string) (map[string]string, bool)
 
+	// Verify request token
 	VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Generate signed in token
 	generateSignedInToken(user *entity.User, roleId int, serviceId int) *string
 
+	// Generate operator token
 	generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
+	// Generate user token
 	generateUserToken(userEntity entity.User) (*string, *model.ErrorResBody)
 
+	// Verify operator token
 	verifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Verify user token
 	verifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Get auth user data in token
 	getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
 }
 
@@ -86,10 +96,6 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	}
 
 	claims := parseToken.Claims.(jwt.MapClaims)
-	if _, ok := claims["username"].(string); !ok {
-		log.Logger.Info("Can not get username from token")
-		return resultMap, false
-	}
 	if _, ok := claims["user_uuid"].(string); !ok {
 		log.Logger.Info("Can not get user_uuid from token")
 		return resultMap, false
@@ -103,15 +109,19 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 		return resultMap, false
 	}
 	if _, ok := claims["role_id"].(string); !ok {
-		log.Logger.Info("Can not get role from token")
+		log.Logger.Info("Can not get role_id from token")
+		return resultMap, false
+	}
+	if _, ok := claims["service_id"].(string); !ok {
+		log.Logger.Info("Can not get service_id from token")
 		return resultMap, false
 	}
 
-	resultMap["username"] = claims["username"].(string)
 	resultMap["user_uuid"] = claims["user_uuid"].(string)
 	resultMap["user_id"] = claims["user_id"].(string)
 	resultMap["expires"] = claims["expires"].(string)
-	resultMap["role_id"] = claims["role"].(string)
+	resultMap["role_id"] = claims["role_id"].(string)
+	resultMap["service_id"] = claims["service_id"].(string)
 
 	return resultMap, true
 }
@@ -166,28 +176,32 @@ func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User) (*string, 
 	}
 
 	apiKey := ctx.GetApiKey().(string)
+	if strings.EqualFold(apiKey, "") {
+		return nil, model.BadRequest("Not found service api key")
+	}
+
 	if !strings.EqualFold(uus.Service.ApiKey, apiKey) {
 		return nil, model.BadRequest("Can not issue token")
 	}
 
 	user := entity.User{
-		Id:       uus.User.Id,
+		Id:       uus.UserService.UserId,
 		Username: uus.User.Username,
 		Uuid:     uus.User.Uuid,
 	}
-	return tsi.generateSignedInToken(&user, 0, uus.Service.Id), nil
+
+	return tsi.generateSignedInToken(&user, 0, uus.UserService.ServiceId), nil
 }
 
 func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int, serviceId int) *string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = user.Username
 	claims["user_uuid"] = user.Uuid
 	claims["user_id"] = strconv.Itoa(user.Id)
-	claims["service_id"] = serviceId
 	claims["expires"] = time.Now().Add(time.Hour * 1).String()
 	claims["role_id"] = strconv.Itoa(roleId)
+	claims["service_id"] = strconv.Itoa(serviceId)
 
 	signedToken, err := token.SignedString([]byte(tsi.appConfig.PrivateKeyBase64))
 	if err != nil {
@@ -206,7 +220,7 @@ func (tsi tokenServiceImpl) verifyOperatorToken(token string) (*model.AuthUser, 
 
 	operatorRole, err := tsi.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
 	if operatorRole == nil || err != nil {
-		log.Logger.Info("Not contain operator role or failed to query", err.ToJson())
+		log.Logger.Info("Not contain operator role or failed to query")
 		return nil, model.Unauthorized("Invalid token")
 	}
 
@@ -221,7 +235,7 @@ func (tsi tokenServiceImpl) verifyUserToken(token string) (*model.AuthUser, *mod
 
 	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
-		log.Logger.Info("Not contain service of user or failed to query", err.ToJson())
+		log.Logger.Info("Not contain service of user or failed to query")
 		return nil, model.Unauthorized("Invalid token")
 	}
 
@@ -236,7 +250,6 @@ func (tsi tokenServiceImpl) getAuthUserInToken(token string) (*model.AuthUser, *
 
 	userData, result := tsi.ParseToken(strings.Replace(token, "Bearer ", "", 1))
 	if !result {
-		log.Logger.Info("Failed to parse token")
 		return nil, model.Unauthorized("Failed to token.")
 	}
 
@@ -255,7 +268,6 @@ func (tsi tokenServiceImpl) getAuthUserInToken(token string) (*model.AuthUser, *
 	roleId, _ := strconv.Atoi(userData["role"])
 	serviceId, _ := strconv.Atoi(userData["service_id"])
 	return &model.AuthUser{
-		Username:  user.Username,
 		UserUuid:  user.Uuid,
 		UserId:    user.Id,
 		UserEmail: user.Email,

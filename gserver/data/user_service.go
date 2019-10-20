@@ -68,7 +68,7 @@ func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserSe
 }
 
 func (usri UserServiceRepositoryImpl) FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
-	var userService *entity.UserService
+	var userService entity.UserService
 	if err := usri.Db.Where("user_id = ? AND service_id = ?", userId, serviceId).Find(&userService).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -77,7 +77,7 @@ func (usri UserServiceRepositoryImpl) FindByUserIdAndServiceId(userId int, servi
 		return nil, model.InternalServerError()
 	}
 
-	return userService, nil
+	return &userService, nil
 }
 
 func (usri UserServiceRepositoryImpl) Save(userService entity.UserService) (*entity.UserService, *model.ErrorResBody) {

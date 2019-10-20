@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
+	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
 var ahInstance Auth
@@ -18,7 +20,8 @@ type Auth interface {
 }
 
 type AuthImpl struct {
-	Request api.Request
+	request      api.Request
+	tokenService service.TokenService
 }
 
 func GetAuthInstance() Auth {
@@ -30,15 +33,16 @@ func GetAuthInstance() Auth {
 
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
-	log.Logger.Info("Inject `Request`to `Auth`")
+	log.Logger.Info("Inject `Request`, `TokenService` to `Auth`")
 	return AuthImpl{
-		Request: api.GetRequestInstance(),
+		request:      api.GetRequestInstance(),
+		tokenService: service.GetTokenServiceInstance(),
 	}
 }
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, _, err := ah.Request.Intercept(w, r, "")
+	_, _, err := ah.request.Intercept(w, r, property.AuthUser)
 	if err != nil {
 		return
 	}
