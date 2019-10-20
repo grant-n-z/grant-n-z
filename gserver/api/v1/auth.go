@@ -42,11 +42,6 @@ func NewAuth() Auth {
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, _, err := ah.request.Intercept(w, r, property.AuthUser)
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		ah.get(w, r)
@@ -57,7 +52,15 @@ func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
-	res, _ := json.Marshal(map[string]bool{"grant": true})
+	var result bool
+	_, _, err := ah.request.Intercept(w, r, property.AuthUser)
+	if err != nil {
+		result = false
+	} else {
+		result = true
+	}
+
+	res, _ := json.Marshal(map[string]bool{"grant": result})
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
