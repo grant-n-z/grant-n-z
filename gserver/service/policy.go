@@ -103,7 +103,7 @@ func (ps policyServiceImpl) EncryptData(payload string) (*string, error) {
 	if PrivateKey == nil {
 		generatedPri, err := rsa.GenerateKey(rand.Reader, BitSize)
 		if err != nil {
-			log.Logger.Error("Error generate private key", err.Error())
+			log.Logger.Error("Error generateSignedInToken private key", err.Error())
 			return nil, err
 		}
 		PrivateKey = generatedPri
