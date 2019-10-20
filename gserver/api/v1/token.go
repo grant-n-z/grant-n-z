@@ -14,8 +14,10 @@ import (
 var thInstance Token
 
 type Token interface {
+	// Implement token api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request, body []byte)
 }
 

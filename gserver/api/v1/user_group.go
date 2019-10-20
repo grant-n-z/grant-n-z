@@ -14,8 +14,10 @@ import (
 var ughInstance UserGroup
 
 type UserGroup interface {
+	// Implement user group api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request, body []byte)
 }
 

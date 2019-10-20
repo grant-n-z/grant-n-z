@@ -16,14 +16,19 @@ import (
 var uhInstance User
 
 type User interface {
+	// Implement user api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http GET method
 	get(w http.ResponseWriter, r *http.Request)
 
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request)
 
+	// Http PUT method
 	put(w http.ResponseWriter, r *http.Request)
 
+	// Http DELETE method
 	delete(w http.ResponseWriter, r *http.Request)
 }
 

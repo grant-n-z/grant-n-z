@@ -14,12 +14,16 @@ import (
 var ghInstance Group
 
 type Group interface {
+	// Implement group api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http GET method
 	get(w http.ResponseWriter, r *http.Request)
 
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request, body []byte)
 
+	// Http DELETE method
 	delete(w http.ResponseWriter, r *http.Request)
 }
 

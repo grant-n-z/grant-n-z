@@ -15,8 +15,10 @@ import (
 var sghInstance ServiceGroup
 
 type ServiceGroup interface {
+	// Implement service group api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request, body []byte)
 }
 

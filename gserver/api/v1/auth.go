@@ -14,8 +14,10 @@ import (
 var ahInstance Auth
 
 type Auth interface {
+	// Implement auth api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http GET method
 	get(w http.ResponseWriter, r *http.Request)
 }
 

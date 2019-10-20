@@ -15,14 +15,19 @@ import (
 var rlhInstance Role
 
 type Role interface {
+	// Implement role api
 	Api(w http.ResponseWriter, r *http.Request)
 
+	// Http GET method
 	get(w http.ResponseWriter, r *http.Request)
 
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request, body []byte)
 
+	// Http PUT method
 	put(w http.ResponseWriter, r *http.Request)
 
+	// Http DELETE method
 	delete(w http.ResponseWriter, r *http.Request)
 }
 
