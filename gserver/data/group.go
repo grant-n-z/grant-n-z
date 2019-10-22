@@ -97,13 +97,13 @@ func (gr GroupRepositoryImpl) SaveWithUserGroupWithServiceGroup(group entity.Gro
 		return nil, model.InternalServerError()
 	}
 
-	// Save user_services
-	userService := entity.UserService{
+	// Save user_groups
+	userGroup := entity.UserGroup{
 		UserId: ctx.GetUserId().(int),
-		ServiceId: ctx.GetServiceId().(int),
+		GroupId: group.Id,
 	}
-	if err := tx.Create(&userService).Error; err != nil {
-		log.Logger.Warn("Failed to save user_services at transaction process", err.Error())
+	if err := tx.Create(&userGroup).Error; err != nil {
+		log.Logger.Warn("Failed to save user_groups at transaction process", err.Error())
 		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit service data.")

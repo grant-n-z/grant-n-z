@@ -1,6 +1,8 @@
 package service
 
 import (
+	"github.com/satori/go.uuid"
+
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -55,5 +57,6 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 }
 
 func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody) {
+	group.Uuid, _ = uuid.NewV4()
 	return gs.groupRepository.SaveWithUserGroupWithServiceGroup(*group)
 }

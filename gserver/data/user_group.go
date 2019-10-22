@@ -2,8 +2,6 @@ package data
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -14,9 +12,8 @@ import (
 var ugrInstance UserGroupRepository
 
 type UserGroupRepository interface {
+	// Get all groups that has user
 	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
-
-	FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody)
 }
 
 type UserGroupRepositoryImpl struct {
@@ -44,7 +41,7 @@ func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Gro
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.GroupTable.String(),
 			entity.UserGroupTable.String(),
-			entity.UserGroupUserId,
+			entity.UserGroupGroupId,
 			entity.GroupTable.String(),
 			entity.GroupId)).
 		Where(fmt.Sprintf("%s.%s = ?",
@@ -57,23 +54,4 @@ func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Gro
 	}
 
 	return groups, nil
-}
-
-func (ugr UserGroupRepositoryImpl) FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody) {
-	return nil, nil
-}
-
-func (ugr UserGroupRepositoryImpl) Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
-	if err := ugr.Db.Create(&userGroup).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit data.")
-		} else if strings.Contains(err.Error(), "1452") {
-			return nil, model.BadRequest("Not register relational id.")
-		}
-
-		return nil, model.InternalServerError()
-	}
-
-	return &userGroup, nil
 }

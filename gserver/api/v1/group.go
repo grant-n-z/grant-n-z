@@ -80,14 +80,14 @@ func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
-	var groupEntity *entity.Group
+	var request *entity.Group
 
-	json.Unmarshal(body, &groupEntity)
-	if err := gh.request.ValidateBody(w, groupEntity); err != nil {
+	json.Unmarshal(body, &request)
+	if err := gh.request.ValidateBody(w, request); err != nil {
 		return
 	}
 
-	group, err := gh.groupService.InsertGroup(groupEntity)
+	group, err := gh.groupService.InsertGroup(request)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
