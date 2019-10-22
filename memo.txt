@@ -1,9 +1,0 @@
-user_token
-- xxサービスにユーザーがある認可
--- userデータを持つこと
--- serviceデータを持つこと
-
-- xxサービスのxxグループでxx権限がある認可
--- groupのadminユーザは、policyを登録することができる（admin only）
--- 認証認可時は、policyの情報を満たすこと
-
