@@ -35,7 +35,7 @@ func GetTokenInstance() Token {
 
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
-	log.Logger.Info("Inject `Request`, `TokenService` to `Token`")
+	log.Logger.Info("Inject `request`, `TokenService` to `Token`")
 	return TokenImpl{
 		Request:      api.GetRequestInstance(),
 		TokenService: service.GetTokenServiceInstance(),
@@ -44,7 +44,7 @@ func NewToken() Token {
 
 func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := th.Request.Intercept(w, r, "")
+	body, err := th.Request.Intercept(w, r, "")
 	if err != nil {
 		return
 	}
@@ -54,7 +54,7 @@ func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
 		th.post(w, r, body)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -69,7 +69,7 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 
 	token, err := th.TokenService.Generate(r.URL.Query().Get("type"), *userEntity)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 

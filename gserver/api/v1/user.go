@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/satori/go.uuid"
+
 	"github.com/tomoyane/grant-n-z/gserver/api"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
@@ -47,7 +49,7 @@ func GetUserInstance() User {
 
 func NewUser() User {
 	log.Logger.Info("New `User` instance")
-	log.Logger.Info("Inject `Request`, `UserGroup`, `Service` to `User`")
+	log.Logger.Info("Inject `request`, `UserGroup`, `Service` to `User`")
 	return UserImpl{
 		Request:     api.GetRequestInstance(),
 		UserService: service.GetUserServiceInstance(),
@@ -68,7 +70,7 @@ func (uh UserImpl) Api(w http.ResponseWriter, r *http.Request) {
 		uh.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -78,7 +80,7 @@ func (uh UserImpl) get(w http.ResponseWriter, r *http.Request) {
 func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 	var userEntity *entity.User
 
-	body, _, err := uh.Request.Intercept(w, r, "")
+	body, err := uh.Request.Intercept(w, r, "")
 	if err != nil {
 		return
 	}
@@ -105,7 +107,7 @@ func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if errorResponse != nil {
-		model.Error(w, errorResponse.ToJson(), errorResponse.Code)
+		model.WriteError(w, errorResponse.ToJson(), errorResponse.Code)
 		return
 	}
 
@@ -117,7 +119,7 @@ func (uh UserImpl) post(w http.ResponseWriter, r *http.Request) {
 func (uh UserImpl) put(w http.ResponseWriter, r *http.Request) {
 	var userEntity *entity.User
 
-	body, authUser, err := uh.Request.Intercept(w, r, property.AuthUser)
+	body, err := uh.Request.Intercept(w, r, property.AuthUser)
 	if err != nil {
 		return
 	}
@@ -127,16 +129,16 @@ func (uh UserImpl) put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userEntity.Id = authUser.UserId
-	userEntity.Uuid = authUser.UserUuid
+	userEntity.Id = ctx.GetUserId().(int)
+	userEntity.Uuid = ctx.GetUserUuid().(uuid.UUID)
 	if _, err := uh.UserService.UpdateUser(userEntity); err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
 	res, _ := json.Marshal(map[string]string{"message": "User update succeeded."})
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
 func (uh UserImpl) delete(w http.ResponseWriter, r *http.Request) {

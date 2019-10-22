@@ -45,7 +45,7 @@ func GetServiceInstance() Service {
 
 func NewService() Service {
 	log.Logger.Info("New `Service` instance")
-	log.Logger.Info("Inject `Request`, `Service` to `Service`")
+	log.Logger.Info("Inject `request`, `Service` to `Service`")
 	return ServiceImpl{
 		Request: api.GetRequestInstance(),
 		Service: service.GetServiceInstance(),
@@ -54,7 +54,7 @@ func NewService() Service {
 
 func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := sh.Request.Intercept(w, r, property.AuthOperator)
+	body, err := sh.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -70,7 +70,7 @@ func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 		sh.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -79,7 +79,7 @@ func (sh ServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 
 	result, err := sh.Service.Get(name)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (sh ServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) 
 
 	service, err := sh.Service.InsertService(serviceEntity)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 

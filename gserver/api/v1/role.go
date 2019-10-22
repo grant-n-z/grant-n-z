@@ -45,7 +45,7 @@ func GetRoleInstance() Role {
 
 func NewRole() Role {
 	log.Logger.Info("New `Role` instance")
-	log.Logger.Info("Inject `Request`, `RoleService` to `Role`")
+	log.Logger.Info("Inject `request`, `RoleService` to `Role`")
 	return RoleImpl{
 		Request:     api.GetRequestInstance(),
 		RoleService: service.GetRoleServiceInstance(),
@@ -54,7 +54,7 @@ func NewRole() Role {
 
 func (rh RoleImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := rh.Request.Intercept(w, r, property.AuthOperator)
+	body, err := rh.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -70,14 +70,14 @@ func (rh RoleImpl) Api(w http.ResponseWriter, r *http.Request) {
 		rh.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
 func (rh RoleImpl) get(w http.ResponseWriter, r *http.Request) {
 	roleEntities, err := rh.RoleService.GetRoles()
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (rh RoleImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 
 	role, err := rh.RoleService.InsertRole(roleEntity)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 

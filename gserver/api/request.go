@@ -19,7 +19,8 @@ var rhInstance Request
 
 type Request interface {
 	// Http interceptor
-	Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.AuthUser, *model.ErrorResBody)
+	// Set request scope
+	Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.ErrorResBody)
 
 	// Validate http request
 	ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody
@@ -32,9 +33,9 @@ type Request interface {
 }
 
 type RequestImpl struct {
-	tokenService          service.TokenService
-	userService           service.UserService
-	redisClient           cache.RedisClient
+	tokenService service.TokenService
+	userService  service.UserService
+	redisClient  cache.RedisClient
 }
 
 func GetRequestInstance() Request {
@@ -45,51 +46,57 @@ func GetRequestInstance() Request {
 }
 
 func NewRequest() Request {
-	log.Logger.Info("New `Request` instance")
-	log.Logger.Info("Inject `AuthService` to `Request`")
+	log.Logger.Info("New `request` instance")
+	log.Logger.Info("Inject `AuthService` to `request`")
 	return RequestImpl{
-		tokenService:          service.GetTokenServiceInstance(),
-		userService:           service.GetUserServiceInstance(),
-		redisClient:           cache.GetRedisClientInstance(),
+		tokenService: service.GetTokenServiceInstance(),
+		userService:  service.GetUserServiceInstance(),
+		redisClient:  cache.GetRedisClientInstance(),
 	}
 }
 
-func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.AuthUser, *model.ErrorResBody) {
+func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.ErrorResBody) {
 	var authUser *model.AuthUser
 	var err *model.ErrorResBody
 	if !strings.EqualFold(authType, "") {
 		token := r.Header.Get("Authorization")
-		ctx.SetToken(token)
-		authUser, err = rh.tokenService.VerifyToken(w, r, authType)
+		authUser, err = rh.tokenService.VerifyToken(w, r, authType, token)
 		if err != nil {
-			model.Error(w, err.ToJson(), err.Code)
-			return nil, nil, err
+			model.WriteError(w, err.ToJson(), err.Code)
+			return nil, err
 		}
+
+		// Set user id request scope
+		ctx.SetUserId(authUser.UserId)
+		// Set user uuid request scope
+		ctx.SetUserUuid(authUser.UserUuid.String())
+		// Set service id request scope
+		ctx.SetUserId(authUser.ServiceId)
 	}
 
 	if err := rh.validateHeader(r); err != nil {
-		model.Error(w, err.ToJson(), err.Code)
-		return nil, nil, err
+		model.WriteError(w, err.ToJson(), err.Code)
+		return nil, err
 	}
 
-	apiKey := r.Header.Get("Api-Key")
-	ctx.SetApiKey(apiKey)
+	// Set api key request scope
+	ctx.SetApiKey(r.Header.Get("Api-Key"))
 
 	bodyBytes, err := rh.bindBody(r)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
-		return nil, nil, err
+		model.WriteError(w, err.ToJson(), err.Code)
+		return nil, err
 	}
 
-	return bodyBytes, authUser, nil
+	return bodyBytes, nil
 }
 
 func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
 	err := validator.New().Struct(i)
 	if err != nil {
-		log.Logger.Info("Request is invalid")
+		log.Logger.Info("request is invalid")
 		errModel := model.BadRequest("Failed to request validation.")
-		model.Error(w, errModel.ToJson(), errModel.Code)
+		model.WriteError(w, errModel.ToJson(), errModel.Code)
 		return errModel
 	}
 	return nil
@@ -108,7 +115,7 @@ func (rh RequestImpl) bindBody(r *http.Request) ([]byte, *model.ErrorResBody) {
 	defer r.Body.Close()
 	if err != nil {
 		log.Logger.Info(err.Error())
-		return nil, model.InternalServerError("Error request body bind")
+		return nil, model.InternalServerError("WriteError request body bind")
 	}
 
 	return body, nil

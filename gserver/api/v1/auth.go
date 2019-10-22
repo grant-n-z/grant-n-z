@@ -35,7 +35,7 @@ func GetAuthInstance() Auth {
 
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
-	log.Logger.Info("Inject `Request`, `TokenService` to `Auth`")
+	log.Logger.Info("Inject `request`, `TokenService` to `Auth`")
 	return AuthImpl{
 		request:      api.GetRequestInstance(),
 		tokenService: service.GetTokenServiceInstance(),
@@ -49,13 +49,13 @@ func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ah.get(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
 func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	var result bool
-	_, _, err := ah.request.Intercept(w, r, property.AuthUser)
+	_, err := ah.request.Intercept(w, r, property.AuthUser)
 	if err != nil {
 		result = false
 	} else {

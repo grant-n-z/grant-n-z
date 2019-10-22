@@ -45,7 +45,7 @@ func GetPolicyInstance() Policy {
 
 func NewPolicy() Policy {
 	log.Logger.Info("New `Policy` instance")
-	log.Logger.Info("Inject `Request`, `PolicyService` to `Policy`")
+	log.Logger.Info("Inject `request`, `PolicyService` to `Policy`")
 	return PolicyImpl{
 		Request:       api.GetRequestInstance(),
 		PolicyService: service.GetPolicyServiceInstance(),
@@ -54,7 +54,7 @@ func NewPolicy() Policy {
 
 func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := ph.Request.Intercept(w, r, property.AuthOperator)
+	body, err := ph.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -70,7 +70,7 @@ func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ph.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -79,7 +79,7 @@ func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 
 	roleMemberEntities, err := ph.PolicyService.Get(id)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (ph PolicyImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 
 	policy, err := ph.PolicyService.InsertPolicy(policyEntity)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 

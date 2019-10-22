@@ -45,7 +45,7 @@ func GetPermissionInstance() Permission {
 
 func NewPermission() Permission {
 	log.Logger.Info("New `Permission` instance")
-	log.Logger.Info("Inject `Request`, `PermissionService` to `Permission`")
+	log.Logger.Info("Inject `request`, `PermissionService` to `Permission`")
 	return PermissionImpl{
 		Request:           api.GetRequestInstance(),
 		PermissionService: service.GetPermissionServiceInstance(),
@@ -54,7 +54,7 @@ func NewPermission() Permission {
 
 func (ph PermissionImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := ph.Request.Intercept(w, r, property.AuthOperator)
+	body, err := ph.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -70,14 +70,14 @@ func (ph PermissionImpl) Api(w http.ResponseWriter, r *http.Request) {
 		ph.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
 func (ph PermissionImpl) get(w http.ResponseWriter, r *http.Request) {
 	permissionEntities, err := ph.PermissionService.GetPermissions()
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (ph PermissionImpl) post(w http.ResponseWriter, r *http.Request, body []byt
 
 	permission, err := ph.PermissionService.InsertPermission(permissionEntity)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 

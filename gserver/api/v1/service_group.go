@@ -18,8 +18,8 @@ type ServiceGroup interface {
 	// Implement service group api
 	Api(w http.ResponseWriter, r *http.Request)
 
-	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
+	// Http GET method
+	get(w http.ResponseWriter, r *http.Request)
 }
 
 type ServiceGroupImpl struct {
@@ -36,7 +36,7 @@ func GetServiceGroupInstance() ServiceGroup {
 
 func NewServiceGroup() ServiceGroup {
 	log.Logger.Info("New `ServiceGroup` instance")
-	log.Logger.Info("Inject `Request`, `ServiceGroupService` to `ServiceGroup`")
+	log.Logger.Info("Inject `request`, `ServiceGroupService` to `ServiceGroup`")
 	return ServiceGroupImpl{
 		Request:             api.GetRequestInstance(),
 		ServiceGroupService: service.GetServiceGroupServiceInstance(),
@@ -45,34 +45,22 @@ func NewServiceGroup() ServiceGroup {
 
 func (sgh ServiceGroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := sgh.Request.Intercept(w, r, property.AuthOperator)
+	_, err := sgh.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
 
 	switch r.Method {
-	case http.MethodPost:
-		sgh.post(w, r, body)
+	case http.MethodGet:
+		sgh.get(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
-func (sgh ServiceGroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
-	var serviceGroupEntity *entity.ServiceGroup
-
-	json.Unmarshal(body, &serviceGroupEntity)
-	if err := sgh.Request.ValidateBody(w, serviceGroupEntity); err != nil {
-		return
-	}
-
-	serviceGroup, err := sgh.ServiceGroupService.InsertServiceGroup(serviceGroupEntity)
-	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
-		return
-	}
-
+func (sgh ServiceGroupImpl) get(w http.ResponseWriter, r *http.Request) {
+	var serviceGroup *entity.ServiceGroup
 	res, _ := json.Marshal(serviceGroup)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)

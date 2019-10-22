@@ -45,7 +45,7 @@ func GetOperatorPolicyInstance() OperatorPolicy {
 
 func NewOperatorPolicy() OperatorPolicy {
 	log.Logger.Info("New `OperatorPolicy` instance")
-	log.Logger.Info("Inject `Request`, `operatorMemberRoleService` to `OperatorPolicy`")
+	log.Logger.Info("Inject `request`, `operatorMemberRoleService` to `OperatorPolicy`")
 	return OperatorPolicyImpl{
 		Request:               api.GetRequestInstance(),
 		OperatorPolicyService: service.NewOperatorPolicyServiceService(),
@@ -54,7 +54,7 @@ func NewOperatorPolicy() OperatorPolicy {
 
 func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, _, err := rmrhi.Request.Intercept(w, r, property.AuthOperator)
+	body, err := rmrhi.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
@@ -70,7 +70,7 @@ func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 		rmrhi.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
@@ -79,7 +79,7 @@ func (rmrhi OperatorPolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 
 	roleMemberEntities, err := rmrhi.OperatorPolicyService.Get(id)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request, bod
 
 	roleMember, err := rmrhi.OperatorPolicyService.Insert(roleMemberEntity)
 	if err != nil {
-		model.Error(w, err.ToJson(), err.Code)
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
