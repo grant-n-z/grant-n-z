@@ -71,7 +71,7 @@ func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType
 		// Set user uuid request scope
 		ctx.SetUserUuid(authUser.UserUuid.String())
 		// Set service id request scope
-		ctx.SetUserId(authUser.ServiceId)
+		ctx.SetServiceId(authUser.ServiceId)
 	}
 
 	if err := rh.validateHeader(r); err != nil {
