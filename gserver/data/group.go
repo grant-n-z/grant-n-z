@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
+
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -12,11 +14,14 @@ import (
 var grInstance GroupRepository
 
 type GroupRepository interface {
+	// Get groups all data
 	FindAll() ([]*entity.Group, *model.ErrorResBody)
 
+	// Get group from groups.name
 	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
-	Save(group entity.Group) (*entity.Group, *model.ErrorResBody)
+	// Generate groups, user_groups, service_groups
+	SaveWithUserGroupWithServiceGroup(group entity.Group) (*entity.Group, *model.ErrorResBody)
 }
 
 type GroupRepositoryImpl struct {
@@ -63,17 +68,51 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) Save(group entity.Group) (*entity.Group, *model.ErrorResBody) {
-	if err := gr.Db.Create(&group).Error; err != nil {
-		log.Logger.Warn(err.Error())
+func (gr GroupRepositoryImpl) SaveWithUserGroupWithServiceGroup(group entity.Group) (*entity.Group, *model.ErrorResBody) {
+	tx := gr.Db.Begin()
+
+	// Save groups
+	if err := tx.Create(&group).Error; err != nil {
+		log.Logger.Warn("Failed to save groups at transaction process", err.Error())
+		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit data.")
-		} else if strings.Contains(err.Error(), "1452") {
-			return nil, model.BadRequest("Not register relational id.")
+			return nil, model.Conflict("Already exit user data.")
 		}
 
 		return nil, model.InternalServerError()
 	}
+
+	// Save service_groups
+	serviceGroup := entity.ServiceGroup{
+		GroupId: group.Id,
+		ServiceId: ctx.GetServiceId().(int),
+	}
+	if err := tx.Create(&serviceGroup).Error; err != nil {
+		log.Logger.Warn("Failed to save service_groups at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	// Save user_services
+	userService := entity.UserService{
+		UserId: ctx.GetUserId().(int),
+		ServiceId: ctx.GetServiceId().(int),
+	}
+	if err := tx.Create(&userService).Error; err != nil {
+		log.Logger.Warn("Failed to save user_services at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	tx.Commit()
 
 	return &group, nil
 }

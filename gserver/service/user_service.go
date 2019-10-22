@@ -21,8 +21,6 @@ type UserServiceService interface {
 	GetUserServicesByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody)
 
 	GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
-
-	InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResBody)
 }
 
 type userServiceServiceImpl struct {
@@ -85,18 +83,4 @@ func (uss userServiceServiceImpl) GetUserServicesByUserId(userId int) ([]*entity
 
 func (uss userServiceServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
 	return uss.userServiceRepository.FindByUserIdAndServiceId(userId, serviceId)
-}
-
-func (uss userServiceServiceImpl) InsertUserService(userService *entity.UserService) (*entity.UserService, *model.ErrorResBody) {
-	if userEntity, _ := uss.userRepository.FindById(userService.UserId); userEntity == nil {
-		log.Logger.Warn("Not found user id")
-		return nil, model.BadRequest("Not found user id")
-	}
-
-	if serviceEntity, _ := uss.serviceRepository.FindById(userService.ServiceId); serviceEntity == nil {
-		log.Logger.Warn("Not found service id")
-		return nil, model.BadRequest("Not found service id")
-	}
-
-	return uss.userServiceRepository.Save(*userService)
 }

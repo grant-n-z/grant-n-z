@@ -13,7 +13,6 @@ type Router struct {
 	Token          v1.Token
 	Group          v1.Group
 	User           v1.User
-	UserGroup      v1.UserGroup
 	Service        v1.Service
 	ServiceGroup   v1.ServiceGroup
 	Role           v1.Role
@@ -29,7 +28,6 @@ func NewRouter() Router {
 		Token:          v1.GetTokenInstance(),
 		Group:          v1.GetGroupInstance(),
 		User:           v1.GetUserInstance(),
-		UserGroup:      v1.GetUserGroupInstance(),
 		Service:        v1.GetServiceInstance(),
 		ServiceGroup:   v1.GetServiceGroupInstance(),
 		Role:           v1.GetRoleInstance(),
@@ -57,7 +55,6 @@ func (r Router) V1() {
 
 	http.HandleFunc("/api/v1/users", r.User.Api)
 	http.HandleFunc("/api/v1/user_services", r.UserService.Api)
-	http.HandleFunc("/api/v1/user_groups", r.UserGroup.Api)
 
 	http.HandleFunc("/api/v1/services", r.Service.Api)
 	http.HandleFunc("/api/v1/service_groups", r.ServiceGroup.Api)

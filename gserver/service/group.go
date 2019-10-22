@@ -1,8 +1,7 @@
 package service
 
 import (
-	"strings"
-
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -13,17 +12,19 @@ import (
 var gsInstance GroupService
 
 type GroupService interface {
-	Get(queryParam string) (interface{}, *model.ErrorResBody)
-
+	// Get all groups
 	GetGroups() ([]*entity.Group, *model.ErrorResBody)
 
-	GetGroupByName(name string) (*entity.Group, *model.ErrorResBody)
+	// Get group that has the user
+	GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody)
 
+	// Insert group
 	InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody)
 }
 
 type GroupServiceImpl struct {
-	groupRepository data.GroupRepository
+	groupRepository     data.GroupRepository
+	userGroupRepository data.UserGroupRepository
 }
 
 func GetGroupServiceInstance() GroupService {
@@ -35,35 +36,24 @@ func GetGroupServiceInstance() GroupService {
 
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
-	log.Logger.Info("Inject `GroupRepository` to `GroupService`")
-	return GroupServiceImpl{groupRepository: data.GetGroupRepositoryInstance(driver.Db)}
-}
-
-func (gs GroupServiceImpl) Get(queryParam string) (interface{}, *model.ErrorResBody) {
-	if strings.EqualFold(queryParam, "") {
-		return gs.GetGroups()
+	log.Logger.Info("Inject `GroupRepository`, `UserGroupRepository` to `GroupService`")
+	return GroupServiceImpl{
+		groupRepository:     data.GetGroupRepositoryInstance(driver.Db),
+		userGroupRepository: data.GetUserGroupRepositoryInstance(driver.Db),
 	}
-
-	groupEntities, err := gs.GetGroupByName(queryParam)
-	if err != nil {
-		return nil, err
-	}
-
-	if groupEntities == nil {
-		return []*entity.Group{}, nil
-	}
-
-	return groupEntities, nil
 }
 
 func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
 	return gs.groupRepository.FindAll()
 }
 
-func (gs GroupServiceImpl) GetGroupByName(name string) (*entity.Group, *model.ErrorResBody) {
-	return gs.groupRepository.FindByName(name)
+func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
+	if ctx.GetUserId().(int) == 0 {
+		return nil, model.BadRequest("Required user id")
+	}
+	return gs.userGroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
 }
 
 func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody) {
-	return gs.groupRepository.Save(*group)
+	return gs.groupRepository.SaveWithUserGroupWithServiceGroup(*group)
 }

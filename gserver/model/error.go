@@ -18,8 +18,8 @@ func (er ErrorResBody) ToJson() string {
 	return string(jsonBytes)
 }
 
-// Error response
-func Error(w http.ResponseWriter, error string, code int) {
+// WriteError response
+func WriteError(w http.ResponseWriter, error string, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write([]byte(error))
@@ -121,6 +121,6 @@ func InternalServerError(err ...string) *ErrorResBody {
 	return &ErrorResBody{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal server error.",
-		Detail:  "Error internal processing.",
+		Detail:  "WriteError internal processing.",
 	}
 }

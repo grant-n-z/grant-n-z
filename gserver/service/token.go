@@ -27,7 +27,7 @@ type TokenService interface {
 	ParseToken(token string) (map[string]string, bool)
 
 	// Verify request token
-	VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyToken(w http.ResponseWriter, r *http.Request, authType string, token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Generate signed in token
 	generateSignedInToken(user *entity.User, roleId int, serviceId int) *string
@@ -91,7 +91,7 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	})
 
 	if err != nil || !parseToken.Valid {
-		log.Logger.Error("Error parse token validation", err.Error())
+		log.Logger.Error("WriteError parse token validation", err.Error())
 		return resultMap, false
 	}
 
@@ -126,13 +126,13 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	return resultMap, true
 }
 
-func (tsi tokenServiceImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string, token string) (*model.AuthUser, *model.ErrorResBody) {
 	var authUser *model.AuthUser
 	var err *model.ErrorResBody
 	if strings.EqualFold(authType, property.AuthOperator) {
-		authUser, err = tsi.verifyOperatorToken(ctx.GetToken().(string))
+		authUser, err = tsi.verifyOperatorToken(token)
 	} else {
-		authUser, err = tsi.verifyUserToken(ctx.GetToken().(string))
+		authUser, err = tsi.verifyUserToken(token)
 	}
 	if err != nil {
 		return nil, err
@@ -205,7 +205,7 @@ func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int,
 
 	signedToken, err := token.SignedString([]byte(tsi.appConfig.PrivateKeyBase64))
 	if err != nil {
-		log.Logger.Error("Error signed token", err.Error())
+		log.Logger.Error("WriteError signed token", err.Error())
 		return nil
 	}
 

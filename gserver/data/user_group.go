@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -16,8 +17,6 @@ type UserGroupRepository interface {
 	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
 
 	FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody)
-
-	Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
 }
 
 type UserGroupRepositoryImpl struct {
@@ -38,7 +37,26 @@ func NewUserGroupRepository(db *gorm.DB) UserGroupRepository {
 }
 
 func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
-	return nil, nil
+	var groups []*entity.Group
+
+	if err := ugr.Db.Table(entity.UserGroupTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.GroupTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId,
+			entity.GroupTable.String(),
+			entity.GroupId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId), userId).
+		Scan(&groups).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError()
+	}
+
+	return groups, nil
 }
 
 func (ugr UserGroupRepositoryImpl) FindUsersByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody) {
