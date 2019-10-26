@@ -5,9 +5,9 @@ import (
 
 	"github.com/jinzhu/gorm"
 
+	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
-	"github.com/tomoyane/grant-n-z/gserver/entity"
 )
 
 var prInstance PermissionRepository
@@ -16,6 +16,8 @@ type PermissionRepository interface {
 	FindAll() ([]*entity.Permission, *model.ErrorResBody)
 
 	FindById(id int) (*entity.Permission, *model.ErrorResBody)
+
+	FindByName(name string) (*entity.Permission, *model.ErrorResBody)
 
 	Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }
@@ -55,6 +57,19 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.Erro
 func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResBody) {
 	var permissions entity.Permission
 	if err := pri.Db.Where("id = ?", id).Find(&permissions).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return &permissions, nil
+}
+
+func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission, *model.ErrorResBody) {
+	var permissions entity.Permission
+	if err := pri.Db.Where("name = ?", name).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

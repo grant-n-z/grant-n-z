@@ -14,16 +14,18 @@ const (
 )
 
 type Migration struct {
-	UserService           service.UserService
-	RoleService           service.RoleService
-	OperatorPolicyService service.OperatorPolicyService
+	userService           service.UserService
+	roleService           service.RoleService
+	operatorPolicyService service.OperatorPolicyService
+	permissionService     service.PermissionService
 }
 
 func NewMigration() Migration {
 	return Migration{
-		UserService:           service.GetUserServiceInstance(),
-		RoleService:           service.GetRoleServiceInstance(),
-		OperatorPolicyService: service.GetOperatorPolicyServiceInstance(),
+		userService:           service.GetUserServiceInstance(),
+		roleService:           service.GetRoleServiceInstance(),
+		operatorPolicyService: service.GetOperatorPolicyServiceInstance(),
+		permissionService:     service.GetPermissionServiceInstance(),
 	}
 }
 
@@ -39,7 +41,7 @@ func (m Migration) V1() {
 		Email:    "operator@gmail.com",
 		Password: "grant_n_z_operator",
 	}
-	_, userErr := m.UserService.InsertUser(&operatorUser)
+	_, userErr := m.userService.InsertUser(&operatorUser)
 	if userErr != nil {
 		if userErr.Code != http.StatusConflict {
 			log.Logger.Fatal("Failed to generate user for migration")
@@ -52,9 +54,9 @@ func (m Migration) V1() {
 		Id:   1,
 		Name: Operator,
 	}
-	_, roleErr1 := m.RoleService.InsertRole(&operatorRole)
+	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
-		if userErr.Code != http.StatusConflict {
+		if roleErr1.Code != http.StatusConflict {
 			log.Logger.Fatal("Failed to generate operator role for migration")
 		}
 	}
@@ -64,23 +66,35 @@ func (m Migration) V1() {
 		Id:   2,
 		Name: Admin,
 	}
-	_, roleErr2 := m.RoleService.InsertRole(&adminRole)
+	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
-		if userErr.Code != http.StatusConflict {
+		if roleErr2.Code != http.StatusConflict {
 			log.Logger.Fatal("Failed to generate admin role for migration")
 		}
 	}
 	log.Logger.Info("Generate to role for migration")
 
+	// Generate admin permission
+	adminPermission := entity.Permission{
+		Id:   1,
+		Name: Admin,
+	}
+	_, permissionErr := m.permissionService.InsertPermission(&adminPermission)
+	if permissionErr != nil {
+		if permissionErr.Code != http.StatusConflict {
+			log.Logger.Fatal("Failed to generate admin permission for migration")
+		}
+	}
+	log.Logger.Info("Generate to role for migration")
+
 	// Generate operator operator_member_role
-	// TODO: Get role id
 	operatorMemberRole := entity.OperatorPolicy{
 		UserId: 1,
 		RoleId: 1,
 	}
-	_, operatorRoleMemberErr := m.OperatorPolicyService.Insert(&operatorMemberRole)
+	_, operatorRoleMemberErr := m.operatorPolicyService.Insert(&operatorMemberRole)
 	if operatorRoleMemberErr != nil {
-		if userErr.Code != http.StatusConflict {
+		if operatorRoleMemberErr.Code != http.StatusConflict {
 			log.Logger.Fatal("Error generate operator policies for migration")
 		}
 	}
@@ -88,30 +102,36 @@ func (m Migration) V1() {
 }
 
 func (m Migration) checkMigrationData() bool {
-	operatorAdminUser, err := m.UserService.GetUserById(1)
+	operatorAdminUser, err := m.userService.GetUserById(1)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	operatorAdminRole, err := m.RoleService.GetRoleByName(Operator)
+	operatorAdminRole, err := m.roleService.GetRoleByName(Operator)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	adminRole, err := m.RoleService.GetRoleByName(Admin)
+	adminRole, err := m.roleService.GetRoleByName(Admin)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin role")
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
+	adminPermission, err := m.permissionService.GetPermissionByName(Admin)
+	if err != nil && err.Code != http.StatusNotFound {
+		log.Logger.Info("Not found admin permission")
+		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
+	}
+
 	var operatorPolicy []*entity.OperatorPolicy
-	operatorPolicy, err = m.OperatorPolicyService.GetByUserId(1)
+	operatorPolicy, err = m.operatorPolicyService.GetByUserId(1)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && len(operatorPolicy) != 0 {
+	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && adminPermission != nil&& len(operatorPolicy) != 0 {
 		log.Logger.Info("Skip to database migration")
 		return false
 	}

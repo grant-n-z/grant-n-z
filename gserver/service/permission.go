@@ -15,7 +15,9 @@ var psInstance PermissionService
 type PermissionService interface {
 	GetPermissions() ([]*entity.Permission, *model.ErrorResBody)
 
-	GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResBody)
+	GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody)
+
+	GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody)
 
 	InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }
@@ -48,8 +50,12 @@ func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.E
 	return permissions, err
 }
 
-func (ps permissionServiceImpl) GetPermissionByRoleId(id int) (*entity.Permission, *model.ErrorResBody) {
+func (ps permissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody) {
 	return ps.permissionRepository.FindById(id)
+}
+
+func (ps permissionServiceImpl) GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody) {
+	return ps.permissionRepository.FindByName(name)
 }
 
 func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {

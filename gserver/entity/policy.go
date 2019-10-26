@@ -10,19 +10,19 @@ const (
 	PolicyName
 	PolicyRoleId
 	PolicyPermissionId
-	PolicyServiceMemberRoleId
+	PolicyUserGroupId
 	PolicyCreatedAt
 	PolicyUpdatedAt
 )
 
 type Policy struct {
-	Id                  int       `json:"id"`
-	Name                string    `validate:"required"json:"name"`
-	RoleId              int       `validate:"required"json:"role_id"`
-	PermissionId        int       `validate:"required"json:"permission_id"`
-	ServiceMemberRoleId int       `validate:"required"json:"service_member_role_id"`
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
+	Id           int       `json:"id"`
+	Name         string    `validate:"required"json:"name"`
+	RoleId       int       `validate:"required"json:"role_id"`
+	PermissionId int       `validate:"required"json:"permission_id"`
+	UserGroupId  int       `validate:"required"json:"user_group_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type PolicyTableConfig int
@@ -39,8 +39,8 @@ func (pc PolicyTableConfig) String() string {
 		return "role_id"
 	case PolicyPermissionId:
 		return "permission_id"
-	case PolicyServiceMemberRoleId:
-		return "service_member_role_id"
+	case PolicyUserGroupId:
+		return "user_group_id"
 	case PolicyCreatedAt:
 		return "created_at"
 	case PolicyUpdatedAt:
