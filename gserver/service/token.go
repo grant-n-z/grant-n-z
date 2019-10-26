@@ -91,7 +91,7 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	})
 
 	if err != nil || !parseToken.Valid {
-		log.Logger.Error("WriteError parse token validation", err.Error())
+		log.Logger.Error("Failed to parse token validation", err.Error())
 		return resultMap, false
 	}
 
@@ -205,7 +205,7 @@ func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int,
 
 	signedToken, err := token.SignedString([]byte(tsi.appConfig.PrivateKeyBase64))
 	if err != nil {
-		log.Logger.Error("WriteError signed token", err.Error())
+		log.Logger.Error("Failed to signed token", err.Error())
 		return nil
 	}
 

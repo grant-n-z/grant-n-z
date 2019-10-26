@@ -103,7 +103,7 @@ func (ps policyServiceImpl) EncryptData(payload string) (*string, error) {
 	if PrivateKey == nil {
 		generatedPri, err := rsa.GenerateKey(rand.Reader, BitSize)
 		if err != nil {
-			log.Logger.Error("WriteError generateSignedInToken private key", err.Error())
+			log.Logger.Error("Failed to generateSignedInToken private key", err.Error())
 			return nil, err
 		}
 		PrivateKey = generatedPri
@@ -116,7 +116,7 @@ func (ps policyServiceImpl) EncryptData(payload string) (*string, error) {
 
 	cipherJsonBytes, err := rsa.EncryptPKCS1v15(rand.Reader, PublicKey, []byte(payload))
 	if err != nil {
-		log.Logger.Error("WriteError encrypt PKCS1v15", err.Error())
+		log.Logger.Error("Failed to encrypt PKCS1v15", err.Error())
 		return nil, err
 	}
 
@@ -127,7 +127,7 @@ func (ps policyServiceImpl) EncryptData(payload string) (*string, error) {
 func (ps policyServiceImpl) DecryptData(data string) (*string, error) {
 	decryptedJsonBytes, err := rsa.DecryptPKCS1v15(rand.Reader, PrivateKey, []byte(data))
 	if err != nil {
-		log.Logger.Error("WriteError decrypt PKCS1v15", err.Error())
+		log.Logger.Error("Failed to decrypt PKCS1v15", err.Error())
 		return nil, err
 	}
 

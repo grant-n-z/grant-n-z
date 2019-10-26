@@ -17,6 +17,8 @@ type RoleService interface {
 
 	GetRoleById(id int) (*entity.Role, *model.ErrorResBody)
 
+	GetRoleByName(name string) (*entity.Role, *model.ErrorResBody)
+
 	InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody)
 }
 
@@ -47,6 +49,10 @@ func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
 
 func (rs roleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
 	return rs.roleRepository.FindById(id)
+}
+
+func (rs roleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.ErrorResBody) {
+	return rs.roleRepository.FindByName(name)
 }
 
 func (rs roleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {

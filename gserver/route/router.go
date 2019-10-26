@@ -48,16 +48,23 @@ func (r Router) Init() {
 }
 
 func (r Router) V1() {
+	// Verify token
 	http.HandleFunc("/api/v1/auth", r.Auth.Api)
+
+	// Generate user token, operator token
 	http.HandleFunc("/api/v1/token", r.Token.Api)
 
+	// Control group of user
 	http.HandleFunc("/api/v1/groups", r.Group.Api)
 
+	// Control create to user, update to user
 	http.HandleFunc("/api/v1/users", r.User.Api)
+
+	http.HandleFunc("/api/v1/service_groups", r.ServiceGroup.Api)
+
 	http.HandleFunc("/api/v1/user_services", r.UserService.Api)
 
 	http.HandleFunc("/api/v1/services", r.Service.Api)
-	http.HandleFunc("/api/v1/service_groups", r.ServiceGroup.Api)
 
 	http.HandleFunc("/api/v1/roles", r.Role.Api)
 	http.HandleFunc("/api/v1/permissions", r.Permission.Api)

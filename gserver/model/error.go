@@ -121,6 +121,6 @@ func InternalServerError(err ...string) *ErrorResBody {
 	return &ErrorResBody{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal server error.",
-		Detail:  "WriteError internal processing.",
+		Detail:  "Failed to internal processing.",
 	}
 }
