@@ -17,6 +17,8 @@ type RoleRepository interface {
 
 	FindById(id int) (*entity.Role, *model.ErrorResBody)
 
+	FindByName(name string) (*entity.Role, *model.ErrorResBody)
+
 	Save(role entity.Role) (*entity.Role, *model.ErrorResBody)
 }
 
@@ -55,6 +57,19 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
 func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBody) {
 	var role entity.Role
 	if err := rri.Db.Where("id = ?", id).Find(&role).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return &role, nil
+}
+
+func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.ErrorResBody) {
+	var role entity.Role
+	if err := rri.Db.Where("name = ?", name).Find(&role).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
