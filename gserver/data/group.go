@@ -92,7 +92,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 		log.Logger.Warn("Failed to save service_groups at transaction process", err.Error())
 		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit service data.")
+			return nil, model.Conflict("Already exit service_groups data.")
 		}
 
 		return nil, model.InternalServerError()
@@ -107,7 +107,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 		log.Logger.Warn("Failed to save user_groups at transaction process", err.Error())
 		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit service data.")
+			return nil, model.Conflict("Already exit user_groups data.")
 		}
 
 		return nil, model.InternalServerError()
@@ -124,7 +124,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 		log.Logger.Warn("Failed to save policies at transaction process", err.Error())
 		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit service data.")
+			return nil, model.Conflict("Already exit policies data.")
 		}
 
 		return nil, model.InternalServerError()
