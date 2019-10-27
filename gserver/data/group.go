@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -21,7 +22,7 @@ type GroupRepository interface {
 	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
 	// Generate groups, user_groups, service_groups
-	SaveWithUserGroupWithServiceGroup(group entity.Group) (*entity.Group, *model.ErrorResBody)
+	SaveWithRelationalData(group entity.Group, roleId int, permissionId int) (*entity.Group, *model.ErrorResBody)
 }
 
 type GroupRepositoryImpl struct {
@@ -68,7 +69,7 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) SaveWithUserGroupWithServiceGroup(group entity.Group) (*entity.Group, *model.ErrorResBody) {
+func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId int, permissionId int) (*entity.Group, *model.ErrorResBody) {
 	tx := gr.Db.Begin()
 
 	// Save groups
@@ -104,6 +105,23 @@ func (gr GroupRepositoryImpl) SaveWithUserGroupWithServiceGroup(group entity.Gro
 	}
 	if err := tx.Create(&userGroup).Error; err != nil {
 		log.Logger.Warn("Failed to save user_groups at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	// Save policies
+	policy := entity.Policy{
+		Name: property.AdminPolicy,
+		RoleId: roleId,
+		PermissionId: permissionId,
+		UserGroupId: userGroup.Id,
+	}
+	if err := tx.Create(&policy).Error; err != nil {
+		log.Logger.Warn("Failed to save policies at transaction process", err.Error())
 		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit service data.")

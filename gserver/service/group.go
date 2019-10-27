@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/satori/go.uuid"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -25,8 +26,10 @@ type GroupService interface {
 }
 
 type GroupServiceImpl struct {
-	groupRepository     data.GroupRepository
-	userGroupRepository data.UserGroupRepository
+	groupRepository      data.GroupRepository
+	userGroupRepository  data.UserGroupRepository
+	roleRepository       data.RoleRepository
+	permissionRepository data.PermissionRepository
 }
 
 func GetGroupServiceInstance() GroupService {
@@ -38,10 +41,12 @@ func GetGroupServiceInstance() GroupService {
 
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
-	log.Logger.Info("Inject `GroupRepository`, `UserGroupRepository` to `GroupService`")
+	log.Logger.Info("Inject `GroupRepository`, `UserGroupRepository`, `RoleRepository`, `PermissionRepository` to `GroupService`")
 	return GroupServiceImpl{
-		groupRepository:     data.GetGroupRepositoryInstance(driver.Db),
-		userGroupRepository: data.GetUserGroupRepositoryInstance(driver.Db),
+		groupRepository:      data.GetGroupRepositoryInstance(driver.Db),
+		userGroupRepository:  data.GetUserGroupRepositoryInstance(driver.Db),
+		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
 	}
 }
 
@@ -58,5 +63,17 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 
 func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid, _ = uuid.NewV4()
-	return gs.groupRepository.SaveWithUserGroupWithServiceGroup(*group)
+	role, err := gs.roleRepository.FindByName(property.Admin)
+	if err != nil {
+		log.Logger.Info("Failed to get role for insert groups process")
+		return nil, model.InternalServerError()
+	}
+
+	permission, err := gs.permissionRepository.FindByName(property.Admin)
+	if err != nil {
+		log.Logger.Info("Failed to get permission for insert groups process")
+		return nil, model.InternalServerError()
+	}
+
+	return gs.groupRepository.SaveWithRelationalData(*group, role.Id, permission.Id)
 }

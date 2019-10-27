@@ -3,14 +3,10 @@ package migration
 import (
 	"net/http"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/service"
-)
-
-const (
-	Operator = "operator"
-	Admin    = "admin"
 )
 
 type Migration struct {
@@ -37,7 +33,7 @@ func (m Migration) V1() {
 	// Generate operator user
 	operatorUser := entity.User{
 		Id:       1,
-		Username: Operator,
+		Username: property.Operator,
 		Email:    "operator@gmail.com",
 		Password: "grant_n_z_operator",
 	}
@@ -52,7 +48,7 @@ func (m Migration) V1() {
 	// Generate operator role
 	operatorRole := entity.Role{
 		Id:   1,
-		Name: Operator,
+		Name: property.Operator,
 	}
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
@@ -64,7 +60,7 @@ func (m Migration) V1() {
 	// Generate admin role
 	adminRole := entity.Role{
 		Id:   2,
-		Name: Admin,
+		Name: property.Admin,
 	}
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
@@ -77,7 +73,7 @@ func (m Migration) V1() {
 	// Generate admin permission
 	adminPermission := entity.Permission{
 		Id:   1,
-		Name: Admin,
+		Name: property.Admin,
 	}
 	_, permissionErr := m.permissionService.InsertPermission(&adminPermission)
 	if permissionErr != nil {
@@ -107,19 +103,19 @@ func (m Migration) checkMigrationData() bool {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	operatorAdminRole, err := m.roleService.GetRoleByName(Operator)
+	operatorAdminRole, err := m.roleService.GetRoleByName(property.Operator)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	adminRole, err := m.roleService.GetRoleByName(Admin)
+	adminRole, err := m.roleService.GetRoleByName(property.Admin)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin role")
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	adminPermission, err := m.permissionService.GetPermissionByName(Admin)
+	adminPermission, err := m.permissionService.GetPermissionByName(property.Admin)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin permission")
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
