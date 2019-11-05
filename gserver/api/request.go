@@ -117,6 +117,5 @@ func (rh RequestImpl) bindBody(r *http.Request) ([]byte, *model.ErrorResBody) {
 		log.Logger.Info(err.Error())
 		return nil, model.InternalServerError("Failed to request body bind")
 	}
-
 	return body, nil
 }

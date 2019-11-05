@@ -60,16 +60,16 @@ func (r Router) V1() {
 	// Control create to user, update to user
 	http.HandleFunc("/api/v1/users", r.User.Api)
 
-	http.HandleFunc("/api/v1/service_groups", r.ServiceGroup.Api)
+	http.HandleFunc("/api/v1/services", r.Service.Api)
 
 	http.HandleFunc("/api/v1/user_services", r.UserService.Api)
 
-	http.HandleFunc("/api/v1/services", r.Service.Api)
-
 	http.HandleFunc("/api/v1/roles", r.Role.Api)
+
 	http.HandleFunc("/api/v1/permissions", r.Permission.Api)
 
 	http.HandleFunc("/api/v1/policies", r.Policy.Api)
+
 	http.HandleFunc("/api/v1/operator_policies", r.OperatorPolicy.Api)
 
 	log.Logger.Info("------ Routing info ------")
@@ -85,4 +85,22 @@ func (r Router) V1() {
 	log.Logger.Info("Routing: /api/v1/policies")
 	log.Logger.Info("Routing: /api/v1/operator_policies")
 	log.Logger.Info("------ Routing info ------")
+}
+
+func (r Router) Admin() {
+	http.HandleFunc("/api/admin/groups", r.Group.Api)
+
+	http.HandleFunc("/api/admin/users", r.User.Api)
+
+	http.HandleFunc("/api/admin/service_groups", r.ServiceGroup.Api)
+
+	http.HandleFunc("/api/admin/services", r.Service.Api)
+
+	http.HandleFunc("/api/admin/roles", r.Role.Api)
+
+	http.HandleFunc("/api/admin/permissions", r.Permission.Api)
+
+	http.HandleFunc("/api/admin/policies", r.Policy.Api)
+
+	http.HandleFunc("/api/v1/operator_policies", r.OperatorPolicy.Api)
 }

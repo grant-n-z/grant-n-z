@@ -96,13 +96,13 @@ func (sh ServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) 
 		return
 	}
 
-	service, err := sh.Service.InsertService(serviceEntity)
+	serviceData, err := sh.Service.InsertService(serviceEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(service)
+	res, _ := json.Marshal(serviceData)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }
