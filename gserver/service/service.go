@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"strings"
 
 	"github.com/satori/go.uuid"
@@ -15,12 +16,11 @@ import (
 var sInstance Service
 
 type serviceImpl struct {
-	serviceRepository data.ServiceRepository
+	serviceRepository     data.ServiceRepository
+	userServiceRepository data.UserServiceRepository
 }
 
 type Service interface {
-	Get(queryParam string) (interface{}, *model.ErrorResBody)
-
 	GetServices() ([]*entity.Service, *model.ErrorResBody)
 
 	GetServiceById(id int) (*entity.Service, *model.ErrorResBody)
@@ -28,6 +28,8 @@ type Service interface {
 	GetServiceByName(name string) (*entity.Service, *model.ErrorResBody)
 
 	GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
+
+	GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody)
 
 	InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody)
 }
@@ -41,36 +43,10 @@ func GetServiceInstance() Service {
 
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
-	log.Logger.Info("Inject `ServiceRepository` to `Service`")
+	log.Logger.Info("Inject `ServiceRepository`, `UserServiceRepository` to `Service`")
 	return serviceImpl{
-		serviceRepository: data.ServiceRepositoryImpl{Db: driver.Db},
-	}
-}
-
-func (ss serviceImpl) Get(queryParam string) (interface{}, *model.ErrorResBody) {
-	if !strings.EqualFold(queryParam, "") {
-		serviceEntity, err := ss.GetServiceByName(queryParam)
-		if err != nil {
-			return nil, err
-		}
-
-		if serviceEntity == nil {
-			return entity.Service{}, nil
-		}
-
-		return serviceEntity, nil
-
-	} else {
-		serviceEntities, err := ss.GetServices()
-		if err != nil {
-			return nil, err
-		}
-
-		if serviceEntities == nil {
-			return []entity.Service{}, nil
-		}
-
-		return serviceEntities, nil
+		serviceRepository:     data.ServiceRepositoryImpl{Db: driver.Db},
+		userServiceRepository: data.UserServiceRepositoryImpl{Db: driver.Db},
 	}
 }
 
@@ -88,6 +64,13 @@ func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 
 func (ss serviceImpl) GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
 	return ss.serviceRepository.FindByApiKey(apiKey)
+}
+
+func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
+	if ctx.GetUserId().(int) == 0 {
+		return nil, model.BadRequest("Required user id")
+	}
+	return ss.userServiceRepository.FindByUserId(ctx.GetUserId().(int))
 }
 
 func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody) {

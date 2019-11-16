@@ -1,6 +1,7 @@
 package route
 
 import (
+	"github.com/tomoyane/grant-n-z/gserver/api/admin"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api/v1"
@@ -20,6 +21,8 @@ type Router struct {
 	UserService    v1.UserService
 	Permission     v1.Permission
 	Policy         v1.Policy
+
+	AdminService admin.AdminService
 }
 
 func NewRouter() Router {
@@ -35,6 +38,7 @@ func NewRouter() Router {
 		UserService:    v1.GetUserServiceInstance(),
 		Permission:     v1.GetPermissionInstance(),
 		Policy:         v1.GetPolicyInstance(),
+		AdminService:   admin.GetAdminServiceInstance(),
 	}
 }
 
@@ -88,19 +92,5 @@ func (r Router) V1() {
 }
 
 func (r Router) Admin() {
-	http.HandleFunc("/api/admin/groups", r.Group.Api)
-
-	http.HandleFunc("/api/admin/users", r.User.Api)
-
-	http.HandleFunc("/api/admin/service_groups", r.ServiceGroup.Api)
-
-	http.HandleFunc("/api/admin/services", r.Service.Api)
-
-	http.HandleFunc("/api/admin/roles", r.Role.Api)
-
-	http.HandleFunc("/api/admin/permissions", r.Permission.Api)
-
-	http.HandleFunc("/api/admin/policies", r.Policy.Api)
-
-	http.HandleFunc("/api/v1/operator_policies", r.OperatorPolicy.Api)
+	http.HandleFunc("/api/admin/services", r.AdminService.Api)
 }

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -15,7 +16,7 @@ var usrInstance UserServiceRepository
 type UserServiceRepository interface {
 	FindAll() ([]*entity.UserService, *model.ErrorResBody)
 
-	FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody)
+	FindByUserId(userId int) ([]*entity.Service, *model.ErrorResBody)
 
 	FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
 
@@ -54,17 +55,27 @@ func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.E
 	return userServices, nil
 }
 
-func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.UserService, *model.ErrorResBody) {
-	var userServices []*entity.UserService
-	if err := usri.Db.Where("user_id = ?", userId).Find(&userServices).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
+func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.Service, *model.ErrorResBody) {
+	var services []*entity.Service
 
+	if err := usri.Db.Table(entity.ServiceTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserServiceTable.String(),
+			entity.ServiceTable.String(),
+			entity.ServiceId,
+			entity.UserServiceTable.String(),
+			entity.UserServiceServiceId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserServiceTable.String(),
+			entity.UserServiceUserId), userId).
+		Scan(&services).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
 		return nil, model.InternalServerError()
 	}
 
-	return userServices, nil
+	return services, nil
 }
 
 func (usri UserServiceRepositoryImpl) FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {

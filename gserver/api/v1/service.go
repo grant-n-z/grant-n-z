@@ -6,7 +6,6 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
-	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -20,15 +19,6 @@ type Service interface {
 
 	// Http GET method
 	get(w http.ResponseWriter, r *http.Request)
-
-	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
-
-	// Http PUT method
-	put(w http.ResponseWriter, r *http.Request)
-
-	// Http DELETE method
-	delete(w http.ResponseWriter, r *http.Request)
 }
 
 type ServiceImpl struct {
@@ -54,7 +44,7 @@ func NewService() Service {
 
 func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, err := sh.Request.Intercept(w, r, property.AuthOperator)
+	_, err := sh.Request.Intercept(w, r, property.AuthUser)
 	if err != nil {
 		return
 	}
@@ -62,12 +52,6 @@ func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		sh.get(w, r)
-	case http.MethodPost:
-		sh.post(w, r, body)
-	case http.MethodPut:
-		sh.put(w, r)
-	case http.MethodDelete:
-		sh.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -75,9 +59,7 @@ func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceImpl) get(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get(entity.ServiceName.String())
-
-	result, err := sh.Service.Get(name)
+	result, err := sh.Service.GetServiceOfUser()
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -86,29 +68,4 @@ func (sh ServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 	res, _ := json.Marshal(result)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
-}
-
-func (sh ServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
-	var serviceEntity *entity.Service
-
-	json.Unmarshal(body, &serviceEntity)
-	if err := sh.Request.ValidateBody(w, serviceEntity); err != nil {
-		return
-	}
-
-	serviceData, err := sh.Service.InsertService(serviceEntity)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	res, _ := json.Marshal(serviceData)
-	w.WriteHeader(http.StatusCreated)
-	w.Write(res)
-}
-
-func (sh ServiceImpl) put(w http.ResponseWriter, r *http.Request) {
-}
-
-func (sh ServiceImpl) delete(w http.ResponseWriter, r *http.Request) {
 }

@@ -1,12 +1,10 @@
 package v1
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
-	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -60,15 +58,8 @@ func (ush UserServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ush UserServiceImpl) get(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get(entity.UserServiceId.String())
-
-	userServiceEntities, err := ush.UserService.Get(id)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	res, _ := json.Marshal(userServiceEntities)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	//id := r.URL.Query().Get(entity.UserServiceId.String())
+	//res, _ := json.Marshal(userServiceEntities)
+	//w.WriteHeader(http.StatusOK)
+	//w.Write(res)
 }
