@@ -1,4 +1,4 @@
-package admin
+package operator
 
 import (
 	"encoding/json"
@@ -12,9 +12,9 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
-var adminShInstance AdminService
+var operatorShInstance OperatorService
 
-type AdminService interface {
+type OperatorService interface {
 	// Implement service admin service api
 	Api(w http.ResponseWriter, r *http.Request)
 
@@ -31,28 +31,28 @@ type AdminService interface {
 	delete(w http.ResponseWriter, r *http.Request)
 }
 
-type AdminServiceImpl struct {
+type OperatorServiceImpl struct {
 	Request api.Request
 	Service service.Service
 }
 
-func GetAdminServiceInstance() AdminService {
-	if adminShInstance == nil {
-		adminShInstance = NewAdminService()
+func GetOperatorServiceInstance() OperatorService {
+	if operatorShInstance == nil {
+		operatorShInstance = NewOperatorService()
 	}
-	return adminShInstance
+	return operatorShInstance
 }
 
-func NewAdminService() AdminService {
-	log.Logger.Info("New `AdminService` instance")
-	log.Logger.Info("Inject `request`, `Service` to `AdminService`")
-	return AdminServiceImpl{
+func NewOperatorService() OperatorService {
+	log.Logger.Info("New `OperatorService` instance")
+	log.Logger.Info("Inject `request`, `Service` to `OperatorService`")
+	return OperatorServiceImpl{
 		Request: api.GetRequestInstance(),
 		Service: service.GetServiceInstance(),
 	}
 }
 
-func (sh AdminServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
+func (sh OperatorServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := sh.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
@@ -74,7 +74,7 @@ func (sh AdminServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (sh AdminServiceImpl) get(w http.ResponseWriter, r *http.Request) {
+func (sh OperatorServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 	result, err := sh.Service.GetServices()
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -86,7 +86,7 @@ func (sh AdminServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (sh AdminServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
+func (sh OperatorServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var serviceEntity *entity.Service
 
 	json.Unmarshal(body, &serviceEntity)
@@ -105,8 +105,8 @@ func (sh AdminServiceImpl) post(w http.ResponseWriter, r *http.Request, body []b
 	w.Write(res)
 }
 
-func (sh AdminServiceImpl) put(w http.ResponseWriter, r *http.Request) {
+func (sh OperatorServiceImpl) put(w http.ResponseWriter, r *http.Request) {
 }
 
-func (sh AdminServiceImpl) delete(w http.ResponseWriter, r *http.Request) {
+func (sh OperatorServiceImpl) delete(w http.ResponseWriter, r *http.Request) {
 }
