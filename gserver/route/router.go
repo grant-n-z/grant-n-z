@@ -67,13 +67,14 @@ func (r Router) V1() {
 	// Control get service of user
 	http.HandleFunc("/api/v1/services", r.Service.Api)
 
+	// Get policy info of user
+	http.HandleFunc("/api/v1/policies", r.Policy.Api)
+
 	// http.HandleFunc("/api/v1/user_services", r.UserService.Api)
 
 	http.HandleFunc("/api/v1/roles", r.Role.Api)
 
 	http.HandleFunc("/api/v1/permissions", r.Permission.Api)
-
-	http.HandleFunc("/api/v1/policies", r.Policy.Api)
 
 	http.HandleFunc("/api/v1/operator_policies", r.OperatorPolicy.Api)
 

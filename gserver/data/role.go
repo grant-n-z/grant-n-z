@@ -19,6 +19,8 @@ type RoleRepository interface {
 
 	FindByName(name string) (*entity.Role, *model.ErrorResBody)
 
+	FindNameById(id int) *string
+
 	Save(role entity.Role) (*entity.Role, *model.ErrorResBody)
 }
 
@@ -36,9 +38,7 @@ func GetRoleRepositoryInstance(db *gorm.DB) RoleRepository {
 func NewRoleRepository(db *gorm.DB) RoleRepository {
 	log.Logger.Info("New `RoleRepository` instance")
 	log.Logger.Info("Inject `gorm.DB` to `RoleRepository`")
-	return RoleRepositoryImpl{
-		Db: db,
-	}
+	return RoleRepositoryImpl{Db: db}
 }
 
 func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
@@ -78,6 +78,17 @@ func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.Erro
 	}
 
 	return &role, nil
+}
+
+func (rri RoleRepositoryImpl) FindNameById(id int) *string {
+	if id == 0 {
+		return nil
+	}
+	role, err := rri.FindById(id)
+	if err != nil {
+		return nil
+	}
+	return &role.Name
 }
 
 func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResBody) {

@@ -3,7 +3,6 @@ package service
 import (
 	"crypto/rand"
 	"crypto/rsa"
-
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -25,7 +24,7 @@ type PolicyService interface {
 
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
-	GetPolicyByOfUser() ([]map[string]entity.Policy, *model.ErrorResBody)
+	GetPolicyByOfUser() ([]map[string]entity.PolicyResponse, *model.ErrorResBody)
 
 	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
 
@@ -67,25 +66,25 @@ func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *
 	return ps.policyRepository.FindByRoleId(roleId)
 }
 
-func (ps policyServiceImpl) GetPolicyByOfUser() ([]map[string]entity.Policy, *model.ErrorResBody) {
+func (ps policyServiceImpl) GetPolicyByOfUser() ([]map[string]entity.PolicyResponse, *model.ErrorResBody) {
 	if ctx.GetUserId().(int) == 0 {
 		return nil, model.BadRequest("Required user id")
 	}
 
-	groupWithUserGroupWithPolicies, err := ps.userGroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
+	joinObj, err := ps.userGroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
 	if err != nil {
 		return nil, err
 	}
 
-	var roles []map[string]entity.Policy
-	// role名取得方法検討
-
-
-	var groupPolicyMaps []map[string]entity.Policy
-	for _, groupWithUserGroupWithPolicy := range groupWithUserGroupWithPolicies {
-		response := map[string]entity.Policy{
-			groupWithUserGroupWithPolicy.Group.Name: groupWithUserGroupWithPolicy.Policy,
-		}
+	var groupPolicyMaps []map[string]entity.PolicyResponse
+	for _, joinData := range joinObj {
+		// TODO: Read redis cache, roles and permissions
+		policy := entity.NewPolicyResponse().
+			Set(&joinData.Policy.Name,
+				ps.roleRepository.FindNameById(joinData.Policy.RoleId),
+				ps.permissionRepository.FindNameById(joinData.Policy.PermissionId)).
+			Build()
+		response := map[string]entity.PolicyResponse{joinData.Group.Name: policy}
 		groupPolicyMaps = append(groupPolicyMaps, response)
 	}
 

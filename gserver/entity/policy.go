@@ -15,7 +15,15 @@ const (
 	PolicyUpdatedAt
 )
 
-// The table `users` struct
+type PolicyResponseBuilder interface {
+	// Set response data
+	Set(name *string, roleName *string, permissionName *string) PolicyResponseBuilder
+
+	// Build PolicyResponse struct
+	Build() PolicyResponse
+}
+
+// The table `policy` struct
 type Policy struct {
 	Id           int       `json:"id"`
 	Name         string    `validate:"required"json:"name"`
@@ -26,7 +34,49 @@ type Policy struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// The api policy response struct
+type PolicyResponse struct {
+	Name           string `json:"name"`
+	RoleName       string `json:"role_name"`
+	PermissionName string `json:"permission_name"`
+}
+
+// Table config struct
 type PolicyTableConfig int
+
+// New PolicyResponse
+func NewPolicyResponse() PolicyResponseBuilder {
+	return &PolicyResponse{}
+}
+
+func (p PolicyResponse) Set(name *string, roleName *string, permissionName *string) PolicyResponseBuilder {
+	if name == nil {
+		p.Name = ""
+	} else {
+		p.Name = *name
+	}
+
+	if roleName == nil {
+		p.RoleName = ""
+	} else {
+		p.RoleName = *roleName
+	}
+
+	if permissionName == nil {
+		p.PermissionName = ""
+	} else {
+		p.PermissionName = *permissionName
+	}
+	return p
+}
+
+func (p PolicyResponse) Build() PolicyResponse {
+	return PolicyResponse{
+		Name:           p.Name,
+		RoleName:       p.RoleName,
+		PermissionName: p.PermissionName,
+	}
+}
 
 func (pc PolicyTableConfig) String() string {
 	switch pc {

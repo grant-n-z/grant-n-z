@@ -19,6 +19,8 @@ type PermissionRepository interface {
 
 	FindByName(name string) (*entity.Permission, *model.ErrorResBody)
 
+	FindNameById(id int) *string
+
 	Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }
 
@@ -36,9 +38,7 @@ func GetPermissionRepositoryInstance(db *gorm.DB) PermissionRepository {
 func NewPermissionRepository(db *gorm.DB) PermissionRepository {
 	log.Logger.Info("New `PermissionRepository` instance")
 	log.Logger.Info("Inject `gorm.DB` to `PermissionRepository`")
-	return PermissionRepositoryImpl{
-		Db: db,
-	}
+	return PermissionRepositoryImpl{Db: db}
 }
 
 func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResBody) {
@@ -78,6 +78,17 @@ func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission,
 	}
 
 	return &permissions, nil
+}
+
+func (pri PermissionRepositoryImpl) FindNameById(id int) *string {
+	if id == 0 {
+		return nil
+	}
+	permission, err := pri.FindById(id)
+	if err != nil {
+		return nil
+	}
+	return &permission.Name
 }
 
 func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
