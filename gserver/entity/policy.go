@@ -16,8 +16,14 @@ const (
 )
 
 type PolicyResponseBuilder interface {
-	// Set response data
-	Set(name *string, roleName *string, permissionName *string) PolicyResponseBuilder
+	// Set name at response data
+	SetName(name *string) PolicyResponseBuilder
+
+	// Set role_name at response data
+	SetRoleName(roleName *string) PolicyResponseBuilder
+
+	// Set permission_name at response data
+	SetPermissionName(permissionName *string) PolicyResponseBuilder
 
 	// Build PolicyResponse struct
 	Build() PolicyResponse
@@ -49,19 +55,25 @@ func NewPolicyResponse() PolicyResponseBuilder {
 	return &PolicyResponse{}
 }
 
-func (p PolicyResponse) Set(name *string, roleName *string, permissionName *string) PolicyResponseBuilder {
+func (p PolicyResponse) SetName(name *string) PolicyResponseBuilder {
 	if name == nil {
 		p.Name = ""
 	} else {
 		p.Name = *name
 	}
+	return p
+}
 
+func (p PolicyResponse) SetRoleName(roleName *string) PolicyResponseBuilder {
 	if roleName == nil {
 		p.RoleName = ""
 	} else {
 		p.RoleName = *roleName
 	}
+	return p
+}
 
+func (p PolicyResponse) SetPermissionName(permissionName *string) PolicyResponseBuilder {
 	if permissionName == nil {
 		p.PermissionName = ""
 	} else {
