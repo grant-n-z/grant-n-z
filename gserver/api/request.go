@@ -103,9 +103,11 @@ func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.
 }
 
 func (rh RequestImpl) validateHeader(r *http.Request) *model.ErrorResBody {
-	if r.Header.Get("Content-Type") != "application/json" {
-		log.Logger.Info("Not allowed content-type")
-		return model.BadRequest("Need to content type is only json.")
+	if r.Method != http.MethodGet {
+		if r.Header.Get("Content-Type") != "application/json" {
+			log.Logger.Info("Not allowed content-type")
+			return model.BadRequest("Need to content type is only json.")
+		}
 	}
 	return nil
 }

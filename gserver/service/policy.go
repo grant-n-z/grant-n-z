@@ -1,12 +1,10 @@
 package service
 
 import (
-	"strconv"
-	"strings"
-
 	"crypto/rand"
 	"crypto/rsa"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -23,11 +21,11 @@ var (
 )
 
 type PolicyService interface {
-	Get(queryParam string) ([]*entity.Policy, *model.ErrorResBody)
-
 	GetPolicies() ([]*entity.Policy, *model.ErrorResBody)
 
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
+
+	GetPolicyByOfUser() ([]map[string]entity.Policy, *model.ErrorResBody)
 
 	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
 
@@ -40,6 +38,7 @@ type policyServiceImpl struct {
 	policyRepository     data.PolicyRepository
 	permissionRepository data.PermissionRepository
 	roleRepository       data.RoleRepository
+	userGroupRepository  data.UserGroupRepository
 }
 
 func GetPolicyServiceInstance() PolicyService {
@@ -51,35 +50,13 @@ func GetPolicyServiceInstance() PolicyService {
 
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
-	log.Logger.Info("Inject `PolicyRepository`, `PermissionRepository`, `RoleRepository`, `ServiceMemberRoleRepository` to `PolicyService`")
+	log.Logger.Info("Inject `PolicyRepository`, `PermissionRepository`, `RoleRepository`, `UserGroupRepository` to `PolicyService`")
 	return policyServiceImpl{
 		policyRepository:     data.GetPolicyRepositoryInstance(driver.Db),
-		permissionRepository: data.NewPermissionRepository(driver.Db),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
 		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
+		userGroupRepository:  data.GetUserGroupRepositoryInstance(driver.Db),
 	}
-}
-
-func (ps policyServiceImpl) Get(queryParam string) ([]*entity.Policy, *model.ErrorResBody) {
-	if strings.EqualFold(queryParam, "") {
-		return ps.GetPolicies()
-	}
-
-	i, castErr := strconv.Atoi(queryParam)
-	if castErr != nil {
-		log.Logger.Warn("The role_id is only integer")
-		return nil, model.BadRequest(castErr.Error())
-	}
-
-	policyEntities, err := ps.GetPoliciesByRoleId(i)
-	if err != nil {
-		return nil, err
-	}
-
-	if policyEntities == nil {
-		return []*entity.Policy{}, nil
-	}
-
-	return policyEntities, nil
 }
 
 func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody) {
@@ -88,6 +65,31 @@ func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody
 
 func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
 	return ps.policyRepository.FindByRoleId(roleId)
+}
+
+func (ps policyServiceImpl) GetPolicyByOfUser() ([]map[string]entity.Policy, *model.ErrorResBody) {
+	if ctx.GetUserId().(int) == 0 {
+		return nil, model.BadRequest("Required user id")
+	}
+
+	groupWithUserGroupWithPolicies, err := ps.userGroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
+	if err != nil {
+		return nil, err
+	}
+
+	var roles []map[string]entity.Policy
+	// role名取得方法検討
+
+
+	var groupPolicyMaps []map[string]entity.Policy
+	for _, groupWithUserGroupWithPolicy := range groupWithUserGroupWithPolicies {
+		response := map[string]entity.Policy{
+			groupWithUserGroupWithPolicy.Group.Name: groupWithUserGroupWithPolicy.Policy,
+		}
+		groupPolicyMaps = append(groupPolicyMaps, response)
+	}
+
+	return groupPolicyMaps, nil
 }
 
 func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody) {

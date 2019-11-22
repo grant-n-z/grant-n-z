@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/api/admin"
+	"github.com/tomoyane/grant-n-z/gserver/api/operator"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api/v1"
@@ -22,23 +22,23 @@ type Router struct {
 	Permission     v1.Permission
 	Policy         v1.Policy
 
-	AdminService admin.AdminService
+	OperatorService operator.OperatorService
 }
 
 func NewRouter() Router {
 	return Router{
-		Auth:           v1.GetAuthInstance(),
-		Token:          v1.GetTokenInstance(),
-		Group:          v1.GetGroupInstance(),
-		User:           v1.GetUserInstance(),
-		Service:        v1.GetServiceInstance(),
-		ServiceGroup:   v1.GetServiceGroupInstance(),
-		Role:           v1.GetRoleInstance(),
-		OperatorPolicy: v1.GetOperatorPolicyInstance(),
-		UserService:    v1.GetUserServiceInstance(),
-		Permission:     v1.GetPermissionInstance(),
-		Policy:         v1.GetPolicyInstance(),
-		AdminService:   admin.GetAdminServiceInstance(),
+		Auth:            v1.GetAuthInstance(),
+		Token:           v1.GetTokenInstance(),
+		Group:           v1.GetGroupInstance(),
+		User:            v1.GetUserInstance(),
+		Service:         v1.GetServiceInstance(),
+		ServiceGroup:    v1.GetServiceGroupInstance(),
+		Role:            v1.GetRoleInstance(),
+		OperatorPolicy:  v1.GetOperatorPolicyInstance(),
+		UserService:     v1.GetUserServiceInstance(),
+		Permission:      v1.GetPermissionInstance(),
+		Policy:          v1.GetPolicyInstance(),
+		OperatorService: operator.GetOperatorServiceInstance(),
 	}
 }
 
@@ -64,9 +64,10 @@ func (r Router) V1() {
 	// Control create to user, update to user
 	http.HandleFunc("/api/v1/users", r.User.Api)
 
+	// Control get service of user
 	http.HandleFunc("/api/v1/services", r.Service.Api)
 
-	http.HandleFunc("/api/v1/user_services", r.UserService.Api)
+	// http.HandleFunc("/api/v1/user_services", r.UserService.Api)
 
 	http.HandleFunc("/api/v1/roles", r.Role.Api)
 
@@ -91,6 +92,10 @@ func (r Router) V1() {
 	log.Logger.Info("------ Routing info ------")
 }
 
+func (r Router) Operator() {
+	http.HandleFunc("/api/operator/services", r.OperatorService.Api)
+}
+
 func (r Router) Admin() {
-	http.HandleFunc("/api/admin/services", r.AdminService.Api)
+	// TODO
 }

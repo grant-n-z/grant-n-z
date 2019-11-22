@@ -15,6 +15,7 @@ const (
 	PolicyUpdatedAt
 )
 
+// The table `users` struct
 type Policy struct {
 	Id           int       `json:"id"`
 	Name         string    `validate:"required"json:"name"`

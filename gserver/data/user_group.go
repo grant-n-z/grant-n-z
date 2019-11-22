@@ -14,6 +14,9 @@ var ugrInstance UserGroupRepository
 type UserGroupRepository interface {
 	// Get all groups that has user
 	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
+
+	// Get all groups with user_groups with policy that has user
+	FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
 }
 
 type UserGroupRepositoryImpl struct {
@@ -54,4 +57,33 @@ func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Gro
 	}
 
 	return groups, nil
+}
+
+func (ugr UserGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
+	var groupWithUserGroupWithPolicies []*entity.GroupWithUserGroupWithPolicy
+
+	if err := ugr.Db.Table(entity.UserGroupTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.GroupTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId,
+			entity.GroupTable.String(),
+			entity.GroupId)).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupId,
+			entity.PolicyTable.String(),
+			entity.PolicyUserGroupId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId), userId).
+		Scan(&groupWithUserGroupWithPolicies).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError()
+	}
+
+	return groupWithUserGroupWithPolicies, nil
 }
