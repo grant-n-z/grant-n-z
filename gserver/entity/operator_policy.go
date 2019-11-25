@@ -13,6 +13,7 @@ const (
 	OperatorPolicyUpdatedAt
 )
 
+// The table `operator_policies` struct
 type OperatorPolicy struct {
 	Id        int       `json:"id"`
 	RoleId    int       `validate:"required"json:"role_id"`
@@ -24,6 +25,7 @@ type OperatorPolicy struct {
 	User User
 }
 
+// OperatorPolicy table config struct
 type OperatorPolicyTableConfig int
 
 func (opc OperatorPolicyTableConfig) String() string {

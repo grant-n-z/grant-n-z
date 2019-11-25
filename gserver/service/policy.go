@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/rand"
 	"crypto/rsa"
+
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -20,19 +21,26 @@ var (
 )
 
 type PolicyService interface {
+	// Get all policy data
 	GetPolicies() ([]*entity.Policy, *model.ErrorResBody)
 
+	// Get policy data by role id
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
+	// Get policies of group of user
 	GetPolicyByOfUser() ([]map[string]entity.PolicyResponse, *model.ErrorResBody)
 
+	// Insert policy
 	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
 
+	// Encrypt policy data
 	EncryptData(data string) (*string, error)
 
+	// Decrypt policy data
 	DecryptData(data string) (*string, error)
 }
 
+// PolicyService struct
 type policyServiceImpl struct {
 	policyRepository     data.PolicyRepository
 	permissionRepository data.PermissionRepository
@@ -40,6 +48,8 @@ type policyServiceImpl struct {
 	userGroupRepository  data.UserGroupRepository
 }
 
+// Get PolicyService instance.
+// If use singleton pattern, call this instance method
 func GetPolicyServiceInstance() PolicyService {
 	if plsInstance == nil {
 		plsInstance = NewPolicyService()
@@ -47,6 +57,7 @@ func GetPolicyServiceInstance() PolicyService {
 	return plsInstance
 }
 
+// Constructor
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	log.Logger.Info("Inject `PolicyRepository`, `PermissionRepository`, `RoleRepository`, `UserGroupRepository` to `PolicyService`")

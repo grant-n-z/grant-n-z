@@ -13,6 +13,7 @@ const (
 	ServicePermissionUpdatedAt
 )
 
+// The table `service_permissions` struct
 type ServicePermission struct {
 	Id           int       `json:"id"`
 	PermissionId int       `validate:"required"json:"permission_id"`
@@ -21,6 +22,7 @@ type ServicePermission struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// ServicePermission table config
 type ServicePermissionTableConfig int
 
 func (ur ServicePermissionTableConfig) String() string {

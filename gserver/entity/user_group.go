@@ -13,6 +13,7 @@ const (
 	UserGroupUpdatedAt
 )
 
+// The table `user_groups` struct
 type UserGroup struct {
 	Id        int       `gorm:"primary_key"json:"id"`
 	UserId    int       `validate:"required"json:"user_id"`
@@ -21,6 +22,7 @@ type UserGroup struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// UserGroup table config struct
 type UserGroupTableConfig int
 
 func (ugc UserGroupTableConfig) String() string {

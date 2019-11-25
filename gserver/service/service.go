@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"strings"
 
 	"github.com/satori/go.uuid"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -21,19 +21,27 @@ type serviceImpl struct {
 }
 
 type Service interface {
+	// Get service
 	GetServices() ([]*entity.Service, *model.ErrorResBody)
 
+	// Get service by service id
 	GetServiceById(id int) (*entity.Service, *model.ErrorResBody)
 
+	// Get service by service name
 	GetServiceByName(name string) (*entity.Service, *model.ErrorResBody)
 
+	// Get service by service api key
 	GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
 
+	// Get service of user
 	GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody)
 
+	// Insert service
 	InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody)
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetServiceInstance() Service {
 	if sInstance == nil {
 		sInstance = NewServiceService()
@@ -41,6 +49,7 @@ func GetServiceInstance() Service {
 	return sInstance
 }
 
+// Constructor
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	log.Logger.Info("Inject `ServiceRepository`, `UserServiceRepository` to `Service`")

@@ -31,6 +31,7 @@ type GroupWithUserGroupWithPolicy struct {
 	Policy
 }
 
+// Group table config struct
 type GroupTableConfig int
 
 func (gc GroupTableConfig) String() string {

@@ -13,6 +13,7 @@ const (
 	UserServiceUpdatedAt
 )
 
+// The table `user_services` struct
 type UserService struct {
 	Id        int       `json:"id"`
 	UserId    int       `validate:"required"json:"user_id"`
@@ -24,6 +25,7 @@ type UserService struct {
 	Service   Service
 }
 
+// UserService table config struct
 type UserServiceTableConfig int
 
 func (usc UserServiceTableConfig) String() string {

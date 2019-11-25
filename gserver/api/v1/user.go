@@ -34,12 +34,15 @@ type User interface {
 	delete(w http.ResponseWriter, r *http.Request)
 }
 
+// User api struct
 type UserImpl struct {
 	Request     api.Request
 	UserService service.UserService
 	Service     service.Service
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetUserInstance() User {
 	if uhInstance == nil {
 		uhInstance = NewUser()
@@ -47,6 +50,7 @@ func GetUserInstance() User {
 	return uhInstance
 }
 
+// Constructor
 func NewUser() User {
 	log.Logger.Info("New `User` instance")
 	log.Logger.Info("Inject `request`, `UserGroup`, `Service` to `User`")

@@ -13,6 +13,7 @@ const (
 	ServiceGroupUpdatedAt
 )
 
+// The table `service_groups` struct
 type ServiceGroup struct {
 	Id        int       `json:"id"`
 	GroupId   int       `validate:"required"json:"group_id"`
@@ -21,6 +22,7 @@ type ServiceGroup struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// ServiceGroup table config
 type ServiceGroupTableConfig int
 
 func (uc ServiceGroupTableConfig) String() string {

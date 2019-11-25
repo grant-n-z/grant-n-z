@@ -41,6 +41,7 @@ type UserWithUserServiceWithService struct {
 	Service
 }
 
+// User table config struct
 type UserTableConfig int
 
 func (uc UserTableConfig) String() string {

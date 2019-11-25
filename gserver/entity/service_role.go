@@ -13,6 +13,7 @@ const (
 	ServiceRoleUpdatedAt
 )
 
+// The table `service_roles` struct
 type ServiceRole struct {
 	Id        int       `json:"id"`
 	RoleId    int       `validate:"required"json:"role_id"`
@@ -21,6 +22,7 @@ type ServiceRole struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// ServiceRole table config
 type ServiceRoleTableConfig int
 
 func (ur ServiceRoleTableConfig) String() string {

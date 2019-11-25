@@ -21,11 +21,14 @@ type Service interface {
 	get(w http.ResponseWriter, r *http.Request)
 }
 
+// Service api struct
 type ServiceImpl struct {
 	Request api.Request
 	Service service.Service
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetServiceInstance() Service {
 	if shInstance == nil {
 		shInstance = NewService()
@@ -33,6 +36,7 @@ func GetServiceInstance() Service {
 	return shInstance
 }
 
+// Constructor
 func NewService() Service {
 	log.Logger.Info("New `Service` instance")
 	log.Logger.Info("Inject `request`, `Service` to `Service`")

@@ -25,10 +25,13 @@ type GroupRepository interface {
 	SaveWithRelationalData(group entity.Group, roleId int, permissionId int) (*entity.Group, *model.ErrorResBody)
 }
 
+// GroupRepository struct
 type GroupRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetGroupRepositoryInstance(db *gorm.DB) GroupRepository {
 	if grInstance == nil {
 		grInstance = NewGroupRepository(db)
@@ -36,6 +39,7 @@ func GetGroupRepositoryInstance(db *gorm.DB) GroupRepository {
 	return grInstance
 }
 
+// Constructor
 func NewGroupRepository(db *gorm.DB) GroupRepository {
 	log.Logger.Info("New `GroupRepository` instance")
 	log.Logger.Info("Inject `gorm.DB` to `GroupRepository`")

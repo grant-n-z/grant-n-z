@@ -15,6 +15,7 @@ const (
 	RoleUpdatedAt
 )
 
+// The table `roles` struct
 type Role struct {
 	Id        int       `json:"id"`
 	Uuid      uuid.UUID `json:"uuid"`
@@ -23,6 +24,7 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// Role table config struct
 type RoleTableConfig int
 
 func (rc RoleTableConfig) String() string {

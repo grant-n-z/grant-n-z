@@ -25,6 +25,7 @@ type GroupService interface {
 	InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody)
 }
 
+// GroupService struct
 type GroupServiceImpl struct {
 	groupRepository      data.GroupRepository
 	userGroupRepository  data.UserGroupRepository
@@ -32,6 +33,8 @@ type GroupServiceImpl struct {
 	permissionRepository data.PermissionRepository
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetGroupServiceInstance() GroupService {
 	if gsInstance == nil {
 		gsInstance = NewGroupService()
@@ -39,6 +42,7 @@ func GetGroupServiceInstance() GroupService {
 	return gsInstance
 }
 
+// Constructor
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	log.Logger.Info("Inject `GroupRepository`, `UserGroupRepository`, `RoleRepository`, `PermissionRepository` to `GroupService`")

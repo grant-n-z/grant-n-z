@@ -15,6 +15,7 @@ const (
 	PermissionUpdatedAt
 )
 
+// The table `permissions` struct
 type Permission struct {
 	Id           int       `json:"id"`
 	Uuid         uuid.UUID `json:"uuid"`
@@ -23,6 +24,7 @@ type Permission struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// Permission table config struct
 type PermissionTableConfig int
 
 func (pc PermissionTableConfig) String() string {

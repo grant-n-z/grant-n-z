@@ -47,10 +47,10 @@ type PolicyResponse struct {
 	PermissionName string `json:"permission_name"`
 }
 
-// Table config struct
+// Policy table config struct
 type PolicyTableConfig int
 
-// New PolicyResponse
+// PolicyResponse constructor
 func NewPolicyResponse() PolicyResponseBuilder {
 	return &PolicyResponse{}
 }

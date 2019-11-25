@@ -21,11 +21,14 @@ type Auth interface {
 	get(w http.ResponseWriter, r *http.Request)
 }
 
+// Auth api struct
 type AuthImpl struct {
 	request      api.Request
 	tokenService service.TokenService
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetAuthInstance() Auth {
 	if ahInstance == nil {
 		ahInstance = NewAuth()
@@ -33,6 +36,7 @@ func GetAuthInstance() Auth {
 	return ahInstance
 }
 
+// Constructor
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
 	log.Logger.Info("Inject `request`, `TokenService` to `Auth`")

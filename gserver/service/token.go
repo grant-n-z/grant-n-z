@@ -48,6 +48,7 @@ type TokenService interface {
 	getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
 }
 
+// TokenService struct
 type tokenServiceImpl struct {
 	userService           UserService
 	operatorPolicyService OperatorPolicyService
@@ -55,6 +56,8 @@ type tokenServiceImpl struct {
 	appConfig             config.AppConfig
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetTokenServiceInstance() TokenService {
 	if tsInstance == nil {
 		tsInstance = NewTokenService()
@@ -62,6 +65,7 @@ func GetTokenServiceInstance() TokenService {
 	return tsInstance
 }
 
+// Constructor
 func NewTokenService() TokenService {
 	log.Logger.Info("New `TokenService` instance")
 	log.Logger.Info("Inject `UserGroup`, `OperatorPolicyService` to `TokenService`")

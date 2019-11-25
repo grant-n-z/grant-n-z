@@ -14,25 +14,35 @@ import (
 var urInstance UserRepository
 
 type UserRepository interface {
+	// Find user by user id
 	FindById(id int) (*entity.User, *model.ErrorResBody)
 
+	// Find user by user email
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
+	// Find user and operator policy by user email
 	FindWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
+	// Find user and user service and service by user email
 	FindWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
 
+	// Save user
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
+	// Save user and user service
 	SaveWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
 
+	// Update
 	Update(user entity.User) (*entity.User, *model.ErrorResBody)
 }
 
+// UserRepository struct
 type UserRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetUserRepositoryInstance(db *gorm.DB) UserRepository {
 	if urInstance == nil {
 		urInstance = NewUserRepository(db)
@@ -40,6 +50,7 @@ func GetUserRepositoryInstance(db *gorm.DB) UserRepository {
 	return urInstance
 }
 
+// Constructor
 func NewUserRepository(db *gorm.DB) UserRepository {
 	log.Logger.Info("New `UserRepository` instance")
 	log.Logger.Info("Inject `gorm.DB` to `UserRepository`")

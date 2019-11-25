@@ -17,31 +17,43 @@ import (
 var usInstance UserService
 
 type UserService interface {
+	// Encrypt password
 	EncryptPw(password string) string
 
+	// Compare encrypt password and decrypt password
 	ComparePw(passwordHash string, password string) bool
 
+	// Get user by user id
 	GetUserById(id int) (*entity.User, *model.ErrorResBody)
 
+	// Get user by user email
 	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
 
+	// Get user and operator policy by user email
 	GetUserWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
+	// Get user and user service and service by user email
 	GetUserWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
 
+	// Insert user
 	InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody)
 
+	// Insert user and user service
 	InsertUserWithUserService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
 
+	// Update user
 	UpdateUser(user *entity.User) (*entity.User, *model.ErrorResBody)
 }
 
+// UserService struct
 type userServiceImpl struct {
 	userRepository data.UserRepository
 	appConfig      config.AppConfig
 	redisClient    cache.RedisClient
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetUserServiceInstance() UserService {
 	if usInstance == nil {
 		usInstance = NewUserService()
@@ -49,6 +61,7 @@ func GetUserServiceInstance() UserService {
 	return usInstance
 }
 
+// Constructor
 func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
 	log.Logger.Info("Inject `UserRepository`, `AppConfig`, `RedisClient` to `UserService`")

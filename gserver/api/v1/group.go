@@ -28,11 +28,14 @@ type Group interface {
 	delete(w http.ResponseWriter, r *http.Request)
 }
 
+// Group api struct
 type GroupImpl struct {
 	request          api.Request
 	groupService     service.GroupService
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetGroupInstance() Group {
 	if ghInstance == nil {
 		ghInstance = NewGroup()
@@ -40,6 +43,7 @@ func GetGroupInstance() Group {
 	return ghInstance
 }
 
+// Constructor
 func NewGroup() Group {
 	log.Logger.Info("New `Group` instance")
 	log.Logger.Info("Inject `request`, `AuthService`, `GroupService` to `Group`")

@@ -13,23 +13,32 @@ import (
 var srInstance ServiceRepository
 
 type ServiceRepository interface {
+	// Find all service
 	FindAll() ([]*entity.Service, *model.ErrorResBody)
 
+	// Find service by service id
 	FindById(id int) (*entity.Service, *model.ErrorResBody)
 
+	// Find service by service name
 	FindByName(name string) (*entity.Service, *model.ErrorResBody)
 
+	// Find service by service api key
 	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
 
+	// Save service
 	Save(service entity.Service) (*entity.Service, *model.ErrorResBody)
 
+	// Update service
 	Update(service entity.Service) *entity.Service
 }
 
+// ServiceRepository struct
 type ServiceRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+// Get Policy instance.
+// If use singleton pattern, call this instance method
 func GetServiceRepositoryInstance(db *gorm.DB) ServiceRepository {
 	if srInstance == nil {
 		srInstance = NewServiceRepository(db)
@@ -37,6 +46,7 @@ func GetServiceRepositoryInstance(db *gorm.DB) ServiceRepository {
 	return srInstance
 }
 
+// Constructor
 func NewServiceRepository(db *gorm.DB) ServiceRepository {
 	log.Logger.Info("New `ServiceRepository` instance")
 	log.Logger.Info("Inject `gorm.DB` to `ServiceRepository`")
