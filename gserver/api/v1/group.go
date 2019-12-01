@@ -30,8 +30,8 @@ type Group interface {
 
 // Group api struct
 type GroupImpl struct {
-	request          api.Request
-	groupService     service.GroupService
+	request      api.Request
+	groupService service.GroupService
 }
 
 // Get Policy instance.
@@ -48,8 +48,8 @@ func NewGroup() Group {
 	log.Logger.Info("New `Group` instance")
 	log.Logger.Info("Inject `request`, `AuthService`, `GroupService` to `Group`")
 	return GroupImpl{
-		request:          api.GetRequestInstance(),
-		groupService:     service.GetGroupServiceInstance(),
+		request:      api.GetRequestInstance(),
+		groupService: service.GetGroupServiceInstance(),
 	}
 }
 
@@ -85,7 +85,6 @@ func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 
 func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var request *entity.Group
-
 	json.Unmarshal(body, &request)
 	if err := gh.request.ValidateBody(w, request); err != nil {
 		return

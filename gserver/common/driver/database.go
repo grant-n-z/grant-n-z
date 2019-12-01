@@ -41,6 +41,7 @@ func initDataBase() {
 	db, err := gorm.Open("mysql", dbSource)
 	if err != nil {
 		log.Logger.Warn(err.Error())
+		CloseConnection()
 		panic("Cannot connect MySQL")
 	}
 
@@ -64,9 +65,26 @@ func initRedis() {
 	_, err := client.Ping().Result()
 	if err != nil {
 		log.Logger.Warn(err.Error())
+		CloseConnection()
 		panic("Cannot connect Redis")
 	}
 
 	log.Logger.Info("Connected Redis", config.Redis.Host)
 	Redis = client
+}
+
+func CloseConnection() {
+	if Db != nil {
+		Db.Close()
+		log.Logger.Info("Closed MySQL connection")
+	} else {
+		log.Logger.Info("Already closed MySQL connection")
+	}
+
+	if Redis != nil {
+		Redis.Close()
+		log.Logger.Info("Closed Redis connection")
+	} else {
+		log.Logger.Info("Already closed Redis connection")
+	}
 }

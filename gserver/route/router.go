@@ -1,9 +1,9 @@
 package route
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/api/operator"
 	"net/http"
 
+	"github.com/tomoyane/grant-n-z/gserver/api/operator"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -59,6 +59,7 @@ func (r Router) V1() {
 	http.HandleFunc("/api/v1/token", r.Token.Api)
 
 	// Control group of user
+	http.HandleFunc("/api/v1/groups/", r.Group.Api)
 	http.HandleFunc("/api/v1/groups", r.Group.Api)
 
 	// Control create to user, update to user
@@ -67,7 +68,7 @@ func (r Router) V1() {
 	// Control get service of user
 	http.HandleFunc("/api/v1/services", r.Service.Api)
 
-	// Get policy info of user
+	// Get groups's policy info of user
 	http.HandleFunc("/api/v1/policies", r.Policy.Api)
 
 	// http.HandleFunc("/api/v1/user_services", r.UserService.Api)
@@ -95,6 +96,10 @@ func (r Router) V1() {
 
 func (r Router) Operator() {
 	http.HandleFunc("/api/operator/services", r.OperatorService.Api)
+
+	http.HandleFunc("/api/v1/roles", r.Role.Api)
+
+	http.HandleFunc("/api/v1/permissions", r.Permission.Api)
 }
 
 func (r Router) Admin() {

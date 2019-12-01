@@ -124,12 +124,7 @@ func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, 
 	code := <-exitCode
 	server.Shutdown(ctx)
 
-	driver.Db.Close()
-	log.Logger.Info("Closed MySQL connection")
-
-	driver.Redis.Close()
-	log.Logger.Info("Closed Redis connection")
-
+	driver.CloseConnection()
 	log.Logger.Info("Shutdown gracefully")
 	os.Exit(code)
 }
