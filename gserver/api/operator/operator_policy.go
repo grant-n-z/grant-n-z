@@ -12,10 +12,10 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
-var operatorPlhInstance OperatorPolicy
+var omhInstance OperatorPolicy
 
 type OperatorPolicy interface {
-	// Implement policy api
+	// Implement operator policy api
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http GET method
@@ -31,51 +31,53 @@ type OperatorPolicy interface {
 	delete(w http.ResponseWriter, r *http.Request)
 }
 
-type PolicyImpl struct {
-	Request       api.Request
-	PolicyService service.PolicyService
+type OperatorPolicyImpl struct {
+	Request               api.Request
+	OperatorPolicyService service.OperatorPolicyService
 }
 
 func GetOperatorPolicyInstance() OperatorPolicy {
-	if operatorPlhInstance == nil {
-		operatorPlhInstance = NewOperatorPolicy()
+	if omhInstance == nil {
+		omhInstance = NewOperatorPolicy()
 	}
-	return operatorPlhInstance
+	return omhInstance
 }
 
 func NewOperatorPolicy() OperatorPolicy {
 	log.Logger.Info("New `OperatorPolicy` instance")
-	log.Logger.Info("Inject `Request`, `PolicyService` to `OperatorPolicy`")
-	return PolicyImpl{
-		Request:       api.GetRequestInstance(),
-		PolicyService: service.GetPolicyServiceInstance(),
+	log.Logger.Info("Inject `request`, `operatorMemberRoleService` to `OperatorPolicy`")
+	return OperatorPolicyImpl{
+		Request:               api.GetRequestInstance(),
+		OperatorPolicyService: service.NewOperatorPolicyServiceService(),
 	}
 }
 
-func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	body, err := ph.Request.Intercept(w, r, property.AuthOperator)
+	body, err := rmrhi.Request.Intercept(w, r, property.AuthOperator)
 	if err != nil {
 		return
 	}
 
 	switch r.Method {
 	case http.MethodGet:
-		ph.get(w, r)
+		rmrhi.get(w, r)
 	case http.MethodPost:
-		ph.post(w, r, body)
+		rmrhi.post(w, r, body)
 	case http.MethodPut:
-		ph.put(w, r)
+		rmrhi.put(w, r)
 	case http.MethodDelete:
-		ph.delete(w, r)
+		rmrhi.delete(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
-func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
-	roleMemberEntities, err := ph.PolicyService.GetPolicies()
+func (rmrhi OperatorPolicyImpl) get(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get(entity.OperatorPolicyUserId.String())
+
+	roleMemberEntities, err := rmrhi.OperatorPolicyService.Get(id)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -86,27 +88,27 @@ func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (ph PolicyImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
-	var policyEntity *entity.Policy
+func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
+	var roleMemberEntity *entity.OperatorPolicy
 
-	json.Unmarshal(body, &policyEntity)
-	if err := ph.Request.ValidateBody(w, policyEntity); err != nil {
+	json.Unmarshal(body, &roleMemberEntity)
+	if err := rmrhi.Request.ValidateBody(w, roleMemberEntity); err != nil {
 		return
 	}
 
-	policy, err := ph.PolicyService.InsertPolicy(policyEntity)
+	roleMember, err := rmrhi.OperatorPolicyService.Insert(roleMemberEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(policy)
+	res, _ := json.Marshal(roleMember)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }
 
-func (ph PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyImpl) put(w http.ResponseWriter, r *http.Request) {
 }
 
-func (ph PolicyImpl) delete(w http.ResponseWriter, r *http.Request) {
+func (rmrhi OperatorPolicyImpl) delete(w http.ResponseWriter, r *http.Request) {
 }

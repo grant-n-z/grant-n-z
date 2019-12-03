@@ -1,4 +1,4 @@
-package v1
+package groups
 
 import (
 	"encoding/json"
@@ -15,31 +15,31 @@ import (
 )
 
 const (
-	endpointServices = "/api/v1/services"
+	endpointRoles = "/api/v1/roles"
 )
 
-func TestServiceHandlerGet(t *testing.T) {
-	request := httptest.NewRequest(http.MethodGet, endpointServices, nil)
+func TestRoleHandlerGet(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, endpointRoles, nil)
 	recorder := httptest.NewRecorder()
 
-	NewServiceHandler().Get(recorder, request)
+	NewRoleHandler().Get(recorder, request)
 	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
-func TestServiceHandlerPost(t *testing.T) {
+func TestRoleHandlerPost(t *testing.T) {
 	id, _ := uuid.NewV4()
 	name := fmt.Sprintf("unit_test_%s", id.String())
 
-	service := entity.Service{
+	role := entity.Role{
 		Name: name,
 	}
 
-	body, _:= json.Marshal(service)
+	body, _:= json.Marshal(role)
 
-	request := httptest.NewRequest(http.MethodPost, endpointServices, strings.NewReader(string(body)))
+	request := httptest.NewRequest(http.MethodPost, endpointRoles, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 
-	NewServiceHandler().Post(recorder, request)
+	NewRoleHandler().Post(recorder, request)
 	assert.Equal(t, http.StatusCreated, recorder.Code)
 }

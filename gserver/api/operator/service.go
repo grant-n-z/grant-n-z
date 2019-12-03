@@ -12,9 +12,9 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
-var operatorShInstance OperatorService
+var shInstance Service
 
-type OperatorService interface {
+type Service interface {
 	// Implement service admin service api
 	Api(w http.ResponseWriter, r *http.Request)
 
@@ -36,14 +36,14 @@ type OperatorServiceImpl struct {
 	Service service.Service
 }
 
-func GetOperatorServiceInstance() OperatorService {
-	if operatorShInstance == nil {
-		operatorShInstance = NewOperatorService()
+func GetOperatorServiceInstance() Service {
+	if shInstance == nil {
+		shInstance = NewOperatorService()
 	}
-	return operatorShInstance
+	return shInstance
 }
 
-func NewOperatorService() OperatorService {
+func NewOperatorService() Service {
 	log.Logger.Info("New `OperatorService` instance")
 	log.Logger.Info("Inject `request`, `Service` to `OperatorService`")
 	return OperatorServiceImpl{
