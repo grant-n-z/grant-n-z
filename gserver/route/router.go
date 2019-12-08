@@ -5,40 +5,66 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gserver/api/operator"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1"
+	"github.com/tomoyane/grant-n-z/gserver/api/v1/groups"
+	"github.com/tomoyane/grant-n-z/gserver/api/v1/users"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
 type Router struct {
-	Auth           v1.Auth
-	Token          v1.Token
-	Group          v1.Group
-	User           v1.User
-	Service        v1.Service
-	ServiceGroup   v1.ServiceGroup
-	Role           v1.Role
-	OperatorPolicy v1.OperatorPolicy
-	UserService    v1.UserService
-	Permission     v1.Permission
-	Policy         v1.Policy
+	Auth  v1.Auth
+	Token v1.Token
 
-	OperatorService operator.OperatorService
+	UsersRouter     UsersRouter
+	GroupsRouter    GroupsRouter
+	OperatorsRouter OperatorsRouter
+}
+
+type UsersRouter struct {
+	Group   users.Group
+	User    users.User
+	Service users.Service
+	Policy  users.Policy
+}
+
+type GroupsRouter struct {
+	Role       groups.Role
+	Service    groups.Service
+	Permission groups.Permission
+	Policy     groups.Policy
+}
+
+type OperatorsRouter struct {
+	OperatorPolicy operator.OperatorPolicy
+	Service        operator.Service
 }
 
 func NewRouter() Router {
+	usersRouter := UsersRouter{
+		Group:   users.GetGroupInstance(),
+		User:    users.GetUserInstance(),
+		Service: users.GetServiceInstance(),
+		Policy:  users.GetPolicyInstance(),
+	}
+
+	groupsRouter := GroupsRouter{
+		Role:       groups.GetRoleInstance(),
+		Service:    groups.GetServiceInstance(),
+		Permission: groups.GetPermissionInstance(),
+		Policy:     groups.GetPolicyInstance(),
+	}
+
+	operatorsRouter := OperatorsRouter{
+		OperatorPolicy: operator.GetOperatorPolicyInstance(),
+		Service:        operator.GetOperatorServiceInstance(),
+	}
 	return Router{
-		Auth:            v1.GetAuthInstance(),
-		Token:           v1.GetTokenInstance(),
-		Group:           v1.GetGroupInstance(),
-		User:            v1.GetUserInstance(),
-		Service:         v1.GetServiceInstance(),
-		ServiceGroup:    v1.GetServiceGroupInstance(),
-		Role:            v1.GetRoleInstance(),
-		OperatorPolicy:  v1.GetOperatorPolicyInstance(),
-		UserService:     v1.GetUserServiceInstance(),
-		Permission:      v1.GetPermissionInstance(),
-		Policy:          v1.GetPolicyInstance(),
-		OperatorService: operator.GetOperatorServiceInstance(),
+		Auth:  v1.GetAuthInstance(),
+		Token: v1.GetTokenInstance(),
+
+		UsersRouter:     usersRouter,
+		GroupsRouter:    groupsRouter,
+		OperatorsRouter: operatorsRouter,
 	}
 }
 
@@ -58,27 +84,35 @@ func (r Router) V1() {
 	// Generate user token, operator token
 	http.HandleFunc("/api/v1/token", r.Token.Api)
 
-	// Control group of user
-	http.HandleFunc("/api/v1/groups/", r.Group.Api)
-	http.HandleFunc("/api/v1/groups", r.Group.Api)
+	user := func() {
+		// Control create to user, update to user
+		http.HandleFunc("/api/v1/users", r.UsersRouter.User.Api)
 
-	// Control create to user, update to user
-	http.HandleFunc("/api/v1/users", r.User.Api)
+		// Control group of user
+		http.HandleFunc("/api/v1/users/group", r.UsersRouter.Group.Api)
 
-	// Control get service of user
-	http.HandleFunc("/api/v1/services", r.Service.Api)
+		// Control get service of user
+		http.HandleFunc("/api/v1/users/service", r.UsersRouter.Service.Api)
 
-	// Get groups's policy info of user
-	http.HandleFunc("/api/v1/policies", r.Policy.Api)
+		// Get groups's policy info of user
+		http.HandleFunc("/api/v1/users/policy", r.UsersRouter.Policy.Api)
+	}
 
-	// http.HandleFunc("/api/v1/user_services", r.UserService.Api)
+	group := func() {
+		// Control to service of group
+		http.HandleFunc("/api/v1/groups/service", r.GroupsRouter.Service.Api)
 
-	http.HandleFunc("/api/v1/roles", r.Role.Api)
+		// Control to role of group
+		http.HandleFunc("/api/v1/groups/role", r.GroupsRouter.Role.Api)
 
-	http.HandleFunc("/api/v1/permissions", r.Permission.Api)
+		// Control to permission of group
+		http.HandleFunc("/api/v1/groups/permission", r.GroupsRouter.Permission.Api)
+	}
 
-	http.HandleFunc("/api/v1/operator_policies", r.OperatorPolicy.Api)
+	user()
+	group()
 
+	// TODO: update route info
 	log.Logger.Info("------ Routing info ------")
 	log.Logger.Info("Routing: /api/v1/oauth")
 	log.Logger.Info("Routing: /api/v1/groups")
@@ -94,12 +128,15 @@ func (r Router) V1() {
 	log.Logger.Info("------ Routing info ------")
 }
 
-func (r Router) Operator() {
-	http.HandleFunc("/api/operator/services", r.OperatorService.Api)
+func (r Router) Operators() {
+	// TODO: update route info
+	http.HandleFunc("/api/operator/service", r.OperatorsRouter.Service.Api)
 
-	http.HandleFunc("/api/v1/roles", r.Role.Api)
+	http.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
 
-	http.HandleFunc("/api/v1/permissions", r.Permission.Api)
+	http.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
+
+	http.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
 }
 
 func (r Router) Admin() {
