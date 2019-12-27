@@ -21,8 +21,8 @@ type UserService struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	User      User
-	Service   Service
+	User    User
+	Service Service
 }
 
 // UserService table config struct

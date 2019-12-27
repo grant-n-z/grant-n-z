@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
-
 )
 
 const (
@@ -32,7 +31,7 @@ func TestOperateMemberRoleHandlerPost(t *testing.T) {
 		UserId: 1,
 	}
 
-	body, _:= json.Marshal(roleMember)
+	body, _ := json.Marshal(roleMember)
 
 	request := httptest.NewRequest(http.MethodPost, endpointOperatorMemberRoles, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")

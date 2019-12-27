@@ -34,7 +34,7 @@ func TestRoleHandlerPost(t *testing.T) {
 		Name: name,
 	}
 
-	body, _:= json.Marshal(role)
+	body, _ := json.Marshal(role)
 
 	request := httptest.NewRequest(http.MethodPost, endpointRoles, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")

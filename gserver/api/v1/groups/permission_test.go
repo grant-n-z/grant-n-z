@@ -36,7 +36,7 @@ func TestPermissionHandlerPost(t *testing.T) {
 		Name: name,
 	}
 
-	body, _:= json.Marshal(permission)
+	body, _ := json.Marshal(permission)
 
 	request := httptest.NewRequest(http.MethodPost, endpointPermissions, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")

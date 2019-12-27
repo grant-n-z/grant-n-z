@@ -27,11 +27,11 @@ func TestUserServiceHandlerGet(t *testing.T) {
 
 func TestUserServiceHandlerPost(t *testing.T) {
 	userService := entity.UserGroup{
-		UserId: 1,
+		UserId:    1,
 		ServiceId: 1,
 	}
 
-	body, _:= json.Marshal(userService)
+	body, _ := json.Marshal(userService)
 
 	request := httptest.NewRequest(http.MethodPost, endpointUserServices, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")

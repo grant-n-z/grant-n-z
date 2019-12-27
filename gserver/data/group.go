@@ -46,7 +46,6 @@ func NewGroupRepository(db *gorm.DB) GroupRepository {
 	return GroupRepositoryImpl{Db: db}
 }
 
-
 func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 	if err := gr.Db.Find(&groups).Error; err != nil {
@@ -89,7 +88,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 
 	// Save service_groups
 	serviceGroup := entity.ServiceGroup{
-		GroupId: group.Id,
+		GroupId:   group.Id,
 		ServiceId: ctx.GetServiceId().(int),
 	}
 	if err := tx.Create(&serviceGroup).Error; err != nil {
@@ -104,7 +103,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 
 	// Save user_groups
 	userGroup := entity.UserGroup{
-		UserId: ctx.GetUserId().(int),
+		UserId:  ctx.GetUserId().(int),
 		GroupId: group.Id,
 	}
 	if err := tx.Create(&userGroup).Error; err != nil {
@@ -119,10 +118,10 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 
 	// Save policies
 	policy := entity.Policy{
-		Name: property.AdminPolicy,
-		RoleId: roleId,
+		Name:         property.AdminPolicy,
+		RoleId:       roleId,
 		PermissionId: permissionId,
-		UserGroupId: userGroup.Id,
+		UserGroupId:  userGroup.Id,
 	}
 	if err := tx.Create(&policy).Error; err != nil {
 		log.Logger.Warn("Failed to save policies at transaction process", err.Error())

@@ -17,11 +17,11 @@ const (
 
 // The table `permissions` struct
 type Permission struct {
-	Id           int       `json:"id"`
-	Uuid         uuid.UUID `json:"uuid"`
-	Name         string    `validate:"required"json:"name"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Id        int       `json:"id"`
+	Uuid      uuid.UUID `json:"uuid"`
+	Name      string    `validate:"required"json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Permission table config struct

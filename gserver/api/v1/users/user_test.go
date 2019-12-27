@@ -36,11 +36,11 @@ func TestUserHandlerPost(t *testing.T) {
 
 	user := entity.User{
 		Username: username,
-		Email: email,
+		Email:    email,
 		Password: password,
 	}
 
-	body, _:= json.Marshal(user)
+	body, _ := json.Marshal(user)
 
 	request := httptest.NewRequest(http.MethodPost, endpointUsers, strings.NewReader(string(body)))
 	request.Header.Set("Content-Type", "application/json")

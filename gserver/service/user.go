@@ -73,7 +73,7 @@ func NewUserService() UserService {
 }
 
 func (us userServiceImpl) EncryptPw(password string) string {
-	hash, err := bcrypt.GenerateFromPassword([] byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Logger.Info("Failed to password hash", err.Error())
 		return ""

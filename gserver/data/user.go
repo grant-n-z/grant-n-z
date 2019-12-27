@@ -103,8 +103,8 @@ func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*enti
 			entity.UserEmail), email).
 		Scan(&uwo).Error; err != nil {
 
-			log.Logger.Warn(err.Error())
-			return nil, model.InternalServerError()
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return &uwo, nil
@@ -132,8 +132,8 @@ func (uri UserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string
 			entity.UserEmail), email).
 		Scan(&uus).Error; err != nil {
 
-			log.Logger.Warn(err.Error())
-			return nil, model.InternalServerError()
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError()
 	}
 
 	return &uus, nil
@@ -183,7 +183,7 @@ func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService 
 func (uri UserRepositoryImpl) Update(user entity.User) (*entity.User, *model.ErrorResBody) {
 	if err := uri.Db.Save(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
-		return nil, model.InternalServerError(	)
+		return nil, model.InternalServerError()
 	}
 
 	return &user, nil

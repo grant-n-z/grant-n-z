@@ -127,7 +127,7 @@ func (m Migration) checkMigrationData() bool {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
 	}
 
-	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && adminPermission != nil&& len(operatorPolicy) != 0 {
+	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && adminPermission != nil && len(operatorPolicy) != 0 {
 		log.Logger.Info("Skip to database migration")
 		return false
 	}
