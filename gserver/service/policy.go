@@ -91,7 +91,7 @@ func (ps policyServiceImpl) GetPolicyByOfUser() ([]map[string]entity.PolicyRespo
 	for _, joinData := range joinObj {
 		// TODO: Read redis cache, roles and permissions
 		policy := entity.NewPolicyResponse().
-			SetName(&joinData.Policy.Name).
+			SetPolicyName(&joinData.Policy.Name).
 			SetRoleName(ps.roleRepository.FindNameById(joinData.Policy.RoleId)).
 			SetPermissionName(ps.permissionRepository.FindNameById(joinData.Policy.PermissionId)).
 			Build()

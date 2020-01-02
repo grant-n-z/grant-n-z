@@ -16,8 +16,8 @@ const (
 )
 
 type PolicyResponseBuilder interface {
-	// Set name at response data
-	SetName(name *string) PolicyResponseBuilder
+	// Set policy name at response data
+	SetPolicyName(name *string) PolicyResponseBuilder
 
 	// Set role_name at response data
 	SetRoleName(roleName *string) PolicyResponseBuilder
@@ -42,7 +42,7 @@ type Policy struct {
 
 // The api policy response struct
 type PolicyResponse struct {
-	Name           string `json:"name"`
+	PolicyName     string `json:"policy_name"`
 	RoleName       string `json:"role_name"`
 	PermissionName string `json:"permission_name"`
 }
@@ -55,11 +55,11 @@ func NewPolicyResponse() PolicyResponseBuilder {
 	return &PolicyResponse{}
 }
 
-func (p PolicyResponse) SetName(name *string) PolicyResponseBuilder {
+func (p PolicyResponse) SetPolicyName(name *string) PolicyResponseBuilder {
 	if name == nil {
-		p.Name = ""
+		p.PolicyName = ""
 	} else {
-		p.Name = *name
+		p.PolicyName = *name
 	}
 	return p
 }
@@ -84,7 +84,7 @@ func (p PolicyResponse) SetPermissionName(permissionName *string) PolicyResponse
 
 func (p PolicyResponse) Build() PolicyResponse {
 	return PolicyResponse{
-		Name:           p.Name,
+		PolicyName:     p.PolicyName,
 		RoleName:       p.RoleName,
 		PermissionName: p.PermissionName,
 	}

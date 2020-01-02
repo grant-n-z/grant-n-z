@@ -15,11 +15,16 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+const (
+	Authorization = "Authorization"
+	Key           = "Api-Key"
+	ContentType   = "Content-Type"
+)
+
 var rhInstance Request
 
 type Request interface {
-	// Http interceptor
-	// Set request scope
+	// Http request interceptor
 	Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.ErrorResBody)
 
 	// Validate http request
@@ -56,21 +61,16 @@ func NewRequest() Request {
 }
 
 func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.ErrorResBody) {
-	var authUser *model.AuthUser
-	var err *model.ErrorResBody
 	if !strings.EqualFold(authType, "") {
-		token := r.Header.Get("Authorization")
-		authUser, err = rh.tokenService.VerifyToken(w, r, authType, token)
+		token := r.Header.Get(Authorization)
+		authUser, err := rh.tokenService.VerifyToken(w, r, authType, token)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return nil, err
 		}
 
-		// Set user id request scope
 		ctx.SetUserId(authUser.UserId)
-		// Set user uuid request scope
 		ctx.SetUserUuid(authUser.UserUuid.String())
-		// Set service id request scope
 		ctx.SetServiceId(authUser.ServiceId)
 	}
 
@@ -79,15 +79,13 @@ func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType
 		return nil, err
 	}
 
-	// Set api key request scope
-	ctx.SetApiKey(r.Header.Get("Api-Key"))
-
 	bodyBytes, err := rh.bindBody(r)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return nil, err
 	}
 
+	ctx.SetApiKey(r.Header.Get(Key))
 	return bodyBytes, nil
 }
 
@@ -104,7 +102,7 @@ func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.
 
 func (rh RequestImpl) validateHeader(r *http.Request) *model.ErrorResBody {
 	if r.Method != http.MethodGet {
-		if r.Header.Get("Content-Type") != "application/json" {
+		if r.Header.Get(ContentType) != "application/json" {
 			log.Logger.Info("Not allowed content-type")
 			return model.BadRequest("Need to content type is only json.")
 		}

@@ -29,9 +29,7 @@ type UsersRouter struct {
 
 type GroupsRouter struct {
 	Role       groups.Role
-	Service    groups.Service
 	Permission groups.Permission
-	Policy     groups.Policy
 }
 
 type OperatorsRouter struct {
@@ -49,9 +47,7 @@ func NewRouter() Router {
 
 	groupsRouter := GroupsRouter{
 		Role:       groups.GetRoleInstance(),
-		Service:    groups.GetServiceInstance(),
 		Permission: groups.GetPermissionInstance(),
-		Policy:     groups.GetPolicyInstance(),
 	}
 
 	operatorsRouter := OperatorsRouter{
@@ -78,34 +74,18 @@ func (r Router) Init() {
 }
 
 func (r Router) V1() {
-	// Verify token
 	http.HandleFunc("/api/v1/auth", r.Auth.Api)
-
-	// Generate user token, operator token
 	http.HandleFunc("/api/v1/token", r.Token.Api)
 
 	user := func() {
-		// Control create to user, update to user
 		http.HandleFunc("/api/v1/users", r.UsersRouter.User.Api)
-
-		// Control group of user
 		http.HandleFunc("/api/v1/users/group", r.UsersRouter.Group.Api)
-
-		// Control get service of user
 		http.HandleFunc("/api/v1/users/service", r.UsersRouter.Service.Api)
-
-		// Get groups's policy info of user
 		http.HandleFunc("/api/v1/users/policy", r.UsersRouter.Policy.Api)
 	}
 
 	group := func() {
-		// Control to service of group
-		http.HandleFunc("/api/v1/groups/service", r.GroupsRouter.Service.Api)
-
-		// Control to role of group
 		http.HandleFunc("/api/v1/groups/role", r.GroupsRouter.Role.Api)
-
-		// Control to permission of group
 		http.HandleFunc("/api/v1/groups/permission", r.GroupsRouter.Permission.Api)
 	}
 
@@ -131,11 +111,8 @@ func (r Router) V1() {
 func (r Router) Operators() {
 	// TODO: update route info
 	http.HandleFunc("/api/operator/service", r.OperatorsRouter.Service.Api)
-
 	http.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
-
 	http.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
-
 	http.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
 }
 
