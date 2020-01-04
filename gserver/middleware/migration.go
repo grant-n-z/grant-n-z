@@ -1,4 +1,4 @@
-package migration
+package middleware
 
 import (
 	"net/http"
@@ -37,7 +37,7 @@ func (m Migration) V1() {
 		Email:    "operator@gmail.com",
 		Password: "grant_n_z_operator",
 	}
-	_, userErr := m.userService.InsertUser(&operatorUser)
+	_, userErr := m.userService.InsertUser(operatorUser)
 	if userErr != nil {
 		if userErr.Code != http.StatusConflict {
 			log.Logger.Fatal("Failed to generate user for migration")
