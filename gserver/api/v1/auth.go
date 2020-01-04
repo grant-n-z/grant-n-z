@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
@@ -23,7 +22,6 @@ type Auth interface {
 
 // Auth api struct
 type AuthImpl struct {
-	request      api.Request
 	tokenService service.TokenService
 }
 
@@ -39,11 +37,8 @@ func GetAuthInstance() Auth {
 // Constructor
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
-	log.Logger.Info("Inject `request`, `TokenService` to `Auth`")
-	return AuthImpl{
-		request:      api.GetRequestInstance(),
-		tokenService: service.GetTokenServiceInstance(),
-	}
+	log.Logger.Info("Inject `TokenService` to `Auth`")
+	return AuthImpl{tokenService: service.GetTokenServiceInstance()}
 }
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +54,8 @@ func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	var result bool
-	_, err := ah.request.Intercept(w, r, property.AuthUser)
+	token := r.Header.Get(middleware.Authorization)
+	_, err := ah.tokenService.VerifyUserToken(token)
 	if err != nil {
 		result = false
 	} else {

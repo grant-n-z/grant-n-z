@@ -1,10 +1,13 @@
 package users
 
 import (
+	"strconv"
+
 	"encoding/json"
 	"net/http"
 
-	"github.com/satori/go.uuid"
+	"github.com/gorilla/mux"
+	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -110,6 +113,13 @@ func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
 
 	userEntity.Id = ctx.GetUserId().(int)
 	userEntity.Uuid = ctx.GetUserUuid().(uuid.UUID)
+	userId, _ := strconv.Atoi(mux.Vars(r)["user_id"])
+	if userEntity.Id != userId {
+		err := model.BadRequest("Not match path param id and your user id")
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
 	if _, err := uh.UserService.UpdateUser(*userEntity); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

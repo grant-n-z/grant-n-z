@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/api"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/middleware"
@@ -24,7 +23,6 @@ type Token interface {
 
 // Token api struct.
 type TokenImpl struct {
-	Request      api.Request
 	TokenService service.TokenService
 }
 
@@ -40,11 +38,8 @@ func GetTokenInstance() Token {
 // Constructor.
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
-	log.Logger.Info("Inject `request`, `TokenService` to `Token`")
-	return TokenImpl{
-		Request:      api.GetRequestInstance(),
-		TokenService: service.GetTokenServiceInstance(),
-	}
+	log.Logger.Info("Inject `TokenService` to `Token`")
+	return TokenImpl{TokenService: service.GetTokenServiceInstance()}
 }
 
 func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {

@@ -1,15 +1,12 @@
 package api
 
 import (
-	"strings"
-
 	"io/ioutil"
 	"net/http"
 
 	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/tomoyane/grant-n-z/gserver/cache"
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -61,32 +58,7 @@ func NewRequest() Request {
 }
 
 func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType string) ([]byte, *model.ErrorResBody) {
-	if !strings.EqualFold(authType, "") {
-		token := r.Header.Get(Authorization)
-		authUser, err := rh.tokenService.VerifyToken(w, r, authType, token)
-		if err != nil {
-			model.WriteError(w, err.ToJson(), err.Code)
-			return nil, err
-		}
-
-		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid.String())
-		ctx.SetServiceId(authUser.ServiceId)
-	}
-
-	if err := rh.validateHeader(r); err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return nil, err
-	}
-
-	bodyBytes, err := rh.bindBody(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return nil, err
-	}
-
-	ctx.SetApiKey(r.Header.Get(Key))
-	return bodyBytes, nil
+	return nil, nil
 }
 
 func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
