@@ -3,6 +3,7 @@ package gserver
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"os"
 	"syscall"
 	"time"
@@ -64,24 +65,24 @@ func NewGrantNZServer() GrantNZServer {
 
 func (g GrantNZServer) Run() {
 	g.migration()
-	mux := g.runRouter()
+	router := g.runRouter()
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
-	g.runServer(mux)
+	g.runServer(router)
 }
 
 func (g GrantNZServer) migration() {
 	middleware.NewMigration().V1()
 }
 
-func (g GrantNZServer) runRouter() *http.ServeMux {
+func (g GrantNZServer) runRouter() *mux.Router {
 	return g.router.Run()
 }
 
-func (g GrantNZServer) runServer(mux *http.ServeMux) {
+func (g GrantNZServer) runServer(router *mux.Router) {
 	fmt.Printf(banner, Port, config.App.Version)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), mux); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), router); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)
 	}

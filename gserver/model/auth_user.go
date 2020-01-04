@@ -1,6 +1,6 @@
 package model
 
-import "github.com/satori/go.uuid"
+import "github.com/google/uuid"
 
 // User data in jwt
 type AuthUser struct {

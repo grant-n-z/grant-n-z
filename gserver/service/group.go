@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
@@ -66,7 +66,7 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 }
 
 func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody) {
-	group.Uuid, _ = uuid.NewV4()
+	group.Uuid = uuid.New()
 	role, err := gs.roleRepository.FindByName(property.Admin)
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")

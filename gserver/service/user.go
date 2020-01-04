@@ -3,7 +3,7 @@ package service
 import (
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
@@ -109,13 +109,13 @@ func (us userServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string)
 }
 
 func (us userServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
-	user.Uuid, _ = uuid.NewV4()
+	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.Save(user)
 }
 
 func (us userServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
-	user.Uuid, _ = uuid.NewV4()
+	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.SaveWithUserService(user, userService)
 }

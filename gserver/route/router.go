@@ -1,19 +1,21 @@
 package route
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"net/http"
+
+	"github.com/gorilla/mux"
 
 	"github.com/tomoyane/grant-n-z/gserver/api/operator"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1/groups"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1/users"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
 
 type Router struct {
-	mux         *http.ServeMux
+	mux         *mux.Router
 	interceptor middleware.Interceptor
 
 	Auth  v1.Auth
@@ -60,7 +62,7 @@ func NewRouter() Router {
 	}
 
 	return Router{
-		mux:         http.NewServeMux(),
+		mux:         mux.NewRouter(),
 		interceptor: middleware.GetInterceptorInstance(),
 
 		Auth:  v1.GetAuthInstance(),
@@ -72,7 +74,7 @@ func NewRouter() Router {
 	}
 }
 
-func (r Router) Run() *http.ServeMux {
+func (r Router) Run() *mux.Router {
 	r.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		res := model.NotFound("Not found resource path.")
 		w.Header().Set("Content-Type", "application/json")
@@ -92,17 +94,17 @@ func (r Router) v1() {
 
 	user := func() {
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post))
-		r.mux.HandleFunc("/api/v1/users/:id", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put))
-		r.mux.HandleFunc("/api/v1/users/:id/group", r.UsersRouter.Group.Api)
-		r.mux.HandleFunc("/api/v1/users/:id/service", r.UsersRouter.Service.Api)
-		r.mux.HandleFunc("/api/v1/users/:id/policy", r.UsersRouter.Policy.Api)
+		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put))
+		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}/group", r.UsersRouter.Group.Api)
+		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}/service", r.UsersRouter.Service.Api)
+		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}/policy", r.UsersRouter.Policy.Api)
 	}
 
 	group := func() {
-		r.mux.HandleFunc("/api/v1/groups/:group_id/user", r.GroupsRouter.Role.Api)
-		r.mux.HandleFunc("/api/v1/groups/:group_id/role", r.GroupsRouter.Role.Api)
-		r.mux.HandleFunc("/api/v1/groups/:group_id/permission", r.GroupsRouter.Permission.Api)
-		r.mux.HandleFunc("/api/v1/groups/:group_id/users/:to_user_id/policy", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/user", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.GroupsRouter.Permission.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/users/{to_user_id}/policy", r.GroupsRouter.Role.Api)
 	}
 
 	user()

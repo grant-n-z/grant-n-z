@@ -97,7 +97,7 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 		}
 
 		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid.String())
+		ctx.SetUserUuid(authUser.UserUuid)
 		ctx.SetServiceId(authUser.ServiceId)
 
 		next.ServeHTTP(w, r)
@@ -126,7 +126,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 		}
 
 		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid.String())
+		ctx.SetUserUuid(authUser.UserUuid)
 		ctx.SetServiceId(authUser.ServiceId)
 
 		next.ServeHTTP(w, r)

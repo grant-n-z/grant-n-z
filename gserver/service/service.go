@@ -3,7 +3,7 @@ package service
 import (
 	"strings"
 
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
@@ -83,8 +83,8 @@ func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody
 }
 
 func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
-	service.Uuid, _ = uuid.NewV4()
-	key, _ := uuid.NewV4()
+	service.Uuid = uuid.New()
+	key := uuid.New()
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
 	return ss.serviceRepository.Save(*service)
 }

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -59,6 +59,6 @@ func (ps permissionServiceImpl) GetPermissionByName(name string) (*entity.Permis
 }
 
 func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {
-	permission.Uuid, _ = uuid.NewV4()
+	permission.Uuid = uuid.New()
 	return ps.permissionRepository.Save(*permission)
 }

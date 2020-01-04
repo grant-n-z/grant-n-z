@@ -1,6 +1,9 @@
 package ctx
 
-import "context"
+import (
+	"context"
+	"github.com/google/uuid"
+)
 
 // Global context
 var Ctx context.Context
@@ -41,7 +44,7 @@ func GetUserId() interface{} {
 }
 
 // Setter user uuid
-func SetUserUuid(userUuid string) {
+func SetUserUuid(userUuid uuid.UUID) {
 	Ctx = context.WithValue(Ctx, "user_uuid", userUuid)
 }
 

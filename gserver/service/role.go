@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -56,6 +56,6 @@ func (rs roleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.Error
 }
 
 func (rs roleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
-	role.Uuid, _ = uuid.NewV4()
+	role.Uuid = uuid.New()
 	return rs.roleRepository.Save(*role)
 }
