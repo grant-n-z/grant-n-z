@@ -1,12 +1,9 @@
 package users
 
 import (
-	"strconv"
-
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
@@ -53,12 +50,6 @@ func NewUser() User {
 }
 
 func (uh UserImpl) Post(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		err := model.MethodNotAllowed()
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
 	var userEntity *entity.User
 	if err := middleware.BindBody(w, r, &userEntity); err != nil {
 		return
@@ -96,12 +87,6 @@ func (uh UserImpl) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		err := model.MethodNotAllowed()
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
 	var userEntity *entity.User
 	if err := middleware.BindBody(w, r, &userEntity); err != nil {
 		return
@@ -113,13 +98,6 @@ func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
 
 	userEntity.Id = ctx.GetUserId().(int)
 	userEntity.Uuid = ctx.GetUserUuid().(uuid.UUID)
-	userId, _ := strconv.Atoi(mux.Vars(r)["user_id"])
-	if userEntity.Id != userId {
-		err := model.BadRequest("Not match path param id and your user id")
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
 	if _, err := uh.UserService.UpdateUser(*userEntity); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

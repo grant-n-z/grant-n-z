@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
@@ -22,7 +21,7 @@ type Group interface {
 	get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
+	post(w http.ResponseWriter, r *http.Request)
 
 	// Http DELETE method
 	delete(w http.ResponseWriter, r *http.Request)
@@ -30,7 +29,6 @@ type Group interface {
 
 // Group api struct
 type GroupImpl struct {
-	request      api.Request
 	groupService service.GroupService
 }
 
@@ -46,25 +44,16 @@ func GetGroupInstance() Group {
 // Constructor
 func NewGroup() Group {
 	log.Logger.Info("New `Group` instance")
-	log.Logger.Info("Inject `request`, `AuthService`, `GroupService` to `Group`")
-	return GroupImpl{
-		request:      api.GetRequestInstance(),
-		groupService: service.GetGroupServiceInstance(),
-	}
+	log.Logger.Info("Inject `AuthService`, `GroupService` to `Group`")
+	return GroupImpl{groupService: service.GetGroupServiceInstance()}
 }
 
 func (gh GroupImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	body, err := gh.request.Intercept(w, r, property.AuthUser)
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		gh.get(w, r)
 	case http.MethodPost:
-		gh.post(w, r, body)
+		gh.post(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -83,14 +72,18 @@ func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
-	var request *entity.Group
-	json.Unmarshal(body, &request)
-	if err := gh.request.ValidateBody(w, request); err != nil {
+func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
+	var groupEntity *entity.Group
+
+	if err := middleware.BindBody(w, r, &groupEntity); err != nil {
 		return
 	}
 
-	group, err := gh.groupService.InsertGroup(request)
+	if err := middleware.ValidateBody(w, groupEntity); err != nil {
+		return
+	}
+
+	group, err := gh.groupService.InsertGroup(*groupEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

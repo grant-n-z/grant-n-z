@@ -93,11 +93,11 @@ func (r Router) v1() {
 	r.mux.HandleFunc("/api/v1/token", r.interceptor.Intercept(r.Token.Api))
 
 	user := func() {
-		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post))
-		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put))
-		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}/group", r.UsersRouter.Group.Api)
-		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}/service", r.UsersRouter.Service.Api)
-		r.mux.HandleFunc("/api/v1/users/{user_id:[0-9]+}/policy", r.UsersRouter.Policy.Api)
+		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post)).Methods(http.MethodPost)
+		r.mux.HandleFunc("/api/v1/users", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put)).Methods(http.MethodPut)
+		r.mux.HandleFunc("/api/v1/users/group", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Group.Api))
+		r.mux.HandleFunc("/api/v1/users/service", r.UsersRouter.Service.Api)
+		r.mux.HandleFunc("/api/v1/users/policy", r.UsersRouter.Policy.Api)
 	}
 
 	group := func() {

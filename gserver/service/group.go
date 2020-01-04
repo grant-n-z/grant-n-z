@@ -22,7 +22,7 @@ type GroupService interface {
 	GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody)
 
 	// Insert group
-	InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody)
+	InsertGroup(group entity.Group) (*entity.Group, *model.ErrorResBody)
 }
 
 // GroupService struct
@@ -65,7 +65,7 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 	return gs.userGroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
 }
 
-func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *model.ErrorResBody) {
+func (gs GroupServiceImpl) InsertGroup(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
 	role, err := gs.roleRepository.FindByName(property.Admin)
 	if err != nil {
@@ -79,5 +79,5 @@ func (gs GroupServiceImpl) InsertGroup(group *entity.Group) (*entity.Group, *mod
 		return nil, model.InternalServerError()
 	}
 
-	return gs.groupRepository.SaveWithRelationalData(*group, role.Id, permission.Id)
+	return gs.groupRepository.SaveWithRelationalData(group, role.Id, permission.Id)
 }
