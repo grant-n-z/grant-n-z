@@ -96,8 +96,8 @@ func (r Router) v1() {
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post)).Methods(http.MethodPost)
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put)).Methods(http.MethodPut)
 		r.mux.HandleFunc("/api/v1/users/group", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Group.Api))
-		r.mux.HandleFunc("/api/v1/users/service", r.UsersRouter.Service.Api)
-		r.mux.HandleFunc("/api/v1/users/policy", r.UsersRouter.Policy.Api)
+		r.mux.HandleFunc("/api/v1/users/service", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Service.Api))
+		r.mux.HandleFunc("/api/v1/users/policy", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Policy.Api))
 	}
 
 	group := func() {
@@ -110,7 +110,6 @@ func (r Router) v1() {
 	user()
 	group()
 
-	// TODO: update route info
 	log.Logger.Info("------ Routing info ------")
 	log.Logger.Info("Routing: /api/v1/oauth")
 	log.Logger.Info("Routing: /api/v1/groups")

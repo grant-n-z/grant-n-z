@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -23,7 +21,6 @@ type Service interface {
 
 // Service api struct
 type ServiceImpl struct {
-	Request api.Request
 	Service service.Service
 }
 
@@ -39,20 +36,11 @@ func GetServiceInstance() Service {
 // Constructor
 func NewService() Service {
 	log.Logger.Info("New `Service` instance")
-	log.Logger.Info("Inject `request`, `Service` to `Service`")
-	return ServiceImpl{
-		Request: api.GetRequestInstance(),
-		Service: service.GetServiceInstance(),
-	}
+	log.Logger.Info("Inject `Service` to `Service`")
+	return ServiceImpl{Service: service.GetServiceInstance()}
 }
 
 func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_, err := sh.Request.Intercept(w, r, property.AuthUser)
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		sh.get(w, r)

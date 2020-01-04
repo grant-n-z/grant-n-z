@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -24,7 +22,6 @@ type Policy interface {
 
 // Policy api struct
 type PolicyImpl struct {
-	Request       api.Request
 	PolicyService service.PolicyService
 }
 
@@ -40,20 +37,11 @@ func GetPolicyInstance() Policy {
 // Constructor
 func NewPolicy() Policy {
 	log.Logger.Info("New `Policy` instance")
-	log.Logger.Info("Inject `Request`, `PolicyService` to `Policy`")
-	return PolicyImpl{
-		Request:       api.GetRequestInstance(),
-		PolicyService: service.GetPolicyServiceInstance(),
-	}
+	log.Logger.Info("Inject `PolicyService` to `Policy`")
+	return PolicyImpl{PolicyService: service.GetPolicyServiceInstance()}
 }
 
 func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_, err := ph.Request.Intercept(w, r, property.AuthUser)
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		ph.get(w, r)
