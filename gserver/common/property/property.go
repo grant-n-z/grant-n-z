@@ -1,5 +1,6 @@
 package property
 
+// System constant
 const (
 	Test           = "test"
 	AppEnv         = "APP_ENV"

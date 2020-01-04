@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"net/http"
-
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
@@ -26,8 +24,11 @@ type TokenService interface {
 	// Parse and check token
 	ParseToken(token string) (map[string]string, bool)
 
-	// Verify request token
-	VerifyToken(w http.ResponseWriter, r *http.Request, authType string, token string) (*model.AuthUser, *model.ErrorResBody)
+	// Verify operator token
+	VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
+
+	// Verify user token
+	VerifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Generate signed in token
 	generateSignedInToken(user *entity.User, roleId int, serviceId int) *string
@@ -37,12 +38,6 @@ type TokenService interface {
 
 	// Generate user token
 	generateUserToken(userEntity entity.User) (*string, *model.ErrorResBody)
-
-	// Verify operator token
-	verifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
-
-	// Verify user token
-	verifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Get auth user data in token
 	getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
@@ -130,16 +125,31 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	return resultMap, true
 }
 
-func (tsi tokenServiceImpl) VerifyToken(w http.ResponseWriter, r *http.Request, authType string, token string) (*model.AuthUser, *model.ErrorResBody) {
-	var authUser *model.AuthUser
-	var err *model.ErrorResBody
-	if strings.EqualFold(authType, property.AuthOperator) {
-		authUser, err = tsi.verifyOperatorToken(token)
-	} else {
-		authUser, err = tsi.verifyUserToken(token)
-	}
+func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+	authUser, err := tsi.getAuthUserInToken(token)
 	if err != nil {
 		return nil, err
+	}
+
+	operatorRole, err := tsi.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
+	if operatorRole == nil || err != nil {
+		log.Logger.Info("Not contain operator role or failed to query")
+		return nil, model.Forbidden("Forbidden this token")
+	}
+
+	return authUser, nil
+}
+
+func (tsi tokenServiceImpl) VerifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+	authUser, err := tsi.getAuthUserInToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
+	if userService == nil || err != nil {
+		log.Logger.Info("Not contain service of user or failed to query")
+		return nil, model.Forbidden("Forbidden this token")
 	}
 
 	return authUser, nil
@@ -214,36 +224,6 @@ func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int,
 	}
 
 	return &signedToken
-}
-
-func (tsi tokenServiceImpl) verifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tsi.getAuthUserInToken(token)
-	if err != nil {
-		return nil, err
-	}
-
-	operatorRole, err := tsi.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
-	if operatorRole == nil || err != nil {
-		log.Logger.Info("Not contain operator role or failed to query")
-		return nil, model.Forbidden("Forbidden this token")
-	}
-
-	return authUser, nil
-}
-
-func (tsi tokenServiceImpl) verifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tsi.getAuthUserInToken(token)
-	if err != nil {
-		return nil, err
-	}
-
-	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
-	if userService == nil || err != nil {
-		log.Logger.Info("Not contain service of user or failed to query")
-		return nil, model.Forbidden("Forbidden this token")
-	}
-
-	return authUser, nil
 }
 
 func (tsi tokenServiceImpl) getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {

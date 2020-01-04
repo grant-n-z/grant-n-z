@@ -17,10 +17,13 @@ var (
 	Db    DbConfig
 )
 
+// Initialize config
+// The config is app.yaml data structure
 func InitConfig() {
 	initYaml()
 }
 
+// Initialize app.yaml
 func initYaml() {
 	var yml YmlConfig
 	switch os.Getenv(property.AppEnv) {
@@ -35,6 +38,7 @@ func initYaml() {
 	Redis = yml.GetRedisConfig()
 }
 
+// Read yaml file
 func readYml(ymlName string) YmlConfig {
 	var yml YmlConfig
 	data, err := ioutil.ReadFile(ymlName)

@@ -5,12 +5,14 @@ import (
 	"strings"
 )
 
+// app.yaml
 type YmlConfig struct {
 	App   AppConfig   `yaml:"app"`
 	Db    DbConfig    `yaml:"db"`
 	Redis RedisConfig `yaml:"redis"`
 }
 
+// app data in app.yaml
 type AppConfig struct {
 	Version          string `yaml:"version"`
 	PrivateKeyBase64 string `yaml:"private-key-base64"`
@@ -19,6 +21,7 @@ type AppConfig struct {
 	PolicyFilePath   string `yaml:"policy-file-path"`
 }
 
+// db data in app.yaml
 type DbConfig struct {
 	Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
@@ -28,6 +31,7 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
+// redis data in app.yaml
 type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Password string `yaml:"password"`
@@ -35,6 +39,7 @@ type RedisConfig struct {
 	Db       string `yaml:"db"`
 }
 
+// Getter AppConfig
 func (yml YmlConfig) GetAppConfig() AppConfig {
 	privateKeyBase64 := yml.App.PrivateKeyBase64
 	environment := yml.App.Environment
@@ -63,6 +68,7 @@ func (yml YmlConfig) GetAppConfig() AppConfig {
 	return yml.App
 }
 
+// Getter RedisConfig
 func (yml YmlConfig) GetRedisConfig() RedisConfig {
 	host := yml.Redis.Host
 	password := yml.Redis.Password
@@ -92,6 +98,7 @@ func (yml YmlConfig) GetRedisConfig() RedisConfig {
 	return yml.Redis
 }
 
+// Getter DbConfig
 func (yml YmlConfig) GetDbConfig() DbConfig {
 	engine := yml.Db.Engine
 	user := yml.Db.User

@@ -7,6 +7,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/api"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
@@ -14,14 +15,14 @@ import (
 var thInstance Token
 
 type Token interface {
-	// Implement token api
+	// Implement token api.
 	Api(w http.ResponseWriter, r *http.Request)
 
-	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
+	// Http POST method.
+	post(w http.ResponseWriter, r *http.Request)
 }
 
-// Token api struct
+// Token api struct.
 type TokenImpl struct {
 	Request      api.Request
 	TokenService service.TokenService
@@ -36,7 +37,7 @@ func GetTokenInstance() Token {
 	return thInstance
 }
 
-// Constructor
+// Constructor.
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
 	log.Logger.Info("Inject `request`, `TokenService` to `Token`")
@@ -47,27 +48,24 @@ func NewToken() Token {
 }
 
 func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	body, err := th.Request.Intercept(w, r, "")
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodPost:
-		th.post(w, r, body)
+		th.post(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
-func (th TokenImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
+func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 	var userEntity *entity.User
 
-	json.Unmarshal(body, &userEntity)
+	if err := middleware.BindBody(w, r, &userEntity); err != nil {
+		return
+	}
+
 	userEntity.Username = userEntity.Email
-	if err := th.Request.ValidateBody(w, userEntity); err != nil {
+	if err := middleware.ValidateBody(w, userEntity); err != nil {
 		return
 	}
 

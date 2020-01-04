@@ -11,11 +11,13 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/log"
 )
 
+// Global DataBase Client
 var (
 	Db    *gorm.DB
 	Redis *redis.Client
 )
 
+// Initialize database driver
 func InitDriver() {
 	if !strings.EqualFold(config.Db.Engine, "mysql") {
 		panic("Current status, only support mysql.")
@@ -25,6 +27,7 @@ func InitDriver() {
 	initRedis()
 }
 
+// Initialize master database driver
 func initDataBase() {
 	if !strings.EqualFold(config.Db.Engine, "mysql") {
 		panic("Current status, only support mysql.")
@@ -54,6 +57,7 @@ func initDataBase() {
 	Db = db
 }
 
+// Initialize cache database driver
 func initRedis() {
 	db, _ := strconv.Atoi(config.Redis.Db)
 	client := redis.NewClient(&redis.Options{
@@ -73,6 +77,7 @@ func initRedis() {
 	Redis = client
 }
 
+// Close database connection
 func CloseConnection() {
 	if Db != nil {
 		Db.Close()

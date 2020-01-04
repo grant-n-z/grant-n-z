@@ -30,7 +30,7 @@ type UserRepository interface {
 	Save(user entity.User) (*entity.User, *model.ErrorResBody)
 
 	// Save user and user service
-	SaveWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
+	SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody)
 
 	// Update
 	Update(user entity.User) (*entity.User, *model.ErrorResBody)
@@ -152,7 +152,7 @@ func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.Error
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody) {
+func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
 	tx := uri.Db.Begin()
 
 	if err := tx.Create(&user).Error; err != nil {

@@ -14,7 +14,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
-	"github.com/tomoyane/grant-n-z/gserver/migration"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/route"
 )
 
@@ -59,32 +59,29 @@ func NewGrantNZServer() GrantNZServer {
 		syscall.SIGKILL,
 	)
 
-	return GrantNZServer{
-		router: route.NewRouter(),
-	}
+	return GrantNZServer{router: route.NewRouter()}
 }
 
 func (g GrantNZServer) Run() {
 	g.migration()
-	g.runRouter()
+	mux := g.runRouter()
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
-	g.runServer(*server)
+	g.runServer(mux)
 }
 
 func (g GrantNZServer) migration() {
-	migration.NewMigration().V1()
+	middleware.NewMigration().V1()
 }
 
-func (g GrantNZServer) runRouter() {
-	g.router.Init()
-	g.router.V1()
+func (g GrantNZServer) runRouter() *http.ServeMux {
+	return g.router.Run()
 }
 
-func (g GrantNZServer) runServer(server http.Server) {
+func (g GrantNZServer) runServer(mux *http.ServeMux) {
 	fmt.Printf(banner, Port, config.App.Version)
-	if err := server.ListenAndServe(); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), mux); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)
 	}

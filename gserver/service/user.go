@@ -36,13 +36,13 @@ type UserService interface {
 	GetUserWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
 
 	// Insert user
-	InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody)
+	InsertUser(user entity.User) (*entity.User, *model.ErrorResBody)
 
 	// Insert user and user service
-	InsertUserWithUserService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody)
+	InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody)
 
 	// Update user
-	UpdateUser(user *entity.User) (*entity.User, *model.ErrorResBody)
+	UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody)
 }
 
 // UserService struct
@@ -108,19 +108,19 @@ func (us userServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string)
 	return us.userRepository.FindWithUserServiceWithServiceByEmail(email)
 }
 
-func (us userServiceImpl) InsertUser(user *entity.User) (*entity.User, *model.ErrorResBody) {
+func (us userServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Uuid, _ = uuid.NewV4()
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.Save(*user)
+	return us.userRepository.Save(user)
 }
 
-func (us userServiceImpl) InsertUserWithUserService(user *entity.User, userService *entity.UserService) (*entity.User, *model.ErrorResBody) {
+func (us userServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
 	user.Uuid, _ = uuid.NewV4()
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.SaveWithUserService(*user, userService)
+	return us.userRepository.SaveWithUserService(user, userService)
 }
 
-func (us userServiceImpl) UpdateUser(user *entity.User) (*entity.User, *model.ErrorResBody) {
+func (us userServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.Update(*user)
+	return us.userRepository.Update(user)
 }

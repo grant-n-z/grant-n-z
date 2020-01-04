@@ -1,6 +1,7 @@
 package route
 
 import (
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api/operator"
@@ -12,6 +13,9 @@ import (
 )
 
 type Router struct {
+	mux         *http.ServeMux
+	interceptor middleware.Interceptor
+
 	Auth  v1.Auth
 	Token v1.Token
 
@@ -54,7 +58,11 @@ func NewRouter() Router {
 		OperatorPolicy: operator.GetOperatorPolicyInstance(),
 		Service:        operator.GetOperatorServiceInstance(),
 	}
+
 	return Router{
+		mux:         http.NewServeMux(),
+		interceptor: middleware.GetInterceptorInstance(),
+
 		Auth:  v1.GetAuthInstance(),
 		Token: v1.GetTokenInstance(),
 
@@ -64,29 +72,37 @@ func NewRouter() Router {
 	}
 }
 
-func (r Router) Init() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+func (r Router) Run() *http.ServeMux {
+	r.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		res := model.NotFound("Not found resource path.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(res.ToJson()))
 	})
+
+	r.v1()
+	r.operators()
+	r.admin()
+	return r.mux
 }
 
-func (r Router) V1() {
-	http.HandleFunc("/api/v1/auth", r.Auth.Api)
-	http.HandleFunc("/api/v1/token", r.Token.Api)
+func (r Router) v1() {
+	r.mux.HandleFunc("/api/v1/auth", r.Auth.Api)
+	r.mux.HandleFunc("/api/v1/token", r.interceptor.Intercept(r.Token.Api))
 
 	user := func() {
-		http.HandleFunc("/api/v1/users", r.UsersRouter.User.Api)
-		http.HandleFunc("/api/v1/users/group", r.UsersRouter.Group.Api)
-		http.HandleFunc("/api/v1/users/service", r.UsersRouter.Service.Api)
-		http.HandleFunc("/api/v1/users/policy", r.UsersRouter.Policy.Api)
+		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post))
+		r.mux.HandleFunc("/api/v1/users/:id", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put))
+		r.mux.HandleFunc("/api/v1/users/:id/group", r.UsersRouter.Group.Api)
+		r.mux.HandleFunc("/api/v1/users/:id/service", r.UsersRouter.Service.Api)
+		r.mux.HandleFunc("/api/v1/users/:id/policy", r.UsersRouter.Policy.Api)
 	}
 
 	group := func() {
-		http.HandleFunc("/api/v1/groups/role", r.GroupsRouter.Role.Api)
-		http.HandleFunc("/api/v1/groups/permission", r.GroupsRouter.Permission.Api)
+		r.mux.HandleFunc("/api/v1/groups/:group_id/user", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/:group_id/role", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/:group_id/permission", r.GroupsRouter.Permission.Api)
+		r.mux.HandleFunc("/api/v1/groups/:group_id/users/:to_user_id/policy", r.GroupsRouter.Role.Api)
 	}
 
 	user()
@@ -108,14 +124,14 @@ func (r Router) V1() {
 	log.Logger.Info("------ Routing info ------")
 }
 
-func (r Router) Operators() {
+func (r Router) operators() {
 	// TODO: update route info
-	http.HandleFunc("/api/operator/service", r.OperatorsRouter.Service.Api)
-	http.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
-	http.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
-	http.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
+	r.mux.HandleFunc("/api/operator/service", r.OperatorsRouter.Service.Api)
+	r.mux.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
+	r.mux.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
+	r.mux.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
 }
 
-func (r Router) Admin() {
+func (r Router) admin() {
 	// TODO
 }
