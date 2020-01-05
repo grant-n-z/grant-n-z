@@ -9,7 +9,6 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/api/v1"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1/groups"
 	"github.com/tomoyane/grant-n-z/gserver/api/v1/users"
-	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 )
@@ -101,7 +100,7 @@ func (r Router) v1() {
 	}
 
 	group := func() {
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/user", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/user/{add_user_id}", r.GroupsRouter.Role.Api)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.GroupsRouter.Role.Api)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.GroupsRouter.Permission.Api)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/users/{to_user_id}/policy", r.GroupsRouter.Role.Api)
@@ -109,20 +108,6 @@ func (r Router) v1() {
 
 	user()
 	group()
-
-	log.Logger.Info("------ Routing info ------")
-	log.Logger.Info("Routing: /api/v1/oauth")
-	log.Logger.Info("Routing: /api/v1/groups")
-	log.Logger.Info("Routing: /api/v1/users")
-	log.Logger.Info("Routing: /api/v1/user_service")
-	log.Logger.Info("Routing: /api/v1/user_groups")
-	log.Logger.Info("Routing: /api/v1/services")
-	log.Logger.Info("Routing: /api/v1/service_groups")
-	log.Logger.Info("Routing: /api/v1/roles")
-	log.Logger.Info("Routing: /api/v1/permissions")
-	log.Logger.Info("Routing: /api/v1/policies")
-	log.Logger.Info("Routing: /api/v1/operator_policies")
-	log.Logger.Info("------ Routing info ------")
 }
 
 func (r Router) operators() {

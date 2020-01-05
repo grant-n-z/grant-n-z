@@ -10,6 +10,7 @@ const (
 	PolicyName
 	PolicyRoleId
 	PolicyPermissionId
+	PolicyServiceId
 	PolicyUserGroupId
 	PolicyCreatedAt
 	PolicyUpdatedAt
@@ -17,13 +18,19 @@ const (
 
 type PolicyResponseBuilder interface {
 	// Set policy name at response data
-	SetPolicyName(name *string) PolicyResponseBuilder
+	SetName(name *string) PolicyResponseBuilder
 
 	// Set role_name at response data
 	SetRoleName(roleName *string) PolicyResponseBuilder
 
 	// Set permission_name at response data
 	SetPermissionName(permissionName *string) PolicyResponseBuilder
+
+	// Set service_name at response data
+	SetServiceName(serviceName *string) PolicyResponseBuilder
+
+	// Set group_name at response data
+	SetGroupName(groupName *string) PolicyResponseBuilder
 
 	// Build PolicyResponse struct
 	Build() PolicyResponse
@@ -35,6 +42,7 @@ type Policy struct {
 	Name         string    `validate:"required"json:"name"`
 	RoleId       int       `validate:"required"json:"role_id"`
 	PermissionId int       `validate:"required"json:"permission_id"`
+	ServiceId    int       `validate:"required"json:"service_id"`
 	UserGroupId  int       `validate:"required"json:"user_group_id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
@@ -42,9 +50,11 @@ type Policy struct {
 
 // The api policy response struct
 type PolicyResponse struct {
-	PolicyName     string `json:"policy_name"`
+	Name           string `json:"name"`
 	RoleName       string `json:"role_name"`
 	PermissionName string `json:"permission_name"`
+	ServiceName    string `json:"service_name"`
+	GroupName      string `json:"group_name"`
 }
 
 // Policy table config struct
@@ -55,11 +65,11 @@ func NewPolicyResponse() PolicyResponseBuilder {
 	return &PolicyResponse{}
 }
 
-func (p PolicyResponse) SetPolicyName(name *string) PolicyResponseBuilder {
+func (p PolicyResponse) SetName(name *string) PolicyResponseBuilder {
 	if name == nil {
-		p.PolicyName = ""
+		p.Name = ""
 	} else {
-		p.PolicyName = *name
+		p.Name = *name
 	}
 	return p
 }
@@ -82,11 +92,31 @@ func (p PolicyResponse) SetPermissionName(permissionName *string) PolicyResponse
 	return p
 }
 
+func (p PolicyResponse) SetServiceName(serviceName *string) PolicyResponseBuilder {
+	if serviceName == nil {
+		p.ServiceName = ""
+	} else {
+		p.ServiceName = *serviceName
+	}
+	return p
+}
+
+func (p PolicyResponse) SetGroupName(groupName *string) PolicyResponseBuilder {
+	if groupName == nil {
+		p.GroupName = ""
+	} else {
+		p.GroupName = *groupName
+	}
+	return p
+}
+
 func (p PolicyResponse) Build() PolicyResponse {
 	return PolicyResponse{
-		PolicyName:     p.PolicyName,
+		Name:           p.Name,
 		RoleName:       p.RoleName,
 		PermissionName: p.PermissionName,
+		ServiceName:    p.ServiceName,
+		GroupName:      p.GroupName,
 	}
 }
 
@@ -102,6 +132,8 @@ func (pc PolicyTableConfig) String() string {
 		return "role_id"
 	case PolicyPermissionId:
 		return "permission_id"
+	case PolicyServiceId:
+		return "service_id"
 	case PolicyUserGroupId:
 		return "user_group_id"
 	case PolicyCreatedAt:

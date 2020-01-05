@@ -14,19 +14,19 @@ import (
 var thInstance Token
 
 type Token interface {
-	// Implement token api.
+	// Implement token api
 	Api(w http.ResponseWriter, r *http.Request)
 
-	// Http POST method.
+	// Http POST method
 	post(w http.ResponseWriter, r *http.Request)
 }
 
-// Token api struct.
+// Token api struct
 type TokenImpl struct {
 	TokenService service.TokenService
 }
 
-// Get Policy instance.
+// Get Policy instance
 // If use singleton pattern, call this instance method
 func GetTokenInstance() Token {
 	if thInstance == nil {
@@ -35,7 +35,7 @@ func GetTokenInstance() Token {
 	return thInstance
 }
 
-// Constructor.
+// Constructor
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
 	log.Logger.Info("Inject `TokenService` to `Token`")

@@ -31,7 +31,7 @@ type TokenService interface {
 	VerifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Generate signed in token
-	generateSignedInToken(user *entity.User, roleId int, serviceId int) *string
+	signedInToken(user *entity.User, roleId int, serviceId int) *string
 
 	// Generate operator token
 	generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
@@ -48,6 +48,7 @@ type tokenServiceImpl struct {
 	userService           UserService
 	operatorPolicyService OperatorPolicyService
 	userServiceService    UserServiceService
+	service               Service
 	appConfig             config.AppConfig
 }
 
@@ -68,6 +69,7 @@ func NewTokenService() TokenService {
 		userService:           GetUserServiceInstance(),
 		operatorPolicyService: GetOperatorPolicyServiceInstance(),
 		userServiceService:    GetUserServiceServiceInstance(),
+		service:               GetServiceInstance(),
 		appConfig:             config.App,
 	}
 }
@@ -156,7 +158,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string) (*model.AuthUser, *mod
 }
 
 func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
-	// TODO: Cache user data, operator_policy data
+	// TODO: Cache
 	uwo, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
 	if err != nil || uwo == nil {
 		return nil, model.BadRequest("Failed to email or password")
@@ -175,39 +177,37 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (*stri
 		Username: uwo.Username,
 		Uuid:     uwo.Uuid,
 	}
-	return tsi.generateSignedInToken(&user, uwo.OperatorPolicy.RoleId, 0), nil
+
+	return tsi.signedInToken(&user, uwo.OperatorPolicy.RoleId, 0), nil
 }
 
 func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User) (*string, *model.ErrorResBody) {
-	// TODO: Cache user data, user_service, service data
-	uus, err := tsi.userService.GetUserWithUserServiceWithServiceByEmail(userEntity.Email)
-	if err != nil || uus == nil {
+	// TODO: Cache service data
+	service, err := tsi.service.GetServiceByApiKey(ctx.GetApiKey().(string))
+	if err != nil || service == nil {
+		return nil, model.BadRequest("Not found registered services by Api-Key")
+	}
+
+	// TODO: Cache user data
+	targetUser, err := tsi.userService.GetUserByEmail(userEntity.Email)
+	if err != nil || targetUser == nil {
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	if !tsi.userService.ComparePw(uus.User.Password, userEntity.Password) {
+	if !tsi.userService.ComparePw(targetUser.Password, userEntity.Password) {
 		return nil, model.BadRequest("Failed to email or password")
-	}
-
-	apiKey := ctx.GetApiKey().(string)
-	if strings.EqualFold(apiKey, "") {
-		return nil, model.BadRequest("Not found service api key")
-	}
-
-	if !strings.EqualFold(uus.Service.ApiKey, apiKey) {
-		return nil, model.BadRequest("Can not issue token")
 	}
 
 	user := entity.User{
-		Id:       uus.UserService.UserId,
-		Username: uus.User.Username,
-		Uuid:     uus.User.Uuid,
+		Id:       targetUser.Id,
+		Username: targetUser.Username,
+		Uuid:     targetUser.Uuid,
 	}
 
-	return tsi.generateSignedInToken(&user, 0, uus.UserService.ServiceId), nil
+	return tsi.signedInToken(&user, 0, service.Id), nil
 }
 
-func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int, serviceId int) *string {
+func (tsi tokenServiceImpl) signedInToken(user *entity.User, roleId int, serviceId int) *string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -219,7 +219,7 @@ func (tsi tokenServiceImpl) generateSignedInToken(user *entity.User, roleId int,
 
 	signedToken, err := token.SignedString([]byte(tsi.appConfig.PrivateKeyBase64))
 	if err != nil {
-		log.Logger.Error("Failed to signed token", err.Error())
+		log.Logger.Error("Failed to issue signed token", err.Error())
 		return nil
 	}
 

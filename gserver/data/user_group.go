@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -52,8 +53,8 @@ func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Gro
 			entity.UserGroupUserId), userId).
 		Scan(&groups).Error; err != nil {
 
-		log.Logger.Warn(err.Error())
-		return nil, model.InternalServerError()
+			log.Logger.Warn(err.Error())
+			return nil, model.InternalServerError()
 	}
 
 	return groups, nil
@@ -81,8 +82,8 @@ func (ugr UserGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(use
 			entity.UserGroupUserId), userId).
 		Scan(&groupWithUserGroupWithPolicies).Error; err != nil {
 
-		log.Logger.Warn(err.Error())
-		return nil, model.InternalServerError()
+			log.Logger.Warn(err.Error())
+			return nil, model.InternalServerError()
 	}
 
 	return groupWithUserGroupWithPolicies, nil

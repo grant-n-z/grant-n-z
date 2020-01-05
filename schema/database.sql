@@ -223,12 +223,14 @@ CREATE TABLE policies (
   name varchar(128) NOT NULL,
   role_id int(11) NOT NULL,
   permission_id int(11) NOT NULL,
+  service_id int(11) NOT NULL,
   user_group_id int(11) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   INDEX (role_id),
   INDEX (permission_id),
+  INDEX (service_id),
   INDEX (user_group_id),
   CONSTRAINT fk_policies_role_id
   FOREIGN KEY (role_id)
@@ -237,6 +239,10 @@ CREATE TABLE policies (
   CONSTRAINT fk_policies_permission_id
   FOREIGN KEY (permission_id)
   REFERENCES permissions (id)
+  ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_policies_service_id
+  FOREIGN KEY (service_id)
+  REFERENCES services (id)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_policies_user_group_id
   FOREIGN KEY (user_group_id)

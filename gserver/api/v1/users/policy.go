@@ -52,13 +52,13 @@ func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
-	userPolicyResponses, err := ph.PolicyService.GetPolicyByOfUser()
+	policyResponses, err := ph.PolicyService.GetPolicyByOfUser()
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(userPolicyResponses)
+	res, _ := json.Marshal(policyResponses)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
