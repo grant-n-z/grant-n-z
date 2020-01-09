@@ -8,6 +8,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/common/property"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
@@ -89,8 +90,11 @@ func (sh OperatorServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 func (sh OperatorServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	var serviceEntity *entity.Service
 
-	json.Unmarshal(body, &serviceEntity)
-	if err := sh.Request.ValidateBody(w, serviceEntity); err != nil {
+	if err := middleware.BindBody(w, r, &serviceEntity); err != nil {
+		return
+	}
+
+	if err := middleware.ValidateBody(w, serviceEntity); err != nil {
 		return
 	}
 
