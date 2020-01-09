@@ -186,7 +186,7 @@ CREATE TABLE service_permissions (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (role_id),
+  INDEX (permission_id),
   INDEX (service_id),
   CONSTRAINT fk_service_permissions_permission_id
   FOREIGN KEY (permission_id)
