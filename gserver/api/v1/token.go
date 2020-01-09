@@ -2,13 +2,12 @@ package v1
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
+	"net/http"
 )
 
 var thInstance Token
@@ -64,7 +63,9 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := th.TokenService.Generate(r.URL.Query().Get("type"), *userEntity)
+	userType := r.URL.Query().Get("type")
+	groupId := r.URL.Query().Get("group_id")
+	token, err := th.TokenService.Generate(userType, groupId, *userEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

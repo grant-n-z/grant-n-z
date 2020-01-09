@@ -24,8 +24,12 @@ type PolicyService interface {
 	// Get policy data by role id
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
-	// Get policies of group of user
-	GetPolicyByOfUser() ([]entity.PolicyResponse, *model.ErrorResBody)
+	// Get policies of user
+	// The method uses request scope user id
+	GetPoliciesOfUser() ([]entity.PolicyResponse, *model.ErrorResBody)
+
+	// Get policy by user_groups data
+	GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody)
 
 	// Insert policy
 	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
@@ -70,7 +74,7 @@ func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *
 	return ps.policyRepository.FindByRoleId(roleId)
 }
 
-func (ps policyServiceImpl) GetPolicyByOfUser() ([]entity.PolicyResponse, *model.ErrorResBody) {
+func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model.ErrorResBody) {
 	if ctx.GetUserId().(int) == 0 {
 		return nil, model.BadRequest("Required user id")
 	}
@@ -82,7 +86,7 @@ func (ps policyServiceImpl) GetPolicyByOfUser() ([]entity.PolicyResponse, *model
 
 	var policyResponses []entity.PolicyResponse
 	for _, ugp := range userGroupPolicies {
-		// TODO: Read redis cache, roles and permissions
+		// TODO: Cache role, permission, service
 		policyResponse := entity.NewPolicyResponse().
 			SetName(&ugp.Policy.Name).
 			SetRoleName(ps.roleRepository.FindNameById(ugp.Policy.RoleId)).
@@ -95,6 +99,15 @@ func (ps policyServiceImpl) GetPolicyByOfUser() ([]entity.PolicyResponse, *model
 	}
 
 	return policyResponses, nil
+}
+
+func (ps policyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
+	groupWithPolicy, err := ps.userGroupRepository.FindGroupWithPolicyByUserIdAndGroupId(userId, groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &groupWithPolicy.Policy, nil
 }
 
 func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody) {

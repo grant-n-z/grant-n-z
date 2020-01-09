@@ -26,7 +26,7 @@ func NewMigration() Migration {
 }
 
 func (m Migration) V1() {
-	if !m.checkMigrationData() {
+	if !m.checkV1Migration() {
 		return
 	}
 
@@ -34,7 +34,7 @@ func (m Migration) V1() {
 	operatorUser := entity.User{
 		Id:       1,
 		Username: property.Operator,
-		Email:    "operator@gmail.com",
+			Email:    "operator@gmail.com",
 		Password: "grant_n_z_operator",
 	}
 	_, userErr := m.userService.InsertUser(operatorUser)
@@ -97,7 +97,7 @@ func (m Migration) V1() {
 	log.Logger.Info("Generate to operator_policies for migration")
 }
 
-func (m Migration) checkMigrationData() bool {
+func (m Migration) checkV1Migration() bool {
 	operatorAdminUser, err := m.userService.GetUserById(1)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")

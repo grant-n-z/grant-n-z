@@ -52,7 +52,7 @@ func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
-	policyResponses, err := ph.PolicyService.GetPolicyByOfUser()
+	policyResponses, err := ph.PolicyService.GetPoliciesOfUser()
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
