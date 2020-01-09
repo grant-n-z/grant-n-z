@@ -64,7 +64,7 @@ func (rh RequestImpl) Intercept(w http.ResponseWriter, r *http.Request, authType
 func (rh RequestImpl) ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
 	err := validator.New().Struct(i)
 	if err != nil {
-		log.Logger.Info("request is invalid")
+		log.Logger.Info("request is invalid", err.Error())
 		errModel := model.BadRequest("Failed to request validation.")
 		model.WriteError(w, errModel.ToJson(), errModel.Code)
 		return errModel
