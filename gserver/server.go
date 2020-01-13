@@ -3,13 +3,14 @@ package gserver
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/mux"
 	"os"
 	"syscall"
 	"time"
 
 	"net/http"
 	"os/signal"
+
+	"github.com/gorilla/mux"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
@@ -26,13 +27,13 @@ var (
 	signalCode = make(chan os.Signal, 1)
 	server     = &http.Server{Addr: fmt.Sprintf(":%s", Port), Handler: nil}
 	banner     = `Start to grant-n-z server :%s
-___________________________________________________
-    ____                      _      
-   / __/ _    ____   _____ __//_      _____   ____ 
-  / /__ //__ /__ /  /___ //_ __/     /___ /  /__ /
- / /_ //___///_//_ //  //  //_ \ === //  // === //__
-/____///   /_____///  //  /__/     //  //     /___/
-___________________________________________________
+_________________________________________________________________________________________________
+     ____                      _           
+    / __/ _    ____   _____ __//_      _____   ____     ____  ___     _   _     _   ___     _
+   / /__ //__ /__ /  /___ //_ __/     /___ /  /__ /    \ __//  _ \   //__ \\   // /  _ \   //__
+  / /_ //___///_//_ //  //  //_  === //  // === //__   _\\  \ /_ /  /___/  \\ //  \ /_ /  / __/
+ /____///   /_____///  //  /__/     //  //     /___/  /__/   \____ //       \ /    \____ // 
+_________________________________________________________________________________________________
 High performance authentication and authorization. version is %s
 `
 )
@@ -43,14 +44,14 @@ type GrantNZServer struct {
 
 func init() {
 	ctx.InitContext()
-	config.InitConfig()
+	config.InitGrantNZServerConfig()
 	log.InitLogger(config.App.LogLevel)
-	driver.InitDriver()
+	driver.InitGrantNZDb()
 }
 
 func NewGrantNZServer() GrantNZServer {
 	log.Logger.Info("New GrantNZServer")
-	log.Logger.Info("Inject `Router`, `PolicyService` to `GrantNZServer`")
+	log.Logger.Info("Inject `Router` to `GrantNZServer`")
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,

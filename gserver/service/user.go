@@ -7,6 +7,7 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
@@ -121,6 +122,8 @@ func (us userServiceImpl) InsertUserWithUserService(user entity.User, userServic
 }
 
 func (us userServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
+	user.Id = ctx.GetUserId().(int)
+	user.Uuid = ctx.GetUserUuid().(uuid.UUID)
 	user.Password = us.EncryptPw(user.Password)
 	return us.userRepository.Update(user)
 }

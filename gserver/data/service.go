@@ -25,6 +25,9 @@ type ServiceRepository interface {
 	// Find service by service Api-Key
 	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
 
+	// Find service name by service id
+	FindNameById(id int) *string
+
 	// Find service name by Api-Key
 	FindNameByApiKey(name string) *string
 
@@ -108,6 +111,14 @@ func (sri ServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *
 	}
 
 	return &service, nil
+}
+
+func (sri ServiceRepositoryImpl) FindNameById(id int) *string {
+	service, err := sri.FindById(id)
+	if err != nil {
+		return nil
+	}
+	return &service.Name
 }
 
 func (sri ServiceRepositoryImpl) FindNameByApiKey(name string) *string {

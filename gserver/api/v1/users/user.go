@@ -4,9 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/google/uuid"
-
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/middleware"
@@ -59,25 +56,19 @@ func (uh UserImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceEntity, err := uh.Service.GetServiceByApiKey(ctx.GetApiKey().(string))
+	serviceEntity, err := uh.Service.GetServiceOfApiKey()
 	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	var errorResponse *model.ErrorResBody
-	if serviceEntity == nil {
-		_, errorResponse = uh.UserService.InsertUser(*userEntity)
-
-	} else {
-		userServiceEntity := &entity.UserService{
-			UserId:    userEntity.Id,
-			ServiceId: serviceEntity.Id,
-		}
-		_, errorResponse = uh.UserService.InsertUserWithUserService(*userEntity, *userServiceEntity)
+	userServiceEntity := &entity.UserService{
+		UserId:    userEntity.Id,
+		ServiceId: serviceEntity.Id,
 	}
 
-	if errorResponse != nil {
-		model.WriteError(w, errorResponse.ToJson(), errorResponse.Code)
+	if _, err = uh.UserService.InsertUserWithUserService(*userEntity, *userServiceEntity); err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
@@ -96,8 +87,6 @@ func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userEntity.Id = ctx.GetUserId().(int)
-	userEntity.Uuid = ctx.GetUserUuid().(uuid.UUID)
 	if _, err := uh.UserService.UpdateUser(*userEntity); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

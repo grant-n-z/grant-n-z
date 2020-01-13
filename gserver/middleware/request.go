@@ -1,8 +1,10 @@
 package middleware
 
 import (
-	"encoding/json"
 	"fmt"
+	"strings"
+
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -90,7 +92,7 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token)
+		authUser, err := i.tokenService.VerifyUserToken(token, nil, nil)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
@@ -136,13 +138,21 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 // Intercept http request
 // Set api key
 func intercept(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+	w.Header().Set(ContentType, "application/json")
+
 	if err := validateHeader(r); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return err
 	}
 
-	ctx.SetApiKey(r.Header.Get(Key))
-	w.Header().Set(ContentType, "application/json")
+	apiKey := r.Header.Get(Key)
+	if strings.EqualFold(apiKey, "") {
+		err := model.BadRequest("Required Api-Key")
+		model.WriteError(w, err.ToJson(), err.Code)
+		return err
+	}
+
+	ctx.SetApiKey(apiKey)
 	return nil
 }
 

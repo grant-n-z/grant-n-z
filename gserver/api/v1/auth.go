@@ -55,7 +55,10 @@ func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	var result bool
 	token := r.Header.Get(middleware.Authorization)
-	_, err := ah.tokenService.VerifyUserToken(token)
+	roleName := r.URL.Query().Get("role")
+	permissionName := r.URL.Query().Get("permission")
+
+	_, err := ah.tokenService.VerifyUserToken(token, &roleName, &permissionName)
 	if err != nil {
 		result = false
 	} else {

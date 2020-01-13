@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -45,7 +45,7 @@ func NewServiceGroup() ServiceGroup {
 
 func (sgh ServiceGroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := sgh.Request.Intercept(w, r, property.AuthOperator)
+	_, err := sgh.Request.Intercept(w, r, constant.AuthOperator)
 	if err != nil {
 		return
 	}

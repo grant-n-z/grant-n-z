@@ -2,12 +2,13 @@ package v1
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
-	"net/http"
 )
 
 var thInstance Token

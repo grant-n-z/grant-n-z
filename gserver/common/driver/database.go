@@ -17,8 +17,8 @@ var (
 	Redis *redis.Client
 )
 
-// Initialize database driver
-func InitDriver() {
+// Initialize database driver for GrantNZ server
+func InitGrantNZDb() {
 	if !strings.EqualFold(config.Db.Engine, "mysql") {
 		panic("Current status, only support mysql.")
 	}
@@ -70,7 +70,8 @@ func initRedis() {
 	if err != nil {
 		log.Logger.Warn(err.Error())
 		CloseConnection()
-		panic("Cannot connect Redis")
+		log.Logger.Warn("Cannot connect Redis. If needs to high performance, set to redis info on app.yaml")
+		return
 	}
 
 	log.Logger.Info("Connected Redis", config.Redis.Host)

@@ -9,8 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gserver/common/config"
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -29,7 +28,7 @@ type TokenService interface {
 	VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyUserToken(token string, roleName *string, permissionName *string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Generate signed in token
 	signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) *string
@@ -51,7 +50,7 @@ type tokenServiceImpl struct {
 	userServiceService    UserServiceService
 	service               Service
 	policyService         PolicyService
-	appConfig             config.AppConfig
+	serverConfig          config.ServerConfig
 }
 
 // Get Policy instance.
@@ -73,7 +72,7 @@ func NewTokenService() TokenService {
 		userServiceService:    GetUserServiceServiceInstance(),
 		service:               GetServiceInstance(),
 		policyService:         GetPolicyServiceInstance(),
-		appConfig:             config.App,
+		serverConfig:          config.GServer,
 	}
 }
 
@@ -88,9 +87,9 @@ func (tsi tokenServiceImpl) Generate(userType string, groupIdStr string, userEnt
 	}
 
 	switch userType {
-	case property.AuthOperator:
+	case constant.AuthOperator:
 		return tsi.generateOperatorToken(userEntity)
-	case property.AuthUser:
+	case constant.AuthUser:
 		return tsi.generateUserToken(userEntity, groupId)
 	case "":
 		return tsi.generateUserToken(userEntity, groupId)
@@ -103,7 +102,7 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(tsi.appConfig.PrivateKeyBase64), nil
+		return []byte(tsi.serverConfig.SignedInPrivateKeyBase64), nil
 	})
 
 	if err != nil || !parseToken.Valid {
@@ -157,16 +156,20 @@ func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, 
 	return authUser, nil
 }
 
-func (tsi tokenServiceImpl) VerifyUserToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName *string, permissionName *string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := tsi.getAuthUserInToken(token)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: Cache role
+
+	// TODO: Cache permission
+
 	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
 		log.Logger.Info("Not contain service of user or failed to query")
-		return nil, model.Forbidden("Forbidden this token")
+		return nil, model.Forbidden("Forbidden what the user has not permission")
 	}
 
 	return authUser, nil
@@ -183,7 +186,7 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (*stri
 		return nil, model.BadRequest("Failed to email or password")
 	}
 
-	if targetUser.OperatorPolicy.RoleId != property.OperatorRoleId {
+	if targetUser.OperatorPolicy.RoleId != constant.OperatorRoleId {
 		return nil, model.BadRequest("Can not issue token")
 	}
 
@@ -195,7 +198,7 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (*stri
 
 func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User, groupId int) (*string, *model.ErrorResBody) {
 	// TODO: Cache service data
-	service, err := tsi.service.GetServiceByApiKey(ctx.GetApiKey().(string))
+	service, err := tsi.service.GetServiceOfApiKey()
 	if err != nil || service == nil {
 		return nil, model.BadRequest("Not found registered services by Api-Key")
 	}
@@ -236,7 +239,7 @@ func (tsi tokenServiceImpl) signedInToken(userId int, userUuid string, roleId in
 	claims["service_id"] = strconv.Itoa(serviceId)
 	claims["policy_id"] = strconv.Itoa(policyId)
 
-	signedToken, err := token.SignedString([]byte(tsi.appConfig.PrivateKeyBase64))
+	signedToken, err := token.SignedString([]byte(tsi.serverConfig.SignedInPrivateKeyBase64))
 	if err != nil {
 		log.Logger.Error("Failed to issue signed token", err.Error())
 		return nil

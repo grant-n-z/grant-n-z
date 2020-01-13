@@ -3,11 +3,13 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
+
+const failedMigrationMsg = "Failed to not valid grant_n_z schema or data is broken for migration"
 
 type Migration struct {
 	userService           service.UserService
@@ -32,10 +34,10 @@ func (m Migration) V1() {
 
 	// Generate operator user
 	operatorUser := entity.User{
-		Id:       1,
-		Username: property.Operator,
-			Email:    "operator@gmail.com",
-		Password: "grant_n_z_operator",
+		Id:        1,
+		Username:  constant.Operator,
+			Email: "operator@gmail.com",
+		Password:  "grant_n_z_operator",
 	}
 	_, userErr := m.userService.InsertUser(operatorUser)
 	if userErr != nil {
@@ -48,7 +50,7 @@ func (m Migration) V1() {
 	// Generate operator role
 	operatorRole := entity.Role{
 		Id:   1,
-		Name: property.Operator,
+		Name: constant.Operator,
 	}
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
@@ -60,7 +62,7 @@ func (m Migration) V1() {
 	// Generate admin role
 	adminRole := entity.Role{
 		Id:   2,
-		Name: property.Admin,
+		Name: constant.Admin,
 	}
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
@@ -73,7 +75,7 @@ func (m Migration) V1() {
 	// Generate admin permission
 	adminPermission := entity.Permission{
 		Id:   1,
-		Name: property.Admin,
+		Name: constant.Admin,
 	}
 	_, permissionErr := m.permissionService.InsertPermission(&adminPermission)
 	if permissionErr != nil {
@@ -100,31 +102,31 @@ func (m Migration) V1() {
 func (m Migration) checkV1Migration() bool {
 	operatorAdminUser, err := m.userService.GetUserById(1)
 	if err != nil && err.Code != http.StatusNotFound {
-		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	operatorAdminRole, err := m.roleService.GetRoleByName(property.Operator)
+	operatorAdminRole, err := m.roleService.GetRoleByName(constant.Operator)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
-		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminRole, err := m.roleService.GetRoleByName(property.Admin)
+	adminRole, err := m.roleService.GetRoleByName(constant.Admin)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin role")
-		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminPermission, err := m.permissionService.GetPermissionByName(property.Admin)
+	adminPermission, err := m.permissionService.GetPermissionByName(constant.Admin)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin permission")
-		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal(failedMigrationMsg)
 	}
 
 	var operatorPolicy []*entity.OperatorPolicy
 	operatorPolicy, err = m.operatorPolicyService.GetByUserId(1)
 	if err != nil && err.Code != http.StatusNotFound {
-		log.Logger.Fatal("Failed to not valid grant_n_z schema or data is broken for migration")
+		log.Logger.Fatal(failedMigrationMsg)
 	}
 
 	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && adminPermission != nil && len(operatorPolicy) != 0 {

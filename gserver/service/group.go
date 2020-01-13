@@ -5,7 +5,7 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -59,25 +59,22 @@ func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
 }
 
 func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
-	if ctx.GetUserId().(int) == 0 {
-		return nil, model.BadRequest("Required user id")
-	}
 	return gs.userGroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
 }
 
 func (gs GroupServiceImpl) InsertGroup(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
-	role, err := gs.roleRepository.FindByName(property.Admin)
+	role, err := gs.roleRepository.FindByName(constant.Admin)
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
-	permission, err := gs.permissionRepository.FindByName(property.Admin)
+	permission, err := gs.permissionRepository.FindByName(constant.Admin)
 	if err != nil {
 		log.Logger.Info("Failed to get permission for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
-	return gs.groupRepository.SaveWithRelationalData(group, role.Id, permission.Id)
+	return gs.groupRepository.SaveWithRelationalData(group, role.Id, permission.Id, ctx.GetServiceId().(int), ctx.GetUserId().(int))
 }

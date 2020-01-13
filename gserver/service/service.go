@@ -31,7 +31,7 @@ type Service interface {
 	GetServiceByName(name string) (*entity.Service, *model.ErrorResBody)
 
 	// Get service by service api key
-	GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
+	GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody)
 
 	// Get service of user
 	GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody)
@@ -71,14 +71,17 @@ func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 	return ss.serviceRepository.FindByName(name)
 }
 
-func (ss serviceImpl) GetServiceByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
-	return ss.serviceRepository.FindByApiKey(apiKey)
+func (ss serviceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody) {
+	service, err := ss.serviceRepository.FindByApiKey(ctx.GetApiKey().(string))
+	if service == nil || err != nil {
+		err := model.BadRequest("Api-Key is invalid")
+		return nil, err
+	}
+
+	return service, nil
 }
 
 func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
-	if ctx.GetUserId().(int) == 0 {
-		return nil, model.BadRequest("Required user id")
-	}
 	return ss.userServiceRepository.FindByUserId(ctx.GetUserId().(int))
 }
 

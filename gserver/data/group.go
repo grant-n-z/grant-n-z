@@ -5,8 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -22,7 +21,7 @@ type GroupRepository interface {
 	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
 	// Generate groups, user_groups, service_groups
-	SaveWithRelationalData(group entity.Group, roleId int, permissionId int) (*entity.Group, *model.ErrorResBody)
+	SaveWithRelationalData(group entity.Group, roleId int, permissionId int, serviceId int, userId int) (*entity.Group, *model.ErrorResBody)
 }
 
 // GroupRepository struct
@@ -72,7 +71,7 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId int, permissionId int) (*entity.Group, *model.ErrorResBody) {
+func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId int, permissionId int, serviceId int, userId int) (*entity.Group, *model.ErrorResBody) {
 	tx := gr.Db.Begin()
 
 	// Save groups
@@ -89,7 +88,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 	// Save service_groups
 	serviceGroup := entity.ServiceGroup{
 		GroupId:   group.Id,
-		ServiceId: ctx.GetServiceId().(int),
+		ServiceId: serviceId,
 	}
 	if err := tx.Create(&serviceGroup).Error; err != nil {
 		log.Logger.Warn("Failed to save service_groups at transaction process", err.Error())
@@ -103,7 +102,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 
 	// Save user_groups
 	userGroup := entity.UserGroup{
-		UserId:  ctx.GetUserId().(int),
+		UserId:  userId,
 		GroupId: group.Id,
 	}
 	if err := tx.Create(&userGroup).Error; err != nil {
@@ -118,9 +117,10 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 
 	// Save policies
 	policy := entity.Policy{
-		Name:         property.AdminPolicy,
+		Name:         constant.AdminPolicy,
 		RoleId:       roleId,
 		PermissionId: permissionId,
+		ServiceId:    serviceId,
 		UserGroupId:  userGroup.Id,
 	}
 	if err := tx.Create(&policy).Error; err != nil {

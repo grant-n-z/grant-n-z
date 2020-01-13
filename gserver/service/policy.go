@@ -75,10 +75,6 @@ func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *
 }
 
 func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model.ErrorResBody) {
-	if ctx.GetUserId().(int) == 0 {
-		return nil, model.BadRequest("Required user id")
-	}
-
 	userGroupPolicies, err := ps.userGroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
 	if err != nil {
 		return nil, err
@@ -91,7 +87,7 @@ func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model
 			SetName(&ugp.Policy.Name).
 			SetRoleName(ps.roleRepository.FindNameById(ugp.Policy.RoleId)).
 			SetPermissionName(ps.permissionRepository.FindNameById(ugp.Policy.PermissionId)).
-			SetServiceName(ps.serviceRepository.FindNameByApiKey(ctx.GetApiKey().(string))).
+			SetServiceName(ps.serviceRepository.FindNameById(ugp.Policy.ServiceId)).
 			SetGroupName(&ugp.Group.Name).
 			Build()
 

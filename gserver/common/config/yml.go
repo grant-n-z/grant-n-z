@@ -7,21 +7,24 @@ import (
 
 // app.yaml
 type YmlConfig struct {
-	App   AppConfig   `yaml:"app"`
-	Db    DbConfig    `yaml:"db"`
-	Redis RedisConfig `yaml:"redis"`
+	App    AppConfig    `yaml:"app"`
+	Server ServerConfig `yaml:"server"`
+	Db     DbConfig     `yaml:"db"`
+	Redis  RedisConfig  `yaml:"redis"`
 }
 
-// app data in app.yaml
+// About app data in app.yaml
 type AppConfig struct {
-	Version          string `yaml:"version"`
-	PrivateKeyBase64 string `yaml:"private-key-base64"`
-	Environment      string `yaml:"environment"`
-	LogLevel         string `yaml:"log-level"`
-	PolicyFilePath   string `yaml:"policy-file-path"`
+	Version  string `yaml:"version"`
+	LogLevel string `yaml:"log-level"`
 }
 
-// db data in app.yaml
+// About server data in app.yaml
+type ServerConfig struct {
+	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
+}
+
+// About db data in app.yaml
 type DbConfig struct {
 	Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
@@ -31,7 +34,7 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
-// redis data in app.yaml
+// About redis data in app.yaml
 type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Password string `yaml:"password"`
@@ -41,31 +44,24 @@ type RedisConfig struct {
 
 // Getter AppConfig
 func (yml YmlConfig) GetAppConfig() AppConfig {
-	privateKeyBase64 := yml.App.PrivateKeyBase64
-	environment := yml.App.Environment
 	logLevel := yml.App.LogLevel
-	policyFilePath := yml.App.PolicyFilePath
-
-	if strings.Contains(privateKeyBase64, "$") {
-		privateKeyBase64 = os.Getenv(yml.App.PrivateKeyBase64[1:])
-	}
-
-	if strings.Contains(environment, "$") {
-		environment = os.Getenv(yml.App.Environment[1:])
-	}
 
 	if strings.Contains(logLevel, "$") {
 		logLevel = os.Getenv(yml.App.LogLevel[1:])
 	}
 
-	if strings.Contains(policyFilePath, "$") {
-		policyFilePath = os.Getenv(yml.App.PolicyFilePath[1:])
-	}
-
-	yml.App.PrivateKeyBase64 = privateKeyBase64
-	yml.App.Environment = environment
 	yml.App.LogLevel = logLevel
 	return yml.App
+}
+
+// Getter ServerConfig
+func (yml YmlConfig) GetServerConfig() ServerConfig {
+	privateKeyBase64 := yml.Server.SignedInPrivateKeyBase64
+	if strings.Contains(privateKeyBase64, "$") {
+		privateKeyBase64 = os.Getenv(yml.Server.SignedInPrivateKeyBase64[1:])
+	}
+
+	return yml.Server
 }
 
 // Getter RedisConfig

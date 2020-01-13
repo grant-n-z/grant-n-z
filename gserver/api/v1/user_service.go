@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/property"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -43,7 +43,7 @@ func NewUserService() UserService {
 
 func (ush UserServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := ush.Request.Intercept(w, r, property.AuthUser)
+	_, err := ush.Request.Intercept(w, r, constant.AuthUser)
 	if err != nil {
 		return
 	}
