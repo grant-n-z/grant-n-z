@@ -27,6 +27,23 @@ func InitGrantNZDb() {
 	initRedis()
 }
 
+// Close database connection
+func CloseConnection() {
+	if Db != nil {
+		Db.Close()
+		log.Logger.Info("Closed MySQL connection")
+	} else {
+		log.Logger.Info("Already closed MySQL connection")
+	}
+
+	if Redis != nil {
+		Redis.Close()
+		log.Logger.Info("Closed Redis connection")
+	} else {
+		log.Logger.Info("Already closed Redis connection")
+	}
+}
+
 // Initialize master database driver
 func initDataBase() {
 	if !strings.EqualFold(config.Db.Engine, "mysql") {
@@ -76,21 +93,4 @@ func initRedis() {
 
 	log.Logger.Info("Connected Redis", config.Redis.Host)
 	Redis = client
-}
-
-// Close database connection
-func CloseConnection() {
-	if Db != nil {
-		Db.Close()
-		log.Logger.Info("Closed MySQL connection")
-	} else {
-		log.Logger.Info("Already closed MySQL connection")
-	}
-
-	if Redis != nil {
-		Redis.Close()
-		log.Logger.Info("Closed Redis connection")
-	} else {
-		log.Logger.Info("Already closed Redis connection")
-	}
 }
