@@ -1,9 +1,9 @@
 app:
   version: 1.0.0
-  private-key-base64: $GRANT_N_Z_PRIVATE_KEY
-  environment: $GRANT_N_Z_ENV
   log-level: $GRANT_N_Z_LOG_LEVEL
-  policy-file-path: $GRANT_N_Z_POLICY_FILE_PATH
+
+server:
+  signed-in-token-private-key-base64: $GRANT_N_Z_PRIVATE_KEY
 
 db:
   engine: $GRANT_N_Z_ENGINE
