@@ -24,6 +24,5 @@ func GetServiceGroupServiceInstance() ServiceGroupService {
 
 func NewServiceGroupService() ServiceGroupService {
 	log.Logger.Info("New `ServiceGroupService` instance")
-	log.Logger.Info("Inject `ServiceGroupRepository` to `ServiceGroupService`")
 	return ServiceGroupServiceImpl{serviceGroupRepository: data.GetServiceGroupRepositoryInstance(driver.Db)}
 }

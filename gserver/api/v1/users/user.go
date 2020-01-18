@@ -39,7 +39,6 @@ func GetUserInstance() User {
 // Constructor.
 func NewUser() User {
 	log.Logger.Info("New `User` instance")
-	log.Logger.Info("Inject `UserGroup`, `Service` to `User`")
 	return UserImpl{
 		UserService: service.GetUserServiceInstance(),
 		Service:     service.GetServiceInstance(),

@@ -35,7 +35,6 @@ func GetRoleServiceInstance() RoleService {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
-	log.Logger.Info("Inject `RoleRepository` to `RoleService`")
 	return roleServiceImpl{roleRepository: data.RoleRepositoryImpl{Db: driver.Db}}
 }
 

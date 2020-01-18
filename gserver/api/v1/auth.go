@@ -37,7 +37,6 @@ func GetAuthInstance() Auth {
 // Constructor
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
-	log.Logger.Info("Inject `TokenService` to `Auth`")
 	return AuthImpl{tokenService: service.GetTokenServiceInstance()}
 }
 

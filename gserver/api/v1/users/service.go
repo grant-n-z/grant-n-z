@@ -36,7 +36,6 @@ func GetServiceInstance() Service {
 // Constructor
 func NewService() Service {
 	log.Logger.Info("New `Service` instance")
-	log.Logger.Info("Inject `Service` to `Service`")
 	return ServiceImpl{Service: service.GetServiceInstance()}
 }
 

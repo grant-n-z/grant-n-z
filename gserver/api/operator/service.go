@@ -46,7 +46,6 @@ func GetOperatorServiceInstance() Service {
 
 func NewOperatorService() Service {
 	log.Logger.Info("New `OperatorService` instance")
-	log.Logger.Info("Inject `request`, `Service` to `OperatorService`")
 	return OperatorServiceImpl{
 		Request: api.GetRequestInstance(),
 		Service: service.GetServiceInstance(),

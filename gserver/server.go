@@ -51,7 +51,6 @@ func init() {
 
 func NewGrantNZServer() GrantNZServer {
 	log.Logger.Info("New GrantNZServer")
-	log.Logger.Info("Inject `Router` to `GrantNZServer`")
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,

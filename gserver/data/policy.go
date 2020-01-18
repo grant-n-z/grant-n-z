@@ -33,7 +33,6 @@ func GetPolicyRepositoryInstance(db *gorm.DB) PolicyRepository {
 
 func NewPolicyRepository(db *gorm.DB) PolicyRepository {
 	log.Logger.Info("New `PolicyRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `PolicyRepository`")
 	return PolicyRepositoryImpl{
 		Db: db,
 	}

@@ -33,7 +33,6 @@ func GetServiceGroupRepositoryInstance(db *gorm.DB) ServiceGroupRepository {
 
 func NewServiceGroupRepository(db *gorm.DB) ServiceGroupRepository {
 	log.Logger.Info("New `ServiceGroupRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `ServiceGroupRepository`")
 	return ServiceGroupRepositoryImpl{Db: db}
 }
 

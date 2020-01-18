@@ -50,6 +50,8 @@ type tokenServiceImpl struct {
 	userServiceService    UserServiceService
 	service               Service
 	policyService         PolicyService
+	roleService           RoleService
+	permissionService     PermissionService
 	serverConfig          config.ServerConfig
 }
 
@@ -65,13 +67,14 @@ func GetTokenServiceInstance() TokenService {
 // Constructor
 func NewTokenService() TokenService {
 	log.Logger.Info("New `TokenService` instance")
-	log.Logger.Info("Inject `UserGroup`, `OperatorPolicyService` to `TokenService`")
 	return tokenServiceImpl{
 		userService:           GetUserServiceInstance(),
 		operatorPolicyService: GetOperatorPolicyServiceInstance(),
 		userServiceService:    GetUserServiceServiceInstance(),
 		service:               GetServiceInstance(),
 		policyService:         GetPolicyServiceInstance(),
+		roleService:           GetRoleServiceInstance(),
+		permissionService:     GetPermissionServiceInstance(),
 		serverConfig:          config.GServer,
 	}
 }
@@ -163,13 +166,24 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName *string, perm
 	}
 
 	// TODO: Cache role
+	if !strings.EqualFold(*roleName, "") {
+		role, err := tsi.roleService.GetRoleByName(*roleName)
+		if role == nil || err != nil {
+			return nil, model.Forbidden("Forbidden the user has not role")
+		}
+	}
 
 	// TODO: Cache permission
+	if !strings.EqualFold(*permissionName, "") {
+		permission, err := tsi.permissionService.GetPermissionByName(*permissionName)
+		if permission == nil || err != nil {
+			return nil, model.Forbidden("Forbidden the user has not permission")
+		}
+	}
 
 	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
-		log.Logger.Info("Not contain service of user or failed to query")
-		return nil, model.Forbidden("Forbidden what the user has not permission")
+		return nil, model.Forbidden("Forbidden the user cannot access service")
 	}
 
 	return authUser, nil

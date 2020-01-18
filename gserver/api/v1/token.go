@@ -38,7 +38,6 @@ func GetTokenInstance() Token {
 // Constructor
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
-	log.Logger.Info("Inject `TokenService` to `Token`")
 	return TokenImpl{TokenService: service.GetTokenServiceInstance()}
 }
 

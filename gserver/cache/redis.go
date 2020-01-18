@@ -28,7 +28,6 @@ func GetRedisClientInstance() RedisClient {
 
 func NewRedisClient() RedisClient {
 	log.Logger.Info("New `RedisClient` instance")
-	log.Logger.Info("Inject `redis.Client` to `RedisClient`")
 	return RedisClientImpl{
 		client: driver.Redis,
 	}

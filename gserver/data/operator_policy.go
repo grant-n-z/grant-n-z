@@ -38,7 +38,6 @@ func GetOperatorPolicyRepositoryInstance(db *gorm.DB) OperatorPolicyRepository {
 
 func NewOperatorPolicyRepository(db *gorm.DB) OperatorPolicyRepository {
 	log.Logger.Info("New `OperatorPolicyRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `OperatorPolicyRepository`")
 	return OperatorPolicyRepositoryImpl{
 		Db: db,
 	}

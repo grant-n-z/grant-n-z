@@ -37,7 +37,6 @@ func GetRoleRepositoryInstance(db *gorm.DB) RoleRepository {
 
 func NewRoleRepository(db *gorm.DB) RoleRepository {
 	log.Logger.Info("New `RoleRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `RoleRepository`")
 	return RoleRepositoryImpl{Db: db}
 }
 

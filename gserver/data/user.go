@@ -53,7 +53,6 @@ func GetUserRepositoryInstance(db *gorm.DB) UserRepository {
 // Constructor
 func NewUserRepository(db *gorm.DB) UserRepository {
 	log.Logger.Info("New `UserRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `UserRepository`")
 	return UserRepositoryImpl{
 		Db: db,
 	}

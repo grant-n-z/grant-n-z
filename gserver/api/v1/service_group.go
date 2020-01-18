@@ -36,7 +36,6 @@ func GetServiceGroupInstance() ServiceGroup {
 
 func NewServiceGroup() ServiceGroup {
 	log.Logger.Info("New `ServiceGroup` instance")
-	log.Logger.Info("Inject `request`, `ServiceGroupService` to `ServiceGroup`")
 	return ServiceGroupImpl{
 		Request:             api.GetRequestInstance(),
 		ServiceGroupService: service.GetServiceGroupServiceInstance(),

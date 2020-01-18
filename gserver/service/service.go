@@ -52,7 +52,6 @@ func GetServiceInstance() Service {
 // Constructor
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
-	log.Logger.Info("Inject `ServiceRepository`, `UserServiceRepository` to `Service`")
 	return serviceImpl{
 		serviceRepository:     data.ServiceRepositoryImpl{Db: driver.Db},
 		userServiceRepository: data.UserServiceRepositoryImpl{Db: driver.Db},

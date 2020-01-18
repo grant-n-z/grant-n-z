@@ -45,7 +45,6 @@ func GetPermissionInstance() Permission {
 
 func NewPermission() Permission {
 	log.Logger.Info("New `Permission` instance")
-	log.Logger.Info("Inject `request`, `PermissionService` to `Permission`")
 	return PermissionImpl{
 		Request:           api.GetRequestInstance(),
 		PermissionService: service.GetPermissionServiceInstance(),

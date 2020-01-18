@@ -49,7 +49,6 @@ func GetRequestInstance() Request {
 
 func NewRequest() Request {
 	log.Logger.Info("New `request` instance")
-	log.Logger.Info("Inject `AuthService` to `request`")
 	return RequestImpl{
 		tokenService: service.GetTokenServiceInstance(),
 		userService:  service.GetUserServiceInstance(),

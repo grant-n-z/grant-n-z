@@ -45,7 +45,6 @@ func GetOperatorPolicyInstance() OperatorPolicy {
 
 func NewOperatorPolicy() OperatorPolicy {
 	log.Logger.Info("New `OperatorPolicy` instance")
-	log.Logger.Info("Inject `request`, `operatorMemberRoleService` to `OperatorPolicy`")
 	return OperatorPolicyImpl{
 		Request:               api.GetRequestInstance(),
 		OperatorPolicyService: service.NewOperatorPolicyServiceService(),

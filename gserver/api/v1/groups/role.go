@@ -45,7 +45,6 @@ func GetRoleInstance() Role {
 
 func NewRole() Role {
 	log.Logger.Info("New `Role` instance")
-	log.Logger.Info("Inject `request`, `RoleService` to `Role`")
 	return RoleImpl{
 		Request:     api.GetRequestInstance(),
 		RoleService: service.GetRoleServiceInstance(),

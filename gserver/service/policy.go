@@ -56,7 +56,6 @@ func GetPolicyServiceInstance() PolicyService {
 // Constructor
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
-	log.Logger.Info("Inject `PolicyRepository`, `PermissionRepository`, `RoleRepository`, `UserGroupRepository` to `PolicyService`")
 	return policyServiceImpl{
 		policyRepository:     data.GetPolicyRepositoryInstance(driver.Db),
 		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),

@@ -37,7 +37,6 @@ func GetPermissionRepositoryInstance(db *gorm.DB) PermissionRepository {
 
 func NewPermissionRepository(db *gorm.DB) PermissionRepository {
 	log.Logger.Info("New `PermissionRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `PermissionRepository`")
 	return PermissionRepositoryImpl{Db: db}
 }
 

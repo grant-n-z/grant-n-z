@@ -55,7 +55,6 @@ func GetServiceRepositoryInstance(db *gorm.DB) ServiceRepository {
 // Constructor
 func NewServiceRepository(db *gorm.DB) ServiceRepository {
 	log.Logger.Info("New `ServiceRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `ServiceRepository`")
 	return ServiceRepositoryImpl{
 		Db: db,
 	}

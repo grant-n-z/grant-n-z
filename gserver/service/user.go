@@ -65,7 +65,6 @@ func GetUserServiceInstance() UserService {
 // Constructor
 func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
-	log.Logger.Info("Inject `UserRepository`, `AppConfig`, `RedisClient` to `UserService`")
 	return userServiceImpl{
 		userRepository: data.GetUserRepositoryInstance(driver.Db),
 		appConfig:      config.App,

@@ -36,7 +36,6 @@ func GetUserServiceRepositoryInstance(db *gorm.DB) UserServiceRepository {
 
 func NewUserServiceRepository(db *gorm.DB) UserServiceRepository {
 	log.Logger.Info("New `UserServiceRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `UserServiceRepository`")
 	return UserServiceRepositoryImpl{
 		Db: db,
 	}

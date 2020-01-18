@@ -34,7 +34,6 @@ func GetUserServiceInstance() UserService {
 
 func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
-	log.Logger.Info("Inject `request`, `userService` to `UserService`")
 	return UserServiceImpl{
 		Request:     api.GetRequestInstance(),
 		UserService: service.GetUserServiceServiceInstance(),

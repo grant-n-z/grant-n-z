@@ -45,7 +45,6 @@ func GetGroupServiceInstance() GroupService {
 // Constructor
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
-	log.Logger.Info("Inject `GroupRepository`, `UserGroupRepository`, `RoleRepository`, `PermissionRepository` to `GroupService`")
 	return GroupServiceImpl{
 		groupRepository:      data.GetGroupRepositoryInstance(driver.Db),
 		userGroupRepository:  data.GetUserGroupRepositoryInstance(driver.Db),

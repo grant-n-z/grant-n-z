@@ -51,7 +51,6 @@ func GetInterceptorInstance() Interceptor {
 
 func NewInterceptor() Interceptor {
 	log.Logger.Info("New `Interceptor` instance")
-	log.Logger.Info("Inject `TokenService`, `UserService` to `Interceptor`")
 	return InterceptorImpl{
 		tokenService: service.GetTokenServiceInstance(),
 		userService:  service.GetUserServiceInstance(),

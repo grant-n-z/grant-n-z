@@ -41,7 +41,6 @@ func GetGroupRepositoryInstance(db *gorm.DB) GroupRepository {
 // Constructor
 func NewGroupRepository(db *gorm.DB) GroupRepository {
 	log.Logger.Info("New `GroupRepository` instance")
-	log.Logger.Info("Inject `gorm.DB` to `GroupRepository`")
 	return GroupRepositoryImpl{Db: db}
 }
 

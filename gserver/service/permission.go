@@ -35,7 +35,6 @@ func GetPermissionServiceInstance() PermissionService {
 
 func NewPermissionService() PermissionService {
 	log.Logger.Info("New `PermissionService` instance")
-	log.Logger.Info("Inject `PermissionRepository` to `PermissionService`")
 	return permissionServiceImpl{
 		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
 	}

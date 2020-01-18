@@ -44,7 +44,6 @@ func GetGroupInstance() Group {
 // Constructor
 func NewGroup() Group {
 	log.Logger.Info("New `Group` instance")
-	log.Logger.Info("Inject `AuthService`, `GroupService` to `Group`")
 	return GroupImpl{groupService: service.GetGroupServiceInstance()}
 }
 

@@ -37,7 +37,6 @@ func GetPolicyInstance() Policy {
 // Constructor
 func NewPolicy() Policy {
 	log.Logger.Info("New `Policy` instance")
-	log.Logger.Info("Inject `PolicyService` to `Policy`")
 	return PolicyImpl{PolicyService: service.GetPolicyServiceInstance()}
 }
 
