@@ -3,9 +3,9 @@ package service
 import (
 	"github.com/google/uuid"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -63,12 +63,15 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 
 func (gs GroupServiceImpl) InsertGroup(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
+
+	// TODO: Cache role
 	role, err := gs.roleRepository.FindByName(constant.Admin)
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
+	// TODO: Cache permission
 	permission, err := gs.permissionRepository.FindByName(constant.Admin)
 	if err != nil {
 		log.Logger.Info("Failed to get permission for insert groups process")

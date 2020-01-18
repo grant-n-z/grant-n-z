@@ -73,7 +73,6 @@ func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 
 func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
 	var groupEntity *entity.Group
-
 	if err := middleware.BindBody(w, r, &groupEntity); err != nil {
 		return
 	}

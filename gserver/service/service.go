@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
@@ -18,6 +19,8 @@ var sInstance Service
 type serviceImpl struct {
 	serviceRepository     data.ServiceRepository
 	userServiceRepository data.UserServiceRepository
+	roleRepository        data.RoleRepository
+	permissionRepository  data.PermissionRepository
 }
 
 type Service interface {
@@ -53,8 +56,10 @@ func GetServiceInstance() Service {
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	return serviceImpl{
-		serviceRepository:     data.ServiceRepositoryImpl{Db: driver.Db},
-		userServiceRepository: data.UserServiceRepositoryImpl{Db: driver.Db},
+		serviceRepository:     data.GetServiceRepositoryInstance(driver.Db),
+		userServiceRepository: data.GetUserServiceRepositoryInstance(driver.Db),
+		roleRepository:        data.GetRoleRepositoryInstance(driver.Db),
+		permissionRepository:  data.GetPermissionRepositoryInstance(driver.Db),
 	}
 }
 
@@ -88,5 +93,20 @@ func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *
 	service.Uuid = uuid.New()
 	key := uuid.New()
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
-	return ss.serviceRepository.Save(*service)
+
+	// TODO: Cache role
+	role, err := ss.roleRepository.FindByName(constant.Admin)
+	if err != nil {
+		log.Logger.Info("Failed to get role for insert groups process")
+		return nil, model.InternalServerError()
+	}
+
+	// TODO: Cache permission
+	permission, err := ss.permissionRepository.FindByName(constant.Admin)
+	if err != nil {
+		log.Logger.Info("Failed to get permission for insert groups process")
+		return nil, model.InternalServerError()
+	}
+
+	return ss.serviceRepository.SaveWithRelationalData(*service, role.Id, permission.Id)
 }

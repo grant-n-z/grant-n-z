@@ -21,6 +21,7 @@ type GroupRepository interface {
 	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
 	// Generate groups, user_groups, service_groups
+	// Transaction mode
 	SaveWithRelationalData(group entity.Group, roleId int, permissionId int, serviceId int, userId int) (*entity.Group, *model.ErrorResBody)
 }
 
@@ -78,7 +79,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 		log.Logger.Warn("Failed to save groups at transaction process", err.Error())
 		tx.Rollback()
 		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit user data.")
+			return nil, model.Conflict("Already exit groups data.")
 		}
 
 		return nil, model.InternalServerError()

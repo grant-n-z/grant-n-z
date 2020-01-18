@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/google/uuid"
-
 	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -35,7 +35,7 @@ func GetRoleServiceInstance() RoleService {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
-	return roleServiceImpl{roleRepository: data.RoleRepositoryImpl{Db: driver.Db}}
+	return roleServiceImpl{roleRepository: data.GetRoleRepositoryInstance(driver.Db)}
 }
 
 func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {

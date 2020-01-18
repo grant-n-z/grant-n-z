@@ -34,6 +34,11 @@ type ServiceRepository interface {
 	// Save service
 	Save(service entity.Service) (*entity.Service, *model.ErrorResBody)
 
+	// Generate service, service_permissions, service_roles
+	// When generate service, insert initialize permission and role data
+	// Transaction mode
+	SaveWithRelationalData(service entity.Service, roleId int, permissionId int) (*entity.Service, *model.ErrorResBody)
+
 	// Update service
 	Update(service entity.Service) *entity.Service
 }
@@ -137,6 +142,55 @@ func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, 
 
 		return nil, model.InternalServerError(err.Error())
 	}
+
+	return &service, nil
+}
+
+func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roleId int, permissionId int) (*entity.Service, *model.ErrorResBody) {
+	tx := sri.Db.Begin()
+
+	// Save service
+	if err := tx.Create(&service).Error; err != nil {
+		log.Logger.Warn("Failed to save services at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit services data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	// Save service_permissions
+	servicePermission := entity.ServicePermission{
+		PermissionId: permissionId,
+		ServiceId:    service.Id,
+	}
+	if err := tx.Create(&servicePermission).Error; err != nil {
+		log.Logger.Warn("Failed to save service_permissions at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service_permissions data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	// Save service_roles
+	serviceRole := entity.ServiceRole{
+		RoleId:    roleId,
+		ServiceId: service.Id,
+	}
+	if err := tx.Create(&serviceRole).Error; err != nil {
+		log.Logger.Warn("Failed to save service_roles at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service_roles data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	tx.Commit()
 
 	return &service, nil
 }

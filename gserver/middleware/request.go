@@ -91,7 +91,7 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, nil, nil)
+		authUser, err := i.tokenService.VerifyUserToken(token, "", "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
