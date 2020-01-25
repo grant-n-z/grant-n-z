@@ -20,9 +20,6 @@ type UserService struct {
 	ServiceId int       `validate:"required"json:"service_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-
-	User    User
-	Service Service
 }
 
 // UserService table config struct

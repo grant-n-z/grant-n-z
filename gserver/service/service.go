@@ -86,7 +86,7 @@ func (ss serviceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody
 }
 
 func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
-	return ss.userServiceRepository.FindByUserId(ctx.GetUserId().(int))
+	return ss.userServiceRepository.FindServicesByUserId(ctx.GetUserId().(int))
 }
 
 func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody) {

@@ -54,8 +54,8 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.Erro
 }
 
 func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResBody) {
-	var permissions entity.Permission
-	if err := pri.Db.Where("id = ?", id).Find(&permissions).Error; err != nil {
+	var permission entity.Permission
+	if err := pri.Db.Where("id = ?", id).Find(&permission).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -63,12 +63,12 @@ func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return &permissions, nil
+	return &permission, nil
 }
 
 func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission, *model.ErrorResBody) {
-	var permissions entity.Permission
-	if err := pri.Db.Where("name = ?", name).Find(&permissions).Error; err != nil {
+	var permission entity.Permission
+	if err := pri.Db.Where("name = ?", name).Find(&permission).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -76,7 +76,7 @@ func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission,
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return &permissions, nil
+	return &permission, nil
 }
 
 func (pri PermissionRepositoryImpl) FindNameById(id int) *string {

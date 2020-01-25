@@ -50,7 +50,7 @@ type Policy struct {
 
 // The api policy response struct
 type PolicyResponse struct {
-	Name           string `json:"name"`
+	Name           string `json:"policy_name"`
 	RoleName       string `json:"role_name"`
 	PermissionName string `json:"permission_name"`
 	ServiceName    string `json:"service_name"`

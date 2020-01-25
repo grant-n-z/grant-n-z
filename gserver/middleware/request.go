@@ -11,6 +11,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/tomoyane/grant-n-z/gserver/cache"
+	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -26,13 +27,19 @@ const (
 var iInstance Interceptor
 
 type Interceptor interface {
-	// Http request interceptor
+	// Intercept Http request and Api-Key header
 	Intercept(next http.HandlerFunc) http.HandlerFunc
 
-	// Interceptor with user authentication
+	// Intercept only http header
+	InterceptHeader(next http.HandlerFunc) http.HandlerFunc
+
+	// Intercept Http request and Api-Key header with user authentication
 	InterceptAuthenticateUser(next http.HandlerFunc) http.HandlerFunc
 
-	// Interceptor with operator authentication
+	// Intercept Http request and Api-Key header with user and group admin authentication
+	InterceptAuthenticateGroupAdmin(next http.HandlerFunc) http.HandlerFunc
+
+	// Intercept Http request and Api-Key header with operator authentication
 	InterceptAuthenticateOperator(next http.HandlerFunc) http.HandlerFunc
 }
 
@@ -68,7 +75,29 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}()
 
-		if err := intercept(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
+			return
+		}
+
+		if err := interceptApiKey(w, r); err != nil {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
+}
+
+func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+				err := model.InternalServerError("Failed to request body bind")
+				model.WriteError(w, err.ToJson(), err.Code)
+			}
+		}()
+
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
@@ -86,12 +115,49 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			}
 		}()
 
-		if err := intercept(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
+			return
+		}
+
+		if err := interceptApiKey(w, r); err != nil {
 			return
 		}
 
 		token := r.Header.Get(Authorization)
 		authUser, err := i.tokenService.VerifyUserToken(token, "", "")
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+
+		ctx.SetUserId(authUser.UserId)
+		ctx.SetUserUuid(authUser.UserUuid)
+		ctx.SetServiceId(authUser.ServiceId)
+
+		next.ServeHTTP(w, r)
+	}
+}
+
+func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+				err := model.InternalServerError("Failed to request body bind")
+				model.WriteError(w, err.ToJson(), err.Code)
+			}
+		}()
+
+		if err := interceptHeader(w, r); err != nil {
+			return
+		}
+
+		if err := interceptApiKey(w, r); err != nil {
+			return
+		}
+
+		token := r.Header.Get(Authorization)
+		authUser, err := i.tokenService.VerifyUserToken(token, constant.Admin, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
@@ -115,7 +181,11 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 			}
 		}()
 
-		if err := intercept(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
+			return
+		}
+
+		if err := interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -134,16 +204,18 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 	}
 }
 
-// Intercept http request
-// Set api key
-func intercept(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+// Intercept http request header
+func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	w.Header().Set(ContentType, "application/json")
-
 	if err := validateHeader(r); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return err
 	}
+	return nil
+}
 
+// Intercept Api-Key header
+func interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	apiKey := r.Header.Get(Key)
 	if strings.EqualFold(apiKey, "") {
 		err := model.BadRequest("Required Api-Key")

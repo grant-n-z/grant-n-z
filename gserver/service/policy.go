@@ -18,10 +18,10 @@ var (
 )
 
 type PolicyService interface {
-	// Get all policy data
+	// Get all policy
 	GetPolicies() ([]*entity.Policy, *model.ErrorResBody)
 
-	// Get policy data by role id
+	// Get policy by role id
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
 	// Get policies of user
@@ -30,6 +30,9 @@ type PolicyService interface {
 
 	// Get policy by user_groups data
 	GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody)
+
+	// Get policy by id
+	GetPolicyById(id int) (entity.Policy, *model.ErrorResBody)
 
 	// Insert policy
 	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
@@ -81,16 +84,18 @@ func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model
 
 	var policyResponses []entity.PolicyResponse
 	for _, ugp := range userGroupPolicies {
-		// TODO: Cache role, permission, service
-		policyResponse := entity.NewPolicyResponse().
-			SetName(&ugp.Policy.Name).
-			SetRoleName(ps.roleRepository.FindNameById(ugp.Policy.RoleId)).
-			SetPermissionName(ps.permissionRepository.FindNameById(ugp.Policy.PermissionId)).
-			SetServiceName(ps.serviceRepository.FindNameById(ugp.Policy.ServiceId)).
-			SetGroupName(&ugp.Group.Name).
-			Build()
+		if ugp.ServiceId == ctx.GetServiceId() {
+			// TODO: Cache role, permission, service
+			policyResponse := entity.NewPolicyResponse().
+				SetName(&ugp.Policy.Name).
+				SetRoleName(ps.roleRepository.FindNameById(ugp.Policy.RoleId)).
+				SetPermissionName(ps.permissionRepository.FindNameById(ugp.Policy.PermissionId)).
+				SetServiceName(ps.serviceRepository.FindNameById(ugp.Policy.ServiceId)).
+				SetGroupName(&ugp.Group.Name).
+				Build()
 
-		policyResponses = append(policyResponses, policyResponse)
+			policyResponses = append(policyResponses, policyResponse)
+		}
 	}
 
 	return policyResponses, nil
@@ -103,6 +108,15 @@ func (ps policyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*enti
 	}
 
 	return &groupWithPolicy.Policy, nil
+}
+
+func (ps policyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
+	policy, err := ps.policyRepository.FindById(id)
+	if err != nil {
+		return policy, err
+	}
+
+	return policy, nil
 }
 
 func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody) {

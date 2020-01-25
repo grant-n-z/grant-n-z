@@ -53,7 +53,6 @@ func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 	var userEntity *entity.User
-
 	if err := middleware.BindBody(w, r, &userEntity); err != nil {
 		return
 	}
@@ -71,7 +70,7 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, _ := json.Marshal(map[string]string{"token": *token})
+	res, _ := json.Marshal(map[string]string{"token": token})
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

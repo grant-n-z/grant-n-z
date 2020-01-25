@@ -16,7 +16,7 @@ var usrInstance UserServiceRepository
 type UserServiceRepository interface {
 	FindAll() ([]*entity.UserService, *model.ErrorResBody)
 
-	FindByUserId(userId int) ([]*entity.Service, *model.ErrorResBody)
+	FindServicesByUserId(userId int) ([]*entity.Service, *model.ErrorResBody)
 
 	FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
 
@@ -54,7 +54,7 @@ func (usri UserServiceRepositoryImpl) FindAll() ([]*entity.UserService, *model.E
 	return userServices, nil
 }
 
-func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.Service, *model.ErrorResBody) {
+func (usri UserServiceRepositoryImpl) FindServicesByUserId(userId int) ([]*entity.Service, *model.ErrorResBody) {
 	var services []*entity.Service
 
 	if err := usri.Db.Table(entity.ServiceTable.String()).
@@ -80,6 +80,7 @@ func (usri UserServiceRepositoryImpl) FindByUserId(userId int) ([]*entity.Servic
 func (usri UserServiceRepositoryImpl) FindByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
 	var userService entity.UserService
 	if err := usri.Db.Where("user_id = ? AND service_id = ?", userId, serviceId).Find(&userService).Error; err != nil {
+		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

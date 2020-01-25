@@ -19,7 +19,7 @@ var tsInstance TokenService
 
 type TokenService interface {
 	// Generate jwt token
-	Generate(userType string, groupIdStr string, userEntity entity.User) (*string, *model.ErrorResBody)
+	Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody)
 
 	// Parse and check token
 	ParseToken(token string) (map[string]string, bool)
@@ -30,17 +30,17 @@ type TokenService interface {
 	// Verify user token
 	VerifyUserToken(token string, roleName string, permissionName string) (*model.AuthUser, *model.ErrorResBody)
 
+	// Get auth user data in token
+	GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
+
 	// Generate signed in token
-	signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) *string
+	signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string
 
 	// Generate operator token
-	generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody)
+	generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody)
 
 	// Generate user token
-	generateUserToken(userEntity entity.User, groupId int) (*string, *model.ErrorResBody)
-
-	// Get auth user data in token
-	getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody)
 }
 
 // TokenService struct
@@ -79,14 +79,14 @@ func NewTokenService() TokenService {
 	}
 }
 
-func (tsi tokenServiceImpl) Generate(userType string, groupIdStr string, userEntity entity.User) (*string, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody) {
 	if strings.EqualFold(groupIdStr, "") {
 		groupIdStr = "0"
 	}
 
 	groupId, err := strconv.Atoi(groupIdStr)
 	if err != nil {
-		return nil, model.BadRequest("Group id is only integer of query parameter")
+		return "", model.BadRequest("Group id is only integer of query parameter")
 	}
 
 	switch userType {
@@ -97,7 +97,7 @@ func (tsi tokenServiceImpl) Generate(userType string, groupIdStr string, userEnt
 	case "":
 		return tsi.generateUserToken(userEntity, groupId)
 	default:
-		return nil, model.BadRequest("Not support type of query parameter")
+		return "", model.BadRequest("Not support type of query parameter")
 	}
 }
 
@@ -145,7 +145,7 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 }
 
 func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tsi.getAuthUserInToken(token)
+	authUser, err := tsi.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
 	}
@@ -160,15 +160,21 @@ func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, 
 }
 
 func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tsi.getAuthUserInToken(token)
+	authUser, err := tsi.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
+	}
+
+	// TODO: Cache policy
+	policy, err := tsi.policyService.GetPolicyById(authUser.PolicyId)
+	if err != nil {
+		return nil, model.BadRequest("You don't join this group")
 	}
 
 	// TODO: Cache role
 	if !strings.EqualFold(roleName, "") {
 		role, err := tsi.roleService.GetRoleByName(roleName)
-		if role == nil || err != nil {
+		if role == nil || err != nil || role.Id != policy.RoleId {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
 	}
@@ -176,11 +182,12 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permi
 	// TODO: Cache permission
 	if !strings.EqualFold(permissionName, "") {
 		permission, err := tsi.permissionService.GetPermissionByName(permissionName)
-		if permission == nil || err != nil {
+		if permission == nil || err != nil || permission.Id != policy.PermissionId {
 			return nil, model.Forbidden("Forbidden the user has not permission")
 		}
 	}
 
+	// TODO: Cache user_service
 	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
 		return nil, model.Forbidden("Forbidden the user cannot access service")
@@ -189,80 +196,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permi
 	return authUser, nil
 }
 
-func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (*string, *model.ErrorResBody) {
-	// TODO: Cache
-	targetUser, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
-	if err != nil || targetUser == nil {
-		return nil, model.BadRequest("Failed to email or password")
-	}
-
-	if !tsi.userService.ComparePw(targetUser.Password, userEntity.Password) {
-		return nil, model.BadRequest("Failed to email or password")
-	}
-
-	if targetUser.OperatorPolicy.RoleId != constant.OperatorRoleId {
-		return nil, model.BadRequest("Can not issue token")
-	}
-
-	// Operator token is not required service id, policy id
-	serviceId := 0
-	policyId := 0
-	return tsi.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil
-}
-
-func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User, groupId int) (*string, *model.ErrorResBody) {
-	// TODO: Cache service data
-	service, err := tsi.service.GetServiceOfApiKey()
-	if err != nil || service == nil {
-		return nil, model.BadRequest("Not found registered services by Api-Key")
-	}
-
-	// TODO: Cache user data
-	targetUser, err := tsi.userService.GetUserByEmail(userEntity.Email)
-	if err != nil || targetUser == nil {
-		return nil, model.BadRequest("Failed to email or password")
-	}
-
-	if !tsi.userService.ComparePw(targetUser.Password, userEntity.Password) {
-		return nil, model.BadRequest("Failed to email or password")
-	}
-
-	// Case of group_id is zero, not using policy.
-	if groupId == 0 {
-		roleId := 0
-		policyId := 0
-		return tsi.signedInToken(targetUser.Id, targetUser.Uuid.String(), roleId, service.Id, policyId), nil
-	}
-
-	policy, err := tsi.policyService.GetPolicyByUserGroup(targetUser.Id, groupId)
-	if err != nil {
-		return nil, err
-	}
-
-	return tsi.signedInToken(targetUser.Id, targetUser.Uuid.String(), 0, service.Id, policy.Id), nil
-}
-
-func (tsi tokenServiceImpl) signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) *string {
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = strconv.Itoa(userId)
-	claims["user_uuid"] = userUuid
-	claims["expires"] = time.Now().Add(time.Hour * 1).String()
-	claims["role_id"] = strconv.Itoa(roleId)
-	claims["service_id"] = strconv.Itoa(serviceId)
-	claims["policy_id"] = strconv.Itoa(policyId)
-
-	signedToken, err := token.SignedString([]byte(tsi.serverConfig.SignedInPrivateKeyBase64))
-	if err != nil {
-		log.Logger.Error("Failed to issue signed token", err.Error())
-		return nil
-	}
-
-	return &signedToken
-}
-
-func (tsi tokenServiceImpl) getAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
 	if !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")
@@ -289,4 +223,78 @@ func (tsi tokenServiceImpl) getAuthUserInToken(token string) (*model.AuthUser, *
 	}
 
 	return authUser, nil
+}
+
+func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody) {
+	// TODO: Cache
+	targetUser, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
+	if err != nil || targetUser == nil {
+		return "", model.BadRequest("Failed to email or password")
+	}
+
+	if !tsi.userService.ComparePw(targetUser.Password, userEntity.Password) {
+		return "", model.BadRequest("Failed to email or password")
+	}
+
+	if targetUser.OperatorPolicy.RoleId != constant.OperatorRoleId {
+		return "", model.BadRequest("Can not issue token")
+	}
+
+	// Operator token is not required service id, policy id
+	serviceId := 0
+	policyId := 0
+	return tsi.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil
+}
+
+func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
+	// TODO: Cache service data
+	service, err := tsi.service.GetServiceOfApiKey()
+	if err != nil || service == nil {
+		return "", model.BadRequest("Not found registered services by Api-Key")
+	}
+
+	// TODO: Cache user data
+	targetUser, err := tsi.userService.GetUserByEmail(userEntity.Email)
+	if err != nil || targetUser == nil {
+		return "", model.BadRequest("Failed to email or password")
+	}
+
+	if !tsi.userService.ComparePw(targetUser.Password, userEntity.Password) {
+		return "", model.BadRequest("Failed to email or password")
+	}
+
+	// Case of group_id is zero, not using policy.
+	if groupId == 0 {
+		roleId := 0
+		policyId := 0
+		return tsi.signedInToken(targetUser.Id, targetUser.Uuid.String(), roleId, service.Id, policyId), nil
+	}
+
+	// TODO: Cache policy
+	policy, err := tsi.policyService.GetPolicyByUserGroup(targetUser.Id, groupId)
+	if err != nil {
+		return "", err
+	}
+
+	return tsi.signedInToken(targetUser.Id, targetUser.Uuid.String(), 0, service.Id, policy.Id), nil
+}
+
+func (tsi tokenServiceImpl) signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string {
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["user_id"] = strconv.Itoa(userId)
+	claims["user_uuid"] = userUuid
+	claims["expires"] = time.Now().Add(time.Hour * 1).String()
+	claims["role_id"] = strconv.Itoa(roleId)
+	claims["service_id"] = strconv.Itoa(serviceId)
+	claims["policy_id"] = strconv.Itoa(policyId)
+
+	signedToken, err := token.SignedString([]byte(tsi.serverConfig.SignedInPrivateKeyBase64))
+	if err != nil {
+		log.Logger.Error("Failed to issue signed token", err.Error())
+		return ""
+	}
+
+	return signedToken
 }

@@ -17,8 +17,9 @@ type Router struct {
 	mux         *mux.Router
 	interceptor middleware.Interceptor
 
-	Auth  v1.Auth
-	Token v1.Token
+	Auth    v1.Auth
+	Token   v1.Token
+	Service v1.Service
 
 	UsersRouter     UsersRouter
 	GroupsRouter    GroupsRouter
@@ -64,8 +65,9 @@ func NewRouter() Router {
 		mux:         mux.NewRouter(),
 		interceptor: middleware.GetInterceptorInstance(),
 
-		Auth:  v1.GetAuthInstance(),
-		Token: v1.GetTokenInstance(),
+		Auth:    v1.GetAuthInstance(),
+		Token:   v1.GetTokenInstance(),
+		Service: v1.GetServiceInstance(),
 
 		UsersRouter:     usersRouter,
 		GroupsRouter:    groupsRouter,
@@ -88,22 +90,28 @@ func (r Router) Run() *mux.Router {
 }
 
 func (r Router) v1() {
-	r.mux.HandleFunc("/api/v1/auth", r.Auth.Api)
-	r.mux.HandleFunc("/api/v1/token", r.interceptor.Intercept(r.Token.Api))
+	// No restriction
+	r.mux.HandleFunc("/api/v1/auth", r.interceptor.InterceptHeader(r.Auth.Api))
+	r.mux.HandleFunc("/api/v1/services", r.interceptor.InterceptHeader(r.Service.Get)).Methods(http.MethodGet)
 
+	// Required Api-Key
+	r.mux.HandleFunc("/api/v1/token", r.interceptor.Intercept(r.Token.Api))
+	r.mux.HandleFunc("/api/v1/services/add_user", r.interceptor.Intercept(r.Service.Post)).Methods(http.MethodPost)
+
+	// Required Api-Key
 	user := func() {
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post)).Methods(http.MethodPost)
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put)).Methods(http.MethodPut)
 		r.mux.HandleFunc("/api/v1/users/group", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Group.Api))
-		r.mux.HandleFunc("/api/v1/users/service", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Service.Api))
 		r.mux.HandleFunc("/api/v1/users/policy", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Policy.Api))
 	}
 
+	// Required Api-Key and group admin
 	group := func() {
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/user/{add_user_id}", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/user_add{user_id}", r.GroupsRouter.Role.Api)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/user_policy/{user_id}", r.GroupsRouter.Role.Api)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.GroupsRouter.Role.Api)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.GroupsRouter.Permission.Api)
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/users/{to_user_id}/policy", r.GroupsRouter.Role.Api)
 	}
 
 	user()

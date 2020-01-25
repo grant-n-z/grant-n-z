@@ -17,6 +17,8 @@ type PolicyRepository interface {
 
 	FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
+	FindById(id int) (entity.Policy, *model.ErrorResBody)
+
 	Save(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
 }
 
@@ -62,6 +64,19 @@ func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *mod
 	}
 
 	return policies, nil
+}
+
+func (pri PolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {
+	var policy entity.Policy
+	if err := pri.Db.Where("id = ?", id).Find(&policy).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return policy, nil
+		}
+
+		return policy, model.InternalServerError(err.Error())
+	}
+
+	return policy, nil
 }
 
 func (pri PolicyRepositoryImpl) Save(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
