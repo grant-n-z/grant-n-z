@@ -71,6 +71,10 @@ func (usri UserServiceRepositoryImpl) FindServicesByUserId(userId int) ([]*entit
 		Scan(&services).Error; err != nil {
 
 		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found service")
+		}
+
 		return nil, model.InternalServerError()
 	}
 

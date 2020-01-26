@@ -1,10 +1,19 @@
 package groups
 
 import (
+	"strconv"
+
+	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
+	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
+	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
+	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
 var pInstance Policy
@@ -19,7 +28,11 @@ type Policy interface {
 }
 
 type PolicyImpl struct {
-	// TODO
+	PolicyService     service.PolicyService
+	UserService       service.UserService
+	UserGroupService  service.UserGroupService
+	RoleService       service.RoleService
+	PermissionService service.PermissionService
 }
 
 func GetPolicyInstance() Policy {
@@ -31,7 +44,13 @@ func GetPolicyInstance() Policy {
 
 func NewPolicy() Policy {
 	log.Logger.Info("New `groups.Policy` instance")
-	return PolicyImpl{}
+	return PolicyImpl{
+		PolicyService:     service.GetPolicyServiceInstance(),
+		UserService:       service.GetUserServiceInstance(),
+		UserGroupService:  service.GetUserGroupServiceInstance(),
+		RoleService:       service.GetRoleServiceInstance(),
+		PermissionService: service.GetPermissionServiceInstance(),
+	}
 }
 
 func (p PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +64,61 @@ func (p PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
-	//res, _ := json.Marshal(permissionEntities)
-	//w.WriteHeader(http.StatusOK)
-	//w.Write(res)
+	var policyRequest *entity.PolicyRequest
+	if err := middleware.BindBody(w, r, &policyRequest); err != nil {
+		return
+	}
+
+	if err := middleware.ValidateBody(w, policyRequest); err != nil {
+		return
+	}
+
+	groupId := mux.Vars(r)["group_id"]
+	id, err := strconv.Atoi(groupId)
+	if err != nil {
+		err := model.BadRequest("Path parameter is only integer")
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
+	user, errUser := p.UserService.GetUserByEmail(policyRequest.ToUserEmail)
+	if errUser != nil {
+		model.WriteError(w, errUser.ToJson(), errUser.Code)
+		return
+	}
+
+	userGroup, errGroup := p.UserGroupService.GetUserGroupByUserIdAndGroupId(user.Id, id)
+	if errGroup != nil {
+		model.WriteError(w, errGroup.ToJson(), errGroup.Code)
+		return
+	}
+
+	role, errRole := p.RoleService.GetRoleById(policyRequest.RoleId)
+	if errRole != nil {
+		model.WriteError(w, errRole.ToJson(), errRole.Code)
+		return
+	}
+
+	permission, errPermission := p.PermissionService.GetPermissionById(policyRequest.PermissionId)
+	if errPermission != nil {
+		model.WriteError(w, errPermission.ToJson(), errPermission.Code)
+		return
+	}
+
+	policy := entity.Policy{
+		Name:         policyRequest.Name,
+		RoleId:       role.Id,
+		PermissionId: permission.Id,
+		ServiceId:    ctx.GetServiceId().(int),
+		UserGroupId:  userGroup.Id,
+	}
+	insertedPolicy, errPolicy := p.PolicyService.UpdatePolicy(policy)
+	if errPolicy != nil {
+		model.WriteError(w, errPolicy.ToJson(), errPolicy.Code)
+		return
+	}
+
+	res, _ := json.Marshal(insertedPolicy)
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
 }

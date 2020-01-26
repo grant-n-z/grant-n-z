@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -181,8 +180,6 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permi
 	// TODO: Cache role
 	if !strings.EqualFold(roleName, "") {
 		role, err := tsi.roleService.GetRoleByName(roleName)
-		fmt.Println(policy.RoleId)
-		fmt.Println(role.Id)
 		if role == nil || err != nil || role.Id != policy.RoleId {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
@@ -282,7 +279,7 @@ func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User, groupId in
 	// TODO: Cache policy
 	policy, err := tsi.policyService.GetPolicyByUserGroup(targetUser.Id, groupId)
 	if err != nil {
-		return "", err
+		return "", model.Forbidden("Can't issue token for group")
 	}
 
 	return tsi.signedInToken(targetUser.Id, targetUser.Uuid.String(), 0, service.Id, policy.Id), nil

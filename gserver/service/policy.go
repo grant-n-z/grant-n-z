@@ -34,8 +34,8 @@ type PolicyService interface {
 	// Get policy by id
 	GetPolicyById(id int) (entity.Policy, *model.ErrorResBody)
 
-	// Insert policy
-	InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody)
+	// Insert or update policy
+	UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
 }
 
 // PolicyService struct
@@ -119,6 +119,6 @@ func (ps policyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorRe
 	return policy, nil
 }
 
-func (ps policyServiceImpl) InsertPolicy(policy *entity.Policy) (*entity.Policy, *model.ErrorResBody) {
-	return ps.policyRepository.Save(*policy)
+func (ps policyServiceImpl) UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+	return ps.policyRepository.Update(policy)
 }

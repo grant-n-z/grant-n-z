@@ -19,7 +19,7 @@ type PolicyRepository interface {
 
 	FindById(id int) (entity.Policy, *model.ErrorResBody)
 
-	Save(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
+	Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
 }
 
 type PolicyRepositoryImpl struct {
@@ -79,8 +79,8 @@ func (pri PolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorRes
 	return policy, nil
 }
 
-func (pri PolicyRepositoryImpl) Save(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
-	if err := pri.Db.Create(&policy).Error; err != nil {
+func (pri PolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+	if err := pri.Db.Where("user_group_id = ?", policy.UserGroupId).Assign(policy).FirstOrCreate(&policy).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")

@@ -48,6 +48,14 @@ type Policy struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// Policy request struct
+type PolicyRequest struct {
+	Name         string `validate:"required"json:"name"`
+	ToUserEmail  string `validate:"required"json:"to_user_email"`
+	RoleId       int    `validate:"required"json:"role_id"`
+	PermissionId int    `validate:"required"json:"permission_id"`
+}
+
 // The api policy response struct
 type PolicyResponse struct {
 	Name           string `json:"policy_name"`
