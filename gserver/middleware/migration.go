@@ -12,6 +12,7 @@ import (
 const failedMigrationMsg = "Failed to not valid grant_n_z schema or data is broken for migration"
 
 type Migration struct {
+	service               service.Service
 	userService           service.UserService
 	roleService           service.RoleService
 	operatorPolicyService service.OperatorPolicyService
@@ -20,6 +21,7 @@ type Migration struct {
 
 func NewMigration() Migration {
 	return Migration{
+		service:               service.GetServiceInstance(),
 		userService:           service.GetUserServiceInstance(),
 		roleService:           service.GetRoleServiceInstance(),
 		operatorPolicyService: service.GetOperatorPolicyServiceInstance(),
@@ -34,10 +36,10 @@ func (m Migration) V1() {
 
 	// Generate operator user
 	operatorUser := entity.User{
-		Id:        1,
-		Username:  constant.Operator,
-			Email: "operator@gmail.com",
-		Password:  "grant_n_z_operator",
+		Id:       1,
+		Username: constant.OperatorRole,
+		Email:    "operator@gmail.com",
+		Password: "grant_n_z_operator",
 	}
 	_, userErr := m.userService.InsertUser(operatorUser)
 	if userErr != nil {
@@ -50,7 +52,7 @@ func (m Migration) V1() {
 	// Generate operator role
 	operatorRole := entity.Role{
 		Id:   1,
-		Name: constant.Operator,
+		Name: constant.OperatorRole,
 	}
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
@@ -62,7 +64,7 @@ func (m Migration) V1() {
 	// Generate admin role
 	adminRole := entity.Role{
 		Id:   2,
-		Name: constant.Admin,
+		Name: constant.AdminRole,
 	}
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
@@ -70,17 +72,53 @@ func (m Migration) V1() {
 			log.Logger.Fatal("Failed to generate admin role for migration")
 		}
 	}
+
+	// Generate user role
+	userRole := entity.Role{
+		Id:   3,
+		Name: constant.UserRole,
+	}
+	_, roleErr3 := m.roleService.InsertRole(&userRole)
+	if roleErr3 != nil {
+		if roleErr3.Code != http.StatusConflict {
+			log.Logger.Fatal("Failed to generate user role for migration")
+		}
+	}
 	log.Logger.Info("Generate to role for migration")
 
 	// Generate admin permission
 	adminPermission := entity.Permission{
 		Id:   1,
-		Name: constant.Admin,
+		Name: constant.AdminPermission,
 	}
-	_, permissionErr := m.permissionService.InsertPermission(&adminPermission)
-	if permissionErr != nil {
-		if permissionErr.Code != http.StatusConflict {
+	_, permissionErr01 := m.permissionService.InsertPermission(&adminPermission)
+	if permissionErr01 != nil {
+		if permissionErr01.Code != http.StatusConflict {
 			log.Logger.Fatal("Failed to generate admin permission for migration")
+		}
+	}
+
+	// Generate read permission
+	readPermission := entity.Permission{
+		Id:   2,
+		Name: constant.ReadPermission,
+	}
+	_, permissionErr02 := m.permissionService.InsertPermission(&readPermission)
+	if permissionErr02 != nil {
+		if permissionErr02.Code != http.StatusConflict {
+			log.Logger.Fatal("Failed to generate read permission for migration")
+		}
+	}
+
+	// Generate write permission
+	writePermission := entity.Permission{
+		Id:   3,
+		Name: constant.WritePermission,
+	}
+	_, permissionErr03 := m.permissionService.InsertPermission(&writePermission)
+	if permissionErr03 != nil {
+		if permissionErr03.Code != http.StatusConflict {
+			log.Logger.Fatal("Failed to generate write permission for migration")
 		}
 	}
 	log.Logger.Info("Generate to role for migration")
@@ -105,19 +143,19 @@ func (m Migration) checkV1Migration() bool {
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	operatorAdminRole, err := m.roleService.GetRoleByName(constant.Operator)
+	operatorAdminRole, err := m.roleService.GetRoleByName(constant.OperatorRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminRole, err := m.roleService.GetRoleByName(constant.Admin)
+	adminRole, err := m.roleService.GetRoleByName(constant.AdminRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin role")
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminPermission, err := m.permissionService.GetPermissionByName(constant.Admin)
+	adminPermission, err := m.permissionService.GetPermissionByName(constant.AdminRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin permission")
 		log.Logger.Fatal(failedMigrationMsg)

@@ -79,8 +79,11 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
-			return
+		userType := r.URL.Query().Get("type")
+		if !strings.EqualFold(userType, constant.AuthOperator) {
+			if err := interceptApiKey(w, r); err != nil {
+				return
+			}
 		}
 
 		next.ServeHTTP(w, r)
@@ -157,7 +160,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, constant.Admin, "")
+		authUser, err := i.tokenService.VerifyUserToken(token, constant.AdminRole, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
@@ -182,10 +185,6 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 		}()
 
 		if err := interceptHeader(w, r); err != nil {
-			return
-		}
-
-		if err := interceptApiKey(w, r); err != nil {
 			return
 		}
 

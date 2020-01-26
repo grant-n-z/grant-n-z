@@ -19,6 +19,8 @@ type RoleRepository interface {
 
 	FindByName(name string) (*entity.Role, *model.ErrorResBody)
 
+	FindByNames(name []string) ([]*entity.Role, *model.ErrorResBody)
+
 	FindNameById(id int) *string
 
 	Save(role entity.Role) (*entity.Role, *model.ErrorResBody)
@@ -77,6 +79,19 @@ func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.Erro
 	}
 
 	return &role, nil
+}
+
+func (rri RoleRepositoryImpl) FindByNames(names []string) ([]*entity.Role, *model.ErrorResBody) {
+	var roles []*entity.Role
+	if err := rri.Db.Where("name IN (?)", names).Find(&roles).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return roles, nil
 }
 
 func (rri RoleRepositoryImpl) FindNameById(id int) *string {

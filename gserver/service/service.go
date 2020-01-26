@@ -40,7 +40,10 @@ type Service interface {
 	GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody)
 
 	// Insert service
-	InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody)
+	InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody)
+
+	// Insert service
+	InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody)
 }
 
 // Get Policy instance.
@@ -89,24 +92,31 @@ func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody
 	return ss.userServiceRepository.FindServicesByUserId(ctx.GetUserId().(int))
 }
 
-func (ss serviceImpl) InsertService(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (ss serviceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+	service.Uuid = uuid.New()
+	key := uuid.New()
+	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
+	return ss.serviceRepository.Save(service)
+}
+
+func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
 	key := uuid.New()
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
 
-	// TODO: Cache role
-	role, err := ss.roleRepository.FindByName(constant.Admin)
+	// TODO: Cache roles
+	roles, err := ss.roleRepository.FindByNames([]string{constant.AdminRole, constant.UserRole})
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
-	// TODO: Cache permission
-	permission, err := ss.permissionRepository.FindByName(constant.Admin)
+	// TODO: Cache permissions
+	permissions, err := ss.permissionRepository.FindByNames([]string{constant.AdminPermission, constant.ReadPermission, constant.WritePermission})
 	if err != nil {
 		log.Logger.Info("Failed to get permission for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
-	return ss.serviceRepository.SaveWithRelationalData(*service, role.Id, permission.Id)
+	return ss.serviceRepository.SaveWithRelationalData(*service, roles, permissions)
 }

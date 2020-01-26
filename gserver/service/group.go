@@ -18,6 +18,9 @@ type GroupService interface {
 	// Get all groups
 	GetGroups() ([]*entity.Group, *model.ErrorResBody)
 
+	// Get group by id
+	GetGroupById(id int) (*entity.Group, *model.ErrorResBody)
+
 	// Get group that has the user
 	GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody)
 
@@ -57,6 +60,10 @@ func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
 	return gs.groupRepository.FindAll()
 }
 
+func (gs GroupServiceImpl) GetGroupById(id int) (*entity.Group, *model.ErrorResBody) {
+	return gs.groupRepository.FindById(id)
+}
+
 func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
 	return gs.userGroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
 }
@@ -65,14 +72,14 @@ func (gs GroupServiceImpl) InsertGroup(group entity.Group) (*entity.Group, *mode
 	group.Uuid = uuid.New()
 
 	// TODO: Cache role
-	role, err := gs.roleRepository.FindByName(constant.Admin)
+	role, err := gs.roleRepository.FindByName(constant.AdminRole)
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
 	// TODO: Cache permission
-	permission, err := gs.permissionRepository.FindByName(constant.Admin)
+	permission, err := gs.permissionRepository.FindByName(constant.AdminRole)
 	if err != nil {
 		log.Logger.Info("Failed to get permission for insert groups process")
 		return nil, model.InternalServerError()

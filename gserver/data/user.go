@@ -132,6 +132,9 @@ func (uri UserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string
 		Scan(&uus).Error; err != nil {
 
 		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found user")
+		}
 		return nil, model.InternalServerError()
 	}
 

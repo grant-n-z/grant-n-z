@@ -1,11 +1,18 @@
 package groups
 
 import (
+	"strconv"
+
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
+	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
+	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
 var uInstance User
@@ -14,17 +21,15 @@ type User interface {
 	// Implement permission api
 	Api(w http.ResponseWriter, r *http.Request)
 
-	// Http POST method
-	// Add user
-	postUserAdding(w http.ResponseWriter, r *http.Request)
-
 	// Http PUT method
-	// Update user's policy
-	potUserPolicy(w http.ResponseWriter, r *http.Request, body []byte)
+	// Add user to group
+	put(w http.ResponseWriter, r *http.Request)
 }
 
 type UserImpl struct {
-	// TODO
+	GroupService     service.GroupService
+	UserService      service.UserService
+	UserGroupService service.UserGroupService
 }
 
 func GetUserInstance() User {
@@ -36,29 +41,64 @@ func GetUserInstance() User {
 
 func NewUser() User {
 	log.Logger.Info("New `groups.User` instance")
-	return UserImpl{}
+	return UserImpl{
+		GroupService:     service.GetGroupServiceInstance(),
+		UserService:      service.GetUserServiceInstance(),
+		UserGroupService: service.GetUserGroupServiceInstance(),
+	}
 }
 
 func (u UserImpl) Api(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodPost:
-		u.postUserAdding(w, r)
 	case http.MethodPut:
-		u.postUserAdding(w, r)
+		u.put(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
 	}
 }
 
-func (u UserImpl) postUserAdding(w http.ResponseWriter, r *http.Request) {
-	res, _ := json.Marshal(permissionEntities)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
-}
+func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
+	var addUserEntity *entity.AddUser
+	if err := middleware.BindBody(w, r, &addUserEntity); err != nil {
+		return
+	}
 
-func (u UserImpl) potUserPolicy(w http.ResponseWriter, r *http.Request, body []byte) {
-	res, _ := json.Marshal(permission)
-	w.WriteHeader(http.StatusCreated)
+	if err := middleware.ValidateBody(w, addUserEntity); err != nil {
+		return
+	}
+
+	groupId := mux.Vars(r)["group_id"]
+	id, err := strconv.Atoi(groupId)
+	if err != nil {
+		err := model.BadRequest("Path parameter is only integer")
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
+	group, errGroup := u.GroupService.GetGroupById(id)
+	if errGroup != nil {
+		model.WriteError(w, errGroup.ToJson(), errGroup.Code)
+		return
+	}
+
+	user, errUser := u.UserService.GetUserWithUserServiceWithServiceByEmail(addUserEntity.UserEmail)
+	if errUser != nil || user == nil {
+		model.WriteError(w, errUser.ToJson(), errUser.Code)
+		return
+	}
+
+	userGroupEntity := entity.UserGroup{
+		UserId:  user.User.Id,
+		GroupId: group.Id,
+	}
+	userGroup, errUserGroup := u.UserGroupService.InsertUserGroup(userGroupEntity)
+	if errUserGroup != nil {
+		model.WriteError(w, errUserGroup.ToJson(), errUserGroup.Code)
+		return
+	}
+
+	res, _ := json.Marshal(userGroup)
+	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

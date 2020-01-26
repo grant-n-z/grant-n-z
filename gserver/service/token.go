@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -31,6 +32,7 @@ type TokenService interface {
 	VerifyUserToken(token string, roleName string, permissionName string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Get auth user data in token
+	// If invalid token, return 401
 	GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Generate signed in token
@@ -134,12 +136,17 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 		log.Logger.Info("Can not get service_id from token")
 		return resultMap, false
 	}
+	if _, ok := claims["policy_id"].(string); !ok {
+		log.Logger.Info("Can not get policy_id from token")
+		return resultMap, false
+	}
 
 	resultMap["user_uuid"] = claims["user_uuid"].(string)
 	resultMap["user_id"] = claims["user_id"].(string)
 	resultMap["expires"] = claims["expires"].(string)
 	resultMap["role_id"] = claims["role_id"].(string)
 	resultMap["service_id"] = claims["service_id"].(string)
+	resultMap["policy_id"] = claims["policy_id"].(string)
 
 	return resultMap, true
 }
@@ -174,6 +181,8 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permi
 	// TODO: Cache role
 	if !strings.EqualFold(roleName, "") {
 		role, err := tsi.roleService.GetRoleByName(roleName)
+		fmt.Println(policy.RoleId)
+		fmt.Println(role.Id)
 		if role == nil || err != nil || role.Id != policy.RoleId {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
@@ -240,7 +249,7 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (strin
 		return "", model.BadRequest("Can not issue token")
 	}
 
-	// Operator token is not required service id, policy id
+	// OperatorRole token is not required service id, policy id
 	serviceId := 0
 	policyId := 0
 	return tsi.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil

@@ -41,6 +41,11 @@ type UserWithUserServiceWithService struct {
 	Service
 }
 
+// Add user id
+type AddUser struct {
+	UserEmail string `json:"user_email"`
+}
+
 // User table config struct
 type UserTableConfig int
 

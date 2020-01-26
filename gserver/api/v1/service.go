@@ -20,7 +20,7 @@ type Service interface {
 	Get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
-	// Add user to service
+	// Add user to not main service
 	// Endpoint is `/api/v1/services/add_user`
 	Post(w http.ResponseWriter, r *http.Request)
 }

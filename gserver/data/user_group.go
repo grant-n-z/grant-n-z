@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 
@@ -16,11 +17,17 @@ type UserGroupRepository interface {
 	// Get all groups that has user
 	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
 
+	// Get group by user_id and group_id
+	FindGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
+
 	// Get all groups with user_groups with policy that has user
 	FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
 
 	// Get user_groups with policies by user id and group id
 	FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
+
+	// Insert user_group data
+	Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
 }
 
 type UserGroupRepositoryImpl struct {
@@ -62,6 +69,19 @@ func (ugr UserGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Gro
 	return groups, nil
 }
 
+func (ugr UserGroupRepositoryImpl) FindGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
+	var userGroup entity.UserGroup
+	if err := ugr.Db.Where("user_id = ? AND group_id = ?", userId, groupId).First(&userGroup).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return &userGroup, nil
+}
+
 func (ugr UserGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
 	var groupWithUserGroupWithPolicies []*entity.GroupWithUserGroupWithPolicy
 
@@ -92,7 +112,7 @@ func (ugr UserGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(use
 }
 
 func (ugr UserGroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
-	var groupWithUserGroupWithPolicy *entity.GroupWithUserGroupWithPolicy
+	var groupWithUserGroupWithPolicy entity.GroupWithUserGroupWithPolicy
 
 	if err := ugr.Db.Table(entity.UserGroupTable.String()).
 		Select("*").
@@ -120,6 +140,19 @@ func (ugr UserGroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId 
 			return nil, model.InternalServerError()
 	}
 
-	return groupWithUserGroupWithPolicy, nil
+	return &groupWithUserGroupWithPolicy, nil
 
+}
+
+func (ugr UserGroupRepositoryImpl) Save(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
+	if err := ugr.Db.Save(&userGroup).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return &userGroup, nil
 }

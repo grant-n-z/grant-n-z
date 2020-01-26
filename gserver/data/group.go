@@ -17,6 +17,9 @@ type GroupRepository interface {
 	// Get groups all data
 	FindAll() ([]*entity.Group, *model.ErrorResBody)
 
+	// Get group by id
+	FindById(id int) (*entity.Group, *model.ErrorResBody)
+
 	// Get group from groups.name
 	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
@@ -58,9 +61,9 @@ func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResBody) {
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResBody) {
-	var groups *entity.Group
-	if err := gr.Db.Where("name = ?", name).Find(&groups).Error; err != nil {
+func (gr GroupRepositoryImpl) FindById(id int) (*entity.Group, *model.ErrorResBody) {
+	var group entity.Group
+	if err := gr.Db.Where("id = ?", id).Find(&group).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -68,7 +71,20 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	return groups, nil
+	return &group, nil
+}
+
+func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResBody) {
+	var group *entity.Group
+	if err := gr.Db.Where("name = ?", name).Find(&group).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return group, nil
 }
 
 func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId int, permissionId int, serviceId int, userId int) (*entity.Group, *model.ErrorResBody) {

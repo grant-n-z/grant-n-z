@@ -97,7 +97,7 @@ func (sh OperatorServiceImpl) post(w http.ResponseWriter, r *http.Request, body 
 		return
 	}
 
-	serviceData, err := sh.Service.InsertService(serviceEntity)
+	serviceData, err := sh.Service.InsertServiceWithRelationalData(serviceEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
