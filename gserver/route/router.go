@@ -89,7 +89,6 @@ func (r Router) Run() *mux.Router {
 
 	r.v1()
 	r.operators()
-	r.admin()
 	return r.mux
 }
 
@@ -128,8 +127,4 @@ func (r Router) operators() {
 	r.mux.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
 	r.mux.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
 	r.mux.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
-}
-
-func (r Router) admin() {
-	// TODO
 }
