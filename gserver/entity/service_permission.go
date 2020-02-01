@@ -28,7 +28,7 @@ type ServicePermissionTableConfig int
 func (ur ServicePermissionTableConfig) String() string {
 	switch ur {
 	case ServicePermissionTable:
-		return "service_groups"
+		return "service_permissions"
 	case ServicePermissionId:
 		return "id"
 	case ServicePermissionPermissionId:

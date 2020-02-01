@@ -28,7 +28,7 @@ type ServiceRoleTableConfig int
 func (ur ServiceRoleTableConfig) String() string {
 	switch ur {
 	case ServiceRoleTable:
-		return "service_groups"
+		return "service_roles"
 	case ServiceRoleId:
 		return "id"
 	case ServiceRoleRoleId:
