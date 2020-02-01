@@ -1,12 +1,8 @@
 package groups
 
 import (
-	"strconv"
-
 	"encoding/json"
 	"net/http"
-
-	"github.com/gorilla/mux"
 
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -68,10 +64,8 @@ func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupId := mux.Vars(r)["group_id"]
-	id, err := strconv.Atoi(groupId)
+	id, err := middleware.ParamGroupId(r)
 	if err != nil {
-		err := model.BadRequest("Path parameter is only integer")
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}

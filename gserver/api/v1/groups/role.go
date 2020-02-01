@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
@@ -15,20 +15,14 @@ import (
 var rlhInstance Role
 
 type Role interface {
-	// Implement role api
-	Api(w http.ResponseWriter, r *http.Request)
-
 	// Http GET method
-	get(w http.ResponseWriter, r *http.Request)
+	Get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
-
-	// Http PUT method
-	put(w http.ResponseWriter, r *http.Request)
+	Post(w http.ResponseWriter, r *http.Request)
 
 	// Http DELETE method
-	delete(w http.ResponseWriter, r *http.Request)
+	Delete(w http.ResponseWriter, r *http.Request)
 }
 
 type RoleImpl struct {
@@ -50,50 +44,42 @@ func NewRole() Role {
 		RoleService: service.GetRoleServiceInstance(),
 	}
 }
-
-func (rh RoleImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	body, err := rh.Request.Intercept(w, r, constant.AuthOperator)
-	if err != nil {
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		rh.get(w, r)
-	case http.MethodPost:
-		rh.post(w, r, body)
-	case http.MethodPut:
-		rh.put(w, r)
-	case http.MethodDelete:
-		rh.delete(w, r)
-	default:
-		err := model.MethodNotAllowed()
-		model.WriteError(w, err.ToJson(), err.Code)
-	}
-}
-
-func (rh RoleImpl) get(w http.ResponseWriter, r *http.Request) {
-	roleEntities, err := rh.RoleService.GetRoles()
+func (rh RoleImpl) Get(w http.ResponseWriter, r *http.Request) {
+	id, err := middleware.ParamGroupId(r)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(roleEntities)
+	roles, err := rh.RoleService.GetRolesByGroupId(id)
+	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
+	res, _ := json.Marshal(roles)
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	w.Write(res)
 }
 
-func (rh RoleImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
+func (rh RoleImpl) Post(w http.ResponseWriter, r *http.Request) {
 	var roleEntity *entity.Role
 
-	json.Unmarshal(body, &roleEntity)
-	if err := rh.Request.ValidateBody(w, roleEntity); err != nil {
+	id, err := middleware.ParamGroupId(r)
+	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	role, err := rh.RoleService.InsertRole(roleEntity)
+	if err := middleware.BindBody(w, r, &roleEntity); err != nil {
+		return
+	}
+
+	if err := middleware.ValidateBody(w, roleEntity); err != nil {
+		return
+	}
+
+	role, err := rh.RoleService.InsertWithRelationalData(id, *roleEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -104,8 +90,5 @@ func (rh RoleImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
 	w.Write(res)
 }
 
-func (rh RoleImpl) put(w http.ResponseWriter, r *http.Request) {
-}
-
-func (rh RoleImpl) delete(w http.ResponseWriter, r *http.Request) {
+func (rh RoleImpl) Delete(w http.ResponseWriter, r *http.Request) {
 }
