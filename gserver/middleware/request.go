@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"encoding/json"
@@ -10,6 +11,7 @@ import (
 
 	"gopkg.in/go-playground/validator.v9"
 
+	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gserver/cache"
 	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
@@ -36,8 +38,11 @@ type Interceptor interface {
 	// Intercept Http request and Api-Key header with user authentication
 	InterceptAuthenticateUser(next http.HandlerFunc) http.HandlerFunc
 
-	// Intercept Http request and Api-Key header with user and group admin authentication
+	// Intercept Http request and Api-Key header with user and group admin role authentication
 	InterceptAuthenticateGroupAdmin(next http.HandlerFunc) http.HandlerFunc
+
+	// Intercept Http request and Api-Key header with user and group user role authentication
+	InterceptAuthenticateGroupUser(next http.HandlerFunc) http.HandlerFunc
 
 	// Intercept Http request and Api-Key header with operator authentication
 	InterceptAuthenticateOperator(next http.HandlerFunc) http.HandlerFunc
@@ -174,6 +179,39 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 	}
 }
 
+func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+				err := model.InternalServerError("Failed to request body bind")
+				model.WriteError(w, err.ToJson(), err.Code)
+			}
+		}()
+
+		if err := interceptHeader(w, r); err != nil {
+			return
+		}
+
+		if err := interceptApiKey(w, r); err != nil {
+			return
+		}
+
+		token := r.Header.Get(Authorization)
+		authUser, err := i.tokenService.VerifyUserToken(token, constant.UserRole, "")
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+
+		ctx.SetUserId(authUser.UserId)
+		ctx.SetUserUuid(authUser.UserUuid)
+		ctx.SetServiceId(authUser.ServiceId)
+
+		next.ServeHTTP(w, r)
+	}
+}
+
 func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -272,4 +310,14 @@ func ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
 		return err
 	}
 	return nil
+}
+
+func ParamGroupId(r *http.Request) (int, *model.ErrorResBody) {
+	groupId := mux.Vars(r)["group_id"]
+	id, err := strconv.Atoi(groupId)
+	if err != nil {
+		err := model.BadRequest("Path parameter is only integer")
+		return 0, err
+	}
+	return id, nil
 }
