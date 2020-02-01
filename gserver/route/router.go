@@ -128,7 +128,7 @@ func (r Router) v1() {
 func (r Router) operators() {
 	// TODO: update route info
 	r.mux.HandleFunc("/api/operators/service", r.interceptor.InterceptAuthenticateOperator(r.OperatorsRouter.Service.Api))
-	r.mux.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
-	r.mux.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
-	r.mux.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
+	//r.mux.HandleFunc("/api/operators/role", r.OperatorsRouter.Service.Api)
+	//r.mux.HandleFunc("/api/operators/permission", r.OperatorsRouter.Service.Api)
+	//r.mux.HandleFunc("/api/operators/policy", r.OperatorsRouter.Service.Api)
 }

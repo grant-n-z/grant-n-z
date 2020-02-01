@@ -183,7 +183,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 		if roles == nil || err != nil {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
-		
+
 		result := false
 		for _, role := range roles {
 			if role.Id == policy.RoleId {
