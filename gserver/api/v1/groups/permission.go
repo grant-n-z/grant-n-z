@@ -19,7 +19,7 @@ type Permission interface {
 	Get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
-	Post(w http.ResponseWriter, r *http.Request, body []byte)
+	Post(w http.ResponseWriter, r *http.Request)
 
 	// Http DELETE method
 	Delete(w http.ResponseWriter, r *http.Request)
@@ -63,7 +63,7 @@ func (ph PermissionImpl) Get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (ph PermissionImpl) Post(w http.ResponseWriter, r *http.Request, body []byte) {
+func (ph PermissionImpl) Post(w http.ResponseWriter, r *http.Request) {
 	var permissionEntity *entity.Permission
 
 	id, err := middleware.ParamGroupId(r)

@@ -28,7 +28,7 @@ type TokenService interface {
 	VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string, roleName string, permissionName string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody)
 
 	// Get auth user data in token
 	// If invalid token, return 401
@@ -165,7 +165,7 @@ func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, 
 	return authUser, nil
 }
 
-func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := tsi.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
@@ -178,9 +178,19 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleName string, permi
 	}
 
 	// TODO: Cache role
-	if !strings.EqualFold(roleName, "") {
-		role, err := tsi.roleService.GetRoleByName(roleName)
-		if role == nil || err != nil || role.Id != policy.RoleId {
+	if len(roleNames) > 0 {
+		roles, err := tsi.roleService.GetRoleByNames(roleNames)
+		if roles == nil || err != nil {
+			return nil, model.Forbidden("Forbidden the user has not role")
+		}
+		
+		result := false
+		for _, role := range roles {
+			if role.Id == policy.RoleId {
+				result = true
+			}
+		}
+		if !result {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
 	}

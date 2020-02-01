@@ -22,6 +22,9 @@ type RoleService interface {
 	// Get role by name
 	GetRoleByName(name string) (*entity.Role, *model.ErrorResBody)
 
+	// Get role by name array
+	GetRoleByNames(name []string) ([]*entity.Role, *model.ErrorResBody)
+
 	// Get role by group id
 	// Join group_roles and roles
 	GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody)
@@ -63,6 +66,10 @@ func (rs roleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody
 
 func (rs roleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.ErrorResBody) {
 	return rs.roleRepository.FindByName(name)
+}
+
+func (rs roleServiceImpl) GetRoleByNames(name []string) ([]*entity.Role, *model.ErrorResBody) {
+	return rs.roleRepository.FindByNames(name)
 }
 
 func (rs roleServiceImpl) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {

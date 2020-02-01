@@ -132,7 +132,7 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, "", "")
+		authUser, err := i.tokenService.VerifyUserToken(token, []string{}, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
@@ -165,7 +165,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, constant.AdminRole, "")
+		authUser, err := i.tokenService.VerifyUserToken(token, []string{constant.AdminRole}, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
@@ -198,7 +198,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, constant.UserRole, "")
+		authUser, err := i.tokenService.VerifyUserToken(token, []string{constant.AdminRole, constant.UserRole}, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
