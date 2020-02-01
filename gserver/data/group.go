@@ -131,6 +131,36 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 		return nil, model.InternalServerError()
 	}
 
+	// Save group_roles
+	groupRole := entity.GroupRole{
+		RoleId:  roleId,
+		GroupId: group.Id,
+	}
+	if err := tx.Create(&groupRole).Error; err != nil {
+		log.Logger.Warn("Failed to save group_roles at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit group_roles data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	// Save group_permissions
+	groupPermission := entity.GroupPermission{
+		PermissionId: permissionId,
+		GroupId:      group.Id,
+	}
+	if err := tx.Create(&groupPermission).Error; err != nil {
+		log.Logger.Warn("Failed to save group_permissions at transaction process", err.Error())
+		tx.Rollback()
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit group_permissions data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
 	// Save policies
 	policy := entity.Policy{
 		Name:         constant.AdminPolicy,

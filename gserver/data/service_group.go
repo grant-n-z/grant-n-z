@@ -13,10 +13,13 @@ import (
 var sgrInstance ServiceGroupRepository
 
 type ServiceGroupRepository interface {
+	// TODO: Implement to operate data
 	FindServiceByGroupId(groupId int) ([]*entity.Service, *model.ErrorResBody)
 
+	// TODO: Implement to operate data
 	FindGroupByServiceId(serviceId int) ([]*entity.Group, *model.ErrorResBody)
 
+	// Save ServiceGroup
 	Save(group entity.ServiceGroup) (*entity.ServiceGroup, *model.ErrorResBody)
 }
 
