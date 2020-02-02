@@ -65,11 +65,10 @@ func NewGrantNZServer() GrantNZServer {
 
 func (g GrantNZServer) Run() {
 	g.migration()
-	router := g.runRouter()
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
-	g.runServer(router)
+	g.runServer(g.runRouter())
 }
 
 func (g GrantNZServer) migration() {

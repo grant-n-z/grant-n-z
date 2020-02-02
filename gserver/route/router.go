@@ -14,15 +14,24 @@ import (
 )
 
 type Router struct {
-	mux         *mux.Router
+	// Router
+	mux *mux.Router
+
+	// Http request Interceptor
 	interceptor middleware.Interceptor
 
+	// V1 endpoint
 	Auth    v1.Auth
 	Token   v1.Token
 	Service v1.Service
 
-	UsersRouter     UsersRouter
-	GroupsRouter    GroupsRouter
+	// V1 users endpoint
+	UsersRouter UsersRouter
+
+	// V1 groups endpoint
+	GroupsRouter GroupsRouter
+
+	// Operators endpoint
 	OperatorsRouter OperatorsRouter
 }
 
@@ -80,7 +89,7 @@ func NewRouter() Router {
 }
 
 func (r Router) Run() *mux.Router {
-	r.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r.mux.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		res := model.NotFound("Not found resource path.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
