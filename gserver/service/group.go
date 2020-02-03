@@ -25,13 +25,12 @@ type GroupService interface {
 	GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody)
 
 	// Insert group
-	InsertGroup(group entity.Group) (*entity.Group, *model.ErrorResBody)
+	InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody)
 }
 
 // GroupService struct
 type GroupServiceImpl struct {
 	groupRepository      data.GroupRepository
-	userGroupRepository  data.UserGroupRepository
 	roleRepository       data.RoleRepository
 	permissionRepository data.PermissionRepository
 }
@@ -50,7 +49,6 @@ func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	return GroupServiceImpl{
 		groupRepository:      data.GetGroupRepositoryInstance(driver.Db),
-		userGroupRepository:  data.GetUserGroupRepositoryInstance(driver.Db),
 		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
 		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
 	}
@@ -65,10 +63,10 @@ func (gs GroupServiceImpl) GetGroupById(id int) (*entity.Group, *model.ErrorResB
 }
 
 func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
-	return gs.userGroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
+	return gs.groupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
 }
 
-func (gs GroupServiceImpl) InsertGroup(group entity.Group) (*entity.Group, *model.ErrorResBody) {
+func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
 
 	// TODO: Cache role
@@ -85,5 +83,40 @@ func (gs GroupServiceImpl) InsertGroup(group entity.Group) (*entity.Group, *mode
 		return nil, model.InternalServerError()
 	}
 
-	return gs.groupRepository.SaveWithRelationalData(group, role.Id, permission.Id, ctx.GetServiceId().(int), ctx.GetUserId().(int))
+	serviceId := ctx.GetServiceId().(int)
+	// New ServiceGroup
+	serviceGroup := entity.ServiceGroup{
+		GroupId:   group.Id,
+		ServiceId: serviceId,
+	}
+
+	// New UserGroup
+	userId := ctx.GetUserId().(int)
+	userGroup := entity.UserGroup{
+		UserId:  userId,
+		GroupId: group.Id,
+	}
+
+	// New GroupPermission
+	groupPermission := entity.GroupPermission{
+		PermissionId: permission.Id,
+		GroupId:      group.Id,
+	}
+
+	// New GroupRole
+	groupRole := entity.GroupRole{
+		RoleId:  role.Id,
+		GroupId: group.Id,
+	}
+
+	// New Policy
+	policy := entity.Policy{
+		Name:         constant.AdminPolicy,
+		RoleId:       role.Id,
+		PermissionId: permission.Id,
+		ServiceId:    serviceId,
+		UserGroupId:  userGroup.Id,
+	}
+
+	return gs.groupRepository.SaveWithRelationalData(group, *role, *permission, serviceGroup, userGroup, groupPermission, groupRole, policy)
 }

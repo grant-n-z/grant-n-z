@@ -26,7 +26,6 @@ type Policy interface {
 type PolicyImpl struct {
 	PolicyService     service.PolicyService
 	UserService       service.UserService
-	UserGroupService  service.UserGroupService
 	RoleService       service.RoleService
 	PermissionService service.PermissionService
 }
@@ -43,7 +42,6 @@ func NewPolicy() Policy {
 	return PolicyImpl{
 		PolicyService:     service.GetPolicyServiceInstance(),
 		UserService:       service.GetUserServiceInstance(),
-		UserGroupService:  service.GetUserGroupServiceInstance(),
 		RoleService:       service.GetRoleServiceInstance(),
 		PermissionService: service.GetPermissionServiceInstance(),
 	}
@@ -81,7 +79,7 @@ func (p PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userGroup, errGroup := p.UserGroupService.GetUserGroupByUserIdAndGroupId(user.Id, id)
+	userGroup, errGroup := p.UserService.GetUserGroupByUserIdAndGroupId(user.Id, id)
 	if errGroup != nil {
 		model.WriteError(w, errGroup.ToJson(), errGroup.Code)
 		return

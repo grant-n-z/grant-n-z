@@ -25,14 +25,14 @@ type TokenService interface {
 	ParseToken(token string) (map[string]string, bool)
 
 	// Verify operator token
-	VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyOperatorToken(token string) (*entity.AuthUser, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyUserToken(token string, roleNames []string, permissionName string) (*entity.AuthUser, *model.ErrorResBody)
 
 	// Get auth user data in token
 	// If invalid token, return 401
-	GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	GetAuthUserInToken(token string) (*entity.AuthUser, *model.ErrorResBody)
 
 	// Generate signed in token
 	signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string
@@ -150,7 +150,7 @@ func (tsi tokenServiceImpl) ParseToken(token string) (map[string]string, bool) {
 	return resultMap, true
 }
 
-func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*entity.AuthUser, *model.ErrorResBody) {
 	authUser, err := tsi.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
@@ -165,7 +165,7 @@ func (tsi tokenServiceImpl) VerifyOperatorToken(token string) (*model.AuthUser, 
 	return authUser, nil
 }
 
-func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*entity.AuthUser, *model.ErrorResBody) {
 	authUser, err := tsi.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
@@ -212,7 +212,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 	return authUser, nil
 }
 
-func (tsi tokenServiceImpl) GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tsi tokenServiceImpl) GetAuthUserInToken(token string) (*entity.AuthUser, *model.ErrorResBody) {
 	if !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")
@@ -229,7 +229,7 @@ func (tsi tokenServiceImpl) GetAuthUserInToken(token string) (*model.AuthUser, *
 	serviceId, _ := strconv.Atoi(userData["service_id"])
 	policyId, _ := strconv.Atoi(userData["policy_id"])
 
-	authUser := &model.AuthUser{
+	authUser := &entity.AuthUser{
 		UserId:    userId,
 		UserUuid:  userUuid,
 		ServiceId: serviceId,

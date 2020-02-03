@@ -63,6 +63,7 @@ func NewGrantNZServer() GrantNZServer {
 	return GrantNZServer{router: route.NewRouter()}
 }
 
+// Run GrantNZ server
 func (g GrantNZServer) Run() {
 	g.migration()
 	go g.subscribeSignal(signalCode, exitCode)
@@ -71,14 +72,17 @@ func (g GrantNZServer) Run() {
 	g.runServer(g.runRouter())
 }
 
+// Migrate to required initialize data
 func (g GrantNZServer) migration() {
 	middleware.NewMigration().V1()
 }
 
+// Run router
 func (g GrantNZServer) runRouter() *mux.Router {
 	return g.router.Run()
 }
 
+// Run server
 func (g GrantNZServer) runServer(router *mux.Router) {
 	fmt.Printf(banner, Port, config.App.Version)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), router); err != nil {
@@ -87,6 +91,7 @@ func (g GrantNZServer) runServer(router *mux.Router) {
 	}
 }
 
+// Subscribe signal
 func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan int) {
 	for {
 		s := <-signalCode
@@ -117,6 +122,7 @@ func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 	}
 }
 
+// Graceful shutdown
 func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, server http.Server) {
 	code := <-exitCode
 	server.Shutdown(ctx)

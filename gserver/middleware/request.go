@@ -20,6 +20,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
 
+// Http Header const
 const (
 	Authorization = "Authorization"
 	Key           = "Api-Key"
@@ -312,6 +313,7 @@ func ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
 	return nil
 }
 
+// Parse request group_id of path parameter
 func ParamGroupId(r *http.Request) (int, *model.ErrorResBody) {
 	groupId := mux.Vars(r)["group_id"]
 	id, err := strconv.Atoi(groupId)

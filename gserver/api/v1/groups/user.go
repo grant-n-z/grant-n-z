@@ -23,9 +23,8 @@ type User interface {
 }
 
 type UserImpl struct {
-	GroupService     service.GroupService
-	UserService      service.UserService
-	UserGroupService service.UserGroupService
+	GroupService service.GroupService
+	UserService  service.UserService
 }
 
 func GetUserInstance() User {
@@ -38,9 +37,8 @@ func GetUserInstance() User {
 func NewUser() User {
 	log.Logger.Info("New `groups.User` instance")
 	return UserImpl{
-		GroupService:     service.GetGroupServiceInstance(),
-		UserService:      service.GetUserServiceInstance(),
-		UserGroupService: service.GetUserGroupServiceInstance(),
+		GroupService: service.GetGroupServiceInstance(),
+		UserService:  service.GetUserServiceInstance(),
 	}
 }
 
@@ -86,7 +84,7 @@ func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
 		UserId:  user.User.Id,
 		GroupId: group.Id,
 	}
-	userGroup, errUserGroup := u.UserGroupService.InsertUserGroup(userGroupEntity)
+	userGroup, errUserGroup := u.UserService.InsertUserGroup(userGroupEntity)
 	if errUserGroup != nil {
 		model.WriteError(w, errUserGroup.ToJson(), errUserGroup.Code)
 		return

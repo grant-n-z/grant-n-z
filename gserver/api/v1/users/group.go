@@ -81,7 +81,7 @@ func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := gh.groupService.InsertGroup(*groupEntity)
+	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

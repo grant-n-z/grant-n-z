@@ -26,8 +26,14 @@ type UserRepository interface {
 	// Find user and user service and service by user email
 	FindWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
 
+	// Get user_group by user_id and group_id
+	FindUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
+
+	// Insert user_group data
+	SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
+
 	// Save user
-	Save(user entity.User) (*entity.User, *model.ErrorResBody)
+	SaveUser(user entity.User) (*entity.User, *model.ErrorResBody)
 
 	// Save user and user service
 	SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody)
@@ -141,7 +147,33 @@ func (uri UserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string
 	return &uus, nil
 }
 
-func (uri UserRepositoryImpl) Save(user entity.User) (*entity.User, *model.ErrorResBody) {
+func (uri UserRepositoryImpl) FindUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
+	var userGroup entity.UserGroup
+	if err := uri.Db.Where("user_id = ? AND group_id = ?", userId, groupId).First(&userGroup).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return &userGroup, nil
+}
+
+func (uri UserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
+	if err := uri.Db.Save(&userGroup).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return &userGroup, nil
+}
+
+func (uri UserRepositoryImpl) SaveUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	if err := uri.Db.Create(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {

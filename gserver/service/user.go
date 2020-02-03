@@ -24,25 +24,31 @@ type UserService interface {
 	// Compare encrypt password and decrypt password
 	ComparePw(passwordHash string, password string) bool
 
-	// Get user by user id
+	// Get User by user id
 	GetUserById(id int) (*entity.User, *model.ErrorResBody)
 
-	// Get user by user email
+	// Get User by user email
 	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	// Get user and operator policy by user email
+	// Get User and operator policy by user email
 	GetUserWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
-	// Get user and user service and service by user email
+	// Get User and user service and service by user email
 	GetUserWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
 
-	// Insert user
+	// Get UserGroup by user_id and group_id
+	GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
+
+	// Insert UserGroup
+	InsertUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
+
+	// Insert User
 	InsertUser(user entity.User) (*entity.User, *model.ErrorResBody)
 
-	// Insert user and user service
+	// Insert User and UserService
 	InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody)
 
-	// Update user
+	// Update User
 	UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody)
 }
 
@@ -108,10 +114,23 @@ func (us userServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string)
 	return us.userRepository.FindWithUserServiceWithServiceByEmail(email)
 }
 
+func (us userServiceImpl) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
+	return us.userRepository.FindUserGroupByUserIdAndGroupId(userId, groupId)
+}
+
+func (us userServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
+	userGroup, err := us.GetUserGroupByUserIdAndGroupId(userGroupEntity.UserId, userGroupEntity.GroupId)
+	if err != nil || userGroup != nil {
+		conflictErr := model.Conflict("This user already joins group")
+		return nil, conflictErr
+	}
+	return us.userRepository.SaveUserGroup(userGroupEntity)
+}
+
 func (us userServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.Save(user)
+	return us.userRepository.SaveUser(user)
 }
 
 func (us userServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {

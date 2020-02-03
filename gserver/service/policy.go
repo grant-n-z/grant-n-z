@@ -44,7 +44,7 @@ type policyServiceImpl struct {
 	permissionRepository data.PermissionRepository
 	roleRepository       data.RoleRepository
 	serviceRepository    data.ServiceRepository
-	userGroupRepository  data.UserGroupRepository
+	groupRepository      data.GroupRepository
 }
 
 // Get PolicyService instance.
@@ -64,7 +64,7 @@ func NewPolicyService() PolicyService {
 		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
 		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
 		serviceRepository:    data.GetServiceRepositoryInstance(driver.Db),
-		userGroupRepository:  data.GetUserGroupRepositoryInstance(driver.Db),
+		groupRepository:      data.GetGroupRepositoryInstance(driver.Db),
 	}
 }
 
@@ -77,7 +77,7 @@ func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *
 }
 
 func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model.ErrorResBody) {
-	userGroupPolicies, err := ps.userGroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
+	userGroupPolicies, err := ps.groupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model
 }
 
 func (ps policyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
-	groupWithPolicy, err := ps.userGroupRepository.FindGroupWithPolicyByUserIdAndGroupId(userId, groupId)
+	groupWithPolicy, err := ps.groupRepository.FindGroupWithPolicyByUserIdAndGroupId(userId, groupId)
 	if err != nil {
 		return nil, err
 	}

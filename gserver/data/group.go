@@ -1,11 +1,11 @@
 package data
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -23,9 +23,29 @@ type GroupRepository interface {
 	// Get group from groups.name
 	FindByName(name string) (*entity.Group, *model.ErrorResBody)
 
+	// Get all groups by user_id
+	// Join user_groups and groups
+	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
+
+	// Get all groups with user_groups with policy that has user
+	// Join user_groups and groups and polices
+	FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
+
+	// Get user_groups with policies by user id and group id
+	// Join user_groups and groups and polices
+	FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
+
 	// Generate groups, user_groups, service_groups
 	// Transaction mode
-	SaveWithRelationalData(group entity.Group, roleId int, permissionId int, serviceId int, userId int) (*entity.Group, *model.ErrorResBody)
+	SaveWithRelationalData(
+		group entity.Group,
+		role entity.Role,
+		permission entity.Permission,
+		serviceGroup entity.ServiceGroup,
+		userGroup entity.UserGroup,
+		groupPermission entity.GroupPermission,
+		groupRole entity.GroupRole,
+		policy entity.Policy) (*entity.Group, *model.ErrorResBody)
 }
 
 // GroupRepository struct
@@ -87,7 +107,112 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 	return group, nil
 }
 
-func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId int, permissionId int, serviceId int, userId int) (*entity.Group, *model.ErrorResBody) {
+func (gr GroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
+	var groups []*entity.Group
+
+	if err := gr.Db.Table(entity.UserGroupTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.GroupTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId,
+			entity.GroupTable.String(),
+			entity.GroupId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId), userId).
+		Scan(&groups).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found group")
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return groups, nil
+}
+
+func (gr GroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
+	var groupWithUserGroupWithPolicies []*entity.GroupWithUserGroupWithPolicy
+
+	if err := gr.Db.Table(entity.UserGroupTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.GroupTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId,
+			entity.GroupTable.String(),
+			entity.GroupId)).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupId,
+			entity.PolicyTable.String(),
+			entity.PolicyUserGroupId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId), userId).
+		Scan(&groupWithUserGroupWithPolicies).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found group or policy")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return groupWithUserGroupWithPolicies, nil
+}
+
+func (gr GroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
+	var groupWithUserGroupWithPolicy entity.GroupWithUserGroupWithPolicy
+
+	if err := gr.Db.Table(entity.UserGroupTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.GroupTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId,
+			entity.GroupTable.String(),
+			entity.GroupId)).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupId,
+			entity.PolicyTable.String(),
+			entity.PolicyUserGroupId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId), userId).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId), groupId).
+		Scan(&groupWithUserGroupWithPolicy).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found group or policy")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return &groupWithUserGroupWithPolicy, nil
+
+}
+
+func (gr GroupRepositoryImpl) SaveWithRelationalData(
+	group entity.Group,
+	role entity.Role,
+	permission entity.Permission,
+	serviceGroup entity.ServiceGroup,
+	userGroup entity.UserGroup,
+	groupPermission entity.GroupPermission,
+	groupRole entity.GroupRole,
+	policy entity.Policy) (*entity.Group, *model.ErrorResBody) {
+
 	tx := gr.Db.Begin()
 
 	// Save groups
@@ -102,10 +227,6 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 	}
 
 	// Save service_groups
-	serviceGroup := entity.ServiceGroup{
-		GroupId:   group.Id,
-		ServiceId: serviceId,
-	}
 	if err := tx.Create(&serviceGroup).Error; err != nil {
 		log.Logger.Warn("Failed to save service_groups at transaction process", err.Error())
 		tx.Rollback()
@@ -117,10 +238,6 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 	}
 
 	// Save user_groups
-	userGroup := entity.UserGroup{
-		UserId:  userId,
-		GroupId: group.Id,
-	}
 	if err := tx.Create(&userGroup).Error; err != nil {
 		log.Logger.Warn("Failed to save user_groups at transaction process", err.Error())
 		tx.Rollback()
@@ -132,10 +249,6 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 	}
 
 	// Save group_roles
-	groupRole := entity.GroupRole{
-		RoleId:  roleId,
-		GroupId: group.Id,
-	}
 	if err := tx.Create(&groupRole).Error; err != nil {
 		log.Logger.Warn("Failed to save group_roles at transaction process", err.Error())
 		tx.Rollback()
@@ -147,10 +260,6 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 	}
 
 	// Save group_permissions
-	groupPermission := entity.GroupPermission{
-		PermissionId: permissionId,
-		GroupId:      group.Id,
-	}
 	if err := tx.Create(&groupPermission).Error; err != nil {
 		log.Logger.Warn("Failed to save group_permissions at transaction process", err.Error())
 		tx.Rollback()
@@ -162,13 +271,6 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(group entity.Group, roleId 
 	}
 
 	// Save policies
-	policy := entity.Policy{
-		Name:         constant.AdminPolicy,
-		RoleId:       roleId,
-		PermissionId: permissionId,
-		ServiceId:    serviceId,
-		UserGroupId:  userGroup.Id,
-	}
 	if err := tx.Create(&policy).Error; err != nil {
 		log.Logger.Warn("Failed to save policies at transaction process", err.Error())
 		tx.Rollback()
