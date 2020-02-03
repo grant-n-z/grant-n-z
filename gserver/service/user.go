@@ -39,6 +39,12 @@ type UserService interface {
 	// Get UserGroup by user_id and group_id
 	GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
 
+	// Get all UserService
+	GetUserServices() ([]*entity.UserService, *model.ErrorResBody)
+
+	// Get UserService by user_id and service_id
+	GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
+
 	// Insert UserGroup
 	InsertUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
 
@@ -47,6 +53,9 @@ type UserService interface {
 
 	// Insert User and UserService
 	InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody)
+
+	// Insert UserService
+	InsertUserService(userServiceEntity entity.UserService) (*entity.UserService, *model.ErrorResBody)
 
 	// Update User
 	UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody)
@@ -118,6 +127,14 @@ func (us userServiceImpl) GetUserGroupByUserIdAndGroupId(userId int, groupId int
 	return us.userRepository.FindUserGroupByUserIdAndGroupId(userId, groupId)
 }
 
+func (us userServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
+	return us.userRepository.FindUserServices()
+}
+
+func (us userServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+	return us.userRepository.FindUserServiceByUserIdAndServiceId(userId, serviceId)
+}
+
 func (us userServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
 	userGroup, err := us.GetUserGroupByUserIdAndGroupId(userGroupEntity.UserId, userGroupEntity.GroupId)
 	if err != nil || userGroup != nil {
@@ -139,9 +156,17 @@ func (us userServiceImpl) InsertUserWithUserService(user entity.User, userServic
 	return us.userRepository.SaveWithUserService(user, userService)
 }
 
+func (us userServiceImpl) InsertUserService(userServiceEntity entity.UserService) (*entity.UserService, *model.ErrorResBody) {
+	userService, err := us.userRepository.FindUserServiceByUserIdAndServiceId(userServiceEntity.UserId, userServiceEntity.ServiceId)
+	if err != nil || userService != nil {
+		return nil, model.Conflict("Already the user has this service account")
+	}
+	return us.userRepository.SaveUserService(userServiceEntity)
+}
+
 func (us userServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Id = ctx.GetUserId().(int)
 	user.Uuid = ctx.GetUserUuid().(uuid.UUID)
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.Update(user)
+	return us.userRepository.UpdateUser(user)
 }

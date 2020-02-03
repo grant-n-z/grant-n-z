@@ -48,7 +48,6 @@ type TokenService interface {
 type tokenServiceImpl struct {
 	userService           UserService
 	operatorPolicyService OperatorPolicyService
-	userServiceService    UserServiceService
 	service               Service
 	policyService         PolicyService
 	roleService           RoleService
@@ -71,7 +70,6 @@ func NewTokenService() TokenService {
 	return tokenServiceImpl{
 		userService:           GetUserServiceInstance(),
 		operatorPolicyService: GetOperatorPolicyServiceInstance(),
-		userServiceService:    GetUserServiceServiceInstance(),
 		service:               GetServiceInstance(),
 		policyService:         GetPolicyServiceInstance(),
 		roleService:           GetRoleServiceInstance(),
@@ -204,7 +202,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 	}
 
 	// TODO: Cache user_service
-	userService, err := tsi.userServiceService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
+	userService, err := tsi.userService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
 		return nil, model.Forbidden("Forbidden the user cannot access service")
 	}

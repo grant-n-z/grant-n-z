@@ -14,32 +14,41 @@ import (
 var urInstance UserRepository
 
 type UserRepository interface {
-	// Find user by user id
+	// Find User by user id
 	FindById(id int) (*entity.User, *model.ErrorResBody)
 
-	// Find user by user email
+	// Find User by user email
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
-	// Find user and operator policy by user email
+	// Find User and operator policy by user email
 	FindWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
 
-	// Find user and user service and service by user email
+	// Find User and UserService and service by user email
 	FindWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
 
-	// Get user_group by user_id and group_id
+	// Find UserGroup by user_id and group_id
 	FindUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
+
+	// Find all UserService
+	FindUserServices() ([]*entity.UserService, *model.ErrorResBody)
+
+	// Find UserService by user_id and service_id
+	FindUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
 
 	// Insert user_group data
 	SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
 
-	// Save user
+	// Save User
 	SaveUser(user entity.User) (*entity.User, *model.ErrorResBody)
 
-	// Save user and user service
+	// Save User and user service
 	SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody)
 
-	// Update
-	Update(user entity.User) (*entity.User, *model.ErrorResBody)
+	// Save UserService
+	SaveUserService(userService entity.UserService) (*entity.UserService, *model.ErrorResBody)
+
+	// Update User
+	UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody)
 }
 
 // UserRepository struct
@@ -160,6 +169,33 @@ func (uri UserRepositoryImpl) FindUserGroupByUserIdAndGroupId(userId int, groupI
 	return &userGroup, nil
 }
 
+func (uri UserRepositoryImpl) FindUserServices() ([]*entity.UserService, *model.ErrorResBody) {
+	var userServices []*entity.UserService
+	if err := uri.Db.Find(&userServices).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return userServices, nil
+}
+
+func (uri UserRepositoryImpl) FindUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+	var userService entity.UserService
+	if err := uri.Db.Where("user_id = ? AND service_id = ?", userId, serviceId).Find(&userService).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return &userService, nil
+}
+
 func (uri UserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
 	if err := uri.Db.Save(&userGroup).Error; err != nil {
 		log.Logger.Warn(err.Error())
@@ -214,11 +250,26 @@ func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService 
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) Update(user entity.User) (*entity.User, *model.ErrorResBody) {
+func (uri UserRepositoryImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	if err := uri.Db.Save(&user).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		return nil, model.InternalServerError()
 	}
 
 	return &user, nil
+}
+
+func (uri UserRepositoryImpl) SaveUserService(userService entity.UserService) (*entity.UserService, *model.ErrorResBody) {
+	if err := uri.Db.Create(&userService).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return &userService, nil
 }

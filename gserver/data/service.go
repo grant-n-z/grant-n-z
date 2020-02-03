@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -13,33 +14,36 @@ import (
 var srInstance ServiceRepository
 
 type ServiceRepository interface {
-	// Find all service
+	// Find all Service
 	FindAll() ([]*entity.Service, *model.ErrorResBody)
 
-	// Find service by service id
+	// Find Service by service id
 	FindById(id int) (*entity.Service, *model.ErrorResBody)
 
-	// Find service by service name
+	// Find Service by service name
 	FindByName(name string) (*entity.Service, *model.ErrorResBody)
 
-	// Find service by service Api-Key
+	// Find Service by service Api-Key
 	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
 
-	// Find service name by service id
+	// Find Service name by service id
 	FindNameById(id int) *string
 
-	// Find service name by Api-Key
+	// Find Service name by Api-Key
 	FindNameByApiKey(name string) *string
 
-	// Save service
+	// Fin Service by user_id
+	FindServicesByUserId(userId int) ([]*entity.Service, *model.ErrorResBody)
+
+	// Save Service
 	Save(service entity.Service) (*entity.Service, *model.ErrorResBody)
 
-	// Generate service, service_permissions, service_roles
+	// Generate Service, ServicePermission, ServiceRole
 	// When generate service, insert initialize permission and role data
 	// Transaction mode
 	SaveWithRelationalData(service entity.Service, roles []*entity.Role, permissions []*entity.Permission) (*entity.Service, *model.ErrorResBody)
 
-	// Update service
+	// Update Service
 	Update(service entity.Service) *entity.Service
 }
 
@@ -131,6 +135,33 @@ func (sri ServiceRepositoryImpl) FindNameByApiKey(name string) *string {
 		return nil
 	}
 	return &service.Name
+}
+
+func (sri ServiceRepositoryImpl) FindServicesByUserId(userId int) ([]*entity.Service, *model.ErrorResBody) {
+	var services []*entity.Service
+
+	if err := sri.Db.Table(entity.ServiceTable.String()).
+		Select("*").
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserServiceTable.String(),
+			entity.ServiceTable.String(),
+			entity.ServiceId,
+			entity.UserServiceTable.String(),
+			entity.UserServiceServiceId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserServiceTable.String(),
+			entity.UserServiceUserId), userId).
+		Scan(&services).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found service")
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return services, nil
 }
 
 func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResBody) {

@@ -18,7 +18,6 @@ var sInstance Service
 
 type serviceImpl struct {
 	serviceRepository     data.ServiceRepository
-	userServiceRepository data.UserServiceRepository
 	roleRepository        data.RoleRepository
 	permissionRepository  data.PermissionRepository
 }
@@ -60,7 +59,6 @@ func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	return serviceImpl{
 		serviceRepository:     data.GetServiceRepositoryInstance(driver.Db),
-		userServiceRepository: data.GetUserServiceRepositoryInstance(driver.Db),
 		roleRepository:        data.GetRoleRepositoryInstance(driver.Db),
 		permissionRepository:  data.GetPermissionRepositoryInstance(driver.Db),
 	}
@@ -89,7 +87,7 @@ func (ss serviceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody
 }
 
 func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
-	return ss.userServiceRepository.FindServicesByUserId(ctx.GetUserId().(int))
+	return ss.serviceRepository.FindServicesByUserId(ctx.GetUserId().(int))
 }
 
 func (ss serviceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {

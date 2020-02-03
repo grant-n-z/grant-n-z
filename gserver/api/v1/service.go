@@ -26,9 +26,9 @@ type Service interface {
 }
 
 type ServiceImpl struct {
-	ServiceService     service.Service
-	UserServiceService service.UserServiceService
-	TokenService       service.TokenService
+	ServiceService service.Service
+	UserService    service.UserService
+	TokenService   service.TokenService
 }
 
 func GetServiceInstance() Service {
@@ -41,9 +41,9 @@ func GetServiceInstance() Service {
 func NewService() Service {
 	log.Logger.Info("New `v1.Service` instance")
 	return ServiceImpl{
-		ServiceService:     service.GetServiceInstance(),
-		UserServiceService: service.GetUserServiceServiceInstance(),
-		TokenService:       service.GetTokenServiceInstance(),
+		ServiceService: service.GetServiceInstance(),
+		UserService:    service.GetUserServiceInstance(),
+		TokenService:   service.GetTokenServiceInstance(),
 	}
 }
 
@@ -93,7 +93,7 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 		UserId:    authUser.UserId,
 		ServiceId: serviceEntity.Id,
 	}
-	userService, err := s.UserServiceService.InsertUserService(*userServiceEntity)
+	userService, err := s.UserService.InsertUserService(*userServiceEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
