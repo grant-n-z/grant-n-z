@@ -1,6 +1,6 @@
-package constant
+package config
 
-// System constant
+// System config
 const (
 	Test           = "test"
 	OperatorRoleId = 1

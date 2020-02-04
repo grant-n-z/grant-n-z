@@ -8,8 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/config"
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
+	"github.com/tomoyane/grant-n-z/gserver/config"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/model"
@@ -89,9 +88,9 @@ func (tsi tokenServiceImpl) Generate(userType string, groupIdStr string, userEnt
 	}
 
 	switch userType {
-	case constant.AuthOperator:
+	case config.AuthOperator:
 		return tsi.generateOperatorToken(userEntity)
-	case constant.AuthUser:
+	case config.AuthUser:
 		return tsi.generateUserToken(userEntity, groupId)
 	case "":
 		return tsi.generateUserToken(userEntity, groupId)
@@ -250,7 +249,7 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (strin
 		return "", model.BadRequest("Failed to email or password")
 	}
 
-	if targetUser.OperatorPolicy.RoleId != constant.OperatorRoleId {
+	if targetUser.OperatorPolicy.RoleId != config.OperatorRoleId {
 		return "", model.BadRequest("Can not issue token")
 	}
 

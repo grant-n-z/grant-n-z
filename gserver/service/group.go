@@ -3,9 +3,9 @@ package service
 import (
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
-	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/config"
+	"github.com/tomoyane/grant-n-z/gserver/ctx"
+	"github.com/tomoyane/grant-n-z/gserver/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -70,14 +70,14 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 	group.Uuid = uuid.New()
 
 	// TODO: Cache role
-	role, err := gs.roleRepository.FindByName(constant.AdminRole)
+	role, err := gs.roleRepository.FindByName(config.AdminRole)
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
 	// TODO: Cache permission
-	permission, err := gs.permissionRepository.FindByName(constant.AdminRole)
+	permission, err := gs.permissionRepository.FindByName(config.AdminRole)
 	if err != nil {
 		log.Logger.Info("Failed to get permission for insert groups process")
 		return nil, model.InternalServerError()
@@ -111,7 +111,7 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 
 	// New Policy
 	policy := entity.Policy{
-		Name:         constant.AdminPolicy,
+		Name:         config.AdminPolicy,
 		RoleId:       role.Id,
 		PermissionId: permission.Id,
 		ServiceId:    serviceId,

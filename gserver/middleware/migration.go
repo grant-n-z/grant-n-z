@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
+	"github.com/tomoyane/grant-n-z/gserver/config"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/service"
@@ -37,7 +37,7 @@ func (m Migration) V1() {
 	// Generate operator user
 	operatorUser := entity.User{
 		Id:       1,
-		Username: constant.OperatorRole,
+		Username: config.OperatorRole,
 		Email:    "operator@gmail.com",
 		Password: "grant_n_z_operator",
 	}
@@ -52,7 +52,7 @@ func (m Migration) V1() {
 	// Generate operator role
 	operatorRole := entity.Role{
 		Id:   1,
-		Name: constant.OperatorRole,
+		Name: config.OperatorRole,
 	}
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
@@ -64,7 +64,7 @@ func (m Migration) V1() {
 	// Generate admin role
 	adminRole := entity.Role{
 		Id:   2,
-		Name: constant.AdminRole,
+		Name: config.AdminRole,
 	}
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
@@ -76,7 +76,7 @@ func (m Migration) V1() {
 	// Generate user role
 	userRole := entity.Role{
 		Id:   3,
-		Name: constant.UserRole,
+		Name: config.UserRole,
 	}
 	_, roleErr3 := m.roleService.InsertRole(&userRole)
 	if roleErr3 != nil {
@@ -89,7 +89,7 @@ func (m Migration) V1() {
 	// Generate admin permission
 	adminPermission := entity.Permission{
 		Id:   1,
-		Name: constant.AdminPermission,
+		Name: config.AdminPermission,
 	}
 	_, permissionErr01 := m.permissionService.InsertPermission(&adminPermission)
 	if permissionErr01 != nil {
@@ -101,7 +101,7 @@ func (m Migration) V1() {
 	// Generate read permission
 	readPermission := entity.Permission{
 		Id:   2,
-		Name: constant.ReadPermission,
+		Name: config.ReadPermission,
 	}
 	_, permissionErr02 := m.permissionService.InsertPermission(&readPermission)
 	if permissionErr02 != nil {
@@ -113,7 +113,7 @@ func (m Migration) V1() {
 	// Generate write permission
 	writePermission := entity.Permission{
 		Id:   3,
-		Name: constant.WritePermission,
+		Name: config.WritePermission,
 	}
 	_, permissionErr03 := m.permissionService.InsertPermission(&writePermission)
 	if permissionErr03 != nil {
@@ -143,19 +143,19 @@ func (m Migration) checkV1Migration() bool {
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	operatorAdminRole, err := m.roleService.GetRoleByName(constant.OperatorRole)
+	operatorAdminRole, err := m.roleService.GetRoleByName(config.OperatorRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminRole, err := m.roleService.GetRoleByName(constant.AdminRole)
+	adminRole, err := m.roleService.GetRoleByName(config.AdminRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin role")
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminPermission, err := m.permissionService.GetPermissionByName(constant.AdminRole)
+	adminPermission, err := m.permissionService.GetPermissionByName(config.AdminRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin permission")
 		log.Logger.Fatal(failedMigrationMsg)

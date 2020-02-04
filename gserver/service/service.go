@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/constant"
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
-	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/config"
+	"github.com/tomoyane/grant-n-z/gserver/ctx"
+	"github.com/tomoyane/grant-n-z/gserver/driver"
 	"github.com/tomoyane/grant-n-z/gserver/data"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
@@ -103,14 +103,14 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
 
 	// TODO: Cache roles
-	roles, err := ss.roleRepository.FindByNames([]string{constant.AdminRole, constant.UserRole})
+	roles, err := ss.roleRepository.FindByNames([]string{config.AdminRole, config.UserRole})
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")
 		return nil, model.InternalServerError()
 	}
 
 	// TODO: Cache permissions
-	permissions, err := ss.permissionRepository.FindByNames([]string{constant.AdminPermission, constant.ReadPermission, constant.WritePermission})
+	permissions, err := ss.permissionRepository.FindByNames([]string{config.AdminPermission, config.ReadPermission, config.WritePermission})
 	if err != nil {
 		log.Logger.Info("Failed to get permission for insert groups process")
 		return nil, model.InternalServerError()

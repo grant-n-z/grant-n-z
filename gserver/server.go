@@ -12,9 +12,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/config"
-	"github.com/tomoyane/grant-n-z/gserver/common/ctx"
-	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/config"
+	"github.com/tomoyane/grant-n-z/gserver/ctx"
+	"github.com/tomoyane/grant-n-z/gserver/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/route"

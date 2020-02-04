@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
-	"github.com/tomoyane/grant-n-z/gserver/common/config"
+	"github.com/tomoyane/grant-n-z/gserver/config"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 )
 

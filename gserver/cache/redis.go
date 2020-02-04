@@ -3,7 +3,7 @@ package cache
 import (
 	"github.com/go-redis/redis"
 
-	"github.com/tomoyane/grant-n-z/gserver/common/driver"
+	"github.com/tomoyane/grant-n-z/gserver/driver"
 	"github.com/tomoyane/grant-n-z/gserver/log"
 )
 
