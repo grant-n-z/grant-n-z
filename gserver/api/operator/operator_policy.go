@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gserver/api"
-	"github.com/tomoyane/grant-n-z/gserver/config"
 	"github.com/tomoyane/grant-n-z/gserver/entity"
 	"github.com/tomoyane/grant-n-z/gserver/log"
+	"github.com/tomoyane/grant-n-z/gserver/middleware"
 	"github.com/tomoyane/grant-n-z/gserver/model"
 	"github.com/tomoyane/grant-n-z/gserver/service"
 )
@@ -22,7 +22,7 @@ type OperatorPolicy interface {
 	get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
+	post(w http.ResponseWriter, r *http.Request)
 
 	// Http PUT method
 	put(w http.ResponseWriter, r *http.Request)
@@ -52,17 +52,11 @@ func NewOperatorPolicy() OperatorPolicy {
 }
 
 func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	body, err := rmrhi.Request.Intercept(w, r, config.AuthOperator)
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		rmrhi.get(w, r)
 	case http.MethodPost:
-		rmrhi.post(w, r, body)
+		rmrhi.post(w, r)
 	case http.MethodPut:
 		rmrhi.put(w, r)
 	case http.MethodDelete:
@@ -87,11 +81,13 @@ func (rmrhi OperatorPolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
+func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request) {
 	var roleMemberEntity *entity.OperatorPolicy
+	if err := middleware.BindBody(w, r, &roleMemberEntity); err != nil {
+		return
+	}
 
-	json.Unmarshal(body, &roleMemberEntity)
-	if err := rmrhi.Request.ValidateBody(w, roleMemberEntity); err != nil {
+	if err := middleware.ValidateBody(w, roleMemberEntity); err != nil {
 		return
 	}
 

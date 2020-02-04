@@ -87,7 +87,7 @@ func initRedis() {
 	if err != nil {
 		log.Logger.Warn(err.Error())
 		CloseConnection()
-		log.Logger.Warn("Cannot connect Redis. If needs to high performance, set to redis info on app.yaml")
+		log.Logger.Warn("Cannot connect Redis. If needs to high performance, set to redis info on grant_n_z.yaml")
 		return
 	}
 

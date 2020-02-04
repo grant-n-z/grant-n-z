@@ -16,9 +16,9 @@ var (
 )
 
 // Initialize GrantNZ server config
-// The config is app.yaml data structure
+// The config is grant_n_z.yaml data structure
 func InitGrantNZServerConfig() {
-	yml := readLocalYml("app.yaml")
+	yml := readLocalYml("grant_n_z.yaml")
 	App = yml.GetAppConfig()
 	GServer = yml.GetServerConfig()
 	Db = yml.GetDbConfig()
@@ -26,9 +26,9 @@ func InitGrantNZServerConfig() {
 }
 
 // Initialize GrantNZ cache scheduler config
-// The config is app.yaml data structure
+// The config is grant_n_z.yaml data structure
 func InitGrantNZCacheSchedulerConfig() {
-	yml := readLocalYml("app.yaml")
+	yml := readLocalYml("grant_n_z.yaml")
 	Db = yml.GetDbConfig()
 	Redis = yml.GetRedisConfig()
 }

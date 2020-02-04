@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// app.yaml
+// grant_n_z.yaml
 type YmlConfig struct {
 	App    AppConfig    `yaml:"app"`
 	Server ServerConfig `yaml:"server"`
@@ -13,18 +13,18 @@ type YmlConfig struct {
 	Redis  RedisConfig  `yaml:"redis"`
 }
 
-// About app data in app.yaml
+// About app data in grant_n_z.yaml
 type AppConfig struct {
 	Version  string `yaml:"version"`
 	LogLevel string `yaml:"log-level"`
 }
 
-// About server data in app.yaml
+// About server data in grant_n_z.yaml
 type ServerConfig struct {
 	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
 }
 
-// About db data in app.yaml
+// About db data in grant_n_z.yaml
 type DbConfig struct {
 	Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
@@ -34,7 +34,7 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
-// About redis data in app.yaml
+// About redis data in grant_n_z.yaml
 type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Password string `yaml:"password"`
