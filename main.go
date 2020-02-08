@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/tomoyane/grant-n-z/gserver"
+	"github.com/tomoyane/grant-n-z/gnzserver"
 )
 
 func main() {
-	gserver.NewGrantNZServer().Run()
+	gnzserver.NewGrantNZServer().Run()
 }
 
