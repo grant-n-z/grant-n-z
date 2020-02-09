@@ -3,12 +3,12 @@ package service
 import (
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/config"
+	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -48,9 +48,9 @@ func GetGroupServiceInstance() GroupService {
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	return GroupServiceImpl{
-		groupRepository:      data.GetGroupRepositoryInstance(driver.Db),
-		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
-		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
+		groupRepository:      data.GetGroupRepositoryInstance(driver.Rdbms),
+		roleRepository:       data.GetRoleRepositoryInstance(driver.Rdbms),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
 	}
 }
 

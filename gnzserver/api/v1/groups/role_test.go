@@ -3,10 +3,11 @@ package groups
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/tomoyane/grant-n-z/gnzserver/entity"
 	"strings"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnzserver/entity"
 
 	"net/http"
 	"net/http/httptest"

@@ -9,11 +9,9 @@ import (
 
 	"os/signal"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/config"
-	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/route"
+	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 var (
@@ -32,12 +30,9 @@ Version is %s
 )
 
 type GrantNZCacheUpdater struct {
-	router route.Router
 }
 
 func init() {
-	ctx.InitContext()
-	config.InitGrantNZServerConfig()
 	log.InitLogger(config.App.LogLevel)
 	driver.InitGrantNZDb()
 }
@@ -53,7 +48,7 @@ func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
 		syscall.SIGKILL,
 	)
 
-	return GrantNZCacheUpdater{router: route.NewRouter()}
+	return GrantNZCacheUpdater{}
 }
 
 func (g GrantNZCacheUpdater) Run() {

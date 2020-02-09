@@ -1,0 +1,17 @@
+app:
+  version: 1.0.0
+  log-level: $GRANT_N_Z_LOG_LEVEL
+
+db:
+  engine: $GRANT_N_Z_ENGINE
+  host: $GRANT_N_Z_HOST
+  user: $GRANT_N_Z_USER
+  password: $GRANT_N_Z_PASSWORD
+  port: $GRANT_N_Z_PORT
+  db: $GRANT_N_Z_DB
+
+redis:
+  host: $GRANT_N_Z_REDIS_HOST
+  password: $GRANT_N_Z_REDIS_PASSWORD
+  port: $GRANT_N_Z_REDIS_PORT
+  db: $GRANT_N_Z_REDIS_DB

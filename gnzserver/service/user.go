@@ -5,13 +5,13 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/cache"
-	"github.com/tomoyane/grant-n-z/gnzserver/config"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -81,7 +81,7 @@ func GetUserServiceInstance() UserService {
 func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
 	return userServiceImpl{
-		userRepository: data.GetUserRepositoryInstance(driver.Db),
+		userRepository: data.GetUserRepositoryInstance(driver.Rdbms),
 		appConfig:      config.App,
 		redisClient:    cache.GetRedisClientInstance(),
 	}

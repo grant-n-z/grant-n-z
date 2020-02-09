@@ -7,13 +7,13 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/config"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 )
 
 // Global DataBase Client
 var (
-	Db    *gorm.DB
+	Rdbms *gorm.DB
 	Redis *redis.Client
 )
 
@@ -29,8 +29,8 @@ func InitGrantNZDb() {
 
 // Close database connection
 func CloseConnection() {
-	if Db != nil {
-		Db.Close()
+	if Rdbms != nil {
+		Rdbms.Close()
 		log.Logger.Info("Closed MySQL connection")
 	} else {
 		log.Logger.Info("Already closed MySQL connection")
@@ -71,7 +71,7 @@ func initDataBase() {
 
 	log.Logger.Info("Connected MySQL", config.Db.Host)
 	db.DB()
-	Db = db
+	Rdbms = db
 }
 
 // Initialize cache database driver
@@ -87,7 +87,7 @@ func initRedis() {
 	if err != nil {
 		log.Logger.Warn(err.Error())
 		CloseConnection()
-		log.Logger.Warn("Cannot connect Redis. If needs to high performance, set to redis info on grant_n_z.yaml")
+		log.Logger.Warn("Cannot connect Redis. If needs to high performance, set to redis info on grant_n_z_cache.yaml")
 		return
 	}
 

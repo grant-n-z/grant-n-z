@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -43,9 +43,9 @@ func GetOperatorPolicyServiceInstance() OperatorPolicyService {
 func NewOperatorPolicyServiceService() OperatorPolicyService {
 	log.Logger.Info("New `OperatorPolicyService` instance")
 	return operatorPolicyServiceImpl{
-		operatorPolicyRepository: data.GetOperatorPolicyRepositoryInstance(driver.Db),
-		userRepository:           data.GetUserRepositoryInstance(driver.Db),
-		roleRepository:           data.GetRoleRepositoryInstance(driver.Db),
+		operatorPolicyRepository: data.GetOperatorPolicyRepositoryInstance(driver.Rdbms),
+		userRepository:           data.GetUserRepositoryInstance(driver.Rdbms),
+		roleRepository:           data.GetRoleRepositoryInstance(driver.Rdbms),
 	}
 }
 

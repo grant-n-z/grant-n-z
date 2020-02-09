@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/tomoyane/grant-n-z/gnzserver/api/operator"
-	"github.com/tomoyane/grant-n-z/gnzserver/api/v1"
+	v1 "github.com/tomoyane/grant-n-z/gnzserver/api/v1"
 	"github.com/tomoyane/grant-n-z/gnzserver/api/v1/groups"
 	"github.com/tomoyane/grant-n-z/gnzserver/api/v1/users"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"

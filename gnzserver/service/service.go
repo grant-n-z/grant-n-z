@@ -5,21 +5,21 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/config"
+	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
 var sInstance Service
 
 type serviceImpl struct {
-	serviceRepository     data.ServiceRepository
-	roleRepository        data.RoleRepository
-	permissionRepository  data.PermissionRepository
+	serviceRepository    data.ServiceRepository
+	roleRepository       data.RoleRepository
+	permissionRepository data.PermissionRepository
 }
 
 type Service interface {
@@ -58,9 +58,9 @@ func GetServiceInstance() Service {
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	return serviceImpl{
-		serviceRepository:     data.GetServiceRepositoryInstance(driver.Db),
-		roleRepository:        data.GetRoleRepositoryInstance(driver.Db),
-		permissionRepository:  data.GetPermissionRepositoryInstance(driver.Db),
+		serviceRepository:    data.GetServiceRepositoryInstance(driver.Rdbms),
+		roleRepository:       data.GetRoleRepositoryInstance(driver.Rdbms),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
 	}
 }
 

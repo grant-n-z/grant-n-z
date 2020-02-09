@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -47,7 +47,7 @@ func GetPermissionServiceInstance() PermissionService {
 func NewPermissionService() PermissionService {
 	log.Logger.Info("New `PermissionService` instance")
 	return permissionServiceImpl{
-		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
 	}
 }
 

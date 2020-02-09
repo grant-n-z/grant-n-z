@@ -12,10 +12,10 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/gorilla/mux"
+	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/cache"
-	"github.com/tomoyane/grant-n-z/gnzserver/config"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )

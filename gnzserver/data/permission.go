@@ -6,8 +6,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -175,8 +175,8 @@ func (pri PermissionRepositoryImpl) SaveWithRelationalData(groupId int, permissi
 
 	// Save group_permissions
 	groupPermission := entity.GroupPermission{
-		PermissionId:  permission.Id,
-		GroupId: groupId,
+		PermissionId: permission.Id,
+		GroupId:      groupId,
 	}
 	if err := tx.Create(&groupPermission).Error; err != nil {
 		log.Logger.Warn("Failed to save group_permissions at transaction process", err.Error())

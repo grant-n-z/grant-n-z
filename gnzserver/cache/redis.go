@@ -3,8 +3,8 @@ package cache
 import (
 	"github.com/go-redis/redis"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 var rcInstance RedisClient

@@ -3,11 +3,11 @@ package service
 import (
 	"crypto/rsa"
 
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -60,11 +60,11 @@ func GetPolicyServiceInstance() PolicyService {
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	return policyServiceImpl{
-		policyRepository:     data.GetPolicyRepositoryInstance(driver.Db),
-		permissionRepository: data.GetPermissionRepositoryInstance(driver.Db),
-		roleRepository:       data.GetRoleRepositoryInstance(driver.Db),
-		serviceRepository:    data.GetServiceRepositoryInstance(driver.Db),
-		groupRepository:      data.GetGroupRepositoryInstance(driver.Db),
+		policyRepository:     data.GetPolicyRepositoryInstance(driver.Rdbms),
+		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
+		roleRepository:       data.GetRoleRepositoryInstance(driver.Rdbms),
+		serviceRepository:    data.GetServiceRepositoryInstance(driver.Rdbms),
+		groupRepository:      data.GetGroupRepositoryInstance(driver.Rdbms),
 	}
 }
 

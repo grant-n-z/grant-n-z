@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/driver"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/data"
 	"github.com/tomoyane/grant-n-z/gnzserver/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -49,7 +49,7 @@ func GetRoleServiceInstance() RoleService {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
-	return roleServiceImpl{roleRepository: data.GetRoleRepositoryInstance(driver.Db)}
+	return roleServiceImpl{roleRepository: data.GetRoleRepositoryInstance(driver.Rdbms)}
 }
 
 func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
