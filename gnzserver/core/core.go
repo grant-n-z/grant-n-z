@@ -1,4 +1,4 @@
-package gnzserver
+package core
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"os/signal"
 
 	"github.com/gorilla/mux"
-
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -20,22 +19,16 @@ import (
 	"github.com/tomoyane/grant-n-z/gnzserver/route"
 )
 
-const Port = "8080"
+const (
+	Port           = "8080"
+	BannerFilePath = "./grant_n_z_server.txt"
+	ConfigFilePath = "./grant_n_z_server.yaml"
+)
 
 var (
 	exitCode   = make(chan int)
 	signalCode = make(chan os.Signal, 1)
 	server     = &http.Server{Addr: fmt.Sprintf(":%s", Port), Handler: nil}
-	banner     = `Start to grant-n-z server :%s
-_________________________________________________________________________________________________
-     ____                      _           
-    / __/ _    ____   _____ __//_      _____   ____     ____  ___     _   _     _   ___     _
-   / /__ //__ /__ /  /___ //_ __/     /___ /  /__ /    \ __//  _ \   //__ \\   // /  _ \   //__
-  / /_ //___///_//_ //  //  //_  === //  // === //__   _\\  \ /_ /  /___/  \\ //  \ /_ /  / __/
- /____///   /_____///  //  /__/     //  //     /___/  /__/   \____ //       \ /    \____ // 
-_________________________________________________________________________________________________
-High performance authentication and authorization. version is %s
-`
 )
 
 type GrantNZServer struct {
@@ -44,7 +37,7 @@ type GrantNZServer struct {
 
 func init() {
 	ctx.InitContext()
-	config.InitGrantNZServerConfig()
+	config.InitGrantNZServerConfig(ConfigFilePath)
 	log.InitLogger(config.App.LogLevel)
 	driver.InitGrantNZDb()
 }
@@ -84,7 +77,13 @@ func (g GrantNZServer) runRouter() *mux.Router {
 
 // Run server
 func (g GrantNZServer) runServer(router *mux.Router) {
-	fmt.Printf(banner, Port, config.App.Version)
+	bannerText, err := config.ConvertFileToStr(BannerFilePath)
+	if err != nil {
+		log.Logger.Error(fmt.Sprintf("Could't read %s file", BannerFilePath), err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Printf(bannerText, Port, config.App.Version)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), router); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)
@@ -126,8 +125,7 @@ func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, server http.Server) {
 	code := <-exitCode
 	server.Shutdown(ctx)
-
 	driver.CloseConnection()
-	log.Logger.Info("Shutdown gracefully")
+	log.Logger.Info("Shutdown gracefully GrantNZ Server")
 	os.Exit(code)
 }

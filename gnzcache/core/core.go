@@ -1,4 +1,4 @@
-package gnzcache
+package core
 
 import (
 	"context"
@@ -14,19 +14,14 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
+const (
+	BannerFilePath = "./grant_n_z_cache.txt"
+	ConfigFilePath = "./grant_n_z_cache.yaml"
+)
+
 var (
 	exitCode   = make(chan int)
 	signalCode = make(chan os.Signal, 1)
-	banner     = `Start to grant-n-z cache updater
-___________________________________________________
-    ____                      _      
-   / __/ _    ____   _____ __//_      _____   ____ 
-  / /__ //__ /__ /  /___ //_ __/     /___ /  /__ /
- / /_ //___///_//_ //  //  //_  === //  // === //__
-/____///   /_____///  //  /__/     //  //     /___/
-___________________________________________________
-Version is %s
-`
 )
 
 type GrantNZCacheUpdater struct {
@@ -38,7 +33,7 @@ func init() {
 }
 
 func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
-	log.Logger.Info("New GrantNZCacheScheduler")
+	log.Logger.Info("New GrantNZCacheUpdater")
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,
@@ -51,13 +46,21 @@ func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
 	return GrantNZCacheUpdater{}
 }
 
+// Run GrantNZ cache
 func (g GrantNZCacheUpdater) Run() {
-	fmt.Printf(banner, config.App.Version)
+	bannerText, err := config.ConvertFileToStr(BannerFilePath)
+	if err != nil {
+		log.Logger.Error(fmt.Sprintf("Could't read %s file", BannerFilePath), err.Error())
+		os.Exit(1)
+	}
+	fmt.Printf(bannerText, config.App.Version)
+
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode)
 }
 
+// Subscribe signal
 func (g GrantNZCacheUpdater) subscribeSignal(signalCode chan os.Signal, exitCode chan int) {
 	for {
 		s := <-signalCode
@@ -88,9 +91,10 @@ func (g GrantNZCacheUpdater) subscribeSignal(signalCode chan os.Signal, exitCode
 	}
 }
 
+// Graceful shutdown
 func (g GrantNZCacheUpdater) gracefulShutdown(ctx context.Context, exitCode chan int) {
 	code := <-exitCode
 	driver.CloseConnection()
-	log.Logger.Info("Shutdown gracefully")
+	log.Logger.Info("Shutdown gracefully GrantNZ Cache")
 	os.Exit(code)
 }

@@ -17,8 +17,8 @@ var (
 
 // Initialize GrantNZ server config
 // The config is grant_n_z_cache.yaml data structure
-func InitGrantNZServerConfig() {
-	yml := readLocalYml("gnzserver/grant_n_z_server.yaml")
+func InitGrantNZServerConfig(yamlPath string) {
+	yml := readLocalYml(yamlPath)
 	App = yml.GetAppConfig()
 	GServer = yml.GetServerConfig()
 	Db = yml.GetDbConfig()
