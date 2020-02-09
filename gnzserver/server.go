@@ -16,8 +16,8 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
+	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/route"
-	"github.com/tomoyane/grant-nz/gnzserver/middleware"
 )
 
 const Port = "8080"
