@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"github.com/tomoyane/grant-n-z/gnzcache/timer"
 	"os"
 	"syscall"
 	"time"
@@ -25,6 +26,7 @@ var (
 )
 
 type GrantNZCacheUpdater struct {
+	UpdateTimer timer.UpdateTimer
 }
 
 func init() {
@@ -43,7 +45,7 @@ func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
 		syscall.SIGKILL,
 	)
 
-	return GrantNZCacheUpdater{}
+	return GrantNZCacheUpdater{UpdateTimer: timer.NewUpdateTimer()}
 }
 
 // Run GrantNZ cache
@@ -55,6 +57,7 @@ func (g GrantNZCacheUpdater) Run() {
 	}
 	fmt.Printf(bannerText, config.App.Version)
 
+	g.UpdateTimer.Run()
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	go g.gracefulShutdown(shutdownCtx, exitCode)
