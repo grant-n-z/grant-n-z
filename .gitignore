@@ -6,5 +6,5 @@ dev/
 prod/
 vendor/
 credentials.yml
-./gnzserver/gnzserver
-./gnzcache/gnzcache
+gnzserver/gnzserver
+gnzcache/gnzcache
