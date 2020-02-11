@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"github.com/tomoyane/grant-n-z/gnzcache/timer"
 	"os"
 	"syscall"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnzcache/timer"
 )
 
 const (
@@ -31,6 +31,7 @@ type GrantNZCacheUpdater struct {
 
 func init() {
 	log.InitLogger(config.App.LogLevel)
+	config.InitGrantNZCacheConfig(ConfigFilePath)
 	driver.InitGrantNZDb()
 }
 
@@ -57,10 +58,11 @@ func (g GrantNZCacheUpdater) Run() {
 	}
 	fmt.Printf(bannerText, config.App.Version)
 
-	g.UpdateTimer.Run()
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	go g.gracefulShutdown(shutdownCtx, exitCode)
+
+	exitCode := g.UpdateTimer.Run(exitCode)
+	g.gracefulShutdown(shutdownCtx, exitCode)
 }
 
 // Subscribe signal
@@ -95,8 +97,7 @@ func (g GrantNZCacheUpdater) subscribeSignal(signalCode chan os.Signal, exitCode
 }
 
 // Graceful shutdown
-func (g GrantNZCacheUpdater) gracefulShutdown(ctx context.Context, exitCode chan int) {
-	code := <-exitCode
+func (g GrantNZCacheUpdater) gracefulShutdown(ctx context.Context, code int) {
 	driver.CloseConnection()
 	log.Logger.Info("Shutdown gracefully GrantNZ Cache")
 	os.Exit(code)
