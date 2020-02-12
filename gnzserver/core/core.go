@@ -56,7 +56,7 @@ func NewGrantNZServer() GrantNZServer {
 	return GrantNZServer{router: route.NewRouter()}
 }
 
-// Run GrantNZ server
+// Start GrantNZ server
 func (g GrantNZServer) Run() {
 	g.migration()
 	go g.subscribeSignal(signalCode, exitCode)
@@ -70,12 +70,12 @@ func (g GrantNZServer) migration() {
 	middleware.NewMigration().V1()
 }
 
-// Run router
+// Start router
 func (g GrantNZServer) runRouter() *mux.Router {
 	return g.router.Run()
 }
 
-// Run server
+// Start server
 func (g GrantNZServer) runServer(router *mux.Router) {
 	bannerText, err := config.ConvertFileToStr(BannerFilePath)
 	if err != nil {

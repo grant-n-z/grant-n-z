@@ -49,7 +49,7 @@ func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
 	return GrantNZCacheUpdater{UpdateTimer: timer.NewUpdateTimer()}
 }
 
-// Run GrantNZ cache
+// Start GrantNZ cache
 func (g GrantNZCacheUpdater) Run() {
 	bannerText, err := config.ConvertFileToStr(BannerFilePath)
 	if err != nil {
@@ -61,7 +61,7 @@ func (g GrantNZCacheUpdater) Run() {
 	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	exitCode := g.UpdateTimer.Run(exitCode)
+	exitCode := g.UpdateTimer.Start(exitCode)
 	g.gracefulShutdown(shutdownCtx, exitCode)
 }
 
