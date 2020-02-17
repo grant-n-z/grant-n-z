@@ -1,10 +1,10 @@
 package timer
 
 import (
-	"github.com/tomoyane/grant-n-z/gnzcache/service"
 	"time"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnzcache/service"
 )
 
 // UpdateTimer interface
