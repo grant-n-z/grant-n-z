@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzcache/service"
 )
 
 // UpdateTimer interface
@@ -18,17 +17,15 @@ type UpdateTimer interface {
 
 // UpdateTimer struct
 type UpdateTimerImpl struct {
-	Ticker         *time.Ticker
-	IsRunning      bool
-	UpdaterService service.UpdaterService
+	Ticker *time.Ticker
+	Runner Runner
 }
 
 // Constructor
 func NewUpdateTimer() UpdateTimer {
 	return UpdateTimerImpl{
-		Ticker:         time.NewTicker(5 * time.Minute),
-		IsRunning:      true,
-		UpdaterService: service.NewUpdaterService(),
+		Ticker: time.NewTicker(5 * time.Minute),
+		Runner: NewRunner(),
 	}
 }
 
@@ -40,7 +37,7 @@ loop:
 	for {
 		select {
 		case <-ut.Ticker.C:
-			// TODO
+			ut.Runner.Run()
 		case c := <-exitCode:
 			log.Logger.Info("Break update cache loop")
 			ut.Ticker.Stop()
