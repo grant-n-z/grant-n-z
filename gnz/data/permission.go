@@ -17,6 +17,9 @@ type PermissionRepository interface {
 	// Find all permission
 	FindAll() ([]*entity.Permission, *model.ErrorResBody)
 
+	// Find permission for limit
+	FindLimit(limitCnt int) ([]*entity.Permission, *model.ErrorResBody)
+
 	// Find permission by id
 	FindById(id int) (*entity.Permission, *model.ErrorResBody)
 
@@ -59,6 +62,19 @@ func NewPermissionRepository(db *gorm.DB) PermissionRepository {
 func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
 	if err := pri.Db.Find(&permissions).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return permissions, nil
+}
+
+func (pri PermissionRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Permission, *model.ErrorResBody) {
+	var permissions []*entity.Permission
+	if err := pri.Db.Find(&permissions).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

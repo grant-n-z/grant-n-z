@@ -13,12 +13,19 @@ import (
 var plrInstance PolicyRepository
 
 type PolicyRepository interface {
+	// Find all policy
 	FindAll() ([]*entity.Policy, *model.ErrorResBody)
 
+	// Find policy for limit
+	FindLimit(limitCnt int) ([]*entity.Policy, *model.ErrorResBody)
+
+	// Find policy by role id
 	FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
+	// Find by id
 	FindById(id int) (entity.Policy, *model.ErrorResBody)
 
+	// Update
 	Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
 }
 
@@ -43,6 +50,19 @@ func NewPolicyRepository(db *gorm.DB) PolicyRepository {
 func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
 	if err := pri.Db.Find(&policies).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return policies, nil
+}
+
+func (pri PolicyRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
+	var policies []*entity.Policy
+	if err := pri.Db.Find(&policies).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

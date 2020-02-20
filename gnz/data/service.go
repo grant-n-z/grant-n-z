@@ -17,6 +17,9 @@ type ServiceRepository interface {
 	// Find all Service
 	FindAll() ([]*entity.Service, *model.ErrorResBody)
 
+	// Find Service for limit
+	FindLimit(limitCnt int) ([]*entity.Service, *model.ErrorResBody)
+
 	// Find Service by service id
 	FindById(id int) (*entity.Service, *model.ErrorResBody)
 
@@ -72,6 +75,19 @@ func NewServiceRepository(db *gorm.DB) ServiceRepository {
 func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorResBody) {
 	var services []*entity.Service
 	if err := sri.Db.Find(&services).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return services, nil
+}
+
+func (sri ServiceRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Service, *model.ErrorResBody) {
+	var services []*entity.Service
+	if err := sri.Db.Find(&services).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

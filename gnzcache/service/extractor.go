@@ -1,5 +1,12 @@
 package service
 
+import (
+	"github.com/tomoyane/grant-n-z/gnz/data"
+	"github.com/tomoyane/grant-n-z/gnz/driver"
+)
+
+var baseLimit = 500
+
 type ExtractorService interface {
 	GetPolicy()
 
@@ -11,24 +18,33 @@ type ExtractorService interface {
 }
 
 type ExtractorServiceImpl struct {
+	PolicyRepository     data.PolicyRepository
+	PermissionRepository data.PermissionRepository
+	RoleRepository       data.RoleRepository
+	ServiceRepository    data.ServiceRepository
 }
 
 func NewExtractorService() ExtractorService {
-	return ExtractorServiceImpl{}
+	return ExtractorServiceImpl{
+		PolicyRepository: data.NewPolicyRepository(driver.Rdbms),
+		PermissionRepository: data.NewPermissionRepository(driver.Rdbms),
+		RoleRepository: data.NewRoleRepository(driver.Rdbms),
+		ServiceRepository: data.NewServiceRepository(driver.Rdbms),
+	}
 }
 
 func (us ExtractorServiceImpl) GetPolicy() {
-	panic("implement me")
+	us.PolicyRepository.FindLimit(baseLimit)
 }
 
 func (us ExtractorServiceImpl) GetPermission() {
-	panic("implement me")
+	us.PermissionRepository.FindLimit(baseLimit)
 }
 
 func (us ExtractorServiceImpl) GetRole() {
-	panic("implement me")
+	us.RoleRepository.FindLimit(baseLimit)
 }
 
 func (us ExtractorServiceImpl) GetService() {
-	panic("implement me")
+	us.ServiceRepository.FindLimit(baseLimit)
 }

@@ -17,6 +17,9 @@ type RoleRepository interface {
 	// Find all roles
 	FindAll() ([]*entity.Role, *model.ErrorResBody)
 
+	// Find role for limit
+	FindLimit(limitCnt int) ([]*entity.Role, *model.ErrorResBody)
+
 	// Find role by id
 	FindById(id int) (*entity.Role, *model.ErrorResBody)
 
@@ -59,6 +62,19 @@ func NewRoleRepository(db *gorm.DB) RoleRepository {
 func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
 	if err := rri.Db.Find(&roles).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return roles, nil
+}
+
+func (rri RoleRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Role, *model.ErrorResBody) {
+	var roles []*entity.Role
+	if err := rri.Db.Find(&roles).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
