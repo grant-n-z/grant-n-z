@@ -29,19 +29,8 @@ func InitGrantNZDb() {
 
 // Close database connection
 func CloseConnection() {
-	if Rdbms != nil {
-		Rdbms.Close()
-		log.Logger.Info("Closed MySQL connection")
-	} else {
-		log.Logger.Info("Already closed MySQL connection")
-	}
-
-	if Redis != nil {
-		Redis.Close()
-		log.Logger.Info("Closed Redis connection")
-	} else {
-		log.Logger.Info("Already closed Redis connection")
-	}
+	closeDataBase()
+	closeRedis()
 }
 
 // Initialize master database driver
@@ -86,11 +75,29 @@ func initRedis() {
 	_, err := client.Ping().Result()
 	if err != nil {
 		log.Logger.Warn(err.Error())
-		CloseConnection()
-		log.Logger.Warn("Cannot connect Redis. If needs to high performance, set to redis info on grant_n_z_cache.yaml")
+		log.Logger.Warn("Cannot connect Redis. If needs to high performance, run GrantNZ cache server with Redis")
+		closeRedis()
 		return
 	}
 
 	log.Logger.Info("Connected Redis", config.Redis.Host)
 	Redis = client
+}
+
+func closeDataBase() {
+	if Rdbms != nil {
+		Rdbms.Close()
+		log.Logger.Info("Closed MySQL connection")
+	} else {
+		log.Logger.Info("Already closed MySQL connection")
+	}
+}
+
+func closeRedis() {
+	if Redis != nil {
+		Redis.Close()
+		log.Logger.Info("Closed Redis connection")
+	} else {
+		log.Logger.Info("Already closed Redis connection")
+	}
 }
