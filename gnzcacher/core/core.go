@@ -12,12 +12,12 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzcache/timer"
+	"github.com/tomoyane/grant-n-z/gnzcacher/timer"
 )
 
 const (
-	BannerFilePath = "./grant_n_z_cache.txt"
-	ConfigFilePath = "./grant_n_z_cache.yaml"
+	BannerFilePath = "./grant_n_z_cacher.txt"
+	ConfigFilePath = "./grant_n_z_cacher.yaml"
 )
 
 var (
@@ -25,18 +25,18 @@ var (
 	signalCode = make(chan os.Signal, 1)
 )
 
-type GrantNZCacheUpdater struct {
+type GrantNZCacher struct {
 	UpdateTimer timer.UpdateTimer
 }
 
 func init() {
 	log.InitLogger(config.App.LogLevel)
 	config.InitGrantNZCacheConfig(ConfigFilePath)
-	driver.InitGrantNZDb()
+	driver.InitGrantNZDb(true)
 }
 
-func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
-	log.Logger.Info("New GrantNZCacheUpdater")
+func NewGrantNZCacher() GrantNZCacher {
+	log.Logger.Info("New GrantNZCacher")
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,
@@ -46,11 +46,11 @@ func NewGrantNZCacheUpdater() GrantNZCacheUpdater {
 		syscall.SIGKILL,
 	)
 
-	return GrantNZCacheUpdater{UpdateTimer: timer.NewUpdateTimer()}
+	return GrantNZCacher{UpdateTimer: timer.NewUpdateTimer()}
 }
 
 // Start GrantNZ cache
-func (g GrantNZCacheUpdater) Run() {
+func (g GrantNZCacher) Run() {
 	bannerText, err := config.ConvertFileToStr(BannerFilePath)
 	if err != nil {
 		log.Logger.Error(fmt.Sprintf("Could't read %s file", BannerFilePath), err.Error())
@@ -66,7 +66,7 @@ func (g GrantNZCacheUpdater) Run() {
 }
 
 // Subscribe signal
-func (g GrantNZCacheUpdater) subscribeSignal(signalCode chan os.Signal, exitCode chan int) {
+func (g GrantNZCacher) subscribeSignal(signalCode chan os.Signal, exitCode chan int) {
 	for {
 		s := <-signalCode
 		switch s {
@@ -97,7 +97,7 @@ func (g GrantNZCacheUpdater) subscribeSignal(signalCode chan os.Signal, exitCode
 }
 
 // Graceful shutdown
-func (g GrantNZCacheUpdater) gracefulShutdown(ctx context.Context, code int) {
+func (g GrantNZCacher) gracefulShutdown(ctx context.Context, code int) {
 	driver.CloseConnection()
 	log.Logger.Info("Shutdown gracefully GrantNZ Cache")
 	os.Exit(code)

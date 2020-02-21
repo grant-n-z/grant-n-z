@@ -26,7 +26,7 @@ func InitGrantNZServerConfig(yamlPath string) {
 }
 
 // Initialize GrantNZ server config
-// The config is grant_n_z_cache.yaml data structure
+// The config is grant_n_z_cacher.yaml data structure
 func InitGrantNZCacheConfig(yamlPath string) {
 	yml := readLocalYml(yamlPath)
 	App = yml.GetAppConfig()

@@ -1,6 +1,6 @@
 package timer
 
-import "github.com/tomoyane/grant-n-z/gnzcache/service"
+import "github.com/tomoyane/grant-n-z/gnzcacher/service"
 
 type Runner interface {
 	// Run main process

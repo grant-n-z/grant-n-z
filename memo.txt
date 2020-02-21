@@ -1,0 +1,80 @@
+# コマンド
+
+$ goimports -w -local "gnzserver" *
+
+# トークン生成条件
+## operator_token（マスターデータアクセスへの認証認可）
+### 含んでいる情報
+- user_uuid
+- user_id
+- service_id(0)
+- role_id
+- policy_id(0)
+- expires
+
+### 生成条件
+- Operatorのロールを持つか
+
+### 探索条件
+- user/operator_policyをemailから取得
+- operator_policyのrole_idがoperatorか判定
+- operatorなら、トークンを生成
+
+
+
+## user_token（サービスの認証）
+### 含んでいる情報
+- user_uuid
+- user_id
+- service_id
+- role_id（0）
+- policy_id(0)
+- expires
+
+### 生成条件
+- xxサービスに、ユーザーを持つか
+
+### 探索条件
+- service_id/user_idでservice_userを参照
+
+
+
+# トークン検証条件
+## operator_token
+### 認証条件
+- userを持つか
+
+### 認可条件
+- トークンに含むrole_idとuser_idでoperator_policyを参照
+
+## user_token
+### 認証条件
+- userを持つか
+
+### 認可条件
+- トークンに含むservice_idとuser_idでuser_serviceを参照
+
+
+
+# user_token with policy（サービス.グループの認証と認可）
+## 含んでいる情報
+- user_uuid
+- user_id
+- service_id
+- role_id(0)
+- policy_id
+- expires
+
+## 認可条件
+- xxサービスに、ユーザーを持つか
+- policy認可か
+- ユーザの持つサービスのグループのroleが、policyに設定されているか
+
+## 探索条件
+- role/permission情報からpolicyを参照
+
+
+
+
+# issue
+- api-keyの必要性の確認

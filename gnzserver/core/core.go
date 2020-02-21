@@ -39,7 +39,7 @@ func init() {
 	ctx.InitContext()
 	config.InitGrantNZServerConfig(ConfigFilePath)
 	log.InitLogger(config.App.LogLevel)
-	driver.InitGrantNZDb()
+	driver.InitGrantNZDb(false)
 }
 
 func NewGrantNZServer() GrantNZServer {
