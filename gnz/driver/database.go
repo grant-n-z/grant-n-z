@@ -18,13 +18,13 @@ var (
 )
 
 // Initialize database driver for GrantNZ server
-func InitGrantNZDb() {
+func InitGrantNZDb(isCacher bool) {
 	if !strings.EqualFold(config.Db.Engine, "mysql") {
 		panic("Current status, only support mysql.")
 	}
 
 	initDataBase()
-	initRedis()
+	initRedis(isCacher)
 }
 
 // Close database connection
@@ -64,7 +64,7 @@ func initDataBase() {
 }
 
 // Initialize cache database driver
-func initRedis() {
+func initRedis(isCacher bool) {
 	db, _ := strconv.Atoi(config.Redis.Db)
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", config.Redis.Host, config.Redis.Port),
@@ -75,9 +75,14 @@ func initRedis() {
 	_, err := client.Ping().Result()
 	if err != nil {
 		log.Logger.Warn(err.Error())
-		log.Logger.Warn("Cannot connect Redis. If needs to high performance, run GrantNZ cache server with Redis")
-		closeRedis()
-		return
+		if isCacher {
+			CloseConnection()
+			panic("Cannot connect Redis")
+		} else {
+			log.Logger.Warn("Cannot connect Redis. If needs to high performance, run GrantNZ cache server with Redis")
+			closeRedis()
+			return
+		}
 	}
 
 	log.Logger.Info("Connected Redis", config.Redis.Host)
