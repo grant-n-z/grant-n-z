@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/tomoyane/grant-n-z/gnzserver/entity"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 
 	"net/http"
 	"net/http/httptest"

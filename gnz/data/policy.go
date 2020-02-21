@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/entity"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 

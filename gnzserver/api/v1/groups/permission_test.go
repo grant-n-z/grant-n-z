@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tomoyane/grant-n-z/gnzserver/entity"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 )
 
 const (

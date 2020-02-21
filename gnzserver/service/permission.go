@@ -6,7 +6,7 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnz/data"
-	"github.com/tomoyane/grant-n-z/gnzserver/entity"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
