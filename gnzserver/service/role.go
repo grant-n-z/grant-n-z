@@ -4,9 +4,8 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnz/data"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -37,7 +36,7 @@ type RoleService interface {
 }
 
 type roleServiceImpl struct {
-	roleRepository data.RoleRepository
+	roleRepository driver.RoleRepository
 }
 
 func GetRoleServiceInstance() RoleService {
@@ -49,7 +48,7 @@ func GetRoleServiceInstance() RoleService {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
-	return roleServiceImpl{roleRepository: data.GetRoleRepositoryInstance(driver.Rdbms)}
+	return roleServiceImpl{roleRepository: driver.GetRoleRepositoryInstance()}
 }
 
 func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {

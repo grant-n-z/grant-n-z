@@ -1,4 +1,4 @@
-package data
+package driver
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -29,11 +29,11 @@ type GroupRepository interface {
 
 	// Get all groups with user_groups with policy that has user
 	// Join user_groups and groups and polices
-	FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
+	FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*model.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
 
 	// Get user_groups with policies by user id and group id
 	// Join user_groups and groups and polices
-	FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
+	FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*model.GroupWithUserGroupWithPolicy, *model.ErrorResBody)
 
 	// Generate groups, user_groups, service_groups
 	// Transaction mode
@@ -50,27 +50,27 @@ type GroupRepository interface {
 
 // GroupRepository struct
 type GroupRepositoryImpl struct {
-	Db *gorm.DB
+	Connection *gorm.DB
 }
 
 // Get Policy instance.
 // If use singleton pattern, call this instance method
-func GetGroupRepositoryInstance(db *gorm.DB) GroupRepository {
+func GetGroupRepositoryInstance() GroupRepository {
 	if grInstance == nil {
-		grInstance = NewGroupRepository(db)
+		grInstance = NewGroupRepository(connection)
 	}
 	return grInstance
 }
 
 // Constructor
-func NewGroupRepository(db *gorm.DB) GroupRepository {
+func NewGroupRepository(connection *gorm.DB) GroupRepository {
 	log.Logger.Info("New `GroupRepository` instance")
-	return GroupRepositoryImpl{Db: db}
+	return GroupRepositoryImpl{Connection: connection}
 }
 
 func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
-	if err := gr.Db.Find(&groups).Error; err != nil {
+	if err := gr.Connection.Find(&groups).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -83,7 +83,7 @@ func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResBody) {
 
 func (gr GroupRepositoryImpl) FindById(id int) (*entity.Group, *model.ErrorResBody) {
 	var group entity.Group
-	if err := gr.Db.Where("id = ?", id).Find(&group).Error; err != nil {
+	if err := gr.Connection.Where("id = ?", id).Find(&group).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -96,7 +96,7 @@ func (gr GroupRepositoryImpl) FindById(id int) (*entity.Group, *model.ErrorResBo
 
 func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResBody) {
 	var group *entity.Group
-	if err := gr.Db.Where("name = ?", name).Find(&group).Error; err != nil {
+	if err := gr.Connection.Where("name = ?", name).Find(&group).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -110,7 +110,7 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 func (gr GroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 
-	if err := gr.Db.Table(entity.UserGroupTable.String()).
+	if err := gr.Connection.Table(entity.UserGroupTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.GroupTable.String(),
@@ -133,10 +133,10 @@ func (gr GroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
-	var groupWithUserGroupWithPolicies []*entity.GroupWithUserGroupWithPolicy
+func (gr GroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*model.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
+	var groupWithUserGroupWithPolicies []*model.GroupWithUserGroupWithPolicy
 
-	if err := gr.Db.Table(entity.UserGroupTable.String()).
+	if err := gr.Connection.Table(entity.UserGroupTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.GroupTable.String(),
@@ -166,10 +166,10 @@ func (gr GroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId i
 	return groupWithUserGroupWithPolicies, nil
 }
 
-func (gr GroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*entity.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
-	var groupWithUserGroupWithPolicy entity.GroupWithUserGroupWithPolicy
+func (gr GroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*model.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
+	var groupWithUserGroupWithPolicy model.GroupWithUserGroupWithPolicy
 
-	if err := gr.Db.Table(entity.UserGroupTable.String()).
+	if err := gr.Connection.Table(entity.UserGroupTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.GroupTable.String(),
@@ -213,7 +213,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	groupRole entity.GroupRole,
 	policy entity.Policy) (*entity.Group, *model.ErrorResBody) {
 
-	tx := gr.Db.Begin()
+	tx := gr.Connection.Begin()
 
 	// Save groups
 	if err := tx.Create(&group).Error; err != nil {

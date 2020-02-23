@@ -32,7 +32,7 @@ type GrantNZCacher struct {
 func init() {
 	log.InitLogger(config.App.LogLevel)
 	config.InitGrantNZCacheConfig(ConfigFilePath)
-	driver.InitGrantNZDb(true)
+	driver.InitRdbms()
 }
 
 func NewGrantNZCacher() GrantNZCacher {
@@ -98,7 +98,7 @@ func (g GrantNZCacher) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 
 // Graceful shutdown
 func (g GrantNZCacher) gracefulShutdown(ctx context.Context, code int) {
-	driver.CloseConnection()
+	driver.Close()
 	log.Logger.Info("Shutdown gracefully GrantNZ Cache")
 	os.Exit(code)
 }

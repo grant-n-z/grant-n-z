@@ -5,10 +5,9 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/data"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -30,9 +29,9 @@ type GroupService interface {
 
 // GroupService struct
 type GroupServiceImpl struct {
-	groupRepository      data.GroupRepository
-	roleRepository       data.RoleRepository
-	permissionRepository data.PermissionRepository
+	groupRepository      driver.GroupRepository
+	roleRepository       driver.RoleRepository
+	permissionRepository driver.PermissionRepository
 }
 
 // Get Policy instance.
@@ -48,9 +47,9 @@ func GetGroupServiceInstance() GroupService {
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	return GroupServiceImpl{
-		groupRepository:      data.GetGroupRepositoryInstance(driver.Rdbms),
-		roleRepository:       data.GetRoleRepositoryInstance(driver.Rdbms),
-		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
+		groupRepository:      driver.GetGroupRepositoryInstance(),
+		roleRepository:       driver.GetRoleRepositoryInstance(),
+		permissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
 

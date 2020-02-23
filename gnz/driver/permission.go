@@ -1,4 +1,4 @@
-package data
+package driver
 
 import (
 	"fmt"
@@ -44,24 +44,24 @@ type PermissionRepository interface {
 }
 
 type PermissionRepositoryImpl struct {
-	Db *gorm.DB
+	Connection *gorm.DB
 }
 
-func GetPermissionRepositoryInstance(db *gorm.DB) PermissionRepository {
+func GetPermissionRepositoryInstance() PermissionRepository {
 	if prInstance == nil {
-		prInstance = NewPermissionRepository(db)
+		prInstance = NewPermissionRepository(connection)
 	}
 	return prInstance
 }
 
-func NewPermissionRepository(db *gorm.DB) PermissionRepository {
+func NewPermissionRepository(connection *gorm.DB) PermissionRepository {
 	log.Logger.Info("New `PermissionRepository` instance")
-	return PermissionRepositoryImpl{Db: db}
+	return PermissionRepositoryImpl{Connection: connection}
 }
 
 func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
-	if err := pri.Db.Find(&permissions).Error; err != nil {
+	if err := pri.Connection.Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -74,7 +74,7 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.Erro
 
 func (pri PermissionRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
-	if err := pri.Db.Find(&permissions).Limit(limitCnt).Error; err != nil {
+	if err := pri.Connection.Find(&permissions).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -87,7 +87,7 @@ func (pri PermissionRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Permissio
 
 func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResBody) {
 	var permission entity.Permission
-	if err := pri.Db.Where("id = ?", id).Find(&permission).Error; err != nil {
+	if err := pri.Connection.Where("id = ?", id).Find(&permission).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -100,7 +100,7 @@ func (pri PermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model
 
 func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission, *model.ErrorResBody) {
 	var permission entity.Permission
-	if err := pri.Db.Where("name = ?", name).Find(&permission).Error; err != nil {
+	if err := pri.Connection.Where("name = ?", name).Find(&permission).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -113,7 +113,7 @@ func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission,
 
 func (pri PermissionRepositoryImpl) FindByNames(names []string) ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
-	if err := pri.Db.Where("name IN (?)", names).Find(&permissions).Error; err != nil {
+	if err := pri.Connection.Where("name IN (?)", names).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -127,7 +127,7 @@ func (pri PermissionRepositoryImpl) FindByNames(names []string) ([]*entity.Permi
 func (pri PermissionRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
 
-	if err := pri.Db.Table(entity.GroupPermissionTable.String()).
+	if err := pri.Connection.Table(entity.GroupPermissionTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.PermissionTable.String(),
@@ -163,7 +163,7 @@ func (pri PermissionRepositoryImpl) FindNameById(id int) *string {
 }
 
 func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
-	if err := pri.Db.Create(&permission).Error; err != nil {
+	if err := pri.Connection.Create(&permission).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")
@@ -176,7 +176,7 @@ func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.
 }
 
 func (pri PermissionRepositoryImpl) SaveWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
-	tx := pri.Db.Begin()
+	tx := pri.Connection.Begin()
 
 	// Save permission
 	if err := tx.Create(&permission).Error; err != nil {

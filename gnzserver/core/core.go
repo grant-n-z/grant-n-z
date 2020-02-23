@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 	"fmt"
+	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/config"
 	"os"
 	"syscall"
 	"time"
@@ -11,7 +13,6 @@ import (
 	"os/signal"
 
 	"github.com/gorilla/mux"
-	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
@@ -39,7 +40,8 @@ func init() {
 	ctx.InitContext()
 	config.InitGrantNZServerConfig(ConfigFilePath)
 	log.InitLogger(config.App.LogLevel)
-	driver.InitGrantNZDb(false)
+	driver.InitRdbms()
+	cache.InitRedis()
 }
 
 func NewGrantNZServer() GrantNZServer {
@@ -125,7 +127,10 @@ func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, server http.Server) {
 	code := <-exitCode
 	server.Shutdown(ctx)
-	driver.CloseConnection()
+
+	driver.Close()
+	cache.Close()
+
 	log.Logger.Info("Shutdown gracefully GrantNZ Server")
 	os.Exit(code)
 }

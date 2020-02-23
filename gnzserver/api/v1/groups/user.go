@@ -53,7 +53,7 @@ func (u UserImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
-	var addUserEntity *entity.AddUser
+	var addUserEntity *model.AddUser
 	if err := middleware.BindBody(w, r, &addUserEntity); err != nil {
 		return
 	}

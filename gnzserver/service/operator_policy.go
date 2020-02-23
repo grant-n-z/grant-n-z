@@ -5,9 +5,8 @@ import (
 	"strings"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnz/data"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -28,9 +27,9 @@ type OperatorPolicyService interface {
 }
 
 type operatorPolicyServiceImpl struct {
-	operatorPolicyRepository data.OperatorPolicyRepository
-	userRepository           data.UserRepository
-	roleRepository           data.RoleRepository
+	operatorPolicyRepository driver.OperatorPolicyRepository
+	userRepository           driver.UserRepository
+	roleRepository           driver.RoleRepository
 }
 
 func GetOperatorPolicyServiceInstance() OperatorPolicyService {
@@ -43,9 +42,9 @@ func GetOperatorPolicyServiceInstance() OperatorPolicyService {
 func NewOperatorPolicyServiceService() OperatorPolicyService {
 	log.Logger.Info("New `OperatorPolicyService` instance")
 	return operatorPolicyServiceImpl{
-		operatorPolicyRepository: data.GetOperatorPolicyRepositoryInstance(driver.Rdbms),
-		userRepository:           data.GetUserRepositoryInstance(driver.Rdbms),
-		roleRepository:           data.GetRoleRepositoryInstance(driver.Rdbms),
+		operatorPolicyRepository: driver.GetOperatorPolicyRepositoryInstance(),
+		userRepository:           driver.GetUserRepositoryInstance(),
+		roleRepository:           driver.GetRoleRepositoryInstance(),
 	}
 }
 

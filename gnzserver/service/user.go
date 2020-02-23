@@ -8,10 +8,9 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/data"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -31,10 +30,10 @@ type UserService interface {
 	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
 
 	// Get User and operator policy by user email
-	GetUserWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody)
+	GetUserWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody)
 
 	// Get User and user service and service by user email
-	GetUserWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody)
+	GetUserWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody)
 
 	// Get UserGroup by user_id and group_id
 	GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
@@ -63,7 +62,7 @@ type UserService interface {
 
 // UserService struct
 type userServiceImpl struct {
-	userRepository data.UserRepository
+	userRepository driver.UserRepository
 	appConfig      config.AppConfig
 	redisClient    cache.RedisClient
 }
@@ -81,7 +80,7 @@ func GetUserServiceInstance() UserService {
 func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
 	return userServiceImpl{
-		userRepository: data.GetUserRepositoryInstance(driver.Rdbms),
+		userRepository: driver.GetUserRepositoryInstance(),
 		appConfig:      config.App,
 		redisClient:    cache.GetRedisClientInstance(),
 	}
@@ -115,11 +114,11 @@ func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.Err
 	return us.userRepository.FindByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*entity.UserWithOperatorPolicy, *model.ErrorResBody) {
+func (us userServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
 	return us.userRepository.FindWithOperatorPolicyByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string) (*entity.UserWithUserServiceWithService, *model.ErrorResBody) {
+func (us userServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody) {
 	return us.userRepository.FindWithUserServiceWithServiceByEmail(email)
 }
 

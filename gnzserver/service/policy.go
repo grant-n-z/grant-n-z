@@ -4,10 +4,9 @@ import (
 	"crypto/rsa"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/data"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -21,12 +20,12 @@ type PolicyService interface {
 	// Get all policy
 	GetPolicies() ([]*entity.Policy, *model.ErrorResBody)
 
-	// Get policy by role id
+	// Get policy by role idr
 	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
 
 	// Get policies of user
 	// The method uses request scope user id
-	GetPoliciesOfUser() ([]entity.PolicyResponse, *model.ErrorResBody)
+	GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody)
 
 	// Get policy by user_groups data
 	GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody)
@@ -40,11 +39,11 @@ type PolicyService interface {
 
 // PolicyService struct
 type policyServiceImpl struct {
-	policyRepository     data.PolicyRepository
-	permissionRepository data.PermissionRepository
-	roleRepository       data.RoleRepository
-	serviceRepository    data.ServiceRepository
-	groupRepository      data.GroupRepository
+	policyRepository     driver.PolicyRepository
+	permissionRepository driver.PermissionRepository
+	roleRepository       driver.RoleRepository
+	serviceRepository    driver.ServiceRepository
+	groupRepository      driver.GroupRepository
 }
 
 // Get PolicyService instance.
@@ -60,11 +59,11 @@ func GetPolicyServiceInstance() PolicyService {
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	return policyServiceImpl{
-		policyRepository:     data.GetPolicyRepositoryInstance(driver.Rdbms),
-		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
-		roleRepository:       data.GetRoleRepositoryInstance(driver.Rdbms),
-		serviceRepository:    data.GetServiceRepositoryInstance(driver.Rdbms),
-		groupRepository:      data.GetGroupRepositoryInstance(driver.Rdbms),
+		policyRepository:     driver.GetPolicyRepositoryInstance(),
+		permissionRepository: driver.GetPermissionRepositoryInstance(),
+		roleRepository:       driver.GetRoleRepositoryInstance(),
+		serviceRepository:    driver.GetServiceRepositoryInstance(),
+		groupRepository:      driver.GetGroupRepositoryInstance(),
 	}
 }
 
@@ -76,17 +75,17 @@ func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *
 	return ps.policyRepository.FindByRoleId(roleId)
 }
 
-func (ps policyServiceImpl) GetPoliciesOfUser() ([]entity.PolicyResponse, *model.ErrorResBody) {
+func (ps policyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody) {
 	userGroupPolicies, err := ps.groupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
 	if err != nil {
 		return nil, err
 	}
 
-	var policyResponses []entity.PolicyResponse
+	var policyResponses []model.PolicyResponse
 	for _, ugp := range userGroupPolicies {
 		if ugp.ServiceId == ctx.GetServiceId() {
 			// TODO: Cache role, permission, service
-			policyResponse := entity.NewPolicyResponse().
+			policyResponse := model.NewPolicyResponse().
 				SetName(&ugp.Policy.Name).
 				SetRoleName(ps.roleRepository.FindNameById(ugp.Policy.RoleId)).
 				SetPermissionName(ps.permissionRepository.FindNameById(ugp.Policy.PermissionId)).

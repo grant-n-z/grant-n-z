@@ -7,19 +7,18 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/data"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
 var sInstance Service
 
 type serviceImpl struct {
-	serviceRepository    data.ServiceRepository
-	roleRepository       data.RoleRepository
-	permissionRepository data.PermissionRepository
+	serviceRepository    driver.ServiceRepository
+	roleRepository       driver.RoleRepository
+	permissionRepository driver.PermissionRepository
 }
 
 type Service interface {
@@ -58,9 +57,9 @@ func GetServiceInstance() Service {
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	return serviceImpl{
-		serviceRepository:    data.GetServiceRepositoryInstance(driver.Rdbms),
-		roleRepository:       data.GetRoleRepositoryInstance(driver.Rdbms),
-		permissionRepository: data.GetPermissionRepositoryInstance(driver.Rdbms),
+		serviceRepository:    driver.GetServiceRepositoryInstance(),
+		roleRepository:       driver.GetRoleRepositoryInstance(),
+		permissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
 

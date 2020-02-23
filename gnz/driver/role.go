@@ -1,4 +1,4 @@
-package data
+package driver
 
 import (
 	"fmt"
@@ -44,24 +44,24 @@ type RoleRepository interface {
 }
 
 type RoleRepositoryImpl struct {
-	Db *gorm.DB
+	Connection *gorm.DB
 }
 
-func GetRoleRepositoryInstance(db *gorm.DB) RoleRepository {
+func GetRoleRepositoryInstance() RoleRepository {
 	if rrInstance == nil {
-		rrInstance = NewRoleRepository(db)
+		rrInstance = NewRoleRepository(connection)
 	}
 	return rrInstance
 }
 
-func NewRoleRepository(db *gorm.DB) RoleRepository {
+func NewRoleRepository(connection *gorm.DB) RoleRepository {
 	log.Logger.Info("New `RoleRepository` instance")
-	return RoleRepositoryImpl{Db: db}
+	return RoleRepositoryImpl{Connection: connection}
 }
 
 func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
-	if err := rri.Db.Find(&roles).Error; err != nil {
+	if err := rri.Connection.Find(&roles).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -74,7 +74,7 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
 
 func (rri RoleRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
-	if err := rri.Db.Find(&roles).Limit(limitCnt).Error; err != nil {
+	if err := rri.Connection.Find(&roles).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -87,7 +87,7 @@ func (rri RoleRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Role, *model.Er
 
 func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBody) {
 	var role entity.Role
-	if err := rri.Db.Where("id = ?", id).Find(&role).Error; err != nil {
+	if err := rri.Connection.Where("id = ?", id).Find(&role).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -100,7 +100,7 @@ func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBod
 
 func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.ErrorResBody) {
 	var role entity.Role
-	if err := rri.Db.Where("name = ?", name).Find(&role).Error; err != nil {
+	if err := rri.Connection.Where("name = ?", name).Find(&role).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -113,7 +113,7 @@ func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.Erro
 
 func (rri RoleRepositoryImpl) FindByNames(names []string) ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
-	if err := rri.Db.Where("name IN (?)", names).Find(&roles).Error; err != nil {
+	if err := rri.Connection.Where("name IN (?)", names).Find(&roles).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -127,7 +127,7 @@ func (rri RoleRepositoryImpl) FindByNames(names []string) ([]*entity.Role, *mode
 func (rri RoleRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
 
-	if err := rri.Db.Table(entity.GroupRoleTable.String()).
+	if err := rri.Connection.Table(entity.GroupRoleTable.String()).
 		Select("*").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.RoleTable.String(),
@@ -163,7 +163,7 @@ func (rri RoleRepositoryImpl) FindNameById(id int) *string {
 }
 
 func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResBody) {
-	if err := rri.Db.Create(&role).Error; err != nil {
+	if err := rri.Connection.Create(&role).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")
@@ -176,7 +176,7 @@ func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.Error
 }
 
 func (rri RoleRepositoryImpl) SaveWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
-	tx := rri.Db.Begin()
+	tx := rri.Connection.Begin()
 
 	// Save role
 	if err := tx.Create(&role).Error; err != nil {

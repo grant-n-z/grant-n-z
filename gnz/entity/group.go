@@ -24,13 +24,6 @@ type Group struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// The table `groups` and `user_groups` and `policy` struct
-type GroupWithUserGroupWithPolicy struct {
-	Group
-	UserGroup
-	Policy
-}
-
 // Group table config struct
 type GroupTableConfig int
 

@@ -1,12 +1,12 @@
-package data
+package driver
 
 import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -16,8 +16,8 @@ type PolicyRepository interface {
 	// Find all policy
 	FindAll() ([]*entity.Policy, *model.ErrorResBody)
 
-	// Find policy for limit
-	FindLimit(limitCnt int) ([]*entity.Policy, *model.ErrorResBody)
+	// Find policy for offset and limit
+	FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody)
 
 	// Find policy by role id
 	FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
@@ -30,26 +30,24 @@ type PolicyRepository interface {
 }
 
 type PolicyRepositoryImpl struct {
-	Db *gorm.DB
+	Connection *gorm.DB
 }
 
-func GetPolicyRepositoryInstance(db *gorm.DB) PolicyRepository {
+func GetPolicyRepositoryInstance() PolicyRepository {
 	if plrInstance == nil {
-		plrInstance = NewPolicyRepository(db)
+		plrInstance = NewPolicyRepository(connection)
 	}
 	return plrInstance
 }
 
-func NewPolicyRepository(db *gorm.DB) PolicyRepository {
+func NewPolicyRepository(connection *gorm.DB) PolicyRepository {
 	log.Logger.Info("New `PolicyRepository` instance")
-	return PolicyRepositoryImpl{
-		Db: db,
-	}
+	return PolicyRepositoryImpl{Connection: connection}
 }
 
 func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
-	if err := pri.Db.Find(&policies).Error; err != nil {
+	if err := pri.Connection.Find(&policies).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -60,9 +58,9 @@ func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri PolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
-	if err := pri.Db.Find(&policies).Limit(limitCnt).Error; err != nil {
+	if err := pri.Connection.Find(&policies).Offset(offsetCnt).Limit(limitCnt).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -75,7 +73,7 @@ func (pri PolicyRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Policy, *mode
 
 func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
-	if err := pri.Db.Where("role_id = ?", roleId).Find(&policies).Error; err != nil {
+	if err := pri.Connection.Where("role_id = ?", roleId).Find(&policies).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
@@ -88,7 +86,7 @@ func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *mod
 
 func (pri PolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {
 	var policy entity.Policy
-	if err := pri.Db.Where("id = ?", id).Find(&policy).Error; err != nil {
+	if err := pri.Connection.Where("id = ?", id).Find(&policy).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return policy, nil
 		}
@@ -100,7 +98,7 @@ func (pri PolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorRes
 }
 
 func (pri PolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
-	if err := pri.Db.Where("user_group_id = ?", policy.UserGroupId).Assign(policy).FirstOrCreate(&policy).Error; err != nil {
+	if err := pri.Connection.Where("user_group_id = ?", policy.UserGroupId).Assign(policy).FirstOrCreate(&policy).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")

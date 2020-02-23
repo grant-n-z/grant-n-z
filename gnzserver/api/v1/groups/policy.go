@@ -58,7 +58,7 @@ func (p PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
-	var policyRequest *entity.PolicyRequest
+	var policyRequest *model.PolicyRequest
 	if err := middleware.BindBody(w, r, &policyRequest); err != nil {
 		return
 	}

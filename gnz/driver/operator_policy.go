@@ -1,4 +1,4 @@
-package data
+package driver
 
 import (
 	"fmt"
@@ -26,26 +26,24 @@ type OperatorPolicyRepository interface {
 }
 
 type OperatorPolicyRepositoryImpl struct {
-	Db *gorm.DB
+	Connection *gorm.DB
 }
 
-func GetOperatorPolicyRepositoryInstance(db *gorm.DB) OperatorPolicyRepository {
+func GetOperatorPolicyRepositoryInstance() OperatorPolicyRepository {
 	if oprInstance == nil {
-		oprInstance = NewOperatorPolicyRepository(db)
+		oprInstance = NewOperatorPolicyRepository(connection)
 	}
 	return oprInstance
 }
 
-func NewOperatorPolicyRepository(db *gorm.DB) OperatorPolicyRepository {
+func NewOperatorPolicyRepository(connection *gorm.DB) OperatorPolicyRepository {
 	log.Logger.Info("New `OperatorPolicyRepository` instance")
-	return OperatorPolicyRepositoryImpl{
-		Db: db,
-	}
+	return OperatorPolicyRepositoryImpl{Connection: connection}
 }
 
 func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	var entities []*entity.OperatorPolicy
-	if err := opr.Db.Find(&entities).Error; err != nil {
+	if err := opr.Connection.Find(&entities).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -59,7 +57,7 @@ func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *mo
 
 func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	var entities []*entity.OperatorPolicy
-	if err := opr.Db.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
+	if err := opr.Connection.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -73,7 +71,7 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.Oper
 
 func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	var operatorMemberRole entity.OperatorPolicy
-	if err := opr.Db.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
+	if err := opr.Connection.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
@@ -86,7 +84,7 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId
 }
 
 func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
-	query := opr.Db.Table(entity.OperatorPolicyTable.String()).
+	query := opr.Connection.Table(entity.OperatorPolicyTable.String()).
 		Select("name").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.RoleTable.String(),
@@ -123,7 +121,7 @@ func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]stri
 }
 
 func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
-	if err := opr.Db.Create(&entity).Error; err != nil {
+	if err := opr.Connection.Create(&entity).Error; err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "1062") {
 			return nil, model.Conflict("Already exit data.")
