@@ -3,6 +3,7 @@ package driver
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/config"
@@ -43,11 +44,30 @@ func InitRdbms() {
 		db.LogMode(true)
 	}
 
-	log.Logger.Info("Connected MySQL", config.Db.Host)
-	db.DB()
+	db.DB().SetMaxOpenConns(10)
+	db.DB().SetMaxIdleConns(10)
+
+	log.Logger.Info(fmt.Sprintf("Connected MySQL. Open connection = %d. Max open connection = %d.",
+		db.DB().Stats().OpenConnections,
+		db.DB().Stats().MaxOpenConnections),
+	)
 	connection = db
 }
 
+// Ping RDBMS
+func PingRdbms() {
+	for {
+		time.Sleep(1 * time.Minute)
+		err := connection.DB().Ping()
+		if err != nil {
+			log.Logger.Warn("Failed to rdbms ping.", err.Error())
+		} else {
+			log.Logger.Info("Ping rdbms.")
+		}
+	}
+}
+
+// Close RDBMS
 func Close() {
 	if connection != nil {
 		connection.Close()

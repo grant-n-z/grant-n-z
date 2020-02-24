@@ -17,8 +17,8 @@ type PermissionRepository interface {
 	// Find all permission
 	FindAll() ([]*entity.Permission, *model.ErrorResBody)
 
-	// Find permission for limit
-	FindLimit(limitCnt int) ([]*entity.Permission, *model.ErrorResBody)
+	// Find permission for offset and limit
+	FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, *model.ErrorResBody)
 
 	// Find permission by id
 	FindById(id int) (*entity.Permission, *model.ErrorResBody)
@@ -72,9 +72,9 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.Erro
 	return permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Permission, *model.ErrorResBody) {
+func (pri PermissionRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, *model.ErrorResBody) {
 	var permissions []*entity.Permission
-	if err := pri.Connection.Find(&permissions).Limit(limitCnt).Error; err != nil {
+	if err := pri.Connection.Limit(limitCnt).Offset(offsetCnt).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

@@ -17,8 +17,8 @@ type RoleRepository interface {
 	// Find all roles
 	FindAll() ([]*entity.Role, *model.ErrorResBody)
 
-	// Find role for limit
-	FindLimit(limitCnt int) ([]*entity.Role, *model.ErrorResBody)
+	// Find role for offset and limit
+	FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, *model.ErrorResBody)
 
 	// Find role by id
 	FindById(id int) (*entity.Role, *model.ErrorResBody)
@@ -72,9 +72,9 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindLimit(limitCnt int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, *model.ErrorResBody) {
 	var roles []*entity.Role
-	if err := rri.Connection.Find(&roles).Limit(limitCnt).Error; err != nil {
+	if err := rri.Connection.Limit(limit).Offset(offset).Find(&roles).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}
