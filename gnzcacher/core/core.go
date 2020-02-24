@@ -1,14 +1,12 @@
 package core
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"syscall"
-	"time"
-
 	"os/signal"
+	"syscall"
 
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -33,6 +31,7 @@ func init() {
 	log.InitLogger(config.App.LogLevel)
 	config.InitGrantNZCacheConfig(ConfigFilePath)
 	driver.InitRdbms()
+	cache.InitRedis()
 }
 
 func NewGrantNZCacher() GrantNZCacher {
@@ -59,10 +58,10 @@ func (g GrantNZCacher) Run() {
 	fmt.Printf(bannerText, config.App.Version)
 
 	go g.subscribeSignal(signalCode, exitCode)
-	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	go driver.PingRdbms()
 
 	exitCode := g.UpdateTimer.Start(exitCode)
-	g.gracefulShutdown(shutdownCtx, exitCode)
+	g.gracefulShutdown(exitCode)
 }
 
 // Subscribe signal
@@ -97,8 +96,10 @@ func (g GrantNZCacher) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 }
 
 // Graceful shutdown
-func (g GrantNZCacher) gracefulShutdown(ctx context.Context, code int) {
+func (g GrantNZCacher) gracefulShutdown(code int) {
 	driver.Close()
+	cache.Close()
+
 	log.Logger.Info("Shutdown gracefully GrantNZ Cache")
 	os.Exit(code)
 }

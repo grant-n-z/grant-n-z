@@ -1,23 +1,27 @@
 package service
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 )
 
-const expiresMinutes = 300 * time.Second
+// 10 minute cache expires
+const expiresMinutes = 600 * time.Second
 
 type UpdaterService interface {
+	// Update policy cache
 	UpdatePolicy(policies []*entity.Policy)
 
-	UpdatePermission() error
+	// Update permission cache
+	UpdatePermission(permissions []*entity.Permission)
 
-	UpdateRole() error
+	// Update role cache
+	UpdateRole(roles []*entity.Role)
 
-	UpdateService() error
+	// Update service cache
+	UpdateService(services []*entity.Service)
 }
 
 type UpdaterServiceImpl struct {
@@ -25,24 +29,29 @@ type UpdaterServiceImpl struct {
 }
 
 func NewUpdaterService() UpdaterService {
-	return UpdaterServiceImpl{}
+	return UpdaterServiceImpl{RedisClient: cache.NewRedisClient()}
 }
 
 func (us UpdaterServiceImpl) UpdatePolicy(policies []*entity.Policy) {
 	for _, policy := range policies {
-		policy, _ := json.Marshal(policy)
-		//driver.Redis.Set("", string(policy), expiresMinutes)
+		us.RedisClient.SetPolicy(*policy, expiresMinutes)
 	}
 }
 
-func (us UpdaterServiceImpl) UpdatePermission() error {
-	panic("implement me")
+func (us UpdaterServiceImpl) UpdatePermission(permissions []*entity.Permission) {
+	for _, permission := range permissions {
+		us.RedisClient.SetPermission(*permission, expiresMinutes)
+	}
 }
 
-func (us UpdaterServiceImpl) UpdateRole() error {
-	panic("implement me")
+func (us UpdaterServiceImpl) UpdateRole(roles []*entity.Role) {
+	for _, role := range roles {
+		us.RedisClient.SetRole(*role, expiresMinutes)
+	}
 }
 
-func (us UpdaterServiceImpl) UpdateService() error {
-	panic("implement me")
+func (us UpdaterServiceImpl) UpdateService(services []*entity.Service) {
+	for _, service := range services {
+		us.RedisClient.SetService(*service, expiresMinutes)
+	}
 }

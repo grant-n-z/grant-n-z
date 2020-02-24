@@ -1,8 +1,6 @@
 package service
 
 import (
-	"crypto/rsa"
-
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -11,8 +9,6 @@ import (
 )
 
 var (
-	PrivateKey  *rsa.PrivateKey
-	PublicKey   *rsa.PublicKey
 	plsInstance PolicyService
 )
 

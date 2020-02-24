@@ -11,9 +11,7 @@ import (
 )
 
 // Global DataBase Client
-var (
-	connection *gorm.DB
-)
+var connection *gorm.DB
 
 // Initialize database driver for GrantNZ server
 func InitRdbms() {
@@ -44,8 +42,8 @@ func InitRdbms() {
 		db.LogMode(true)
 	}
 
-	db.DB().SetMaxOpenConns(10)
-	db.DB().SetMaxIdleConns(10)
+	//db.DB().SetMaxOpenConns(10)
+	//db.DB().SetMaxIdleConns(10)
 
 	log.Logger.Info(fmt.Sprintf("Connected MySQL. Open connection = %d. Max open connection = %d.",
 		db.DB().Stats().OpenConnections,

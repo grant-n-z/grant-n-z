@@ -6,17 +6,18 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
-var baseLimit = 500
-
 type ExtractorService interface {
-	// Get policies for offset and limit 500
-	GetPolicy(offset int) []*entity.Policy
+	// Get policies for offset and limit
+	GetPolicies(offset int, limit int) []*entity.Policy
 
-	GetPermission() []*entity.Permission
+	// Get permissions for offset and limit
+	GetPermissions(offset int, limit int) []*entity.Permission
 
-	GetRole() []*entity.Role
+	// Get roles for offset and limit
+	GetRoles(offset int, limit int) []*entity.Role
 
-	GetService() []*entity.Service
+	// Get services for offset and limit
+	GetServices(offset int, limit int) []*entity.Service
 }
 
 type ExtractorServiceImpl struct {
@@ -35,8 +36,8 @@ func NewExtractorService() ExtractorService {
 	}
 }
 
-func (us ExtractorServiceImpl) GetPolicy(offset int) []*entity.Policy {
-	policies, err := us.PolicyRepository.FindOffSetAndLimit(offset, baseLimit)
+func (us ExtractorServiceImpl) GetPolicies(offset int, limit int) []*entity.Policy {
+	policies, err := us.PolicyRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
 		log.Logger.Error("Get policy query is failed", err.Detail)
 		return []*entity.Policy{}
@@ -45,8 +46,8 @@ func (us ExtractorServiceImpl) GetPolicy(offset int) []*entity.Policy {
 	return policies
 }
 
-func (us ExtractorServiceImpl) GetPermission() []*entity.Permission {
-	permissions, err := us.PermissionRepository.FindLimit(baseLimit)
+func (us ExtractorServiceImpl) GetPermissions(offset int, limit int) []*entity.Permission {
+	permissions, err := us.PermissionRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
 		log.Logger.Error("Get permission query is failed", err.Detail)
 		return []*entity.Permission{}
@@ -55,8 +56,8 @@ func (us ExtractorServiceImpl) GetPermission() []*entity.Permission {
 	return permissions
 }
 
-func (us ExtractorServiceImpl) GetRole() []*entity.Role {
-	roles, err := us.RoleRepository.FindLimit(baseLimit)
+func (us ExtractorServiceImpl) GetRoles(offset int, limit int) []*entity.Role {
+	roles, err := us.RoleRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
 		log.Logger.Error("Get role query is failed", err.Detail)
 		return []*entity.Role{}
@@ -65,8 +66,8 @@ func (us ExtractorServiceImpl) GetRole() []*entity.Role {
 	return roles
 }
 
-func (us ExtractorServiceImpl) GetService() []*entity.Service {
-	services, err := us.ServiceRepository.FindLimit(baseLimit)
+func (us ExtractorServiceImpl) GetServices(offset int, limit int) []*entity.Service {
+	services, err := us.ServiceRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
 		log.Logger.Error("Get service query is failed", err.Detail)
 		return []*entity.Service{}

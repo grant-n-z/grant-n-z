@@ -61,9 +61,12 @@ func NewGrantNZServer() GrantNZServer {
 // Start GrantNZ server
 func (g GrantNZServer) Run() {
 	g.migration()
-	go g.subscribeSignal(signalCode, exitCode)
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+
+	go g.subscribeSignal(signalCode, exitCode)
 	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
+	go driver.PingRdbms()
+
 	g.runServer(g.runRouter())
 }
 
