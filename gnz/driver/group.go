@@ -57,13 +57,13 @@ type GroupRepositoryImpl struct {
 // If use singleton pattern, call this instance method
 func GetGroupRepositoryInstance() GroupRepository {
 	if grInstance == nil {
-		grInstance = NewGroupRepository(connection)
+		grInstance = NewGroupRepository()
 	}
 	return grInstance
 }
 
 // Constructor
-func NewGroupRepository(connection *gorm.DB) GroupRepository {
+func NewGroupRepository() GroupRepository {
 	log.Logger.Info("New `GroupRepository` instance")
 	return GroupRepositoryImpl{Connection: connection}
 }

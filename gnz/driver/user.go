@@ -60,13 +60,13 @@ type UserRepositoryImpl struct {
 // If use singleton pattern, call this instance method
 func GetUserRepositoryInstance() UserRepository {
 	if urInstance == nil {
-		urInstance = NewUserRepository(connection)
+		urInstance = NewUserRepository()
 	}
 	return urInstance
 }
 
 // Constructor
-func NewUserRepository(connection *gorm.DB) UserRepository {
+func NewUserRepository() UserRepository {
 	log.Logger.Info("New `UserRepository` instance")
 	return UserRepositoryImpl{Connection: connection}
 }

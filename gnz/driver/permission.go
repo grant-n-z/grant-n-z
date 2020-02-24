@@ -49,12 +49,12 @@ type PermissionRepositoryImpl struct {
 
 func GetPermissionRepositoryInstance() PermissionRepository {
 	if prInstance == nil {
-		prInstance = NewPermissionRepository(connection)
+		prInstance = NewPermissionRepository()
 	}
 	return prInstance
 }
 
-func NewPermissionRepository(connection *gorm.DB) PermissionRepository {
+func NewPermissionRepository() PermissionRepository {
 	log.Logger.Info("New `PermissionRepository` instance")
 	return PermissionRepositoryImpl{Connection: connection}
 }

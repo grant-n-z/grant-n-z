@@ -31,12 +31,12 @@ type OperatorPolicyRepositoryImpl struct {
 
 func GetOperatorPolicyRepositoryInstance() OperatorPolicyRepository {
 	if oprInstance == nil {
-		oprInstance = NewOperatorPolicyRepository(connection)
+		oprInstance = NewOperatorPolicyRepository()
 	}
 	return oprInstance
 }
 
-func NewOperatorPolicyRepository(connection *gorm.DB) OperatorPolicyRepository {
+func NewOperatorPolicyRepository() OperatorPolicyRepository {
 	log.Logger.Info("New `OperatorPolicyRepository` instance")
 	return OperatorPolicyRepositoryImpl{Connection: connection}
 }

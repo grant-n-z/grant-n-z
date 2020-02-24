@@ -35,12 +35,12 @@ type PolicyRepositoryImpl struct {
 
 func GetPolicyRepositoryInstance() PolicyRepository {
 	if plrInstance == nil {
-		plrInstance = NewPolicyRepository(connection)
+		plrInstance = NewPolicyRepository()
 	}
 	return plrInstance
 }
 
-func NewPolicyRepository(connection *gorm.DB) PolicyRepository {
+func NewPolicyRepository() PolicyRepository {
 	log.Logger.Info("New `PolicyRepository` instance")
 	return PolicyRepositoryImpl{Connection: connection}
 }
@@ -60,7 +60,7 @@ func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody
 
 func (pri PolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
-	if err := pri.Connection.Find(&policies).Offset(offsetCnt).Limit(limitCnt).Error; err != nil {
+	if err := pri.Connection.Limit(limitCnt).Offset(offsetCnt).Find(&policies).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

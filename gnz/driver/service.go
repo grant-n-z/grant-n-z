@@ -59,13 +59,13 @@ type ServiceRepositoryImpl struct {
 // If use singleton pattern, call this instance method
 func GetServiceRepositoryInstance() ServiceRepository {
 	if srInstance == nil {
-		srInstance = NewServiceRepository(connection)
+		srInstance = NewServiceRepository()
 	}
 	return srInstance
 }
 
 // Constructor
-func NewServiceRepository(connection *gorm.DB) ServiceRepository {
+func NewServiceRepository() ServiceRepository {
 	log.Logger.Info("New `ServiceRepository` instance")
 	return ServiceRepositoryImpl{Connection: connection}
 }

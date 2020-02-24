@@ -49,12 +49,12 @@ type RoleRepositoryImpl struct {
 
 func GetRoleRepositoryInstance() RoleRepository {
 	if rrInstance == nil {
-		rrInstance = NewRoleRepository(connection)
+		rrInstance = NewRoleRepository()
 	}
 	return rrInstance
 }
 
-func NewRoleRepository(connection *gorm.DB) RoleRepository {
+func NewRoleRepository() RoleRepository {
 	log.Logger.Info("New `RoleRepository` instance")
 	return RoleRepositoryImpl{Connection: connection}
 }
