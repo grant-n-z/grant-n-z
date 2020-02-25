@@ -100,6 +100,6 @@ func (g GrantNZCacher) gracefulShutdown(code int) {
 	driver.Close()
 	cache.Close()
 
-	log.Logger.Info("Shutdown gracefully GrantNZ Cache")
+	log.Logger.Info("Shutdown gracefully GrantNZ Cacher")
 	os.Exit(code)
 }
