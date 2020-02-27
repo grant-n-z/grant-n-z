@@ -27,8 +27,29 @@ type RedisClient interface {
 	// Set service with expires
 	SetService(service entity.Service, expiresMinutes time.Duration)
 
-	// Get policy
-	GetPolicyById(policyId int) *entity.Policy
+	// Get policy by id
+	GetPolicyById(id int) *entity.Policy
+
+	// Get policy by name
+	GetPolicyByName(name string) *entity.Policy
+
+	// Get permission by id
+	GetPermissionById(id int) *entity.Policy
+
+	// Get permission by name
+	GetPermissionByName(name string) *entity.Policy
+
+	// Get role by id
+	GetRoleById(id int) *entity.Policy
+
+	// Get role by name
+	GetRoleByName(name string) *entity.Policy
+
+	// Get service by id
+	GetServiceById(id int) *entity.Policy
+
+	// Get service by name
+	GetServiceByName(name string) *entity.Policy
 }
 
 type RedisClientImpl struct {
@@ -71,8 +92,8 @@ func (rc RedisClientImpl) SetService(service entity.Service, expiresMinutes time
 	rc.Connection.Set(fmt.Sprintf("service=%s", service.Name), serviceJson, expiresMinutes)
 }
 
-func (rc RedisClientImpl) GetPolicyById(policyId int) *entity.Policy {
-	policyJson := rc.Connection.Get(fmt.Sprintf("policy=%d", policyId)).String()
+func (rc RedisClientImpl) GetPolicyById(id int) *entity.Policy {
+	policyJson := rc.Connection.Get(fmt.Sprintf("policy=%d", id)).String()
 	if strings.EqualFold(policyJson, ""){
 		return nil
 	}
@@ -84,4 +105,32 @@ func (rc RedisClientImpl) GetPolicyById(policyId int) *entity.Policy {
 		return nil
 	}
 	return &policy
+}
+
+func (rc RedisClientImpl) GetPolicyByName(name string) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetPermissionById(id int) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetPermissionByName(name string) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetRoleById(id int) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetRoleByName(name string) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetServiceById(id int) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetServiceByName(name string) *entity.Policy {
+	panic("implement me")
 }
