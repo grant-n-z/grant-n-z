@@ -33,11 +33,17 @@ type RedisClient interface {
 	// Get policy by name
 	GetPolicyByName(name string) *entity.Policy
 
+	// Get policy by names
+	GetPolicyByNames(names []string) []*entity.Policy
+
 	// Get permission by id
 	GetPermissionById(id int) *entity.Policy
 
 	// Get permission by name
 	GetPermissionByName(name string) *entity.Policy
+
+	// Get permission by names
+	GetPermissionByNames(names []string) []*entity.Policy
 
 	// Get role by id
 	GetRoleById(id int) *entity.Policy
@@ -45,11 +51,17 @@ type RedisClient interface {
 	// Get role by name
 	GetRoleByName(name string) *entity.Policy
 
+	// Get role by names
+	GetRoleByNames(names []string) []*entity.Policy
+
 	// Get service by id
 	GetServiceById(id int) *entity.Policy
 
 	// Get service by name
 	GetServiceByName(name string) *entity.Policy
+
+	// Get service by names
+	GetServiceByNames(names []string) []*entity.Policy
 }
 
 type RedisClientImpl struct {
@@ -111,11 +123,19 @@ func (rc RedisClientImpl) GetPolicyByName(name string) *entity.Policy {
 	panic("implement me")
 }
 
+func (rc RedisClientImpl) GetPolicyByNames(names []string) []*entity.Policy {
+	panic("implement me")
+}
+
 func (rc RedisClientImpl) GetPermissionById(id int) *entity.Policy {
 	panic("implement me")
 }
 
 func (rc RedisClientImpl) GetPermissionByName(name string) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetPermissionByNames(names []string) []*entity.Policy {
 	panic("implement me")
 }
 
@@ -127,10 +147,18 @@ func (rc RedisClientImpl) GetRoleByName(name string) *entity.Policy {
 	panic("implement me")
 }
 
+func (rc RedisClientImpl) GetRoleByNames(names []string) []*entity.Policy {
+	panic("implement me")
+}
+
 func (rc RedisClientImpl) GetServiceById(id int) *entity.Policy {
 	panic("implement me")
 }
 
 func (rc RedisClientImpl) GetServiceByName(name string) *entity.Policy {
+	panic("implement me")
+}
+
+func (rc RedisClientImpl) GetServiceByNames(names []string) []*entity.Policy {
 	panic("implement me")
 }
