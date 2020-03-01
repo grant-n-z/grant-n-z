@@ -3,8 +3,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
 	"os"
 	"syscall"
 	"time"
@@ -13,11 +11,12 @@ import (
 	"os/signal"
 
 	"github.com/gorilla/mux"
+	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
-	"github.com/tomoyane/grant-n-z/gnzserver/route"
 )
 
 const (
@@ -33,7 +32,7 @@ var (
 )
 
 type GrantNZServer struct {
-	router route.Router
+	router Router
 }
 
 func init() {
@@ -55,7 +54,7 @@ func NewGrantNZServer() GrantNZServer {
 		syscall.SIGKILL,
 	)
 
-	return GrantNZServer{router: route.NewRouter()}
+	return GrantNZServer{router: NewRouter()}
 }
 
 // Start GrantNZ server

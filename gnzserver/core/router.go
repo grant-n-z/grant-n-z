@@ -1,4 +1,4 @@
-package route
+package core
 
 import (
 	"net/http"

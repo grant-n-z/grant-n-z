@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -35,6 +36,7 @@ type PolicyService interface {
 
 // PolicyService struct
 type policyServiceImpl struct {
+	redisClient          cache.RedisClient
 	policyRepository     driver.PolicyRepository
 	permissionRepository driver.PermissionRepository
 	roleRepository       driver.RoleRepository
@@ -55,6 +57,7 @@ func GetPolicyServiceInstance() PolicyService {
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	return policyServiceImpl{
+		redisClient:          cache.GetRedisClientInstance(),
 		policyRepository:     driver.GetPolicyRepositoryInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
 		roleRepository:       driver.GetRoleRepositoryInstance(),
@@ -106,6 +109,15 @@ func (ps policyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*enti
 }
 
 func (ps policyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
+	if id == 0 {
+		return entity.Policy{}, nil
+	}
+
+	cachePolicy := ps.redisClient.GetPolicy(id)
+	if cachePolicy != nil {
+		return *cachePolicy, nil
+	}
+
 	policy, err := ps.policyRepository.FindById(id)
 	if err != nil {
 		return policy, err

@@ -175,7 +175,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 	}
 
 	// TODO: Cache role
-	if len(roleNames) > 0 {
+	if !strings.EqualFold(roleNames[0], "") {
 		roles, err := tsi.roleService.GetRoleByNames(roleNames)
 		if roles == nil || err != nil {
 			return nil, model.Forbidden("Forbidden the user has not role")
