@@ -227,6 +227,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	}
 
 	// Save service_groups
+	serviceGroup.GroupId = group.Id
 	if err := tx.Create(&serviceGroup).Error; err != nil {
 		log.Logger.Warn("Failed to save service_groups at transaction process", err.Error())
 		tx.Rollback()
@@ -238,6 +239,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	}
 
 	// Save user_groups
+	userGroup.GroupId = group.Id
 	if err := tx.Create(&userGroup).Error; err != nil {
 		log.Logger.Warn("Failed to save user_groups at transaction process", err.Error())
 		tx.Rollback()
@@ -249,6 +251,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	}
 
 	// Save group_roles
+	groupRole.GroupId = group.Id
 	if err := tx.Create(&groupRole).Error; err != nil {
 		log.Logger.Warn("Failed to save group_roles at transaction process", err.Error())
 		tx.Rollback()
@@ -260,6 +263,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	}
 
 	// Save group_permissions
+	groupPermission.GroupId = group.Id
 	if err := tx.Create(&groupPermission).Error; err != nil {
 		log.Logger.Warn("Failed to save group_permissions at transaction process", err.Error())
 		tx.Rollback()
@@ -271,6 +275,7 @@ func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	}
 
 	// Save policies
+	policy.UserGroupId = userGroup.Id
 	if err := tx.Create(&policy).Error; err != nil {
 		log.Logger.Warn("Failed to save policies at transaction process", err.Error())
 		tx.Rollback()

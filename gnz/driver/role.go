@@ -27,7 +27,7 @@ type RoleRepository interface {
 	FindByName(name string) (*entity.Role, *model.ErrorResBody)
 
 	// Find roles by role name array
-	FindByNames(name []string) ([]*entity.Role, *model.ErrorResBody)
+	FindByNames(name []string) ([]entity.Role, *model.ErrorResBody)
 
 	// Find roles by group id
 	// Join group_roles and roles
@@ -111,8 +111,8 @@ func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.Erro
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) FindByNames(names []string) ([]*entity.Role, *model.ErrorResBody) {
-	var roles []*entity.Role
+func (rri RoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+	var roles []entity.Role
 	if err := rri.Connection.Where("name IN (?)", names).Find(&roles).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil

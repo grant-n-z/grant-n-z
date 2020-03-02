@@ -44,7 +44,7 @@ type ServiceRepository interface {
 	// Generate Service, ServicePermission, ServiceRole
 	// When generate service, insert initialize permission and role data
 	// Transaction mode
-	SaveWithRelationalData(service entity.Service, roles []*entity.Role, permissions []*entity.Permission) (*entity.Service, *model.ErrorResBody)
+	SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []*entity.Permission) (*entity.Service, *model.ErrorResBody)
 
 	// Update Service
 	Update(service entity.Service) *entity.Service
@@ -191,7 +191,7 @@ func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, 
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []*entity.Role, permissions []*entity.Permission) (*entity.Service, *model.ErrorResBody) {
+func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []*entity.Permission) (*entity.Service, *model.ErrorResBody) {
 	tx := sri.Connection.Begin()
 
 	// Save service

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -22,7 +23,7 @@ type RoleService interface {
 	GetRoleByName(name string) (*entity.Role, *model.ErrorResBody)
 
 	// Get role by name array
-	GetRoleByNames(name []string) ([]*entity.Role, *model.ErrorResBody)
+	GetRoleByNames(name []string) ([]entity.Role, *model.ErrorResBody)
 
 	// Get role by group id
 	// Join group_roles and roles
@@ -36,6 +37,7 @@ type RoleService interface {
 }
 
 type roleServiceImpl struct {
+	redisClient    cache.RedisClient
 	roleRepository driver.RoleRepository
 }
 
@@ -48,7 +50,10 @@ func GetRoleServiceInstance() RoleService {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
-	return roleServiceImpl{roleRepository: driver.GetRoleRepositoryInstance()}
+	return roleServiceImpl{
+		redisClient:    cache.GetRedisClientInstance(),
+		roleRepository: driver.GetRoleRepositoryInstance(),
+	}
 }
 
 func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
@@ -67,8 +72,13 @@ func (rs roleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.Error
 	return rs.roleRepository.FindByName(name)
 }
 
-func (rs roleServiceImpl) GetRoleByNames(name []string) ([]*entity.Role, *model.ErrorResBody) {
-	return rs.roleRepository.FindByNames(name)
+func (rs roleServiceImpl) GetRoleByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+	roles := rs.redisClient.GetRoleByNames(names)
+	if len(roles) > 0 {
+		return roles, nil
+	}
+
+	return rs.roleRepository.FindByNames(names)
 }
 
 func (rs roleServiceImpl) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {

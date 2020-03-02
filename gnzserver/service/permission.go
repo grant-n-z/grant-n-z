@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -33,6 +34,7 @@ type PermissionService interface {
 }
 
 type permissionServiceImpl struct {
+	redisClient          cache.RedisClient
 	permissionRepository driver.PermissionRepository
 }
 
@@ -46,6 +48,7 @@ func GetPermissionServiceInstance() PermissionService {
 func NewPermissionService() PermissionService {
 	log.Logger.Info("New `PermissionService` instance")
 	return permissionServiceImpl{
+		redisClient:          cache.GetRedisClientInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
@@ -64,6 +67,10 @@ func (ps permissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *
 }
 
 func (ps permissionServiceImpl) GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody) {
+	permission := ps.redisClient.GetPermission(name)
+	if permission != nil {
+		return permission, nil
+	}
 	return ps.permissionRepository.FindByName(name)
 }
 

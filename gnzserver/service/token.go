@@ -168,19 +168,16 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 		return nil, err
 	}
 
-	// TODO: Cache policy
 	policy, err := tsi.policyService.GetPolicyById(authUser.PolicyId)
 	if err != nil {
 		return nil, model.BadRequest("You don't join this group")
 	}
 
-	// TODO: Cache role
-	if !strings.EqualFold(roleNames[0], "") {
+	if len(roleNames) > 0 && !strings.EqualFold(roleNames[0], "") {
 		roles, err := tsi.roleService.GetRoleByNames(roleNames)
 		if roles == nil || err != nil {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
-
 		result := false
 		for _, role := range roles {
 			if role.Id == policy.RoleId {
@@ -192,7 +189,6 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 		}
 	}
 
-	// TODO: Cache permission
 	if !strings.EqualFold(permissionName, "") {
 		permission, err := tsi.permissionService.GetPermissionByName(permissionName)
 		if permission == nil || err != nil || permission.Id != policy.PermissionId {

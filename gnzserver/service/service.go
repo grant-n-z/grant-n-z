@@ -101,7 +101,6 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	key := uuid.New()
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
 
-	// TODO: Cache roles
 	roles, err := ss.roleRepository.FindByNames([]string{config.AdminRole, config.UserRole})
 	if err != nil {
 		log.Logger.Info("Failed to get role for insert groups process")

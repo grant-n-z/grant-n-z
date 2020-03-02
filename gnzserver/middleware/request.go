@@ -81,13 +81,13 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}()
 
-		if err := interceptHeader(w, r); err != nil {
+		if err := i.interceptHeader(w, r); err != nil {
 			return
 		}
 
 		userType := r.URL.Query().Get("type")
 		if !strings.EqualFold(userType, config.AuthOperator) {
-			if err := interceptApiKey(w, r); err != nil {
+			if err := i.interceptApiKey(w, r); err != nil {
 				return
 			}
 		}
@@ -106,7 +106,7 @@ func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc
 			}
 		}()
 
-		if err := interceptHeader(w, r); err != nil {
+		if err := i.interceptHeader(w, r); err != nil {
 			return
 		}
 
@@ -124,11 +124,11 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			}
 		}()
 
-		if err := interceptHeader(w, r); err != nil {
+		if err := i.interceptHeader(w, r); err != nil {
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
+		if err := i.interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -157,11 +157,11 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 			}
 		}()
 
-		if err := interceptHeader(w, r); err != nil {
+		if err := i.interceptHeader(w, r); err != nil {
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
+		if err := i.interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -190,11 +190,11 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 			}
 		}()
 
-		if err := interceptHeader(w, r); err != nil {
+		if err := i.interceptHeader(w, r); err != nil {
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
+		if err := i.interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -223,7 +223,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 			}
 		}()
 
-		if err := interceptHeader(w, r); err != nil {
+		if err := i.interceptHeader(w, r); err != nil {
 			return
 		}
 
@@ -243,7 +243,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 }
 
 // Intercept http request header
-func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func (i InterceptorImpl)  interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	w.Header().Set(ContentType, "application/json")
 	if err := validateHeader(r); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -253,7 +253,7 @@ func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody
 }
 
 // Intercept Api-Key header
-func interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func (i InterceptorImpl)  interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	apiKey := r.Header.Get(Key)
 	if strings.EqualFold(apiKey, "") {
 		err := model.BadRequest("Required Api-Key")
