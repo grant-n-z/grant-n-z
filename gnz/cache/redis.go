@@ -86,7 +86,7 @@ func (rc RedisClientImpl) SetRole(role entity.Role, expiresMinutes time.Duration
 
 func (rc RedisClientImpl) SetService(service entity.Service, expiresMinutes time.Duration) {
 	serviceJson, _ := json.Marshal(service)
-	rc.set(serviceJson, []string{fmt.Sprintf("v=%d", service.Id), fmt.Sprintf("v=%s", service.Name)}, expiresMinutes)
+	rc.set(serviceJson, []string{fmt.Sprintf("service=%d", service.Id), fmt.Sprintf("service=%s", service.Name)}, expiresMinutes)
 }
 
 func (rc RedisClientImpl) GetPolicy(data interface{}) *entity.Policy {
@@ -186,7 +186,10 @@ func (rc RedisClientImpl) GetServiceByNames(names []string) []entity.Service {
 
 // Get cache shared method
 func (rc RedisClientImpl) get(key string, structData interface{}) error {
+	start := time.Millisecond
 	jsonData := rc.Connection.Get(key).String()
+	end := time.Millisecond
+	log.Logger.Info(fmt.Sprintf("[%sms] GET Redis key %s", end - start, key))
 	if strings.EqualFold(jsonData, ""){
 		return errors.New(fmt.Sprintf("Cache is null. key = %s", key))
 	}
@@ -201,6 +204,9 @@ func (rc RedisClientImpl) get(key string, structData interface{}) error {
 // Set cache shared method
 func (rc RedisClientImpl) set(json []byte, keys []string, expiresMinutes time.Duration) {
 	for _, key := range keys {
+		start := time.Millisecond
 		rc.Connection.Set(key, json, expiresMinutes)
+		end := time.Millisecond
+		log.Logger.Info(fmt.Sprintf("[%s, %sms] SET Redis key %s", end, start, key))
 	}
 }
