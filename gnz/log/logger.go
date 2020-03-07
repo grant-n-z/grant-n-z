@@ -29,19 +29,19 @@ func InitLogger(logLevel string) {
 }
 
 func NewDebugLog() *log.Logger {
-	return log.New(os.Stdout, "[DEBUG]", log.LstdFlags|log.LUTC)
+	return log.New(os.Stdout, "[D]", log.LstdFlags|log.LUTC)
 }
 
 func NewInfoLog() *log.Logger {
-	return log.New(os.Stdout, "[INFO]", log.LstdFlags|log.LUTC)
+	return log.New(os.Stdout, "[I]", log.LstdFlags|log.LUTC)
 }
 
 func NewWarnLog() *log.Logger {
-	return log.New(os.Stderr, "[WARN]", log.LstdFlags|log.LUTC)
+	return log.New(os.Stderr, "[W]", log.LstdFlags|log.LUTC)
 }
 
 func NewErrorLog() *log.Logger {
-	return log.New(os.Stderr, "[ERROR]", log.LstdFlags|log.LUTC)
+	return log.New(os.Stderr, "[E]", log.LstdFlags|log.LUTC)
 }
 
 func (l Log) Fatal(v ...interface{}) {

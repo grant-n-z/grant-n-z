@@ -10,7 +10,7 @@ type YmlConfig struct {
 	App    AppConfig    `yaml:"app"`
 	Server ServerConfig `yaml:"server"`
 	Db     DbConfig     `yaml:"db"`
-	Redis  RedisConfig  `yaml:"redis"`
+	Etcd   EtcdConfig   `yaml:"etcd"`
 }
 
 // About app data in grant_n_z_cacher.yaml
@@ -19,12 +19,12 @@ type AppConfig struct {
 	LogLevel string `yaml:"log-level"`
 }
 
-// About server data in grant_n_z_cacher.yaml
+// About server data in grant_n_z.yaml
 type ServerConfig struct {
 	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
 }
 
-// About db data in grant_n_z_cacher.yaml
+// About db data in grant_n_z.yaml
 type DbConfig struct {
 	Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
@@ -34,12 +34,10 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
-// About redis data in grant_n_z_cacher.yaml
-type RedisConfig struct {
-	Host     string `yaml:"host"`
-	Password string `yaml:"password"`
-	Port     string `yaml:"port"`
-	Db       string `yaml:"db"`
+// About etcd data in grant_n_z_.yaml
+type EtcdConfig struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
 }
 
 // Getter AppConfig
@@ -64,34 +62,25 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 	return yml.Server
 }
 
-// Getter RedisConfig
-func (yml YmlConfig) GetRedisConfig() RedisConfig {
-	host := yml.Redis.Host
-	password := yml.Redis.Password
-	port := yml.Redis.Port
-	db := yml.Redis.Db
+// Getter EtcdConfig
+func (yml YmlConfig) GetEtcdConfig() EtcdConfig {
+	if &yml.Etcd == nil {
+		return EtcdConfig{}
+	}
+	host := yml.Etcd.Host
+	port := yml.Etcd.Port
 
 	if strings.Contains(host, "$") {
-		host = os.Getenv(yml.Redis.Host[1:])
-	}
-
-	if strings.Contains(password, "$") {
-		password = os.Getenv(yml.Redis.Password[1:])
+		host = os.Getenv(yml.Etcd.Host[1:])
 	}
 
 	if strings.Contains(port, "$") {
-		port = os.Getenv(yml.Redis.Port[1:])
+		port = os.Getenv(yml.Etcd.Port[1:])
 	}
 
-	if strings.Contains(db, "$") {
-		db = os.Getenv(yml.Redis.Db[1:])
-	}
-
-	yml.Redis.Host = host
-	yml.Redis.Password = password
-	yml.Redis.Port = port
-	yml.Redis.Db = db
-	return yml.Redis
+	yml.Etcd.Host = host
+	yml.Etcd.Port = port
+	return yml.Etcd
 }
 
 // Getter DbConfig

@@ -10,7 +10,7 @@ import (
 
 var (
 	App     AppConfig
-	Redis   RedisConfig
+	Etcd    EtcdConfig
 	Db      DbConfig
 	GServer ServerConfig
 )
@@ -22,16 +22,16 @@ func InitGrantNZServerConfig(yamlPath string) {
 	App = yml.GetAppConfig()
 	GServer = yml.GetServerConfig()
 	Db = yml.GetDbConfig()
-	Redis = yml.GetRedisConfig()
+	Etcd = yml.GetEtcdConfig()
 }
 
 // Initialize GrantNZ server config
-// The config is grant_n_z_cacher.yaml data structure
+// The config is grant_n_z.yaml data structure
 func InitGrantNZCacheConfig(yamlPath string) {
 	yml := readLocalYml(yamlPath)
 	App = yml.GetAppConfig()
 	Db = yml.GetDbConfig()
-	Redis = yml.GetRedisConfig()
+	Etcd = yml.GetEtcdConfig()
 }
 
 // Read yaml file
