@@ -7,49 +7,54 @@ import (
 )
 
 // Global context
-var Ctx context.Context
+var ctx context.Context
 
 // Initialize context
 func InitContext() {
-	Ctx = context.Background()
+	ctx = context.Background()
+}
+
+// Get ctx
+func GetCtx() context.Context {
+	return ctx
 }
 
 // Setter api key
 func SetApiKey(apiKey string) {
-	Ctx = context.WithValue(Ctx, "api_key", apiKey)
+	ctx = context.WithValue(ctx, "api_key", apiKey)
 }
 
 // Getter api key
 func GetApiKey() interface{} {
-	return Ctx.Value("api_key")
+	return ctx.Value("api_key")
 }
 
 // Setter service id
 func SetServiceId(serviceId int) {
-	Ctx = context.WithValue(Ctx, "service_id", serviceId)
+	ctx = context.WithValue(ctx, "service_id", serviceId)
 }
 
 // Getter service id
 func GetServiceId() interface{} {
-	return Ctx.Value("service_id")
+	return ctx.Value("service_id")
 }
 
 // Setter user id
 func SetUserId(userId int) {
-	Ctx = context.WithValue(Ctx, "user_id", userId)
+	ctx = context.WithValue(ctx, "user_id", userId)
 }
 
 // Getter user id
 func GetUserId() interface{} {
-	return Ctx.Value("user_id")
+	return ctx.Value("user_id")
 }
 
 // Setter user uuid
 func SetUserUuid(userUuid uuid.UUID) {
-	Ctx = context.WithValue(Ctx, "user_uuid", userUuid)
+	ctx = context.WithValue(ctx, "user_uuid", userUuid)
 }
 
 // Getter user uuid
 func GetUserUuid() interface{} {
-	return Ctx.Value("user_uuid")
+	return ctx.Value("user_uuid")
 }
