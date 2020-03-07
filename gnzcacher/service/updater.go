@@ -25,11 +25,11 @@ type UpdaterService interface {
 }
 
 type UpdaterServiceImpl struct {
-	RedisClient cache.RedisClient
+	RedisClient cache.EtcdClient
 }
 
 func NewUpdaterService() UpdaterService {
-	return UpdaterServiceImpl{RedisClient: cache.NewRedisClient()}
+	return UpdaterServiceImpl{RedisClient: cache.NewEtcdClient()}
 }
 
 func (us UpdaterServiceImpl) UpdatePolicy(policies []*entity.Policy) {

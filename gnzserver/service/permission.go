@@ -34,7 +34,7 @@ type PermissionService interface {
 }
 
 type permissionServiceImpl struct {
-	redisClient          cache.RedisClient
+	etcdClient           cache.EtcdClient
 	permissionRepository driver.PermissionRepository
 }
 
@@ -48,7 +48,7 @@ func GetPermissionServiceInstance() PermissionService {
 func NewPermissionService() PermissionService {
 	log.Logger.Info("New `PermissionService` instance")
 	return permissionServiceImpl{
-		redisClient:          cache.GetRedisClientInstance(),
+		etcdClient:           cache.GetEtcdClientInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
@@ -67,7 +67,7 @@ func (ps permissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *
 }
 
 func (ps permissionServiceImpl) GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody) {
-	permission := ps.redisClient.GetPermission(name)
+	permission := ps.etcdClient.GetPermission(name)
 	if permission != nil {
 		return permission, nil
 	}

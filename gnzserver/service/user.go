@@ -7,10 +7,10 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -64,7 +64,7 @@ type UserService interface {
 type userServiceImpl struct {
 	userRepository driver.UserRepository
 	appConfig      config.AppConfig
-	redisClient    cache.RedisClient
+	etcdClient    cache.EtcdClient
 }
 
 // Get Policy instance.
@@ -82,7 +82,7 @@ func NewUserService() UserService {
 	return userServiceImpl{
 		userRepository: driver.GetUserRepositoryInstance(),
 		appConfig:      config.App,
-		redisClient:    cache.GetRedisClientInstance(),
+		etcdClient:    cache.GetEtcdClientInstance(),
 	}
 }
 

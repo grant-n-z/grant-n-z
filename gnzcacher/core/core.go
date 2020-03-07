@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,10 +29,11 @@ type GrantNZCacher struct {
 }
 
 func init() {
+	ctx.InitContext()
 	log.InitLogger(config.App.LogLevel)
 	config.InitGrantNZCacheConfig(ConfigFilePath)
 	driver.InitRdbms()
-	cache.InitRedis()
+	cache.InitEtcd()
 }
 
 func NewGrantNZCacher() GrantNZCacher {

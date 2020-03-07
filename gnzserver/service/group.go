@@ -4,10 +4,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 

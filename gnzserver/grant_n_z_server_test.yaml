@@ -1,11 +1,18 @@
 app:
   version: 1.0.0
-  private-key: test
-  environment: test
   log-level: $GRANT_N_Z_LOG_LEVEL
+
+server:
+  signed-in-token-private-key-base64: $GRANT_N_Z_PRIVATE_KEY
+
 db:
+  engine: $GRANT_N_Z_ENGINE
   host: $GRANT_N_Z_HOST
   user: $GRANT_N_Z_USER
   password: $GRANT_N_Z_PASSWORD
   port: $GRANT_N_Z_PORT
   db: $GRANT_N_Z_DB
+
+etcd:
+  host: $GRANT_N_Z_ETCD_HOST
+  port: $GRANT_N_Z_ETCD_PORT

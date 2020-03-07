@@ -2,10 +2,10 @@ package service
 
 import (
 	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -36,7 +36,7 @@ type PolicyService interface {
 
 // PolicyService struct
 type policyServiceImpl struct {
-	redisClient          cache.RedisClient
+	etcdClient          cache.EtcdClient
 	policyRepository     driver.PolicyRepository
 	permissionRepository driver.PermissionRepository
 	roleRepository       driver.RoleRepository
@@ -57,7 +57,7 @@ func GetPolicyServiceInstance() PolicyService {
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	return policyServiceImpl{
-		redisClient:          cache.GetRedisClientInstance(),
+		etcdClient:          cache.GetEtcdClientInstance(),
 		policyRepository:     driver.GetPolicyRepositoryInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
 		roleRepository:       driver.GetRoleRepositoryInstance(),
@@ -113,7 +113,7 @@ func (ps policyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorRe
 		return entity.Policy{}, nil
 	}
 
-	cachePolicy := ps.redisClient.GetPolicy(id)
+	cachePolicy := ps.etcdClient.GetPolicy(id)
 	if cachePolicy != nil {
 		return *cachePolicy, nil
 	}

@@ -155,12 +155,11 @@ func (m Migration) checkV1Migration() bool {
 		log.Logger.Fatal(failedMigrationMsg)
 	}
 
-	adminPermission, err := m.permissionService.GetPermissionByName(config.AdminRole)
+	adminPermission, err := m.permissionService.GetPermissionByName(config.AdminPermission)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin permission")
 		log.Logger.Fatal(failedMigrationMsg)
 	}
-
 	var operatorPolicy []*entity.OperatorPolicy
 	operatorPolicy, err = m.operatorPolicyService.GetByUserId(1)
 	if err != nil && err.Code != http.StatusNotFound {

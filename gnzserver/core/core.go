@@ -13,9 +13,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 )
 
@@ -40,7 +40,7 @@ func init() {
 	config.InitGrantNZServerConfig(ConfigFilePath)
 	log.InitLogger(config.App.LogLevel)
 	driver.InitRdbms()
-	cache.InitRedis()
+	cache.InitEtcd()
 }
 
 func NewGrantNZServer() GrantNZServer {

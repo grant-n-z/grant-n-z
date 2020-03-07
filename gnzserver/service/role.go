@@ -37,7 +37,7 @@ type RoleService interface {
 }
 
 type roleServiceImpl struct {
-	redisClient    cache.RedisClient
+	etcdClient    cache.EtcdClient
 	roleRepository driver.RoleRepository
 }
 
@@ -51,7 +51,7 @@ func GetRoleServiceInstance() RoleService {
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
 	return roleServiceImpl{
-		redisClient:    cache.GetRedisClientInstance(),
+		etcdClient:    cache.GetEtcdClientInstance(),
 		roleRepository: driver.GetRoleRepositoryInstance(),
 	}
 }
@@ -73,7 +73,7 @@ func (rs roleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.Error
 }
 
 func (rs roleServiceImpl) GetRoleByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
-	roles := rs.redisClient.GetRoleByNames(names)
+	roles := rs.etcdClient.GetRoleByNames(names)
 	if len(roles) > 0 {
 		return roles, nil
 	}

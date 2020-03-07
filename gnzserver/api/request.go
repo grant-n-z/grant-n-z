@@ -37,7 +37,7 @@ type Request interface {
 type RequestImpl struct {
 	tokenService service.TokenService
 	userService  service.UserService
-	redisClient  cache.RedisClient
+	etcdClient  cache.EtcdClient
 }
 
 func GetRequestInstance() Request {
@@ -52,7 +52,7 @@ func NewRequest() Request {
 	return RequestImpl{
 		tokenService: service.GetTokenServiceInstance(),
 		userService:  service.GetUserServiceInstance(),
-		redisClient:  cache.GetRedisClientInstance(),
+		etcdClient:  cache.GetEtcdClientInstance(),
 	}
 }
 

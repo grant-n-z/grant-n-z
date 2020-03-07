@@ -9,3 +9,6 @@ db:
   password: $GRANT_N_Z_PASSWORD
   port: $GRANT_N_Z_PORT
   db: $GRANT_N_Z_DB
+etcd:
+  host: $GRANT_N_Z_ETCD_HOST
+  port: $GRANT_N_Z_ETCD_PORT

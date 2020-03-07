@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/ctx"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
@@ -52,7 +52,7 @@ type Interceptor interface {
 type InterceptorImpl struct {
 	tokenService service.TokenService
 	userService  service.UserService
-	redisClient  cache.RedisClient
+	etcdClient  cache.EtcdClient
 }
 
 func GetInterceptorInstance() Interceptor {
@@ -67,7 +67,7 @@ func NewInterceptor() Interceptor {
 	return InterceptorImpl{
 		tokenService: service.GetTokenServiceInstance(),
 		userService:  service.GetUserServiceInstance(),
-		redisClient:  cache.GetRedisClientInstance(),
+		etcdClient:  cache.GetEtcdClientInstance(),
 	}
 }
 
