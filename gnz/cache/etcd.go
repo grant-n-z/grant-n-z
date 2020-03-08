@@ -29,6 +29,9 @@ type EtcdClient interface {
 	// Set service with expires
 	SetService(service entity.Service, expiresMinutes time.Duration)
 
+	// Set user_service with expires
+	SetUserService(userId int, userServices []entity.UserService, expiresMinutes time.Duration)
+
 	// Get policy by id or name
 	GetPolicy(data interface{}) *entity.Policy
 
@@ -52,6 +55,9 @@ type EtcdClient interface {
 
 	// Get service by names
 	GetServiceByNames(names []string) []entity.Service
+
+	// Get user_service by user_id
+	GetUserService(userId int, serviceId int) *entity.UserService
 }
 
 type EtcdClientImpl struct {
@@ -71,23 +77,43 @@ func NewEtcdClient() EtcdClient {
 }
 
 func (e EtcdClientImpl) SetPolicy(policy entity.Policy, expiresMinutes time.Duration) {
+	if e.Connection == nil {
+		return
+	}
 	policyJson, _ := json.Marshal(policy)
-	e.set(policyJson, []string{fmt.Sprintf("policy=%d", policy.Id), fmt.Sprintf("policy=%s", policy.Name)}, expiresMinutes)
+	e.set(policyJson, []string{fmt.Sprintf("policy=%d", policy.Id), fmt.Sprintf("policy=%v", policy.Name)}, expiresMinutes)
 }
 
 func (e EtcdClientImpl) SetPermission(permission entity.Permission, expiresMinutes time.Duration) {
+	if e.Connection == nil {
+		return
+	}
 	permissionJson, _ := json.Marshal(permission)
-	e.set(permissionJson, []string{fmt.Sprintf("permission=%d", permission.Id), fmt.Sprintf("permission=%s", permission.Name)}, expiresMinutes)
+	e.set(permissionJson, []string{fmt.Sprintf("permission=%d", permission.Id), fmt.Sprintf("permission=%v", permission.Name)}, expiresMinutes)
 }
 
 func (e EtcdClientImpl) SetRole(role entity.Role, expiresMinutes time.Duration) {
+	if e.Connection == nil {
+		return
+	}
 	roleJson, _ := json.Marshal(role)
-	e.set(roleJson, []string{fmt.Sprintf("role=%d", role.Id), fmt.Sprintf("role=%s", role.Name)}, expiresMinutes)
+	e.set(roleJson, []string{fmt.Sprintf("role=%d", role.Id), fmt.Sprintf("role=%v", role.Name)}, expiresMinutes)
 }
 
 func (e EtcdClientImpl) SetService(service entity.Service, expiresMinutes time.Duration) {
+	if e.Connection == nil {
+		return
+	}
 	serviceJson, _ := json.Marshal(service)
-	e.set(serviceJson, []string{fmt.Sprintf("service=%d", service.Id), fmt.Sprintf("service=%s", service.Name)}, expiresMinutes)
+	e.set(serviceJson, []string{fmt.Sprintf("service=%d", service.Id), fmt.Sprintf("service=%v", service.Name)}, expiresMinutes)
+}
+
+func (e EtcdClientImpl) SetUserService(userId int, userServices []entity.UserService, expiresMinutes time.Duration) {
+	if e.Connection == nil {
+		return
+	}
+	userServicesJson, _ := json.Marshal(userServices)
+	e.set(userServicesJson, []string{fmt.Sprintf("user_service.user_id=%d", userId)}, expiresMinutes)
 }
 
 func (e EtcdClientImpl) GetPolicy(data interface{}) *entity.Policy {
@@ -95,7 +121,7 @@ func (e EtcdClientImpl) GetPolicy(data interface{}) *entity.Policy {
 		return nil
 	}
 	var policy entity.Policy
-	err := e.get(fmt.Sprintf("policy=%s", data), policy)
+	err := e.get(fmt.Sprintf("policy=%v", data), &policy)
 	if err != nil {
 		log.Logger.Info("Cloud not get cache", err.Error())
 		return nil
@@ -109,7 +135,7 @@ func (e EtcdClientImpl) GetPolicyByNames(names []string) []entity.Policy {
 	var policies []entity.Policy
 	for _, name := range names {
 		var policy entity.Policy
-		err := e.get(fmt.Sprintf("policy=%s", name), policy)
+		err := e.get(fmt.Sprintf("policy=%v", name), &policy)
 		if err != nil {
 			log.Logger.Info("Cloud not get cache", err.Error())
 			continue
@@ -124,7 +150,7 @@ func (e EtcdClientImpl) GetPermission(data interface{}) *entity.Permission {
 		return nil
 	}
 	var permission entity.Permission
-	err := e.get(fmt.Sprintf("permission=%s", data), permission)
+	err := e.get(fmt.Sprintf("permission=%v", data), &permission)
 	if err != nil {
 		log.Logger.Info("Cloud not get cache", err.Error())
 		return nil
@@ -139,7 +165,7 @@ func (e EtcdClientImpl) GetPermissionByNames(names []string) []entity.Permission
 	var permissions []entity.Permission
 	for _, name := range names {
 		var permission entity.Permission
-		err := e.get(fmt.Sprintf("permission=%s", name), permission)
+		err := e.get(fmt.Sprintf("permission=%v", name), &permission)
 		if err != nil {
 			log.Logger.Info("Cloud not get cache", err.Error())
 			continue
@@ -154,7 +180,7 @@ func (e EtcdClientImpl) GetRole(data interface{}) *entity.Role {
 		return nil
 	}
 	var role entity.Role
-	err := e.get(fmt.Sprintf("role=%s", data), role)
+	err := e.get(fmt.Sprintf("role=%v", data), &role)
 	if err != nil {
 		log.Logger.Info("Cloud not get cache", err.Error())
 		return nil
@@ -169,7 +195,7 @@ func (e EtcdClientImpl) GetRoleByNames(names []string) []entity.Role {
 	var roles []entity.Role
 	for _, name := range names {
 		var role entity.Role
-		err := e.get(fmt.Sprintf("role=%s", name), role)
+		err := e.get(fmt.Sprintf("role=%v", name), &role)
 		if err != nil {
 			log.Logger.Info("Cloud not get cache", err.Error())
 			continue
@@ -184,7 +210,7 @@ func (e EtcdClientImpl) GetService(data interface{}) *entity.Service {
 		return nil
 	}
 	var service entity.Service
-	err := e.get(fmt.Sprintf("service=%s", data), service)
+	err := e.get(fmt.Sprintf("service=%v", data), &service)
 	if err != nil {
 		log.Logger.Info("Cloud not get cache", err.Error())
 		return nil
@@ -199,7 +225,7 @@ func (e EtcdClientImpl) GetServiceByNames(names []string) []entity.Service {
 	var services []entity.Service
 	for _, name := range names {
 		var service entity.Service
-		err := e.get(fmt.Sprintf("service=%s", name), service)
+		err := e.get(fmt.Sprintf("service=%v", name), &service)
 		if err != nil {
 			log.Logger.Info("Cloud not get cache", err.Error())
 			continue
@@ -209,19 +235,37 @@ func (e EtcdClientImpl) GetServiceByNames(names []string) []entity.Service {
 	return services
 }
 
+func (e EtcdClientImpl) GetUserService(userId int, serviceId int) *entity.UserService {
+	if e.Connection == nil {
+		return nil
+	}
+	var userServices []entity.UserService
+	err := e.get(fmt.Sprintf("user_service.user_id=%d", userId), &userServices)
+	if err != nil {
+		log.Logger.Info("Cloud not get cache", err.Error())
+		return nil
+	}
+
+	for _, us := range userServices {
+		if us.ServiceId == serviceId {
+			return &us
+		}
+	}
+	return nil
+}
+
 // Get cache shared method
 func (e EtcdClientImpl) get(key string, structData interface{}) error {
-	start := time.Millisecond
 	response, err := e.Connection.Get(ctx.GetCtx(), key)
-	if err != nil {
-		return errors.New(fmt.Sprintf("Cache is null. key = %s", key))
+	if err != nil || len(response.Kvs) == 0{
+		return errors.New(fmt.Sprintf("Cache is null. key = %v", key))
 	}
-	end := time.Millisecond
 	kvs := response.Kvs[0]
-	log.Logger.Info(fmt.Sprintf("[%sms] GET etcd key %s", end - start, key))
+	log.Logger.Info(fmt.Sprintf("GET etcd key = %v", key))
+	//log.Logger.Info(fmt.Sprintf("[%dms] GET etcd key %v", end - start, key))
 	err = json.Unmarshal(kvs.Value, &structData)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to convert json to struct for cache. %s", err.Error()))
+		return errors.New(fmt.Sprintf("Failed to convert json to struct for cache. %v", err.Error()))
 	}
 	return nil
 }
@@ -229,12 +273,10 @@ func (e EtcdClientImpl) get(key string, structData interface{}) error {
 // Set cache shared method
 func (e EtcdClientImpl) set(json []byte, keys []string, expiresMinutes time.Duration) {
 	for _, key := range keys {
-		start := time.Millisecond
 		_, err := e.Connection.Put(ctx.GetCtx(), key, string(json))
 		if err != nil {
-			log.Logger.Error(fmt.Sprintf("Cache is null. key = %s", key))
+			log.Logger.Error(fmt.Sprintf("Cache is null. key = %v", key))
 		}
-		end := time.Millisecond
-		log.Logger.Info(fmt.Sprintf("[%s, %sms] PUT etcd key %s", end, start, key))
+		log.Logger.Info(fmt.Sprintf("PUT etcd key = %v", key))
 	}
 }

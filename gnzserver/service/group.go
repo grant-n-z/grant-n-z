@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/google/uuid"
 
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
@@ -29,6 +30,7 @@ type GroupService interface {
 
 // GroupService struct
 type GroupServiceImpl struct {
+	etcdClient           cache.EtcdClient
 	groupRepository      driver.GroupRepository
 	roleRepository       driver.RoleRepository
 	permissionRepository driver.PermissionRepository
@@ -47,6 +49,7 @@ func GetGroupServiceInstance() GroupService {
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	return GroupServiceImpl{
+		etcdClient:           cache.GetEtcdClientInstance(),
 		groupRepository:      driver.GetGroupRepositoryInstance(),
 		roleRepository:       driver.GetRoleRepositoryInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
@@ -68,18 +71,24 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
 
-	// TODO: Cache role
-	role, err := gs.roleRepository.FindByName(config.AdminRole)
-	if err != nil {
-		log.Logger.Info("Failed to get role for insert groups process")
-		return nil, model.InternalServerError()
+	role := gs.etcdClient.GetRole(config.AdminRole)
+	if role == nil {
+		masterRole, err := gs.roleRepository.FindByName(config.AdminRole)
+		if err != nil {
+			log.Logger.Info("Failed to get role for insert groups process")
+			return nil, model.InternalServerError()
+		}
+		role = masterRole
 	}
 
-	// TODO: Cache permission
-	permission, err := gs.permissionRepository.FindByName(config.AdminRole)
-	if err != nil {
-		log.Logger.Info("Failed to get permission for insert groups process")
-		return nil, model.InternalServerError()
+	permission := gs.etcdClient.GetPermission(config.AdminPermission)
+	if permission == nil {
+		masterPermission, err := gs.permissionRepository.FindByName(config.AdminPermission)
+		if err != nil {
+			log.Logger.Info("Failed to get permission for insert groups process")
+			return nil, model.InternalServerError()
+		}
+		permission = masterPermission
 	}
 
 	serviceId := ctx.GetServiceId().(int)

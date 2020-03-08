@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/api"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -26,7 +25,6 @@ type Permission interface {
 }
 
 type PermissionImpl struct {
-	Request           api.Request
 	PermissionService service.PermissionService
 }
 
@@ -40,7 +38,6 @@ func GetPermissionInstance() Permission {
 func NewPermission() Permission {
 	log.Logger.Info("New `Permission` instance")
 	return PermissionImpl{
-		Request:           api.GetRequestInstance(),
 		PermissionService: service.GetPermissionServiceInstance(),
 	}
 }

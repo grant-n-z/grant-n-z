@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/api"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -32,7 +31,6 @@ type OperatorPolicy interface {
 }
 
 type OperatorPolicyImpl struct {
-	Request               api.Request
 	OperatorPolicyService service.OperatorPolicyService
 }
 
@@ -45,10 +43,7 @@ func GetOperatorPolicyInstance() OperatorPolicy {
 
 func NewOperatorPolicy() OperatorPolicy {
 	log.Logger.Info("New `OperatorPolicy` instance")
-	return OperatorPolicyImpl{
-		Request:               api.GetRequestInstance(),
-		OperatorPolicyService: service.NewOperatorPolicyServiceService(),
-	}
+	return OperatorPolicyImpl{OperatorPolicyService: service.NewOperatorPolicyServiceService()}
 }
 
 func (rmrhi OperatorPolicyImpl) Api(w http.ResponseWriter, r *http.Request) {

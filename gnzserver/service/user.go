@@ -131,6 +131,10 @@ func (us userServiceImpl) GetUserServices() ([]*entity.UserService, *model.Error
 }
 
 func (us userServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+	userService := us.etcdClient.GetUserService(userId, serviceId)
+	if userService != nil {
+		return userService, nil
+	}
 	return us.userRepository.FindUserServiceByUserIdAndServiceId(userId, serviceId)
 }
 

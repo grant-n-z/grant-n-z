@@ -18,6 +18,9 @@ type ExtractorService interface {
 
 	// Get services for offset and limit
 	GetServices(offset int, limit int) []*entity.Service
+
+	// Get user_services for offset and limit
+	GetUserServices(offset int, limit int) []*entity.UserService
 }
 
 type ExtractorServiceImpl struct {
@@ -25,6 +28,7 @@ type ExtractorServiceImpl struct {
 	PermissionRepository driver.PermissionRepository
 	RoleRepository       driver.RoleRepository
 	ServiceRepository    driver.ServiceRepository
+	UserRepository       driver.UserRepository
 }
 
 func NewExtractorService() ExtractorService {
@@ -33,6 +37,7 @@ func NewExtractorService() ExtractorService {
 		PermissionRepository: driver.NewPermissionRepository(),
 		RoleRepository:       driver.NewRoleRepository(),
 		ServiceRepository:    driver.NewServiceRepository(),
+		UserRepository:       driver.GetUserRepositoryInstance(),
 	}
 }
 
@@ -74,4 +79,14 @@ func (us ExtractorServiceImpl) GetServices(offset int, limit int) []*entity.Serv
 	}
 
 	return services
+}
+
+func (us ExtractorServiceImpl) GetUserServices(offset int, limit int) []*entity.UserService {
+	userServices, err := us.UserRepository.FindUserServicesOffSetAndLimit(offset, limit)
+	if err != nil {
+		log.Logger.Error("Get user_service query is failed", err.Detail)
+		return []*entity.UserService{}
+	}
+
+	return userServices
 }

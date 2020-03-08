@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"strconv"
 	"strings"
 	"time"
@@ -9,8 +10,8 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/config"
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -45,6 +46,7 @@ type TokenService interface {
 
 // TokenService struct
 type tokenServiceImpl struct {
+	etcdClient            cache.EtcdClient
 	userService           UserService
 	operatorPolicyService OperatorPolicyService
 	service               Service
@@ -67,6 +69,7 @@ func GetTokenServiceInstance() TokenService {
 func NewTokenService() TokenService {
 	log.Logger.Info("New `TokenService` instance")
 	return tokenServiceImpl{
+		etcdClient:            cache.GetEtcdClientInstance(),
 		userService:           GetUserServiceInstance(),
 		operatorPolicyService: GetOperatorPolicyServiceInstance(),
 		service:               GetServiceInstance(),
@@ -175,7 +178,7 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 
 	if len(roleNames) > 0 && !strings.EqualFold(roleNames[0], "") {
 		roles, err := tsi.roleService.GetRoleByNames(roleNames)
-		if roles == nil || err != nil {
+		if err != nil {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
 		result := false
@@ -196,7 +199,6 @@ func (tsi tokenServiceImpl) VerifyUserToken(token string, roleNames []string, pe
 		}
 	}
 
-	// TODO: Cache user_service
 	userService, err := tsi.userService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
 		return nil, model.Forbidden("Forbidden the user cannot access service")
@@ -235,7 +237,6 @@ func (tsi tokenServiceImpl) GetAuthUserInToken(token string) (*model.AuthUser, *
 }
 
 func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody) {
-	// TODO: Cache
 	targetUser, err := tsi.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
 	if err != nil || targetUser == nil {
 		return "", model.BadRequest("Failed to email or password")
@@ -256,13 +257,11 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (strin
 }
 
 func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
-	// TODO: Cache service data
 	service, err := tsi.service.GetServiceOfApiKey()
 	if err != nil || service == nil {
 		return "", model.BadRequest("Not found registered services by Api-Key")
 	}
 
-	// TODO: Cache user data
 	targetUser, err := tsi.userService.GetUserByEmail(userEntity.Email)
 	if err != nil || targetUser == nil {
 		return "", model.BadRequest("Failed to email or password")
@@ -279,7 +278,6 @@ func (tsi tokenServiceImpl) generateUserToken(userEntity entity.User, groupId in
 		return tsi.signedInToken(targetUser.Id, targetUser.Uuid.String(), roleId, service.Id, policyId), nil
 	}
 
-	// TODO: Cache policy
 	policy, err := tsi.policyService.GetPolicyByUserGroup(targetUser.Id, groupId)
 	if err != nil {
 		return "", model.Forbidden("Can't issue token for group")

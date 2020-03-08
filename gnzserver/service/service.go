@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
@@ -16,6 +17,7 @@ import (
 var sInstance Service
 
 type serviceImpl struct {
+	etcdClient           cache.EtcdClient
 	serviceRepository    driver.ServiceRepository
 	roleRepository       driver.RoleRepository
 	permissionRepository driver.PermissionRepository
@@ -57,6 +59,7 @@ func GetServiceInstance() Service {
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
 	return serviceImpl{
+		etcdClient:           cache.GetEtcdClientInstance(),
 		serviceRepository:    driver.GetServiceRepositoryInstance(),
 		roleRepository:       driver.GetRoleRepositoryInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
@@ -101,17 +104,26 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	key := uuid.New()
 	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
 
-	roles, err := ss.roleRepository.FindByNames([]string{config.AdminRole, config.UserRole})
-	if err != nil {
-		log.Logger.Info("Failed to get role for insert groups process")
-		return nil, model.InternalServerError()
+	defaultRoles := []string{config.AdminRole, config.UserRole}
+	roles := ss.etcdClient.GetRoleByNames(defaultRoles)
+	if roles == nil || len(roles) == 0 {
+		masterRoles, err := ss.roleRepository.FindByNames([]string{config.AdminRole, config.UserRole})
+		if err != nil {
+			log.Logger.Info("Failed to get role for insert groups process")
+			return nil, model.InternalServerError()
+		}
+		roles = masterRoles
 	}
 
-	// TODO: Cache permissions
-	permissions, err := ss.permissionRepository.FindByNames([]string{config.AdminPermission, config.ReadPermission, config.WritePermission})
-	if err != nil {
-		log.Logger.Info("Failed to get permission for insert groups process")
-		return nil, model.InternalServerError()
+	defaultPermissions := []string{config.AdminPermission, config.ReadPermission, config.WritePermission}
+	permissions := ss.etcdClient.GetPermissionByNames(defaultPermissions)
+	if permissions == nil || len(permissions) == 0 {
+		masterPermissions, err := ss.permissionRepository.FindByNames(defaultPermissions)
+		if err != nil {
+			log.Logger.Info("Failed to get permission for insert groups process")
+			return nil, model.InternalServerError()
+		}
+		permissions = masterPermissions
 	}
 
 	return ss.serviceRepository.SaveWithRelationalData(*service, roles, permissions)

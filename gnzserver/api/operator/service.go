@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/config"
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/api"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -23,7 +21,7 @@ type Service interface {
 	get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
-	post(w http.ResponseWriter, r *http.Request, body []byte)
+	post(w http.ResponseWriter, r *http.Request)
 
 	// Http PUT method
 	put(w http.ResponseWriter, r *http.Request)
@@ -33,7 +31,6 @@ type Service interface {
 }
 
 type OperatorServiceImpl struct {
-	Request api.Request
 	Service service.Service
 }
 
@@ -46,24 +43,15 @@ func GetOperatorServiceInstance() Service {
 
 func NewOperatorService() Service {
 	log.Logger.Info("New `OperatorService` instance")
-	return OperatorServiceImpl{
-		Request: api.GetRequestInstance(),
-		Service: service.GetServiceInstance(),
-	}
+	return OperatorServiceImpl{Service: service.GetServiceInstance()}
 }
 
 func (sh OperatorServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	body, err := sh.Request.Intercept(w, r, config.AuthOperator)
-	if err != nil {
-		return
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		sh.get(w, r)
 	case http.MethodPost:
-		sh.post(w, r, body)
+		sh.post(w, r)
 	case http.MethodPut:
 		sh.put(w, r)
 	case http.MethodDelete:
@@ -86,7 +74,7 @@ func (sh OperatorServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func (sh OperatorServiceImpl) post(w http.ResponseWriter, r *http.Request, body []byte) {
+func (sh OperatorServiceImpl) post(w http.ResponseWriter, r *http.Request) {
 	var serviceEntity *entity.Service
 
 	if err := middleware.BindBody(w, r, &serviceEntity); err != nil {

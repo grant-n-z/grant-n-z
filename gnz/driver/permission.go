@@ -27,7 +27,7 @@ type PermissionRepository interface {
 	FindByName(name string) (*entity.Permission, *model.ErrorResBody)
 
 	// Find permission by name array
-	FindByNames(names []string) ([]*entity.Permission, *model.ErrorResBody)
+	FindByNames(names []string) ([]entity.Permission, *model.ErrorResBody)
 
 	// Find permissions by group id
 	// Join group_permission and permission
@@ -111,8 +111,8 @@ func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission,
 	return &permission, nil
 }
 
-func (pri PermissionRepositoryImpl) FindByNames(names []string) ([]*entity.Permission, *model.ErrorResBody) {
-	var permissions []*entity.Permission
+func (pri PermissionRepositoryImpl) FindByNames(names []string) ([]entity.Permission, *model.ErrorResBody) {
+	var permissions []entity.Permission
 	if err := pri.Connection.Where("name IN (?)", names).Find(&permissions).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil

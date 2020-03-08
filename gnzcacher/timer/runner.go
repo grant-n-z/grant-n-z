@@ -31,6 +31,7 @@ func (r RunnerImpl) Run() {
 	go r.executePermission()
 	go r.executeRole()
 	go r.executeService()
+	go r.executeUserService()
 }
 
 func (r RunnerImpl) executePolicy() {
@@ -78,5 +79,17 @@ func (r RunnerImpl) executeService() {
 		dataLength = len(services)
 		offset += limit
 		log.Logger.Info(fmt.Sprintf("Update service length = %d", dataLength))
+	}
+}
+
+func (r RunnerImpl) executeUserService() {
+	dataLength := 1
+	offset := 0
+	for dataLength != 0 {
+		userServices := r.ExtractorService.GetUserServices(offset, limit)
+		r.UpdaterService.UpdateUserService(userServices)
+		dataLength = len(userServices)
+		offset += limit
+		log.Logger.Info(fmt.Sprintf("Update user_service length = %d", dataLength))
 	}
 }

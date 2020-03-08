@@ -36,7 +36,7 @@ type PolicyService interface {
 
 // PolicyService struct
 type policyServiceImpl struct {
-	etcdClient          cache.EtcdClient
+	etcdClient           cache.EtcdClient
 	policyRepository     driver.PolicyRepository
 	permissionRepository driver.PermissionRepository
 	roleRepository       driver.RoleRepository
@@ -57,7 +57,7 @@ func GetPolicyServiceInstance() PolicyService {
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
 	return policyServiceImpl{
-		etcdClient:          cache.GetEtcdClientInstance(),
+		etcdClient:           cache.GetEtcdClientInstance(),
 		policyRepository:     driver.GetPolicyRepositoryInstance(),
 		permissionRepository: driver.GetPermissionRepositoryInstance(),
 		roleRepository:       driver.GetRoleRepositoryInstance(),
@@ -83,12 +83,38 @@ func (ps policyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.
 	var policyResponses []model.PolicyResponse
 	for _, ugp := range userGroupPolicies {
 		if ugp.ServiceId == ctx.GetServiceId() {
-			// TODO: Cache role, permission, service
+			role := ps.etcdClient.GetRole(ugp.Policy.RoleId)
+			if role == nil {
+				masterRole, err := ps.roleRepository.FindById(ugp.Policy.RoleId)
+				if err != nil {
+					return nil, err
+				}
+				role = masterRole
+			}
+
+			permission := ps.etcdClient.GetPermission(ugp.Policy.PermissionId)
+			if permission == nil {
+				masterPermission, err := ps.permissionRepository.FindById(ugp.Policy.PermissionId)
+				if err != nil {
+					return nil, err
+				}
+				permission = masterPermission
+			}
+
+			service := ps.etcdClient.GetService(ugp.Policy.ServiceId)
+			if service == nil {
+				masterService, err := ps.serviceRepository.FindById(ugp.Policy.ServiceId)
+				if err != nil {
+					return nil, err
+				}
+				service = masterService
+			}
+
 			policyResponse := model.NewPolicyResponse().
 				SetName(&ugp.Policy.Name).
-				SetRoleName(ps.roleRepository.FindNameById(ugp.Policy.RoleId)).
-				SetPermissionName(ps.permissionRepository.FindNameById(ugp.Policy.PermissionId)).
-				SetServiceName(ps.serviceRepository.FindNameById(ugp.Policy.ServiceId)).
+				SetRoleName(&role.Name).
+				SetPermissionName(&permission.Name).
+				SetServiceName(&service.Name).
 				SetGroupName(&ugp.Group.Name).
 				Build()
 

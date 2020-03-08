@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
@@ -22,36 +23,61 @@ type UpdaterService interface {
 
 	// Update service cache
 	UpdateService(services []*entity.Service)
+
+	// Update user_service cache
+	UpdateUserService(userServices []*entity.UserService)
 }
 
 type UpdaterServiceImpl struct {
-	RedisClient cache.EtcdClient
+	EtcdClient cache.EtcdClient
 }
 
 func NewUpdaterService() UpdaterService {
-	return UpdaterServiceImpl{RedisClient: cache.NewEtcdClient()}
+	return UpdaterServiceImpl{EtcdClient: cache.NewEtcdClient()}
 }
 
 func (us UpdaterServiceImpl) UpdatePolicy(policies []*entity.Policy) {
 	for _, policy := range policies {
-		us.RedisClient.SetPolicy(*policy, expiresMinutes)
+		us.EtcdClient.SetPolicy(*policy, expiresMinutes)
 	}
 }
 
 func (us UpdaterServiceImpl) UpdatePermission(permissions []*entity.Permission) {
 	for _, permission := range permissions {
-		us.RedisClient.SetPermission(*permission, expiresMinutes)
+		us.EtcdClient.SetPermission(*permission, expiresMinutes)
 	}
 }
 
 func (us UpdaterServiceImpl) UpdateRole(roles []*entity.Role) {
 	for _, role := range roles {
-		us.RedisClient.SetRole(*role, expiresMinutes)
+		us.EtcdClient.SetRole(*role, expiresMinutes)
 	}
 }
 
 func (us UpdaterServiceImpl) UpdateService(services []*entity.Service) {
 	for _, service := range services {
-		us.RedisClient.SetService(*service, expiresMinutes)
+		us.EtcdClient.SetService(*service, expiresMinutes)
+	}
+}
+
+func (us UpdaterServiceImpl) UpdateUserService(userServices []*entity.UserService) {
+	userServiceMap := map[int][]entity.UserService{}
+	for _, userService := range userServices {
+		savedUserServices := userServiceMap[userService.UserId]
+		if savedUserServices == nil {
+			var userServiceArray []entity.UserService
+			userServiceArray = append(userServiceArray, *userService)
+			userServiceMap[userService.UserId] = userServiceArray
+		} else {
+			savedUserServices = append(savedUserServices, *userService)
+			userServiceMap[userService.UserId] = savedUserServices
+		}
+	}
+
+	for key, value := range userServiceMap {
+		for _, v := range value {
+			fmt.Println(v.ServiceId)
+		}
+		us.EtcdClient.SetUserService(key, value, expiresMinutes)
 	}
 }

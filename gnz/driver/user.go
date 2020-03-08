@@ -32,6 +32,9 @@ type UserRepository interface {
 	// Find all UserService
 	FindUserServices() ([]*entity.UserService, *model.ErrorResBody)
 
+	// Find all UserService with offset and limit
+	FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, *model.ErrorResBody)
+
 	// Find UserService by user_id and service_id
 	FindUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
 
@@ -170,6 +173,19 @@ func (uri UserRepositoryImpl) FindUserGroupByUserIdAndGroupId(userId int, groupI
 func (uri UserRepositoryImpl) FindUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	var userServices []*entity.UserService
 	if err := uri.Connection.Find(&userServices).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError()
+	}
+
+	return userServices, nil
+}
+
+func (uri UserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, *model.ErrorResBody) {
+	var userServices []*entity.UserService
+	if err := uri.Connection.Limit(limit).Offset(offset).Find(&userServices).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

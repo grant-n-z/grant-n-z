@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/api"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -26,7 +25,6 @@ type Role interface {
 }
 
 type RoleImpl struct {
-	Request     api.Request
 	RoleService service.RoleService
 }
 
@@ -39,10 +37,7 @@ func GetRoleInstance() Role {
 
 func NewRole() Role {
 	log.Logger.Info("New `Role` instance")
-	return RoleImpl{
-		Request:     api.GetRequestInstance(),
-		RoleService: service.GetRoleServiceInstance(),
-	}
+	return RoleImpl{RoleService: service.GetRoleServiceInstance()}
 }
 func (rh RoleImpl) Get(w http.ResponseWriter, r *http.Request) {
 	id, err := middleware.ParamGroupId(r)

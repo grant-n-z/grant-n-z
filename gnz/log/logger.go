@@ -67,13 +67,13 @@ func (l Log) Info(log ...string) {
 func (l Log) Warn(log ...string) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
-	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
+	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
 	l.w.Println(data, strings.Join(log, " "))
 }
 
 func (l Log) Error(log ...string) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
-	data := fmt.Sprintf("%s/%s:%v %s", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
+	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
 	l.e.Println(data, strings.Join(log, " "))
 }
