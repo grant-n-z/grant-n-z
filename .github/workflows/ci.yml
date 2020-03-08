@@ -17,4 +17,4 @@ jobs:
     - name: checkout
       uses: actions/checkout@v1
     - name: unit-test
-      run: ls -la
+      run: sh .github/script/unit-test.sh
