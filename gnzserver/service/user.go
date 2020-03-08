@@ -64,7 +64,7 @@ type UserService interface {
 type userServiceImpl struct {
 	userRepository driver.UserRepository
 	appConfig      config.AppConfig
-	etcdClient    cache.EtcdClient
+	etcdClient     cache.EtcdClient
 }
 
 // Get Policy instance.
@@ -82,7 +82,7 @@ func NewUserService() UserService {
 	return userServiceImpl{
 		userRepository: driver.GetUserRepositoryInstance(),
 		appConfig:      config.App,
-		etcdClient:    cache.GetEtcdClientInstance(),
+		etcdClient:     cache.GetEtcdClientInstance(),
 	}
 }
 

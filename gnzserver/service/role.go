@@ -37,7 +37,7 @@ type RoleService interface {
 }
 
 type roleServiceImpl struct {
-	etcdClient    cache.EtcdClient
+	etcdClient     cache.EtcdClient
 	roleRepository driver.RoleRepository
 }
 
@@ -51,7 +51,7 @@ func GetRoleServiceInstance() RoleService {
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
 	return roleServiceImpl{
-		etcdClient:    cache.GetEtcdClientInstance(),
+		etcdClient:     cache.GetEtcdClientInstance(),
 		roleRepository: driver.GetRoleRepositoryInstance(),
 	}
 }

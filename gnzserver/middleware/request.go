@@ -52,7 +52,7 @@ type Interceptor interface {
 type InterceptorImpl struct {
 	tokenService service.TokenService
 	userService  service.UserService
-	etcdClient  cache.EtcdClient
+	etcdClient   cache.EtcdClient
 }
 
 func GetInterceptorInstance() Interceptor {
@@ -67,7 +67,7 @@ func NewInterceptor() Interceptor {
 	return InterceptorImpl{
 		tokenService: service.GetTokenServiceInstance(),
 		userService:  service.GetUserServiceInstance(),
-		etcdClient:  cache.GetEtcdClientInstance(),
+		etcdClient:   cache.GetEtcdClientInstance(),
 	}
 }
 
@@ -243,7 +243,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 }
 
 // Intercept http request header
-func (i InterceptorImpl)  interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func (i InterceptorImpl) interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	w.Header().Set(ContentType, "application/json")
 	if err := validateHeader(r); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -253,7 +253,7 @@ func (i InterceptorImpl)  interceptHeader(w http.ResponseWriter, r *http.Request
 }
 
 // Intercept Api-Key header
-func (i InterceptorImpl)  interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func (i InterceptorImpl) interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	apiKey := r.Header.Get(Key)
 	if strings.EqualFold(apiKey, "") {
 		err := model.BadRequest("Required Api-Key")
