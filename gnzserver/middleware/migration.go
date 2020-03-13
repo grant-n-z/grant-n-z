@@ -44,7 +44,7 @@ func (m Migration) V1() {
 	_, userErr := m.userService.InsertUser(operatorUser)
 	if userErr != nil {
 		if userErr.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate user for migration")
+			panic("Failed to generate user for migration")
 		}
 	}
 	log.Logger.Info("Generate to user for migration")
@@ -57,7 +57,7 @@ func (m Migration) V1() {
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
 		if roleErr1.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate operator role for migration")
+			panic("Failed to generate operator role for migration")
 		}
 	}
 
@@ -69,7 +69,7 @@ func (m Migration) V1() {
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
 		if roleErr2.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate admin role for migration")
+			panic("Failed to generate admin role for migration")
 		}
 	}
 
@@ -81,7 +81,7 @@ func (m Migration) V1() {
 	_, roleErr3 := m.roleService.InsertRole(&userRole)
 	if roleErr3 != nil {
 		if roleErr3.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate user role for migration")
+			panic("Failed to generate user role for migration")
 		}
 	}
 	log.Logger.Info("Generate to role for migration")
@@ -94,7 +94,7 @@ func (m Migration) V1() {
 	_, permissionErr01 := m.permissionService.InsertPermission(&adminPermission)
 	if permissionErr01 != nil {
 		if permissionErr01.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate admin permission for migration")
+			panic("Failed to generate admin permission for migration")
 		}
 	}
 
@@ -106,7 +106,7 @@ func (m Migration) V1() {
 	_, permissionErr02 := m.permissionService.InsertPermission(&readPermission)
 	if permissionErr02 != nil {
 		if permissionErr02.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate read permission for migration")
+			panic("Failed to generate read permission for migration")
 		}
 	}
 
@@ -118,7 +118,7 @@ func (m Migration) V1() {
 	_, permissionErr03 := m.permissionService.InsertPermission(&writePermission)
 	if permissionErr03 != nil {
 		if permissionErr03.Code != http.StatusConflict {
-			log.Logger.Fatal("Failed to generate write permission for migration")
+			panic("Failed to generate write permission for migration")
 		}
 	}
 	log.Logger.Info("Generate to role for migration")
@@ -131,7 +131,7 @@ func (m Migration) V1() {
 	_, operatorRoleMemberErr := m.operatorPolicyService.Insert(&operatorMemberRole)
 	if operatorRoleMemberErr != nil {
 		if operatorRoleMemberErr.Code != http.StatusConflict {
-			log.Logger.Fatal("Error generate operator policies for migration")
+			panic("Error generate operator policies for migration")
 		}
 	}
 	log.Logger.Info("Generate to operator_policies for migration")
@@ -140,30 +140,30 @@ func (m Migration) V1() {
 func (m Migration) checkV1Migration() bool {
 	operatorAdminUser, err := m.userService.GetUserById(1)
 	if err != nil && err.Code != http.StatusNotFound {
-		log.Logger.Fatal(failedMigrationMsg)
+		panic(failedMigrationMsg)
 	}
 
 	operatorAdminRole, err := m.roleService.GetRoleByName(config.OperatorRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
-		log.Logger.Fatal(failedMigrationMsg)
+		panic(failedMigrationMsg)
 	}
 
 	adminRole, err := m.roleService.GetRoleByName(config.AdminRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin role")
-		log.Logger.Fatal(failedMigrationMsg)
+		panic(failedMigrationMsg)
 	}
 
 	adminPermission, err := m.permissionService.GetPermissionByName(config.AdminPermission)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found admin permission")
-		log.Logger.Fatal(failedMigrationMsg)
+		panic(failedMigrationMsg)
 	}
 	var operatorPolicy []*entity.OperatorPolicy
 	operatorPolicy, err = m.operatorPolicyService.GetByUserId(1)
 	if err != nil && err.Code != http.StatusNotFound {
-		log.Logger.Fatal(failedMigrationMsg)
+		panic(failedMigrationMsg)
 	}
 
 	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && adminPermission != nil && len(operatorPolicy) != 0 {

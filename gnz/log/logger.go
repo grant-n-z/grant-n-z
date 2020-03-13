@@ -44,10 +44,6 @@ func NewErrorLog() *log.Logger {
 	return log.New(os.Stderr, "[E]", log.LstdFlags|log.LUTC)
 }
 
-func (l Log) Fatal(v ...interface{}) {
-	log.Fatal(v)
-}
-
 func (l Log) Debug(log ...string) {
 	if strings.EqualFold(l.level, "DEBUG") || strings.EqualFold(l.level, "debug") {
 		_, file, line, _ := runtime.Caller(1)
