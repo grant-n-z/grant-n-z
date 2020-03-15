@@ -8,3 +8,4 @@ vendor/
 credentials.yml
 gnzserver/gnzserver
 gnzcacher/gnzcacher
+.GITHUB_TOKEN
