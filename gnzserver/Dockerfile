@@ -1,13 +1,11 @@
-FROM golang:1.9.4
+FROM golang:1.13
 
-RUN go get github.com/golang/dep/cmd/dep && \
-    go get github.com/tomoyane/grant-n-z
+RUN go get github.com/tomoyane/grant-n-z/gnzserver
 
-WORKDIR /go/src/github.com/tomoyane/grant-n-z
+WORKDIR /go/src/github.com/tomoyane/grant-n-z/gnzserver
 
 ENV GOPATH $GOPATH:/go/src
 
-RUN dep ensure && \
-    go build
+RUN go build
 
 ENTRYPOINT ["./gnzserver"]
