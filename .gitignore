@@ -7,4 +7,4 @@ prod/
 vendor/
 credentials.yml
 gnzserver/gnzserver
-gnzcache/gnzcache
+gnzcacher/gnzcacher
