@@ -10,4 +10,4 @@ ENV GOPATH $GOPATH:/go/src
 RUN dep ensure && \
     go build
 
-ENTRYPOINT ["./grant-n-z"]
+ENTRYPOINT ["./gnzserver"]
