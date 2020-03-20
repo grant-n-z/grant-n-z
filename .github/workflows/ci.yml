@@ -37,3 +37,20 @@ jobs:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: sh .github/script/build.sh
+
+  bump-version:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: setup-go
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+    - name: checkout
+      uses: actions/checkout@v1
+    - name: bump-version
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sh .github/script/bump-version.sh
