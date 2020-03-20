@@ -32,4 +32,5 @@ sed -i -e "s/${current_version}/${update_version}/g" grant_n_z_server.yaml
 git add grant_n_z_server.yaml
 git commit -m "bump version for grant_n_z_server"
 git remote set-url --push origin https://tomoyane:${GITHUB_TOKEN}@github.com/tomoyane/grant-n-z.git
-git push origin master
+git push origin HEAD:master --force
+
