@@ -53,5 +53,5 @@ jobs:
     - name: bump-version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DOCKER_PASSWORD: ${{ secrets.GITHUB_EAMIL }}
+        GITHUB_EAMIL: ${{ secrets.GITHUB_EAMIL }}
       run: sh .github/script/bump-version.sh
