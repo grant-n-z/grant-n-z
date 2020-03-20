@@ -16,7 +16,6 @@ patch=$(cat current_version.txt| tr '.' '\n' | tail -n 1)
 patch_bump=$((patch + 1))
 update_version="${major}.${minor}.${patch_bump}"
 sed -i -e "s/${current_version}/${update_version}/g" grant_n_z_cacher.yaml
-rm current_version.txt grant_n_z_cacher.yaml-e
 git add grant_n_z_cacher.yaml
 git commit grant_n_z_cacher.yaml -m "bump version for grant_n_z_cacher"
 
@@ -30,7 +29,6 @@ patch=$(cat current_version.txt| tr '.' '\n' | tail -n 1)
 patch_bump=$((patch + 1))
 update_version="${major}.${minor}.${patch_bump}"
 sed -i -e "s/${current_version}/${update_version}/g" grant_n_z_server.yaml
-rm current_version.txt grant_n_z_server.yaml-e
 git add grant_n_z_server.yaml
 git commit grant_n_z_cacher.yaml -m "bump version for grant_n_z_server"
 git push origin master
