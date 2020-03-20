@@ -2,9 +2,6 @@
 
 set -e -u -x
 
-# Set auth
-git config --global user.name "${GITHUB_TOKEN}"
-
 # gnzcacher bump
 cd gnzcacher
 cat grant_n_z_cacher.yaml| grep version | sed 's/^[ \t]*//' | sed 's/version://' | sed 's/^[ \t]*//' > current_version.txt
@@ -30,4 +27,4 @@ update_version="${major}.${minor}.${patch_bump}"
 sed -i -e "s/${current_version}/${update_version}/g" grant_n_z_server.yaml
 git add grant_n_z_server.yaml
 git commit -m "bump version for grant_n_z_server"
-git push -u origin master
+git push https://"${GITHUB_TOKEN}"@github.com/tomoyane/grant-n-z.git
