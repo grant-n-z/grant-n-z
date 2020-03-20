@@ -3,8 +3,7 @@
 set -e -u -x
 
 # Set auth
-git config --local github.user tomoyane
-git config --local github.token "${GITHUB_TOKEN}"
+git config --global user.name "${GITHUB_TOKEN}"
 
 # gnzcacher bump
 cd gnzcacher
