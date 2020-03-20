@@ -16,7 +16,7 @@ patch_bump=$((patch + 1))
 update_version="${major}.${minor}.${patch_bump}"
 sed -i -e "s/${current_version}/${update_version}/g" grant_n_z_cacher.yaml
 git add grant_n_z_cacher.yaml
-git commit grant_n_z_cacher.yaml -m "bump version for grant_n_z_cacher"
+git commit -m "bump version for grant_n_z_cacher"
 
 # gnzserver bump
 cd ../gnzserver
@@ -29,5 +29,5 @@ patch_bump=$((patch + 1))
 update_version="${major}.${minor}.${patch_bump}"
 sed -i -e "s/${current_version}/${update_version}/g" grant_n_z_server.yaml
 git add grant_n_z_server.yaml
-git commit grant_n_z_server.yaml -m "bump version for grant_n_z_server"
-git push origin master
+git commit -m "bump version for grant_n_z_server"
+git push -u origin master
