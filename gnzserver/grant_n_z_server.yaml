@@ -1,5 +1,5 @@
 app:
-  version: 1.0.0
+  version: 0.0.1
   log-level: $GRANT_N_Z_LOG_LEVEL
 
 server:
