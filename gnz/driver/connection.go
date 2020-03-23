@@ -19,10 +19,6 @@ func InitRdbms() {
 		panic("Current status, only support mysql.")
 	}
 
-	if !strings.EqualFold(config.Db.Engine, "mysql") {
-		panic("Current status, only support mysql.")
-	}
-
 	dbSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
 		config.Db.User,
 		config.Db.Password,

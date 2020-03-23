@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// grant_n_z_cacher.yaml
+// grant_n_z_{component}.yaml
 type YmlConfig struct {
 	App    AppConfig    `yaml:"app"`
 	Server ServerConfig `yaml:"server"`
@@ -13,18 +13,18 @@ type YmlConfig struct {
 	Etcd   EtcdConfig   `yaml:"etcd"`
 }
 
-// About app data in grant_n_z_cacher.yaml
+// About app data in grant_n_z_{component}.yaml
 type AppConfig struct {
 	Version  string `yaml:"version"`
 	LogLevel string `yaml:"log-level"`
 }
 
-// About server data in grant_n_z.yaml
+// About server data in grant_n_z_server.yaml
 type ServerConfig struct {
 	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
 }
 
-// About db data in grant_n_z.yaml
+// About db data in grant_n_z_{component}.yaml
 type DbConfig struct {
 	Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
@@ -34,7 +34,7 @@ type DbConfig struct {
 	Db       string `yaml:"db"`
 }
 
-// About etcd data in grant_n_z_.yaml
+// About etcd data in grant_n_z_{component}.yaml
 type EtcdConfig struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
@@ -59,6 +59,7 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 		privateKeyBase64 = os.Getenv(yml.Server.SignedInPrivateKeyBase64[1:])
 	}
 
+	yml.Server.SignedInPrivateKeyBase64 = privateKeyBase64
 	return yml.Server
 }
 

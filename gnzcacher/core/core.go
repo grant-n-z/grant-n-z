@@ -31,7 +31,7 @@ type GrantNZCacher struct {
 func init() {
 	ctx.InitContext()
 	log.InitLogger(config.App.LogLevel)
-	config.InitGrantNZCacheConfig(ConfigFilePath)
+	config.InitGrantNZCacherConfig(ConfigFilePath)
 	driver.InitRdbms()
 	cache.InitEtcd()
 }

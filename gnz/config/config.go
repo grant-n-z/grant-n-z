@@ -26,8 +26,8 @@ func InitGrantNZServerConfig(yamlPath string) {
 }
 
 // Initialize GrantNZ server config
-// The config is grant_n_z.yaml data structure
-func InitGrantNZCacheConfig(yamlPath string) {
+// The config is grant_n_z_cacher.yaml data structure
+func InitGrantNZCacherConfig(yamlPath string) {
 	yml := readLocalYml(yamlPath)
 	App = yml.GetAppConfig()
 	Db = yml.GetDbConfig()
@@ -35,9 +35,9 @@ func InitGrantNZCacheConfig(yamlPath string) {
 }
 
 // Read yaml file
-func readLocalYml(ymlName string) YmlConfig {
+func readLocalYml(ymlPath string) YmlConfig {
 	var yml YmlConfig
-	data, err := ioutil.ReadFile(ymlName)
+	data, err := ioutil.ReadFile(ymlPath)
 	if err != nil {
 		panic(err)
 	}
