@@ -126,5 +126,5 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 		UserGroupId:  userGroup.Id,
 	}
 
-	return gs.groupRepository.SaveWithRelationalData(group, *role, *permission, serviceGroup, userGroup, groupPermission, groupRole, policy)
+	return gs.groupRepository.SaveWithRelationalData(group, serviceGroup, userGroup, groupPermission, groupRole, policy)
 }

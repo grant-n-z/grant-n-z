@@ -39,8 +39,6 @@ type GroupRepository interface {
 	// Transaction mode
 	SaveWithRelationalData(
 		group entity.Group,
-		role entity.Role,
-		permission entity.Permission,
 		serviceGroup entity.ServiceGroup,
 		userGroup entity.UserGroup,
 		groupPermission entity.GroupPermission,
@@ -205,8 +203,6 @@ func (gr GroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId int, 
 
 func (gr GroupRepositoryImpl) SaveWithRelationalData(
 	group entity.Group,
-	role entity.Role,
-	permission entity.Permission,
 	serviceGroup entity.ServiceGroup,
 	userGroup entity.UserGroup,
 	groupPermission entity.GroupPermission,

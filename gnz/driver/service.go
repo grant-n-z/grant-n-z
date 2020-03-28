@@ -47,7 +47,7 @@ type ServiceRepository interface {
 	SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, *model.ErrorResBody)
 
 	// Update Service
-	Update(service entity.Service) *entity.Service
+	Update(service entity.Service) (*entity.Service, *model.ErrorResBody)
 }
 
 // ServiceRepository struct
@@ -244,10 +244,11 @@ func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, 
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) Update(service entity.Service) *entity.Service {
-	if err := sri.Connection.Update(&service).Error; err != nil {
-		return nil
+func (sri ServiceRepositoryImpl) Update(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+	if err := sri.Connection.Save(&service).Error; err != nil {
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError(err.Error())
 	}
 
-	return &service
+	return &service, nil
 }
