@@ -2,6 +2,7 @@ package cache
 
 import (
 	"testing"
+	"time"
 
 	"go.etcd.io/etcd/clientv3"
 
@@ -14,7 +15,10 @@ var etcdClient EtcdClient
 func init() {
 	log.InitLogger("info")
 
-	client, _ := clientv3.New(clientv3.Config{})
+	client, _ := clientv3.New(clientv3.Config{
+		Endpoints: []string{},
+		DialTimeout: 5 * time.Second,
+	})
 	connection = client
 	etcdClient = NewEtcdClient()
 }
