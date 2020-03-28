@@ -1,5 +1,5 @@
 app:
-  version: 0.0.3
+  version: 0.0.4
   log-level: $GRANT_N_Z_LOG_LEVEL
 
 db:
