@@ -41,7 +41,6 @@ func NewAuth() Auth {
 }
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodGet:
 		ah.get(w, r)

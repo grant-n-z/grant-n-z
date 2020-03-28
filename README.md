@@ -1,5 +1,6 @@
 # Authentication and Authorization system
 ![grant_n_z_ci](https://github.com/tomoyane/grant-n-z/workflows/grant_n_z_ci/badge.svg?branch=master&event=push)
+![go report](https://goreportcard.com/badge/github.com/tomoyane/grant-n-z)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/tomoyane/grant-n-z/blob/master/LICENSE.txt)
 
 ----
