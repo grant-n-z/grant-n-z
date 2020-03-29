@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -62,6 +63,7 @@ type EtcdClient interface {
 
 type EtcdClientImpl struct {
 	Connection *clientv3.Client
+	Ctx        context.Context
 }
 
 func GetEtcdClientInstance() EtcdClient {
@@ -71,9 +73,15 @@ func GetEtcdClientInstance() EtcdClient {
 	return eInstance
 }
 
+// Constructor
+// Need to initial ctx.InitContext method
 func NewEtcdClient() EtcdClient {
 	log.Logger.Info("New `EtcdClient` instance")
-	return EtcdClientImpl{Connection: connection}
+	ctxWithTimeout, _ := context.WithTimeout(ctx.GetCtx(), 20*time.Millisecond)
+	return EtcdClientImpl{
+		Connection: connection,
+		Ctx:        ctxWithTimeout,
+	}
 }
 
 func (e EtcdClientImpl) SetPolicy(policy entity.Policy, expiresMinutes time.Duration) {
@@ -256,13 +264,11 @@ func (e EtcdClientImpl) GetUserService(userId int, serviceId int) *entity.UserSe
 
 // Get cache shared method
 func (e EtcdClientImpl) get(key string, structData interface{}) error {
-	response, err := e.Connection.Get(ctx.GetCtx(), key)
-	if err != nil || len(response.Kvs) == 0{
+	response, err := e.Connection.Get(e.Ctx, key)
+	if err != nil || len(response.Kvs) == 0 {
 		return errors.New(fmt.Sprintf("Cache is null. key = %v", key))
 	}
 	kvs := response.Kvs[0]
-	log.Logger.Info(fmt.Sprintf("GET etcd key = %v", key))
-	//log.Logger.Info(fmt.Sprintf("[%dms] GET etcd key %v", end - start, key))
 	err = json.Unmarshal(kvs.Value, &structData)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Failed to convert json to struct for cache. %v", err.Error()))
@@ -273,10 +279,9 @@ func (e EtcdClientImpl) get(key string, structData interface{}) error {
 // Set cache shared method
 func (e EtcdClientImpl) set(json []byte, keys []string, expiresMinutes time.Duration) {
 	for _, key := range keys {
-		_, err := e.Connection.Put(ctx.GetCtx(), key, string(json))
+		_, err := e.Connection.Put(e.Ctx, key, string(json))
 		if err != nil {
 			log.Logger.Error(fmt.Sprintf("Cache is null. key = %v", key))
 		}
-		log.Logger.Info(fmt.Sprintf("PUT etcd key = %v", key))
 	}
 }

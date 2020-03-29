@@ -20,9 +20,10 @@ func InitEtcd() {
 		return
 	}
 
+	// 10millisecond timeout
 	client, err := clientv3.New(clientv3.Config{
 		Endpoints:   []string{fmt.Sprintf("%s:%s", config.Etcd.Host, config.Etcd.Port)},
-		DialTimeout: 5 * time.Second,
+		DialTimeout: 20 * time.Millisecond,
 	})
 
 	if err != nil {

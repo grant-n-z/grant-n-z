@@ -16,9 +16,9 @@ var operatorPolicyRepository OperatorPolicyRepository
 func init() {
 	log.InitLogger("info")
 
-	db, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	connection = db
-	operatorPolicyRepository = NewOperatorPolicyRepository()
+	stubConnectoin, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
+	connection = stubConnectoin
+	operatorPolicyRepository = GetOperatorPolicyRepositoryInstance()
 }
 
 // FindAll InternalServerError test

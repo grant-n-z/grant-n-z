@@ -16,9 +16,9 @@ var groupRepository GroupRepository
 func init() {
 	log.InitLogger("info")
 
-	db, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	connection = db
-	groupRepository = NewGroupRepository()
+	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
+	connection = stubConnection
+	groupRepository = GetGroupRepositoryInstance()
 }
 
 // FindAll InternalServerError test
@@ -34,6 +34,14 @@ func TestGroupFindById_InternalServerError(t *testing.T) {
 	_, err := groupRepository.FindById(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindById_InternalServerError test")
+	}
+}
+
+// FindByName InternalServerError test
+func TestGroupFindByName_InternalServerError(t *testing.T) {
+	_, err := groupRepository.FindByName("name")
+	if err.Code != http.StatusInternalServerError {
+		t.Errorf("Incorrect TestGroupFindByName_InternalServerError test")
 	}
 }
 

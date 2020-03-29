@@ -10,7 +10,7 @@ import (
 func TestGetCtx(t *testing.T) {
 	InitContext()
 
-	if ctx == nil {
+	if GetCtx() == nil {
 		t.Errorf("Incorrect GetCtx test. ctx is null")
 	}
 }

@@ -16,9 +16,9 @@ var permissionRepository PermissionRepository
 func init() {
 	log.InitLogger("info")
 
-	db, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	connection = db
-	permissionRepository = NewPermissionRepository()
+	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
+	connection = stubConnection
+	permissionRepository = GetPermissionRepositoryInstance()
 }
 
 // FindAll InternalServerError test

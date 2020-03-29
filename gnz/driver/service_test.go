@@ -14,9 +14,9 @@ var serviceRepository ServiceRepository
 func init() {
 	log.InitLogger("info")
 
-	db, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	connection = db
-	serviceRepository = NewServiceRepository()
+	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
+	connection = stubConnection
+	serviceRepository = GetServiceRepositoryInstance()
 }
 
 // FindAll InternalServerError test

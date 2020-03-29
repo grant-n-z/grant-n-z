@@ -16,9 +16,9 @@ var policyRepository PolicyRepository
 func init() {
 	log.InitLogger("info")
 
-	db, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	connection = db
-	policyRepository = NewPolicyRepository()
+	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
+	connection = stubConnection
+	policyRepository = GetPolicyRepositoryInstance()
 }
 
 // FindAll InternalServerError test
