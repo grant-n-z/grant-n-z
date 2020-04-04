@@ -12,6 +12,7 @@ func TestGetCtx(t *testing.T) {
 
 	if GetCtx() == nil {
 		t.Errorf("Incorrect GetCtx test. ctx is null")
+		t.FailNow()
 	}
 }
 
@@ -22,6 +23,7 @@ func TestApiKey(t *testing.T) {
 	apiKey := GetApiKey()
 	if !strings.EqualFold(apiKey.(string), "test_api_key") {
 		t.Errorf("Incorrect SetApiKey, GetApiKey test. ApiKey is not `test_api_key`")
+		t.FailNow()
 	}
 }
 
@@ -32,6 +34,7 @@ func TestServiceId(t *testing.T) {
 	serviceId := GetServiceId()
 	if serviceId != 1 {
 		t.Errorf("Incorrect SetServiceId, GetServiceId test. ServiceId is not `1`")
+		t.FailNow()
 	}
 }
 
@@ -42,6 +45,7 @@ func TestUserId(t *testing.T) {
 	userId := GetUserId()
 	if userId != 1 {
 		t.Errorf("Incorrect SetUserId, GetUserId test. UserId is not `1`")
+		t.FailNow()
 	}
 }
 
@@ -55,5 +59,6 @@ func TestUserUuid(t *testing.T) {
 
 	if userUuid != uid {
 		t.Errorf("Incorrect SetUserUuid, GetUserUuid test. UserUuid is not %s", uid)
+		t.FailNow()
 	}
 }

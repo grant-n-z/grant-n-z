@@ -26,6 +26,7 @@ func TestPermissionFindAll_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.FindAll()
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionFindAll_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -34,6 +35,7 @@ func TestPermissionFindOffSetAndLimit_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.FindOffSetAndLimit(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionFindOffSetAndLimit_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -42,6 +44,7 @@ func TestPermissionFindById_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.FindById(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionFindById_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -50,6 +53,7 @@ func TestPermissionFindByName_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.FindByName("test")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionFindByName_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -58,6 +62,7 @@ func TestPermissionFindByNames_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.FindByNames([]string{"test"})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionFindByNames_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -66,6 +71,7 @@ func TestPermissionFindByGroupId_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.FindByGroupId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionFindByGroupId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -74,6 +80,7 @@ func TestPermissionFindNameById_Nil(t *testing.T) {
 	name := permissionRepository.FindNameById(1)
 	if name != nil {
 		t.Errorf("Incorrect TestPermissionFindNameById_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -82,6 +89,7 @@ func TestPermissionSave_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.Save(entity.Permission{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionSave_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -90,5 +98,6 @@ func TestPermissionSaveWithRelationalData_InternalServerError(t *testing.T) {
 	_, err := permissionRepository.SaveWithRelationalData(1, entity.Permission{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPermissionSaveWithRelationalData_InternalServerError test")
+		t.FailNow()
 	}
 }

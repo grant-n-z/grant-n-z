@@ -26,6 +26,7 @@ func TestPolicyFindAll_InternalServerError(t *testing.T) {
 	_, err := policyRepository.FindAll()
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPolicyFindAll_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -34,6 +35,7 @@ func TestPolicyFindOffSetAndLimit_InternalServerError(t *testing.T) {
 	_, err := policyRepository.FindOffSetAndLimit(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPolicyFindOffSetAndLimit_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -42,6 +44,7 @@ func TestPolicyFindByRoleId_InternalServerError(t *testing.T) {
 	_, err := policyRepository.FindByRoleId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPolicyFindByRoleId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -50,6 +53,7 @@ func TestPolicyFindById_InternalServerError(t *testing.T) {
 	_, err := policyRepository.FindById(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPolicyFindById_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -58,5 +62,6 @@ func TestPolicyUpdate_InternalServerError(t *testing.T) {
 	_, err := policyRepository.Update(entity.Policy{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestPolicyUpdate_InternalServerError test")
+		t.FailNow()
 	}
 }

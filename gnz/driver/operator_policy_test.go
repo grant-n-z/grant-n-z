@@ -26,6 +26,7 @@ func TestOperatorPolicyFindAll_InternalServerError(t *testing.T) {
 	_, err := operatorPolicyRepository.FindAll()
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestOperatorPolicyFindAll_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -34,6 +35,7 @@ func TestOperatorPolicyFindByUserId_InternalServerError(t *testing.T) {
 	_, err := operatorPolicyRepository.FindByUserId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestOperatorPolicyFindByUserId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -42,6 +44,7 @@ func TestOperatorPolicyFindByUserIdAndRoleId_InternalServerError(t *testing.T) {
 	_, err := operatorPolicyRepository.FindByUserIdAndRoleId(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestOperatorPolicyFindByUserIdAndRoleId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -50,6 +53,7 @@ func TestOperatorPolicyFindRoleNameByUserId_InternalServerError(t *testing.T) {
 	_, err := operatorPolicyRepository.FindRoleNameByUserId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestOperatorPolicyFindRoleNameByUserId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -58,5 +62,6 @@ func TestOperatorPolicySave_InternalServerError(t *testing.T) {
 	_, err := operatorPolicyRepository.Save(entity.OperatorPolicy{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestOperatorPolicySave_InternalServerError test")
+		t.FailNow()
 	}
 }

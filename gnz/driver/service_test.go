@@ -24,6 +24,7 @@ func TestServiceFindAll_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.FindAll()
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindAll_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -32,6 +33,7 @@ func TestServiceFindOffSetAndLimit_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.FindOffSetAndLimit(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindOffSetAndLimit_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -40,6 +42,7 @@ func TestServiceFindById_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.FindById(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindById_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -48,6 +51,7 @@ func TestServiceFindByName_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.FindByName("test")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindByName_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -56,6 +60,7 @@ func TestServiceFindByApiKey_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.FindByApiKey("test_api_key")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindByApiKey_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -64,6 +69,7 @@ func TestServiceFindNameById_Nil(t *testing.T) {
 	name := serviceRepository.FindNameById(1)
 	if name != nil {
 		t.Errorf("Incorrect TestServiceFindNameById_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -72,6 +78,7 @@ func TestServiceFindNameByApiKey_Nil(t *testing.T) {
 	apiKey := serviceRepository.FindNameByApiKey("test_api_key")
 	if apiKey != nil {
 		t.Errorf("Incorrect TestServiceFindNameByApiKey_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -80,6 +87,7 @@ func TestServiceFindServicesByUserId_Nil(t *testing.T) {
 	_, err := serviceRepository.FindServicesByUserId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindServicesByUserId_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -88,6 +96,7 @@ func TestServiceSave_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.Save(entity.Service{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceSave_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -96,6 +105,7 @@ func TestServiceSaveWithRelationalData_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.SaveWithRelationalData(entity.Service{}, []entity.Role{{}}, []entity.Permission{{}})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceSaveWithRelationalData_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -104,5 +114,6 @@ func TestServiceUpdate_InternalServerError(t *testing.T) {
 	_, err := serviceRepository.Update(entity.Service{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceSave_InternalServerError test")
+		t.FailNow()
 	}
 }

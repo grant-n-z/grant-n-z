@@ -26,6 +26,7 @@ func TestGroupFindAll_InternalServerError(t *testing.T) {
 	_, err := groupRepository.FindAll()
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindAll_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -34,6 +35,7 @@ func TestGroupFindById_InternalServerError(t *testing.T) {
 	_, err := groupRepository.FindById(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindById_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -42,6 +44,7 @@ func TestGroupFindByName_InternalServerError(t *testing.T) {
 	_, err := groupRepository.FindByName("name")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindByName_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -50,6 +53,7 @@ func TestGroupFindGroupsByUserId_InternalServerError(t *testing.T) {
 	_, err := groupRepository.FindGroupsByUserId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindGroupsByUserId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -58,6 +62,7 @@ func TestGroupFindGroupWithUserWithPolicyGroupsByUserId_InternalServerError(t *t
 	_, err := groupRepository.FindGroupWithUserWithPolicyGroupsByUserId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindGroupWithUserWithPolicyGroupsByUserId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -66,6 +71,7 @@ func TestGroupFindGroupWithPolicyByUserIdAndGroupId_InternalServerError(t *testi
 	_, err := groupRepository.FindGroupWithPolicyByUserIdAndGroupId(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindGroupWithPolicyByUserIdAndGroupId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -82,5 +88,6 @@ func TestGroupSaveWithRelationalData_InternalServerError(t *testing.T) {
 
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupSaveWithRelationalData_InternalServerError test")
+		t.FailNow()
 	}
 }

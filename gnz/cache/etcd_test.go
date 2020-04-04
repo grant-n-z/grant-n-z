@@ -111,6 +111,7 @@ func TestGetPolicy_NotConnected(t *testing.T) {
 	policy := etcdClient.GetPolicy("policy")
 	if policy != nil {
 		t.Errorf("Incorrect TestGetPolicy_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -120,6 +121,7 @@ func TestGetPolicyByNames_NotConnected(t *testing.T) {
 	policy := etcdClient.GetPolicyByNames([]string{"policy"})
 	if policy != nil {
 		t.Errorf("Incorrect TestGetPolicyByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -129,6 +131,7 @@ func TestGetPermission_NotConnected(t *testing.T) {
 	permission := etcdClient.GetPermission("permission")
 	if permission != nil {
 		t.Errorf("Incorrect TestGetPermission_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -138,6 +141,7 @@ func TestGetPermissionByNames_NotConnected(t *testing.T) {
 	permission := etcdClient.GetPermissionByNames([]string{"permission"})
 	if permission != nil {
 		t.Errorf("Incorrect TestGetPermissionByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -147,6 +151,7 @@ func TestGetRole_NotConnected(t *testing.T) {
 	role := etcdClient.GetRole("role")
 	if role != nil {
 		t.Errorf("Incorrect TestGetRole_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -156,6 +161,7 @@ func TestGetRoleByNames_NotConnected(t *testing.T) {
 	role := etcdClient.GetRoleByNames([]string{"role"})
 	if role != nil {
 		t.Errorf("Incorrect TestGetRoleByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -165,6 +171,7 @@ func TestGetService_NotConnected(t *testing.T) {
 	service := etcdClient.GetService("service")
 	if service != nil {
 		t.Errorf("Incorrect TestGetService_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -174,6 +181,7 @@ func TestGetServiceByNames_NotConnected(t *testing.T) {
 	service := etcdClient.GetServiceByNames([]string{"service"})
 	if service != nil {
 		t.Errorf("Incorrect TestGetServiceByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -202,6 +210,7 @@ func TestGetPolicyByNames_Nil(t *testing.T) {
 	policy := etcdClient.GetPolicyByNames([]string{"policy"})
 	if policy != nil {
 		t.Errorf("Incorrect TestGetPolicyByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -211,6 +220,7 @@ func TestGetPermission_Nil(t *testing.T) {
 	permission := etcdClient.GetPermission("permission")
 	if permission != nil {
 		t.Errorf("Incorrect TestGetPermission_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -220,6 +230,7 @@ func TestGetPermissionByNames_Nil(t *testing.T) {
 	permission := etcdClient.GetPermissionByNames([]string{"permission"})
 	if permission != nil {
 		t.Errorf("Incorrect TestGetPermissionByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -229,6 +240,7 @@ func TestGetRole_Nil(t *testing.T) {
 	role := etcdClient.GetRole("role")
 	if role != nil {
 		t.Errorf("Incorrect TestGetRole_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -238,6 +250,7 @@ func TestGetRoleByNames_Nil(t *testing.T) {
 	role := etcdClient.GetRoleByNames([]string{"role"})
 	if role != nil {
 		t.Errorf("Incorrect TestGetRoleByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -247,6 +260,7 @@ func TestGetService_Nil(t *testing.T) {
 	service := etcdClient.GetService("service")
 	if service != nil {
 		t.Errorf("Incorrect TestGetService_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -256,6 +270,7 @@ func TestGetServiceByNames_Nil(t *testing.T) {
 	service := etcdClient.GetServiceByNames([]string{"service"})
 	if service != nil {
 		t.Errorf("Incorrect TestGetServiceByNames_Nil test")
+		t.FailNow()
 	}
 }
 
@@ -265,5 +280,6 @@ func TestGetUserService_Nil(t *testing.T) {
 	userService := etcdClient.GetUserService(1, 1)
 	if userService != nil {
 		t.Errorf("Incorrect TestGetUserService_Nil test")
+		t.FailNow()
 	}
 }

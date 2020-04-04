@@ -27,8 +27,7 @@ func InitEtcd() {
 	})
 
 	if err != nil {
-		log.Logger.Warn(err.Error())
-		log.Logger.Warn("Cannot connect etcd. If needs to high performance, run GrantNZ cache server with etcd")
+		log.Logger.Warn("Cannot connect etcd. If needs to high performance, run GrantNZ cache server with etcd.", err.Error())
 		Close()
 		return
 	}
@@ -39,7 +38,7 @@ func InitEtcd() {
 // Close etcd
 func Close() {
 	if connection != nil {
-		_ = connection.Close()
+		connection.Close()
 		log.Logger.Info("Closed etcd connection")
 	} else {
 		log.Logger.Info("Already closed etcd connection")

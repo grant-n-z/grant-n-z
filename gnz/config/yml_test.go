@@ -16,6 +16,7 @@ func TestGetAppConfig(t *testing.T) {
 
 	if !strings.EqualFold(ymlConfig.GetAppConfig().LogLevel, "test") {
 		t.Errorf("Incorrect GetAppConfig test. log_level = %s", ymlConfig.GetAppConfig().LogLevel)
+		t.FailNow()
 	}
 }
 
@@ -29,6 +30,7 @@ func TestGetServerConfig(t *testing.T) {
 
 	if !strings.EqualFold(ymlConfig.GetServerConfig().SignedInPrivateKeyBase64, "dGVzdF9rZXkK") {
 		t.Errorf("Incorrect GetServerConfig test. privaet_key_base64 = %s", ymlConfig.GetServerConfig().SignedInPrivateKeyBase64)
+		t.FailNow()
 	}
 }
 
@@ -43,10 +45,12 @@ func TestGetEtcdConfig(t *testing.T) {
 
 	if !strings.EqualFold(ymlConfig.GetEtcdConfig().Host, "localhost") {
 		t.Errorf("Incorrect GetEtcdConfig test. host = %s", ymlConfig.GetEtcdConfig().Host)
+		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetEtcdConfig().Port, "2380") {
 		t.Errorf("Incorrect GetEtcdConfig test. port = %s", ymlConfig.GetEtcdConfig().Port)
+		t.FailNow()
 	}
 }
 
@@ -72,25 +76,31 @@ func TestGetDbConfig(t *testing.T) {
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Engine, "mysql") {
 		t.Errorf("Incorrect GetEtcdConfig test. engine = %s", ymlConfig.GetDbConfig().Engine)
+		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Host, "localhost") {
 		t.Errorf("Incorrect GetEtcdConfig test. host = %s", ymlConfig.GetDbConfig().Host)
+		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().User, "root") {
 		t.Errorf("Incorrect GetEtcdConfig test. user = %s", ymlConfig.GetDbConfig().User)
+		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Password, "root") {
 		t.Errorf("Incorrect GetEtcdConfig test. password = %s", ymlConfig.GetDbConfig().Password)
+		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Port, "3306") {
 		t.Errorf("Incorrect GetEtcdConfig test. port = %s", ymlConfig.GetDbConfig().Port)
+		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Db, "grant_n_z") {
 		t.Errorf("Incorrect GetEtcdConfig test. db = %s", ymlConfig.GetDbConfig().Db)
+		t.FailNow()
 	}
 }

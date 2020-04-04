@@ -24,6 +24,7 @@ func TestUserFindById_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindById(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindById_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -32,6 +33,7 @@ func TestUserFindByEmail_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindByEmail("test@gmail.com")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindByEmail_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -40,6 +42,7 @@ func TestUserFindWithOperatorPolicyByEmail_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindWithOperatorPolicyByEmail("test@gmail.com")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindWithOperatorPolicyByEmail_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -48,6 +51,7 @@ func TestUserFindUserGroupByUserIdAndGroupId_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindUserGroupByUserIdAndGroupId(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindUserGroupByUserIdAndGroupId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -56,6 +60,7 @@ func TestUserFindUserServices_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindUserServices()
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindUserServices_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -64,6 +69,7 @@ func TestUserFindUserServicesOffSetAndLimit_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindUserServicesOffSetAndLimit(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindUserServicesOffSetAndLimit_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -72,6 +78,7 @@ func TestUserFindUserServiceByUserIdAndServiceId_InternalServerError(t *testing.
 	_, err := userRepository.FindUserServiceByUserIdAndServiceId(1, 1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserFindUserServiceByUserIdAndServiceId_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -80,6 +87,7 @@ func TestUserSaveUserGroup_InternalServerError(t *testing.T) {
 	_, err := userRepository.SaveUserGroup(entity.UserGroup{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserSaveUserGroup_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -88,6 +96,7 @@ func TestUserSaveUser_InternalServerError(t *testing.T) {
 	_, err := userRepository.SaveUser(entity.User{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserSaveUser_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -96,6 +105,7 @@ func TestUserSaveWithUserService_InternalServerError(t *testing.T) {
 	_, err := userRepository.SaveWithUserService(entity.User{}, entity.UserService{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestSaveWithUserService_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -104,6 +114,7 @@ func TestUserSaveUserService_InternalServerError(t *testing.T) {
 	_, err := userRepository.SaveUserService(entity.UserService{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserSaveUserService_InternalServerError test")
+		t.FailNow()
 	}
 }
 
@@ -112,5 +123,6 @@ func TestUserUpdateUser_InternalServerError(t *testing.T) {
 	_, err := userRepository.UpdateUser(entity.User{})
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestUserUpdateUser_InternalServerError test")
+		t.FailNow()
 	}
 }
