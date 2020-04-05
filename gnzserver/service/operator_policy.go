@@ -21,12 +21,10 @@ type OperatorPolicyService interface {
 
 	GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody)
 
-	GetRoleNameByUserId(userId int) ([]string, *model.ErrorResBody)
-
-	Insert(roleMember *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody)
+	Insert(operatorPolicy *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody)
 }
 
-type operatorPolicyServiceImpl struct {
+type OperatorPolicyServiceImpl struct {
 	operatorPolicyRepository driver.OperatorPolicyRepository
 	userRepository           driver.UserRepository
 	roleRepository           driver.RoleRepository
@@ -41,14 +39,14 @@ func GetOperatorPolicyServiceInstance() OperatorPolicyService {
 
 func NewOperatorPolicyServiceService() OperatorPolicyService {
 	log.Logger.Info("New `OperatorPolicyService` instance")
-	return operatorPolicyServiceImpl{
+	return OperatorPolicyServiceImpl{
 		operatorPolicyRepository: driver.GetOperatorPolicyRepositoryInstance(),
 		userRepository:           driver.GetUserRepositoryInstance(),
 		roleRepository:           driver.GetRoleRepositoryInstance(),
 	}
 }
 
-func (ops operatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops OperatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	if strings.EqualFold(queryParam, "") {
 		return ops.GetAll()
 	}
@@ -71,23 +69,19 @@ func (ops operatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorP
 	return entities, nil
 }
 
-func (ops operatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops OperatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	return ops.operatorPolicyRepository.FindAll()
 }
 
-func (ops operatorPolicyServiceImpl) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops OperatorPolicyServiceImpl) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	return ops.operatorPolicyRepository.FindByUserId(userId)
 }
 
-func (ops operatorPolicyServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops OperatorPolicyServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	return ops.operatorPolicyRepository.FindByUserIdAndRoleId(userId, roleId)
 }
 
-func (ops operatorPolicyServiceImpl) GetRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
-	return nil, nil
-}
-
-func (ops operatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops OperatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	if userEntity, _ := ops.userRepository.FindById(entity.UserId); userEntity == nil {
 		log.Logger.Warn("Not found user id")
 		return nil, model.BadRequest("Not found user id")
