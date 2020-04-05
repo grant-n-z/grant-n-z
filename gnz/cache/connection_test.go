@@ -9,6 +9,7 @@ import (
 
 // Connection not use etcd
 func TestConnection_NotUseEtcd(t *testing.T) {
+	connection = nil
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "")
 
@@ -18,6 +19,7 @@ func TestConnection_NotUseEtcd(t *testing.T) {
 
 // Connection etcd
 func TestConnection(t *testing.T) {
+	connection = nil
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "localhost")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "2222")
 
@@ -27,6 +29,7 @@ func TestConnection(t *testing.T) {
 
 // Connection etcd
 func TestClose_ConnectionIsNil(t *testing.T) {
+	connection = nil
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "")
 
@@ -37,6 +40,7 @@ func TestClose_ConnectionIsNil(t *testing.T) {
 
 // Connection etcd
 func TestClose_ConnectionIsNotNil(t *testing.T) {
+	connection = nil
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "localhost")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "2222")
 

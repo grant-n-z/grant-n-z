@@ -16,8 +16,8 @@ var operatorPolicyRepository OperatorPolicyRepository
 func init() {
 	log.InitLogger("info")
 
-	stubConnectoin, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	connection = stubConnectoin
+	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
+	connection = stubConnection
 	operatorPolicyRepository = GetOperatorPolicyRepositoryInstance()
 }
 

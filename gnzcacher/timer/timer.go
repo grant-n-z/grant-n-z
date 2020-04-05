@@ -29,7 +29,6 @@ func NewUpdateTimer() UpdateTimer {
 	}
 }
 
-// Start cache update timer
 func (ut UpdateTimerImpl) Start(exitCode chan int) int {
 	code := 0
 	loop:

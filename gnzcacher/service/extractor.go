@@ -44,7 +44,7 @@ func NewExtractorService() ExtractorService {
 func (us ExtractorServiceImpl) GetPolicies(offset int, limit int) []*entity.Policy {
 	policies, err := us.PolicyRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get policy query is failed", err.Detail)
+		log.Logger.Error("Get policy query is failed", err.ToJson())
 		return []*entity.Policy{}
 	}
 
@@ -54,7 +54,7 @@ func (us ExtractorServiceImpl) GetPolicies(offset int, limit int) []*entity.Poli
 func (us ExtractorServiceImpl) GetPermissions(offset int, limit int) []*entity.Permission {
 	permissions, err := us.PermissionRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get permission query is failed", err.Detail)
+		log.Logger.Error("Get permission query is failed", err.ToJson())
 		return []*entity.Permission{}
 	}
 
@@ -64,7 +64,7 @@ func (us ExtractorServiceImpl) GetPermissions(offset int, limit int) []*entity.P
 func (us ExtractorServiceImpl) GetRoles(offset int, limit int) []*entity.Role {
 	roles, err := us.RoleRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get role query is failed", err.Detail)
+		log.Logger.Error("Get role query is failed", err.ToJson())
 		return []*entity.Role{}
 	}
 
@@ -74,7 +74,7 @@ func (us ExtractorServiceImpl) GetRoles(offset int, limit int) []*entity.Role {
 func (us ExtractorServiceImpl) GetServices(offset int, limit int) []*entity.Service {
 	services, err := us.ServiceRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get service query is failed", err.Detail)
+		log.Logger.Error("Get service query is failed", err.ToJson())
 		return []*entity.Service{}
 	}
 
@@ -84,7 +84,7 @@ func (us ExtractorServiceImpl) GetServices(offset int, limit int) []*entity.Serv
 func (us ExtractorServiceImpl) GetUserServices(offset int, limit int) []*entity.UserService {
 	userServices, err := us.UserRepository.FindUserServicesOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get user_service query is failed", err.Detail)
+		log.Logger.Error("Get user_service query is failed", err.ToJson())
 		return []*entity.UserService{}
 	}
 
