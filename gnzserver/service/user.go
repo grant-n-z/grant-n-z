@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -63,7 +62,6 @@ type UserService interface {
 // UserService struct
 type userServiceImpl struct {
 	userRepository driver.UserRepository
-	appConfig      config.AppConfig
 	etcdClient     cache.EtcdClient
 }
 
@@ -81,18 +79,12 @@ func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
 	return userServiceImpl{
 		userRepository: driver.GetUserRepositoryInstance(),
-		appConfig:      config.App,
 		etcdClient:     cache.GetEtcdClientInstance(),
 	}
 }
 
 func (us userServiceImpl) EncryptPw(password string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Logger.Info("Failed to password hash", err.Error())
-		return ""
-	}
-
+	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hash)
 }
 

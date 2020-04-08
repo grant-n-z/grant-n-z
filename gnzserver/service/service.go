@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -44,6 +44,9 @@ type Service interface {
 
 	// Insert service
 	InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody)
+
+	// Generate api key
+	GenerateApiKey() string
 }
 
 // Get Policy instance.
@@ -94,20 +97,18 @@ func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody
 
 func (ss serviceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
-	key := uuid.New()
-	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
+	service.ApiKey = ss.GenerateApiKey()
 	return ss.serviceRepository.Save(service)
 }
 
 func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
-	key := uuid.New()
-	service.ApiKey = strings.Replace(key.String(), "-", "", -1)
+	service.ApiKey = ss.GenerateApiKey()
 
-	defaultRoles := []string{config.AdminRole, config.UserRole}
+	defaultRoles := []string{common.AdminRole, common.UserRole}
 	roles := ss.etcdClient.GetRoleByNames(defaultRoles)
 	if roles == nil || len(roles) == 0 {
-		masterRoles, err := ss.roleRepository.FindByNames([]string{config.AdminRole, config.UserRole})
+		masterRoles, err := ss.roleRepository.FindByNames([]string{common.AdminRole, common.UserRole})
 		if err != nil {
 			log.Logger.Info("Failed to get role for insert groups process")
 			return nil, model.InternalServerError()
@@ -115,7 +116,7 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 		roles = masterRoles
 	}
 
-	defaultPermissions := []string{config.AdminPermission, config.ReadPermission, config.WritePermission}
+	defaultPermissions := []string{common.AdminPermission, common.ReadPermission, common.WritePermission}
 	permissions := ss.etcdClient.GetPermissionByNames(defaultPermissions)
 	if permissions == nil || len(permissions) == 0 {
 		masterPermissions, err := ss.permissionRepository.FindByNames(defaultPermissions)
@@ -127,4 +128,9 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	}
 
 	return ss.serviceRepository.SaveWithRelationalData(*service, roles, permissions)
+}
+
+func (ss serviceImpl) GenerateApiKey() string {
+	key := uuid.New()
+	return strings.Replace(key.String(), "-", "", -1)
 }

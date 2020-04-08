@@ -61,7 +61,7 @@ func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
 	if roles == nil {
 		return []*entity.Role{}, err
 	}
-	return []*entity.Role{}, err
+	return []*entity.Role{}, nil
 }
 
 func (rs roleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {

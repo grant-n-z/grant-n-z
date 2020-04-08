@@ -59,7 +59,7 @@ func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.E
 		return []*entity.Permission{}, err
 	}
 
-	return permissions, err
+	return permissions, nil
 }
 
 func (ps permissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody) {

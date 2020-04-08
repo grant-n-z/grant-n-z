@@ -13,7 +13,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -86,7 +86,7 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		userType := r.URL.Query().Get("type")
-		if !strings.EqualFold(userType, config.AuthOperator) {
+		if !strings.EqualFold(userType, common.AuthOperator) {
 			if err := i.interceptApiKey(w, r); err != nil {
 				return
 			}
@@ -166,7 +166,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, []string{config.AdminRole}, "")
+		authUser, err := i.tokenService.VerifyUserToken(token, []string{common.AdminRole}, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
@@ -199,7 +199,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenService.VerifyUserToken(token, []string{config.AdminRole, config.UserRole}, "")
+		authUser, err := i.tokenService.VerifyUserToken(token, []string{common.AdminRole, common.UserRole}, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return

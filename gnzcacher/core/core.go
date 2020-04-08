@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -30,8 +30,8 @@ type GrantNZCacher struct {
 
 func init() {
 	ctx.InitContext()
-	log.InitLogger(config.App.LogLevel)
-	config.InitGrantNZCacherConfig(ConfigFilePath)
+	log.InitLogger(common.App.LogLevel)
+	common.InitGrantNZCacherConfig(ConfigFilePath)
 	driver.InitRdbms()
 	cache.InitEtcd()
 }
@@ -52,12 +52,12 @@ func NewGrantNZCacher() GrantNZCacher {
 
 // Start GrantNZ cache
 func (g GrantNZCacher) Run() {
-	bannerText, err := config.ConvertFileToStr(BannerFilePath)
+	bannerText, err := common.ConvertFileToStr(BannerFilePath)
 	if err != nil {
 		log.Logger.Error(fmt.Sprintf("Could't read %s file", BannerFilePath), err.Error())
 		os.Exit(1)
 	}
-	fmt.Printf(bannerText, config.App.Version)
+	fmt.Printf(bannerText, common.App.Version)
 
 	go g.subscribeSignal(signalCode, exitCode)
 	go driver.PingRdbms()

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 )
 
 // Connection not use etcd
@@ -13,7 +13,7 @@ func TestConnection_NotUseEtcd(t *testing.T) {
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "")
 
-	config.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
+	common.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
 	InitEtcd()
 }
 
@@ -23,7 +23,7 @@ func TestConnection(t *testing.T) {
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "localhost")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "2222")
 
-	config.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
+	common.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
 	InitEtcd()
 }
 
@@ -33,7 +33,7 @@ func TestClose_ConnectionIsNil(t *testing.T) {
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "")
 
-	config.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
+	common.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
 	InitEtcd()
 	Close()
 }
@@ -44,7 +44,7 @@ func TestClose_ConnectionIsNotNil(t *testing.T) {
 	os.Setenv("GRANT_N_Z_ETCD_HOST", "localhost")
 	os.Setenv("GRANT_N_Z_ETCD_PORT", "2222")
 
-	config.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
+	common.InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
 	InitEtcd()
 	Close()
 }

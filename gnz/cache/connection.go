@@ -7,7 +7,7 @@ import (
 
 	"go.etcd.io/etcd/clientv3"
 
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
@@ -15,14 +15,14 @@ var connection *clientv3.Client
 
 // Initialize cache database driver
 func InitEtcd() {
-	if strings.EqualFold(config.Etcd.Host, "") || strings.EqualFold(config.Etcd.Port, "") {
+	if strings.EqualFold(common.Etcd.Host, "") || strings.EqualFold(common.Etcd.Port, "") {
 		log.Logger.Info("Not use etcd")
 		return
 	}
 
 	// 10millisecond timeout
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{fmt.Sprintf("%s:%s", config.Etcd.Host, config.Etcd.Port)},
+		Endpoints:   []string{fmt.Sprintf("%s:%s", common.Etcd.Host, common.Etcd.Port)},
 		DialTimeout: 20 * time.Millisecond,
 	})
 
@@ -31,7 +31,7 @@ func InitEtcd() {
 		Close()
 		return
 	}
-	log.Logger.Info("Connected etcd", config.Etcd.Host)
+	log.Logger.Info("Connected etcd", common.Etcd.Host)
 	connection = client
 }
 

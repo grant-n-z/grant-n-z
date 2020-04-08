@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"strconv"
 	"strings"
 	"time"
@@ -9,7 +8,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -53,7 +53,7 @@ type tokenServiceImpl struct {
 	policyService         PolicyService
 	roleService           RoleService
 	permissionService     PermissionService
-	serverConfig          config.ServerConfig
+	serverConfig          common.ServerConfig
 }
 
 // Get Policy instance.
@@ -76,7 +76,7 @@ func NewTokenService() TokenService {
 		policyService:         GetPolicyServiceInstance(),
 		roleService:           GetRoleServiceInstance(),
 		permissionService:     GetPermissionServiceInstance(),
-		serverConfig:          config.GServer,
+		serverConfig:          common.GServer,
 	}
 }
 
@@ -91,9 +91,9 @@ func (tsi tokenServiceImpl) Generate(userType string, groupIdStr string, userEnt
 	}
 
 	switch userType {
-	case config.AuthOperator:
+	case common.AuthOperator:
 		return tsi.generateOperatorToken(userEntity)
-	case config.AuthUser:
+	case common.AuthUser:
 		return tsi.generateUserToken(userEntity, groupId)
 	case "":
 		return tsi.generateUserToken(userEntity, groupId)
@@ -246,7 +246,7 @@ func (tsi tokenServiceImpl) generateOperatorToken(userEntity entity.User) (strin
 		return "", model.BadRequest("Failed to email or password")
 	}
 
-	if targetUser.OperatorPolicy.RoleId != config.OperatorRoleId {
+	if targetUser.OperatorPolicy.RoleId != common.OperatorRoleId {
 		return "", model.BadRequest("Can not issue token")
 	}
 

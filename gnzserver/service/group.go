@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -71,9 +71,9 @@ func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBod
 func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
 
-	role := gs.etcdClient.GetRole(config.AdminRole)
+	role := gs.etcdClient.GetRole(common.AdminRole)
 	if role == nil {
-		masterRole, err := gs.roleRepository.FindByName(config.AdminRole)
+		masterRole, err := gs.roleRepository.FindByName(common.AdminRole)
 		if err != nil {
 			log.Logger.Info("Failed to get role for insert groups process")
 			return nil, model.InternalServerError()
@@ -81,9 +81,9 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 		role = masterRole
 	}
 
-	permission := gs.etcdClient.GetPermission(config.AdminPermission)
+	permission := gs.etcdClient.GetPermission(common.AdminPermission)
 	if permission == nil {
-		masterPermission, err := gs.permissionRepository.FindByName(config.AdminPermission)
+		masterPermission, err := gs.permissionRepository.FindByName(common.AdminPermission)
 		if err != nil {
 			log.Logger.Info("Failed to get permission for insert groups process")
 			return nil, model.InternalServerError()
@@ -119,7 +119,7 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 
 	// New Policy
 	policy := entity.Policy{
-		Name:         config.AdminPolicy,
+		Name:         common.AdminPolicy,
 		RoleId:       role.Id,
 		PermissionId: permission.Id,
 		ServiceId:    serviceId,

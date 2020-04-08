@@ -12,7 +12,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -37,8 +37,8 @@ type GrantNZServer struct {
 
 func init() {
 	ctx.InitContext()
-	config.InitGrantNZServerConfig(ConfigFilePath)
-	log.InitLogger(config.App.LogLevel)
+	common.InitGrantNZServerConfig(ConfigFilePath)
+	log.InitLogger(common.App.LogLevel)
 	driver.InitRdbms()
 	cache.InitEtcd()
 }
@@ -81,13 +81,13 @@ func (g GrantNZServer) runRouter() *mux.Router {
 
 // Start server
 func (g GrantNZServer) runServer(router *mux.Router) {
-	bannerText, err := config.ConvertFileToStr(BannerFilePath)
+	bannerText, err := common.ConvertFileToStr(BannerFilePath)
 	if err != nil {
 		log.Logger.Error(fmt.Sprintf("Could't read %s file", BannerFilePath), err.Error())
 		os.Exit(1)
 	}
 
-	fmt.Printf(bannerText, Port, config.App.Version)
+	fmt.Printf(bannerText, Port, common.App.Version)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), router); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)

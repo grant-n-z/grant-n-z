@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/tomoyane/grant-n-z/gnz/config"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
@@ -15,16 +15,16 @@ var connection *gorm.DB
 
 // Initialize database driver for GrantNZ server
 func InitRdbms() {
-	if !strings.EqualFold(config.Db.Engine, "mysql") {
+	if !strings.EqualFold(common.Db.Engine, "mysql") {
 		panic("Current status, only support mysql.")
 	}
 
 	dbSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
-		config.Db.User,
-		config.Db.Password,
-		config.Db.Host,
-		config.Db.Port,
-		config.Db.Db,
+		common.Db.User,
+		common.Db.Password,
+		common.Db.Host,
+		common.Db.Port,
+		common.Db.Db,
 	)
 
 	db, err := gorm.Open("mysql", dbSource)
@@ -34,7 +34,7 @@ func InitRdbms() {
 		panic("Cannot connect MySQL")
 	}
 
-	if strings.EqualFold(config.App.LogLevel, "DEBUG") || strings.EqualFold(config.App.LogLevel, "debug") {
+	if strings.EqualFold(common.App.LogLevel, "DEBUG") || strings.EqualFold(common.App.LogLevel, "debug") {
 		db.LogMode(true)
 	}
 
