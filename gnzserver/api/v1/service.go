@@ -28,7 +28,7 @@ type Service interface {
 type ServiceImpl struct {
 	ServiceService service.Service
 	UserService    service.UserService
-	TokenService   service.TokenService
+	TokenService   middleware.TokenProcessor
 }
 
 func GetServiceInstance() Service {
@@ -43,7 +43,7 @@ func NewService() Service {
 	return ServiceImpl{
 		ServiceService: service.GetServiceInstance(),
 		UserService:    service.GetUserServiceInstance(),
-		TokenService:   service.GetTokenServiceInstance(),
+		TokenService:   middleware.GetTokenProcessorInstance(),
 	}
 }
 

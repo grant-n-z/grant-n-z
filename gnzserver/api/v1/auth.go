@@ -7,7 +7,6 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
-	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
 
 var ahInstance Auth
@@ -22,7 +21,7 @@ type Auth interface {
 
 // Auth api struct
 type AuthImpl struct {
-	tokenService service.TokenService
+	tokenService middleware.TokenProcessor
 }
 
 // Get Policy instance.
@@ -37,7 +36,7 @@ func GetAuthInstance() Auth {
 // Constructor
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
-	return AuthImpl{tokenService: service.GetTokenServiceInstance()}
+	return AuthImpl{tokenService: middleware.GetTokenProcessorInstance()}
 }
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {

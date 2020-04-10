@@ -8,7 +8,6 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
-	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
 
 var thInstance Token
@@ -23,7 +22,7 @@ type Token interface {
 
 // Token api struct
 type TokenImpl struct {
-	TokenService service.TokenService
+	TokenService middleware.TokenProcessor
 }
 
 // Get Policy instance
@@ -38,7 +37,7 @@ func GetTokenInstance() Token {
 // Constructor
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
-	return TokenImpl{TokenService: service.GetTokenServiceInstance()}
+	return TokenImpl{TokenService: middleware.GetTokenProcessorInstance()}
 }
 
 func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
