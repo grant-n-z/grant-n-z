@@ -35,13 +35,13 @@ type PolicyService interface {
 }
 
 // PolicyService struct
-type policyServiceImpl struct {
-	etcdClient           cache.EtcdClient
-	policyRepository     driver.PolicyRepository
-	permissionRepository driver.PermissionRepository
-	roleRepository       driver.RoleRepository
-	serviceRepository    driver.ServiceRepository
-	groupRepository      driver.GroupRepository
+type PolicyServiceImpl struct {
+	EtcdClient           cache.EtcdClient
+	PolicyRepository     driver.PolicyRepository
+	PermissionRepository driver.PermissionRepository
+	RoleRepository       driver.RoleRepository
+	ServiceRepository    driver.ServiceRepository
+	GroupRepository      driver.GroupRepository
 }
 
 // Get PolicyService instance.
@@ -56,26 +56,26 @@ func GetPolicyServiceInstance() PolicyService {
 // Constructor
 func NewPolicyService() PolicyService {
 	log.Logger.Info("New `PolicyService` instance")
-	return policyServiceImpl{
-		etcdClient:           cache.GetEtcdClientInstance(),
-		policyRepository:     driver.GetPolicyRepositoryInstance(),
-		permissionRepository: driver.GetPermissionRepositoryInstance(),
-		roleRepository:       driver.GetRoleRepositoryInstance(),
-		serviceRepository:    driver.GetServiceRepositoryInstance(),
-		groupRepository:      driver.GetGroupRepositoryInstance(),
+	return PolicyServiceImpl{
+		EtcdClient:           cache.GetEtcdClientInstance(),
+		PolicyRepository:     driver.GetPolicyRepositoryInstance(),
+		PermissionRepository: driver.GetPermissionRepositoryInstance(),
+		RoleRepository:       driver.GetRoleRepositoryInstance(),
+		ServiceRepository:    driver.GetServiceRepositoryInstance(),
+		GroupRepository:      driver.GetGroupRepositoryInstance(),
 	}
 }
 
-func (ps policyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody) {
-	return ps.policyRepository.FindAll()
+func (ps PolicyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody) {
+	return ps.PolicyRepository.FindAll()
 }
 
-func (ps policyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
-	return ps.policyRepository.FindByRoleId(roleId)
+func (ps PolicyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
+	return ps.PolicyRepository.FindByRoleId(roleId)
 }
 
-func (ps policyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody) {
-	userGroupPolicies, err := ps.groupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
+func (ps PolicyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody) {
+	userGroupPolicies, err := ps.GroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
 	if err != nil {
 		return nil, err
 	}
@@ -83,27 +83,27 @@ func (ps policyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.
 	var policyResponses []model.PolicyResponse
 	for _, ugp := range userGroupPolicies {
 		if ugp.ServiceId == ctx.GetServiceId() {
-			role := ps.etcdClient.GetRole(ugp.Policy.RoleId)
+			role := ps.EtcdClient.GetRole(ugp.Policy.RoleId)
 			if role == nil {
-				masterRole, err := ps.roleRepository.FindById(ugp.Policy.RoleId)
+				masterRole, err := ps.RoleRepository.FindById(ugp.Policy.RoleId)
 				if err != nil {
 					return nil, err
 				}
 				role = masterRole
 			}
 
-			permission := ps.etcdClient.GetPermission(ugp.Policy.PermissionId)
+			permission := ps.EtcdClient.GetPermission(ugp.Policy.PermissionId)
 			if permission == nil {
-				masterPermission, err := ps.permissionRepository.FindById(ugp.Policy.PermissionId)
+				masterPermission, err := ps.PermissionRepository.FindById(ugp.Policy.PermissionId)
 				if err != nil {
 					return nil, err
 				}
 				permission = masterPermission
 			}
 
-			service := ps.etcdClient.GetService(ugp.Policy.ServiceId)
+			service := ps.EtcdClient.GetService(ugp.Policy.ServiceId)
 			if service == nil {
-				masterService, err := ps.serviceRepository.FindById(ugp.Policy.ServiceId)
+				masterService, err := ps.ServiceRepository.FindById(ugp.Policy.ServiceId)
 				if err != nil {
 					return nil, err
 				}
@@ -125,8 +125,8 @@ func (ps policyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.
 	return policyResponses, nil
 }
 
-func (ps policyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
-	groupWithPolicy, err := ps.groupRepository.FindGroupWithPolicyByUserIdAndGroupId(userId, groupId)
+func (ps PolicyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
+	groupWithPolicy, err := ps.GroupRepository.FindGroupWithPolicyByUserIdAndGroupId(userId, groupId)
 	if err != nil {
 		return nil, err
 	}
@@ -134,17 +134,17 @@ func (ps policyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*enti
 	return &groupWithPolicy.Policy, nil
 }
 
-func (ps policyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
+func (ps PolicyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
 	if id == 0 {
 		return entity.Policy{}, nil
 	}
 
-	cachePolicy := ps.etcdClient.GetPolicy(id)
+	cachePolicy := ps.EtcdClient.GetPolicy(id)
 	if cachePolicy != nil {
 		return *cachePolicy, nil
 	}
 
-	policy, err := ps.policyRepository.FindById(id)
+	policy, err := ps.PolicyRepository.FindById(id)
 	if err != nil {
 		return policy, err
 	}
@@ -152,6 +152,6 @@ func (ps policyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorRe
 	return policy, nil
 }
 
-func (ps policyServiceImpl) UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
-	return ps.policyRepository.Update(policy)
+func (ps PolicyServiceImpl) UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+	return ps.PolicyRepository.Update(policy)
 }

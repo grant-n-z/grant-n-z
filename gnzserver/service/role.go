@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -36,9 +35,9 @@ type RoleService interface {
 	InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody)
 }
 
-type roleServiceImpl struct {
-	etcdClient     cache.EtcdClient
-	roleRepository driver.RoleRepository
+type RoleServiceImpl struct {
+	EtcdClient     cache.EtcdClient
+	RoleRepository driver.RoleRepository
 }
 
 func GetRoleServiceInstance() RoleService {
@@ -50,47 +49,47 @@ func GetRoleServiceInstance() RoleService {
 
 func NewRoleService() RoleService {
 	log.Logger.Info("New `RoleService` instance")
-	return roleServiceImpl{
-		etcdClient:     cache.GetEtcdClientInstance(),
-		roleRepository: driver.GetRoleRepositoryInstance(),
+	return RoleServiceImpl{
+		EtcdClient:     cache.GetEtcdClientInstance(),
+		RoleRepository: driver.GetRoleRepositoryInstance(),
 	}
 }
 
-func (rs roleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
-	roles, err := rs.roleRepository.FindAll()
+func (rs RoleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
+	roles, err := rs.RoleRepository.FindAll()
 	if roles == nil {
 		return []*entity.Role{}, err
 	}
 	return []*entity.Role{}, nil
 }
 
-func (rs roleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
-	return rs.roleRepository.FindById(id)
+func (rs RoleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
+	return rs.RoleRepository.FindById(id)
 }
 
-func (rs roleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.ErrorResBody) {
-	return rs.roleRepository.FindByName(name)
+func (rs RoleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.ErrorResBody) {
+	return rs.RoleRepository.FindByName(name)
 }
 
-func (rs roleServiceImpl) GetRoleByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
-	roles := rs.etcdClient.GetRoleByNames(names)
-	if len(roles) > 0 {
+func (rs RoleServiceImpl) GetRoleByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+	roles := rs.EtcdClient.GetRoleByNames(names)
+	if roles != nil && len(roles) > 0 {
 		return roles, nil
 	}
 
-	return rs.roleRepository.FindByNames(names)
+	return rs.RoleRepository.FindByNames(names)
 }
 
-func (rs roleServiceImpl) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
-	return rs.roleRepository.FindByGroupId(groupId)
+func (rs RoleServiceImpl) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
+	return rs.RoleRepository.FindByGroupId(groupId)
 }
 
-func (rs roleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rs RoleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
 	role.Uuid = uuid.New()
-	return rs.roleRepository.Save(*role)
+	return rs.RoleRepository.Save(*role)
 }
 
-func (rs roleServiceImpl) InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rs RoleServiceImpl) InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
 	role.Uuid = uuid.New()
-	return rs.roleRepository.SaveWithRelationalData(groupId, role)
+	return rs.RoleRepository.SaveWithRelationalData(groupId, role)
 }

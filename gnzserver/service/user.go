@@ -60,9 +60,9 @@ type UserService interface {
 }
 
 // UserService struct
-type userServiceImpl struct {
-	userRepository driver.UserRepository
-	etcdClient     cache.EtcdClient
+type UserServiceImpl struct {
+	UserRepository driver.UserRepository
+	EtcdClient     cache.EtcdClient
 }
 
 // Get Policy instance.
@@ -77,18 +77,18 @@ func GetUserServiceInstance() UserService {
 // Constructor
 func NewUserService() UserService {
 	log.Logger.Info("New `UserService` instance")
-	return userServiceImpl{
-		userRepository: driver.GetUserRepositoryInstance(),
-		etcdClient:     cache.GetEtcdClientInstance(),
+	return UserServiceImpl{
+		UserRepository: driver.GetUserRepositoryInstance(),
+		EtcdClient:     cache.GetEtcdClientInstance(),
 	}
 }
 
-func (us userServiceImpl) EncryptPw(password string) string {
+func (us UserServiceImpl) EncryptPw(password string) string {
 	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hash)
 }
 
-func (us userServiceImpl) ComparePw(passwordHash string, password string) bool {
+func (us UserServiceImpl) ComparePw(passwordHash string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
 	if err != nil {
 		log.Logger.Info("Failed to compare password", err.Error())
@@ -98,70 +98,70 @@ func (us userServiceImpl) ComparePw(passwordHash string, password string) bool {
 	return true
 }
 
-func (us userServiceImpl) GetUserById(id int) (*entity.User, *model.ErrorResBody) {
-	return us.userRepository.FindById(id)
+func (us UserServiceImpl) GetUserById(id int) (*entity.User, *model.ErrorResBody) {
+	return us.UserRepository.FindById(id)
 }
 
-func (us userServiceImpl) GetUserByEmail(email string) (*entity.User, *model.ErrorResBody) {
-	return us.userRepository.FindByEmail(email)
+func (us UserServiceImpl) GetUserByEmail(email string) (*entity.User, *model.ErrorResBody) {
+	return us.UserRepository.FindByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
-	return us.userRepository.FindWithOperatorPolicyByEmail(email)
+func (us UserServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
+	return us.UserRepository.FindWithOperatorPolicyByEmail(email)
 }
 
-func (us userServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody) {
-	return us.userRepository.FindWithUserServiceWithServiceByEmail(email)
+func (us UserServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody) {
+	return us.UserRepository.FindWithUserServiceWithServiceByEmail(email)
 }
 
-func (us userServiceImpl) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
-	return us.userRepository.FindUserGroupByUserIdAndGroupId(userId, groupId)
+func (us UserServiceImpl) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
+	return us.UserRepository.FindUserGroupByUserIdAndGroupId(userId, groupId)
 }
 
-func (us userServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
-	return us.userRepository.FindUserServices()
+func (us UserServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
+	return us.UserRepository.FindUserServices()
 }
 
-func (us userServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
-	userService := us.etcdClient.GetUserService(userId, serviceId)
+func (us UserServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+	userService := us.EtcdClient.GetUserService(userId, serviceId)
 	if userService != nil {
 		return userService, nil
 	}
-	return us.userRepository.FindUserServiceByUserIdAndServiceId(userId, serviceId)
+	return us.UserRepository.FindUserServiceByUserIdAndServiceId(userId, serviceId)
 }
 
-func (us userServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
+func (us UserServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
 	userGroup, err := us.GetUserGroupByUserIdAndGroupId(userGroupEntity.UserId, userGroupEntity.GroupId)
 	if err != nil || userGroup != nil {
 		conflictErr := model.Conflict("This user already joins group")
 		return nil, conflictErr
 	}
-	return us.userRepository.SaveUserGroup(userGroupEntity)
+	return us.UserRepository.SaveUserGroup(userGroupEntity)
 }
 
-func (us userServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
+func (us UserServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.SaveUser(user)
+	return us.UserRepository.SaveUser(user)
 }
 
-func (us userServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
+func (us UserServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
 	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.SaveWithUserService(user, userService)
+	return us.UserRepository.SaveWithUserService(user, userService)
 }
 
-func (us userServiceImpl) InsertUserService(userServiceEntity entity.UserService) (*entity.UserService, *model.ErrorResBody) {
-	userService, err := us.userRepository.FindUserServiceByUserIdAndServiceId(userServiceEntity.UserId, userServiceEntity.ServiceId)
+func (us UserServiceImpl) InsertUserService(userServiceEntity entity.UserService) (*entity.UserService, *model.ErrorResBody) {
+	userService, err := us.UserRepository.FindUserServiceByUserIdAndServiceId(userServiceEntity.UserId, userServiceEntity.ServiceId)
 	if err != nil || userService != nil {
 		return nil, model.Conflict("Already the user has this service account")
 	}
-	return us.userRepository.SaveUserService(userServiceEntity)
+	return us.UserRepository.SaveUserService(userServiceEntity)
 }
 
-func (us userServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
+func (us UserServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Id = ctx.GetUserId().(int)
 	user.Uuid = ctx.GetUserUuid().(uuid.UUID)
 	user.Password = us.EncryptPw(user.Password)
-	return us.userRepository.UpdateUser(user)
+	return us.UserRepository.UpdateUser(user)
 }

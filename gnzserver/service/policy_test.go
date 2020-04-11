@@ -30,16 +30,16 @@ func init() {
 		DialKeepAliveTimeout: 5 * time.Millisecond,
 	})
 
-	policyService = policyServiceImpl{
-		etcdClient: cache.EtcdClientImpl{
+	policyService = PolicyServiceImpl{
+		EtcdClient: cache.EtcdClientImpl{
 			Connection: stubEtcdConnection,
 			Ctx:        ctx.GetCtx(),
 		},
-		policyRepository:     StubPolicyRepositoryImpl{Connection: stubConnection},
-		permissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
-		roleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
-		serviceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
-		groupRepository:      StubGroupRepositoryImpl{Connection: stubConnection},
+		PolicyRepository:     StubPolicyRepositoryImpl{Connection: stubConnection},
+		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
+		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
+		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
+		GroupRepository:      StubGroupRepositoryImpl{Connection: stubConnection},
 	}
 }
 

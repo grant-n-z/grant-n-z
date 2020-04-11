@@ -16,11 +16,11 @@ import (
 
 var sInstance Service
 
-type serviceImpl struct {
-	etcdClient           cache.EtcdClient
-	serviceRepository    driver.ServiceRepository
-	roleRepository       driver.RoleRepository
-	permissionRepository driver.PermissionRepository
+type ServiceImpl struct {
+	EtcdClient           cache.EtcdClient
+	ServiceRepository    driver.ServiceRepository
+	RoleRepository       driver.RoleRepository
+	PermissionRepository driver.PermissionRepository
 }
 
 type Service interface {
@@ -61,28 +61,28 @@ func GetServiceInstance() Service {
 // Constructor
 func NewServiceService() Service {
 	log.Logger.Info("New `Service` instance")
-	return serviceImpl{
-		etcdClient:           cache.GetEtcdClientInstance(),
-		serviceRepository:    driver.GetServiceRepositoryInstance(),
-		roleRepository:       driver.GetRoleRepositoryInstance(),
-		permissionRepository: driver.GetPermissionRepositoryInstance(),
+	return ServiceImpl{
+		EtcdClient:           cache.GetEtcdClientInstance(),
+		ServiceRepository:    driver.GetServiceRepositoryInstance(),
+		RoleRepository:       driver.GetRoleRepositoryInstance(),
+		PermissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
 
-func (ss serviceImpl) GetServices() ([]*entity.Service, *model.ErrorResBody) {
-	return ss.serviceRepository.FindAll()
+func (ss ServiceImpl) GetServices() ([]*entity.Service, *model.ErrorResBody) {
+	return ss.ServiceRepository.FindAll()
 }
 
-func (ss serviceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResBody) {
-	return ss.serviceRepository.FindById(id)
+func (ss ServiceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResBody) {
+	return ss.ServiceRepository.FindById(id)
 }
 
-func (ss serviceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResBody) {
-	return ss.serviceRepository.FindByName(name)
+func (ss ServiceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResBody) {
+	return ss.ServiceRepository.FindByName(name)
 }
 
-func (ss serviceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody) {
-	service, err := ss.serviceRepository.FindByApiKey(ctx.GetApiKey().(string))
+func (ss ServiceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody) {
+	service, err := ss.ServiceRepository.FindByApiKey(ctx.GetApiKey().(string))
 	if service == nil || err != nil {
 		err := model.BadRequest("Api-Key is invalid")
 		return nil, err
@@ -91,24 +91,24 @@ func (ss serviceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody
 	return service, nil
 }
 
-func (ss serviceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
-	return ss.serviceRepository.FindServicesByUserId(ctx.GetUserId().(int))
+func (ss ServiceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
+	return ss.ServiceRepository.FindServicesByUserId(ctx.GetUserId().(int))
 }
 
-func (ss serviceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (ss ServiceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
 	service.ApiKey = ss.GenerateApiKey()
-	return ss.serviceRepository.Save(service)
+	return ss.ServiceRepository.Save(service)
 }
 
-func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (ss ServiceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
 	service.ApiKey = ss.GenerateApiKey()
 
 	defaultRoles := []string{common.AdminRole, common.UserRole}
-	roles := ss.etcdClient.GetRoleByNames(defaultRoles)
+	roles := ss.EtcdClient.GetRoleByNames(defaultRoles)
 	if roles == nil || len(roles) == 0 {
-		masterRoles, err := ss.roleRepository.FindByNames([]string{common.AdminRole, common.UserRole})
+		masterRoles, err := ss.RoleRepository.FindByNames([]string{common.AdminRole, common.UserRole})
 		if err != nil {
 			log.Logger.Info("Failed to get role for insert groups process")
 			return nil, model.InternalServerError()
@@ -117,9 +117,9 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	}
 
 	defaultPermissions := []string{common.AdminPermission, common.ReadPermission, common.WritePermission}
-	permissions := ss.etcdClient.GetPermissionByNames(defaultPermissions)
+	permissions := ss.EtcdClient.GetPermissionByNames(defaultPermissions)
 	if permissions == nil || len(permissions) == 0 {
-		masterPermissions, err := ss.permissionRepository.FindByNames(defaultPermissions)
+		masterPermissions, err := ss.PermissionRepository.FindByNames(defaultPermissions)
 		if err != nil {
 			log.Logger.Info("Failed to get permission for insert groups process")
 			return nil, model.InternalServerError()
@@ -127,10 +127,10 @@ func (ss serviceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 		permissions = masterPermissions
 	}
 
-	return ss.serviceRepository.SaveWithRelationalData(*service, roles, permissions)
+	return ss.ServiceRepository.SaveWithRelationalData(*service, roles, permissions)
 }
 
-func (ss serviceImpl) GenerateApiKey() string {
+func (ss ServiceImpl) GenerateApiKey() string {
 	key := uuid.New()
 	return strings.Replace(key.String(), "-", "", -1)
 }

@@ -41,10 +41,10 @@ func init() {
 	}
 
 	groupService = GroupServiceImpl{
-		etcdClient: stubEtcdClient,
-		groupRepository: StubGroupRepositoryImpl{Connection: stubConnection},
-		roleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
-		permissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
+		EtcdClient:           stubEtcdClient,
+		GroupRepository:      StubGroupRepositoryImpl{Connection: stubConnection},
+		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
+		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 }
 

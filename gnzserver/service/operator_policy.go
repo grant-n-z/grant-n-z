@@ -25,9 +25,9 @@ type OperatorPolicyService interface {
 }
 
 type OperatorPolicyServiceImpl struct {
-	operatorPolicyRepository driver.OperatorPolicyRepository
-	userRepository           driver.UserRepository
-	roleRepository           driver.RoleRepository
+	OperatorPolicyRepository driver.OperatorPolicyRepository
+	UserRepository           driver.UserRepository
+	RoleRepository           driver.RoleRepository
 }
 
 func GetOperatorPolicyServiceInstance() OperatorPolicyService {
@@ -40,9 +40,9 @@ func GetOperatorPolicyServiceInstance() OperatorPolicyService {
 func NewOperatorPolicyServiceService() OperatorPolicyService {
 	log.Logger.Info("New `OperatorPolicyService` instance")
 	return OperatorPolicyServiceImpl{
-		operatorPolicyRepository: driver.GetOperatorPolicyRepositoryInstance(),
-		userRepository:           driver.GetUserRepositoryInstance(),
-		roleRepository:           driver.GetRoleRepositoryInstance(),
+		OperatorPolicyRepository: driver.GetOperatorPolicyRepositoryInstance(),
+		UserRepository:           driver.GetUserRepositoryInstance(),
+		RoleRepository:           driver.GetRoleRepositoryInstance(),
 	}
 }
 
@@ -70,27 +70,27 @@ func (ops OperatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorP
 }
 
 func (ops OperatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
-	return ops.operatorPolicyRepository.FindAll()
+	return ops.OperatorPolicyRepository.FindAll()
 }
 
 func (ops OperatorPolicyServiceImpl) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
-	return ops.operatorPolicyRepository.FindByUserId(userId)
+	return ops.OperatorPolicyRepository.FindByUserId(userId)
 }
 
 func (ops OperatorPolicyServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
-	return ops.operatorPolicyRepository.FindByUserIdAndRoleId(userId, roleId)
+	return ops.OperatorPolicyRepository.FindByUserIdAndRoleId(userId, roleId)
 }
 
 func (ops OperatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
-	if userEntity, _ := ops.userRepository.FindById(entity.UserId); userEntity == nil {
+	if userEntity, _ := ops.UserRepository.FindById(entity.UserId); userEntity == nil {
 		log.Logger.Warn("Not found user id")
 		return nil, model.BadRequest("Not found user id")
 	}
 
-	if roleEntity, _ := ops.roleRepository.FindById(entity.RoleId); roleEntity == nil {
+	if roleEntity, _ := ops.RoleRepository.FindById(entity.RoleId); roleEntity == nil {
 		log.Logger.Warn("Not found role id")
 		return nil, model.BadRequest("Not found role id")
 	}
 
-	return ops.operatorPolicyRepository.Save(*entity)
+	return ops.OperatorPolicyRepository.Save(*entity)
 }

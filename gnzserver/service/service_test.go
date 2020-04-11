@@ -34,14 +34,14 @@ func init() {
 		DialKeepAliveTimeout: 5 * time.Millisecond,
 	})
 
-	service = serviceImpl{
-		etcdClient: cache.EtcdClientImpl{
+	service = ServiceImpl{
+		EtcdClient: cache.EtcdClientImpl{
 			Connection: stubEtcdConnection,
 			Ctx:        ctx.GetCtx(),
 		},
-		serviceRepository: StubServiceRepositoryImpl{Connection: stubConnection},
-		roleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
-		permissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
+		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
+		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
+		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 }
 

@@ -32,12 +32,12 @@ func init() {
 		DialKeepAliveTimeout: 5 * time.Millisecond,
 	})
 
-	permissionService = permissionServiceImpl{
-		etcdClient: cache.EtcdClientImpl{
+	permissionService = PermissionServiceImpl{
+		EtcdClient: cache.EtcdClientImpl{
 			Connection: stubEtcdConnection,
 			Ctx:        ctx.GetCtx(),
 		},
-		permissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
+		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 }
 

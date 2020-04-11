@@ -30,10 +30,10 @@ type GroupService interface {
 
 // GroupService struct
 type GroupServiceImpl struct {
-	etcdClient           cache.EtcdClient
-	groupRepository      driver.GroupRepository
-	roleRepository       driver.RoleRepository
-	permissionRepository driver.PermissionRepository
+	EtcdClient           cache.EtcdClient
+	GroupRepository      driver.GroupRepository
+	RoleRepository       driver.RoleRepository
+	PermissionRepository driver.PermissionRepository
 }
 
 // Get Policy instance.
@@ -49,31 +49,31 @@ func GetGroupServiceInstance() GroupService {
 func NewGroupService() GroupService {
 	log.Logger.Info("New `GroupService` instance")
 	return GroupServiceImpl{
-		etcdClient:           cache.GetEtcdClientInstance(),
-		groupRepository:      driver.GetGroupRepositoryInstance(),
-		roleRepository:       driver.GetRoleRepositoryInstance(),
-		permissionRepository: driver.GetPermissionRepositoryInstance(),
+		EtcdClient:           cache.GetEtcdClientInstance(),
+		GroupRepository:      driver.GetGroupRepositoryInstance(),
+		RoleRepository:       driver.GetRoleRepositoryInstance(),
+		PermissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
 
 func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
-	return gs.groupRepository.FindAll()
+	return gs.GroupRepository.FindAll()
 }
 
 func (gs GroupServiceImpl) GetGroupById(id int) (*entity.Group, *model.ErrorResBody) {
-	return gs.groupRepository.FindById(id)
+	return gs.GroupRepository.FindById(id)
 }
 
 func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
-	return gs.groupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
+	return gs.GroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
 }
 
 func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
 
-	role := gs.etcdClient.GetRole(common.AdminRole)
+	role := gs.EtcdClient.GetRole(common.AdminRole)
 	if role == nil {
-		masterRole, err := gs.roleRepository.FindByName(common.AdminRole)
+		masterRole, err := gs.RoleRepository.FindByName(common.AdminRole)
 		if err != nil {
 			log.Logger.Info("Failed to get role for insert groups process")
 			return nil, model.InternalServerError()
@@ -81,9 +81,9 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 		role = masterRole
 	}
 
-	permission := gs.etcdClient.GetPermission(common.AdminPermission)
+	permission := gs.EtcdClient.GetPermission(common.AdminPermission)
 	if permission == nil {
-		masterPermission, err := gs.permissionRepository.FindByName(common.AdminPermission)
+		masterPermission, err := gs.PermissionRepository.FindByName(common.AdminPermission)
 		if err != nil {
 			log.Logger.Info("Failed to get permission for insert groups process")
 			return nil, model.InternalServerError()
@@ -126,5 +126,5 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*e
 		UserGroupId:  userGroup.Id,
 	}
 
-	return gs.groupRepository.SaveWithRelationalData(group, serviceGroup, userGroup, groupPermission, groupRole, policy)
+	return gs.GroupRepository.SaveWithRelationalData(group, serviceGroup, userGroup, groupPermission, groupRole, policy)
 }

@@ -26,9 +26,9 @@ func init() {
 	stubConnection, _ = gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 
 	operatorPolicyService = OperatorPolicyServiceImpl{
-		operatorPolicyRepository: driver.OperatorPolicyRepositoryImpl{Connection: stubConnection},
-		userRepository:           driver.UserRepositoryImpl{Connection: stubConnection},
-		roleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
+		OperatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
+		UserRepository:           StubUserRepositoryImpl{Connection: stubConnection},
+		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 }
 
@@ -40,9 +40,9 @@ func TestGetOperatorPolicyServiceInstance(t *testing.T) {
 // Test get error
 func TestOperatorPolicy_Get_Error(t *testing.T) {
 	operatorPolicyService = OperatorPolicyServiceImpl{
-		operatorPolicyRepository: driver.OperatorPolicyRepositoryImpl{Connection: stubConnection},
-		userRepository:           driver.UserRepositoryImpl{Connection: stubConnection},
-		roleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
+		OperatorPolicyRepository: driver.OperatorPolicyRepositoryImpl{Connection: stubConnection},
+		UserRepository:           driver.UserRepositoryImpl{Connection: stubConnection},
+		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	_, err := operatorPolicyService.Get("test")
@@ -55,9 +55,9 @@ func TestOperatorPolicy_Get_Error(t *testing.T) {
 // Test get success
 func TestOperatorPolicy_Get_Success(t *testing.T) {
 	operatorPolicyService = OperatorPolicyServiceImpl{
-		operatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
-		userRepository:           StubUserRepositoryImpl{Connection: stubConnection},
-		roleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
+		OperatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
+		UserRepository:           StubUserRepositoryImpl{Connection: stubConnection},
+		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	_, err := operatorPolicyService.Get("1")
@@ -76,9 +76,9 @@ func TestOperatorPolicy_Get_Success(t *testing.T) {
 // Test get by user id and role id
 func TestOperatorPolicy_GetByUserIdAndRoleId_Success(t *testing.T) {
 	operatorPolicyService = OperatorPolicyServiceImpl{
-		operatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
-		userRepository:           StubUserRepositoryImpl{Connection: stubConnection},
-		roleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
+		OperatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
+		UserRepository:           StubUserRepositoryImpl{Connection: stubConnection},
+		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	_, err := operatorPolicyService.GetByUserIdAndRoleId(1, 1)
@@ -91,9 +91,9 @@ func TestOperatorPolicy_GetByUserIdAndRoleId_Success(t *testing.T) {
 // Test get by user id and role id
 func TestOperatorPolicy_Insert_Success(t *testing.T) {
 	operatorPolicyService = OperatorPolicyServiceImpl{
-		operatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
-		userRepository:           StubUserRepositoryImpl{Connection: stubConnection},
-		roleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
+		OperatorPolicyRepository: StubOperatorPolicyRepositoryImpl{Connection: stubConnection},
+		UserRepository:           StubUserRepositoryImpl{Connection: stubConnection},
+		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	_, err := operatorPolicyService.Insert(&entity.OperatorPolicy{Id:1, UserId:1, RoleId:1})

@@ -33,9 +33,9 @@ type PermissionService interface {
 	InsertWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }
 
-type permissionServiceImpl struct {
-	etcdClient           cache.EtcdClient
-	permissionRepository driver.PermissionRepository
+type PermissionServiceImpl struct {
+	EtcdClient           cache.EtcdClient
+	PermissionRepository driver.PermissionRepository
 }
 
 func GetPermissionServiceInstance() PermissionService {
@@ -47,14 +47,14 @@ func GetPermissionServiceInstance() PermissionService {
 
 func NewPermissionService() PermissionService {
 	log.Logger.Info("New `PermissionService` instance")
-	return permissionServiceImpl{
-		etcdClient:           cache.GetEtcdClientInstance(),
-		permissionRepository: driver.GetPermissionRepositoryInstance(),
+	return PermissionServiceImpl{
+		EtcdClient:           cache.GetEtcdClientInstance(),
+		PermissionRepository: driver.GetPermissionRepositoryInstance(),
 	}
 }
 
-func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.ErrorResBody) {
-	permissions, err := ps.permissionRepository.FindAll()
+func (ps PermissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.ErrorResBody) {
+	permissions, err := ps.PermissionRepository.FindAll()
 	if permissions == nil {
 		return []*entity.Permission{}, err
 	}
@@ -62,28 +62,28 @@ func (ps permissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.E
 	return permissions, nil
 }
 
-func (ps permissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody) {
-	return ps.permissionRepository.FindById(id)
+func (ps PermissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody) {
+	return ps.PermissionRepository.FindById(id)
 }
 
-func (ps permissionServiceImpl) GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody) {
-	permission := ps.etcdClient.GetPermission(name)
+func (ps PermissionServiceImpl) GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody) {
+	permission := ps.EtcdClient.GetPermission(name)
 	if permission != nil {
 		return permission, nil
 	}
-	return ps.permissionRepository.FindByName(name)
+	return ps.PermissionRepository.FindByName(name)
 }
 
-func (ps permissionServiceImpl) GetPermissionsByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody) {
-	return ps.permissionRepository.FindByGroupId(groupId)
+func (ps PermissionServiceImpl) GetPermissionsByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody) {
+	return ps.PermissionRepository.FindByGroupId(groupId)
 }
 
-func (ps permissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {
+func (ps PermissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	permission.Uuid = uuid.New()
-	return ps.permissionRepository.Save(*permission)
+	return ps.PermissionRepository.Save(*permission)
 }
 
-func (ps permissionServiceImpl) InsertWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
+func (ps PermissionServiceImpl) InsertWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	permission.Uuid = uuid.New()
-	return ps.permissionRepository.SaveWithRelationalData(groupId, permission)
+	return ps.PermissionRepository.SaveWithRelationalData(groupId, permission)
 }

@@ -35,9 +35,9 @@ func init() {
 		DialKeepAliveTimeout: 5 * time.Millisecond,
 	})
 
-	userService = userServiceImpl{
-		userRepository: StubUserRepositoryImpl{Connection: stubConnection},
-		etcdClient: cache.EtcdClientImpl{
+	userService = UserServiceImpl{
+		UserRepository: StubUserRepositoryImpl{Connection: stubConnection},
+		EtcdClient: cache.EtcdClientImpl{
 			Connection: stubEtcdConnection,
 			Ctx:        ctx.GetCtx(),
 		},

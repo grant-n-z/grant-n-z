@@ -45,14 +45,14 @@ type TokenProcessor interface {
 }
 
 // TokenProcessor struct
-type tokenProcessorImpl struct {
-	userService           service.UserService
-	operatorPolicyService service.OperatorPolicyService
-	service               service.Service
-	policyService         service.PolicyService
-	roleService           service.RoleService
-	permissionService     service.PermissionService
-	serverConfig          common.ServerConfig
+type TokenProcessorImpl struct {
+	UserService           service.UserService
+	OperatorPolicyService service.OperatorPolicyService
+	Service               service.Service
+	PolicyService         service.PolicyService
+	RoleService           service.RoleService
+	PermissionService     service.PermissionService
+	ServerConfig          common.ServerConfig
 }
 
 // Get TokenProcessor instance.
@@ -67,18 +67,18 @@ func GetTokenProcessorInstance() TokenProcessor {
 // Constructor
 func NewTokenProcessor() TokenProcessor {
 	log.Logger.Info("New `TokenProcessor` instance")
-	return tokenProcessorImpl{
-		userService:           service.GetUserServiceInstance(),
-		operatorPolicyService: service.GetOperatorPolicyServiceInstance(),
-		service:               service.GetServiceInstance(),
-		policyService:         service.GetPolicyServiceInstance(),
-		roleService:           service.GetRoleServiceInstance(),
-		permissionService:     service.GetPermissionServiceInstance(),
-		serverConfig:          common.GServer,
+	return TokenProcessorImpl{
+		UserService:           service.GetUserServiceInstance(),
+		OperatorPolicyService: service.GetOperatorPolicyServiceInstance(),
+		Service:               service.GetServiceInstance(),
+		PolicyService:         service.GetPolicyServiceInstance(),
+		RoleService:           service.GetRoleServiceInstance(),
+		PermissionService:     service.GetPermissionServiceInstance(),
+		ServerConfig:          common.GServer,
 	}
 }
 
-func (tp tokenProcessorImpl) Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody) {
 	if strings.EqualFold(groupIdStr, "") {
 		groupIdStr = "0"
 	}
@@ -100,11 +100,11 @@ func (tp tokenProcessorImpl) Generate(userType string, groupIdStr string, userEn
 	}
 }
 
-func (tp tokenProcessorImpl) ParseToken(token string) (map[string]string, bool) {
+func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(tp.serverConfig.SignedInPrivateKeyBase64), nil
+		return []byte(tp.ServerConfig.SignedInPrivateKeyBase64), nil
 	})
 
 	if err != nil || !parseToken.Valid {
@@ -148,13 +148,13 @@ func (tp tokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 	return resultMap, true
 }
 
-func (tp tokenProcessorImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := tp.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
 	}
 
-	operatorRole, err := tp.operatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
+	operatorRole, err := tp.OperatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
 	if operatorRole == nil || err != nil {
 		log.Logger.Info("Not contain operator role or failed to query")
 		return nil, model.Forbidden("Forbidden this token")
@@ -163,19 +163,19 @@ func (tp tokenProcessorImpl) VerifyOperatorToken(token string) (*model.AuthUser,
 	return authUser, nil
 }
 
-func (tp tokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
 	authUser, err := tp.GetAuthUserInToken(token)
 	if err != nil {
 		return nil, err
 	}
 
-	policy, err := tp.policyService.GetPolicyById(authUser.PolicyId)
+	policy, err := tp.PolicyService.GetPolicyById(authUser.PolicyId)
 	if err != nil {
 		return nil, model.BadRequest("You don't join this group")
 	}
 
 	if len(roleNames) > 0 && !strings.EqualFold(roleNames[0], "") {
-		roles, err := tp.roleService.GetRoleByNames(roleNames)
+		roles, err := tp.RoleService.GetRoleByNames(roleNames)
 		if err != nil {
 			return nil, model.Forbidden("Forbidden the user has not role")
 		}
@@ -183,29 +183,30 @@ func (tp tokenProcessorImpl) VerifyUserToken(token string, roleNames []string, p
 		for _, role := range roles {
 			if role.Id == policy.RoleId {
 				result = true
+				break
 			}
 		}
 		if !result {
-			return nil, model.Forbidden("Forbidden the user has not role")
+			return nil, model.Forbidden("Forbidden the user policy does not match role")
 		}
 	}
 
 	if !strings.EqualFold(permissionName, "") {
-		permission, err := tp.permissionService.GetPermissionByName(permissionName)
+		permission, err := tp.PermissionService.GetPermissionByName(permissionName)
 		if permission == nil || err != nil || permission.Id != policy.PermissionId {
 			return nil, model.Forbidden("Forbidden the user has not permission")
 		}
 	}
 
-	userService, err := tp.userService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
+	userService, err := tp.UserService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
 	if userService == nil || err != nil {
-		return nil, model.Forbidden("Forbidden the user cannot access service")
+		return nil, model.Forbidden("Forbidden the user cannot access Service")
 	}
 
 	return authUser, nil
 }
 
-func (tp tokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
 	if !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")
@@ -234,13 +235,13 @@ func (tp tokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 	return authUser, nil
 }
 
-func (tp tokenProcessorImpl) generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody) {
-	targetUser, err := tp.userService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
+func (tp TokenProcessorImpl) generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody) {
+	targetUser, err := tp.UserService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
 	if err != nil || targetUser == nil {
 		return "", model.BadRequest("Failed to email or password")
 	}
 
-	if !tp.userService.ComparePw(targetUser.Password, userEntity.Password) {
+	if !tp.UserService.ComparePw(targetUser.Password, userEntity.Password) {
 		return "", model.BadRequest("Failed to email or password")
 	}
 
@@ -248,24 +249,24 @@ func (tp tokenProcessorImpl) generateOperatorToken(userEntity entity.User) (stri
 		return "", model.BadRequest("Can not issue token")
 	}
 
-	// OperatorRole token is not required service id, policy id
+	// OperatorRole token is not required Service id, policy id
 	serviceId := 0
 	policyId := 0
 	return tp.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil
 }
 
-func (tp tokenProcessorImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
-	service, err := tp.service.GetServiceOfApiKey()
+func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
+	service, err := tp.Service.GetServiceOfApiKey()
 	if err != nil || service == nil {
 		return "", model.BadRequest("Not found registered services by Api-Key")
 	}
 
-	targetUser, err := tp.userService.GetUserByEmail(userEntity.Email)
+	targetUser, err := tp.UserService.GetUserByEmail(userEntity.Email)
 	if err != nil || targetUser == nil {
 		return "", model.BadRequest("Failed to email or password")
 	}
 
-	if !tp.userService.ComparePw(targetUser.Password, userEntity.Password) {
+	if !tp.UserService.ComparePw(targetUser.Password, userEntity.Password) {
 		return "", model.BadRequest("Failed to email or password")
 	}
 
@@ -276,7 +277,7 @@ func (tp tokenProcessorImpl) generateUserToken(userEntity entity.User, groupId i
 		return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), roleId, service.Id, policyId), nil
 	}
 
-	policy, err := tp.policyService.GetPolicyByUserGroup(targetUser.Id, groupId)
+	policy, err := tp.PolicyService.GetPolicyByUserGroup(targetUser.Id, groupId)
 	if err != nil {
 		return "", model.Forbidden("Can't issue token for group")
 	}
@@ -284,7 +285,7 @@ func (tp tokenProcessorImpl) generateUserToken(userEntity entity.User, groupId i
 	return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), 0, service.Id, policy.Id), nil
 }
 
-func (tp tokenProcessorImpl) signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string {
+func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -295,7 +296,7 @@ func (tp tokenProcessorImpl) signedInToken(userId int, userUuid string, roleId i
 	claims["service_id"] = strconv.Itoa(serviceId)
 	claims["policy_id"] = strconv.Itoa(policyId)
 
-	signedToken, err := token.SignedString([]byte(tp.serverConfig.SignedInPrivateKeyBase64))
+	signedToken, err := token.SignedString([]byte(tp.ServerConfig.SignedInPrivateKeyBase64))
 	if err != nil {
 		log.Logger.Error("Failed to issue signed token", err.Error())
 		return ""

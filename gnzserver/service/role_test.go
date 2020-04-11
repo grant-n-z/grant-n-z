@@ -32,12 +32,12 @@ func init() {
 		DialKeepAliveTimeout: 5 * time.Millisecond,
 	})
 
-	roleService = roleServiceImpl{
-		etcdClient: cache.EtcdClientImpl{
+	roleService = RoleServiceImpl{
+		EtcdClient: cache.EtcdClientImpl{
 			Connection: stubEtcdConnection,
 			Ctx:        ctx.GetCtx(),
 		},
-		roleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
+		RoleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 }
 
