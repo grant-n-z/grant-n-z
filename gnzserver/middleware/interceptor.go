@@ -75,13 +75,13 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}()
 
-		if err := i.interceptHeader(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
 		userType := r.URL.Query().Get("type")
 		if !strings.EqualFold(userType, common.AuthOperator) {
-			if err := i.interceptApiKey(w, r); err != nil {
+			if err := interceptApiKey(w, r); err != nil {
 				return
 			}
 		}
@@ -100,7 +100,7 @@ func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc
 			}
 		}()
 
-		if err := i.interceptHeader(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
@@ -118,11 +118,11 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			}
 		}()
 
-		if err := i.interceptHeader(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
-		if err := i.interceptApiKey(w, r); err != nil {
+		if err := interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -151,11 +151,11 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 			}
 		}()
 
-		if err := i.interceptHeader(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
-		if err := i.interceptApiKey(w, r); err != nil {
+		if err := interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -184,11 +184,11 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 			}
 		}()
 
-		if err := i.interceptHeader(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
-		if err := i.interceptApiKey(w, r); err != nil {
+		if err := interceptApiKey(w, r); err != nil {
 			return
 		}
 
@@ -217,7 +217,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 			}
 		}()
 
-		if err := i.interceptHeader(w, r); err != nil {
+		if err := interceptHeader(w, r); err != nil {
 			return
 		}
 
@@ -237,7 +237,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 }
 
 // Intercept http request header
-func (i InterceptorImpl) interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	w.Header().Set(ContentType, "application/json")
 	if err := validateHeader(r); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -247,7 +247,7 @@ func (i InterceptorImpl) interceptHeader(w http.ResponseWriter, r *http.Request)
 }
 
 // Intercept Api-Key header
-func (i InterceptorImpl) interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	apiKey := r.Header.Get(Key)
 	if strings.EqualFold(apiKey, "") {
 		err := model.BadRequest("Required Api-Key")
@@ -261,25 +261,17 @@ func (i InterceptorImpl) interceptApiKey(w http.ResponseWriter, r *http.Request)
 
 // Validate http request header
 func validateHeader(r *http.Request) *model.ErrorResBody {
-	if r.Method != http.MethodGet {
-		if r.Header.Get(ContentType) != "application/json" {
-			log.Logger.Info("Not allowed content-type")
-			return model.BadRequest("Need to content type is only json.")
-		}
+	if r.Header.Get(ContentType) != "application/json" {
+		log.Logger.Info("Not allowed content-type")
+		return model.BadRequest("Need to content type is only json.")
 	}
 	return nil
 }
 
 // Bind request body what http request converts to interface
 func BindBody(w http.ResponseWriter, r *http.Request, i interface{}) *model.ErrorResBody {
-	body, err := ioutil.ReadAll(r.Body)
+	body, _ := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
-	if err != nil {
-		log.Logger.Info("Cannot bind request body.", err.Error())
-		err := model.InternalServerError("Failed to request body bind")
-		model.WriteError(w, err.ToJson(), err.Code)
-		return err
-	}
 
 	if len(body) == 0 {
 		err := model.BadRequest("Request is empty.")

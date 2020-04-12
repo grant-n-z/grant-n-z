@@ -165,6 +165,20 @@ func TestGenerate_Error(t *testing.T) {
 		t.Errorf("Incorrect TestGenerate_Error test. Generate token")
 		t.FailNow()
 	}
+
+	_, err = tokenProcessor.Generate(
+		"none",
+		"",
+		entity.User{
+			Username: "test",
+			Email:    "test@gmail.com",
+			Password: "testa",
+		},
+	)
+	if err == nil {
+		t.Errorf("Incorrect TestGenerate_Error test. Generate token")
+		t.FailNow()
+	}
 }
 
 // Test Generate token success
@@ -185,7 +199,16 @@ func TestGenerate_Success(t *testing.T) {
 }
 
 // Test parse token
-func TestParseToken(t *testing.T) {
+func TestParseToken_Error(t *testing.T) {
+	_, result := tokenProcessor.ParseToken("InvalidToken")
+	if result {
+		t.Errorf("Incorrect TestParseToken_Error test.")
+		t.FailNow()
+	}
+}
+
+// Test parse token
+func TestParseToken_Success(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthUser,
 		"",
@@ -198,7 +221,7 @@ func TestParseToken(t *testing.T) {
 
 	_, result := tokenProcessor.ParseToken(token)
 	if !result {
-		t.Errorf("Incorrect TestParseToken test.")
+		t.Errorf("Incorrect TestParseToken_Success test.")
 		t.FailNow()
 	}
 }
