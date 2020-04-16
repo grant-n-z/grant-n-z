@@ -22,7 +22,7 @@ type Token interface {
 
 // Token api struct
 type TokenImpl struct {
-	TokenService middleware.TokenProcessor
+	TokenProcessor middleware.TokenProcessor
 }
 
 // Get Policy instance
@@ -37,7 +37,7 @@ func GetTokenInstance() Token {
 // Constructor
 func NewToken() Token {
 	log.Logger.Info("New `Token` instance")
-	return TokenImpl{TokenService: middleware.GetTokenProcessorInstance()}
+	return TokenImpl{TokenProcessor: middleware.GetTokenProcessorInstance()}
 }
 
 func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 
 	userType := r.URL.Query().Get("type")
 	groupId := r.URL.Query().Get("group_id")
-	token, err := th.TokenService.Generate(userType, groupId, *userEntity)
+	token, err := th.TokenProcessor.Generate(userType, groupId, *userEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

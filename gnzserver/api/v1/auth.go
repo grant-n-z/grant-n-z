@@ -21,7 +21,7 @@ type Auth interface {
 
 // Auth api struct
 type AuthImpl struct {
-	tokenService middleware.TokenProcessor
+	tokenProcessor middleware.TokenProcessor
 }
 
 // Get Policy instance.
@@ -36,7 +36,7 @@ func GetAuthInstance() Auth {
 // Constructor
 func NewAuth() Auth {
 	log.Logger.Info("New `Auth` instance")
-	return AuthImpl{tokenService: middleware.GetTokenProcessorInstance()}
+	return AuthImpl{tokenProcessor: middleware.GetTokenProcessorInstance()}
 }
 
 func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +54,7 @@ func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	roleName := r.URL.Query().Get("role")
 	permissionName := r.URL.Query().Get("permission")
 
-	_, err := ah.tokenService.VerifyUserToken(token, []string{roleName}, permissionName)
+	_, err := ah.tokenProcessor.VerifyUserToken(token, []string{roleName}, permissionName)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

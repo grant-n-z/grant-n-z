@@ -28,7 +28,7 @@ type Service interface {
 type ServiceImpl struct {
 	ServiceService service.Service
 	UserService    service.UserService
-	TokenService   middleware.TokenProcessor
+	TokenProcessor middleware.TokenProcessor
 }
 
 func GetServiceInstance() Service {
@@ -43,7 +43,7 @@ func NewService() Service {
 	return ServiceImpl{
 		ServiceService: service.GetServiceInstance(),
 		UserService:    service.GetUserServiceInstance(),
-		TokenService:   middleware.GetTokenProcessorInstance(),
+		TokenProcessor: middleware.GetTokenProcessorInstance(),
 	}
 }
 
@@ -69,13 +69,13 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication user
-	token, err := s.TokenService.Generate("", "", *userEntity)
+	token, err := s.TokenProcessor.Generate("", "", *userEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 	token = "Bearer " + token
-	authUser, err := s.TokenService.GetAuthUserInToken(token)
+	authUser, err := s.TokenProcessor.GetAuthUserInToken(token)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

@@ -33,15 +33,6 @@ type TokenProcessor interface {
 	// Get auth user data in token
 	// If invalid token, return 401
 	GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
-
-	// Generate signed in token
-	signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string
-
-	// Generate operator token
-	generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody)
-
-	// Generate user token
-	generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody)
 }
 
 // TokenProcessor struct
