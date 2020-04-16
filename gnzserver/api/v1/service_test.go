@@ -60,8 +60,8 @@ func TestService_Post_BadRequest(t *testing.T) {
 // Test post
 func TestService_Post(t *testing.T) {
 	response := StubResponseWriter{}
-	noneEmailBody := ioutil.NopCloser(bytes.NewReader([]byte("{\"email\":\"test@gmail.com\", \"password\":\"testtest\"}")))
-	request := http.Request{Header: http.Header{}, Method: http.MethodGet, Body: noneEmailBody}
+	body := ioutil.NopCloser(bytes.NewReader([]byte("{\"email\":\"test@gmail.com\", \"password\":\"testtest\"}")))
+	request := http.Request{Header: http.Header{}, Method: http.MethodGet, Body: body}
 	ser.Post(response, &request)
 
 	if statusCode != http.StatusCreated {
