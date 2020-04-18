@@ -1,11 +1,10 @@
 FROM golang:1.13
 
-RUN go get github.com/tomoyane/grant-n-z/gnzserver
+RUN mkdir /grant_n_z
+WORKDIR /grant_n_z
+COPY ./gnzserver /grant_n_z
+COPY ./entrypoint.sh /grant_n_z
+COPY ./grant_n_z_server.yaml /grant_n_z
+RUN chmod 755 /grant_n_z/gnzserver
 
-WORKDIR /go/src/github.com/tomoyane/grant-n-z/gnzserver
-
-ENV GOPATH $GOPATH:/go/src
-
-RUN go build
-
-ENTRYPOINT ["./gnzserver"]
+ENTRYPOINT ["./entrypoint.sh"]
