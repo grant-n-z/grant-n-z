@@ -11,9 +11,9 @@ import (
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
 
-var shInstance Service
+var shInstance OperatorService
 
-type Service interface {
+type OperatorService interface {
 	// Implement service admin service api
 	Api(w http.ResponseWriter, r *http.Request)
 
@@ -34,14 +34,14 @@ type OperatorServiceImpl struct {
 	Service service.Service
 }
 
-func GetOperatorServiceInstance() Service {
+func GetOperatorServiceInstance() OperatorService {
 	if shInstance == nil {
 		shInstance = NewOperatorService()
 	}
 	return shInstance
 }
 
-func NewOperatorService() Service {
+func NewOperatorService() OperatorService {
 	log.Logger.Info("New `OperatorService` instance")
 	return OperatorServiceImpl{Service: service.GetServiceInstance()}
 }
@@ -97,7 +97,9 @@ func (sh OperatorServiceImpl) post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh OperatorServiceImpl) put(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (sh OperatorServiceImpl) delete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

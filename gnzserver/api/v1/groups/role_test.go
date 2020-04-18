@@ -1,6 +1,101 @@
 package groups
 
-import "testing"
+import (
+	"bytes"
+	"io/ioutil"
+	"testing"
 
-func TestRoleHandlerGet(t *testing.T) {
+	"net/http"
+
+	"github.com/tomoyane/grant-n-z/gnz/ctx"
+	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnzserver/model"
+)
+
+var (
+	role Role
+)
+
+func init() {
+	log.InitLogger("info")
+	ctx.InitContext()
+
+	role = RoleImpl{RoleService: StubRoleService{}}
+}
+
+// Test constructor
+func TestGetRoleInstance(t *testing.T) {
+	GetRoleInstance()
+}
+
+// Test get bad request
+func TestRole_Get_BadRequest(t *testing.T) {
+	response := StubResponseWriter{}
+	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
+	role.Get(response, &request)
+
+	if statusCode != http.StatusBadRequest {
+		t.Errorf("Incorrect TestGet_BadRequest test.")
+		t.FailNow()
+	}
+}
+
+// Test post bad request
+func TestRole_Post_BadRequest_Body(t *testing.T) {
+	response := StubResponseWriter{}
+	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"invalid\":\"test\"}")))
+	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
+	role.Post(response, &request)
+
+	if statusCode != http.StatusBadRequest {
+		t.Errorf("Incorrect TestRole_Post_BadRequest_Body test.")
+		t.FailNow()
+	}
+}
+
+// Test post bad request
+func TestRole_Post_BadRequest_QueryParam(t *testing.T) {
+	response := StubResponseWriter{}
+	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"name\":\"test\"}")))
+	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
+	role.Post(response, &request)
+
+	if statusCode != http.StatusBadRequest {
+		t.Errorf("Incorrect TestRole_Post_BadRequest_QueryParam test.")
+		t.FailNow()
+	}
+}
+
+// Less than stub struct
+// RoleService
+type StubRoleService struct {
+}
+
+func (rs StubRoleService) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
+	return []*entity.Role{}, nil
+}
+
+func (rs StubRoleService) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
+	return &entity.Role{}, nil
+}
+
+func (rs StubRoleService) GetRoleByName(name string) (*entity.Role, *model.ErrorResBody) {
+	return &entity.Role{}, nil
+}
+
+func (rs StubRoleService) GetRoleByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+	return []entity.Role{}, nil
+}
+
+func (rs StubRoleService) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
+	return []*entity.Role{}, nil
+}
+
+func (rs StubRoleService) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
+	return &entity.Role{}, nil
+}
+
+func (rs StubRoleService) InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+	return &entity.Role{}, nil
 }

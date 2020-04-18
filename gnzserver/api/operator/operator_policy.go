@@ -98,7 +98,9 @@ func (rmrhi OperatorPolicyImpl) post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rmrhi OperatorPolicyImpl) put(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (rmrhi OperatorPolicyImpl) delete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

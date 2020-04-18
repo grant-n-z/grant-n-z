@@ -39,6 +39,7 @@ func NewRole() Role {
 	log.Logger.Info("New `Role` instance")
 	return RoleImpl{RoleService: service.GetRoleServiceInstance()}
 }
+
 func (rh RoleImpl) Get(w http.ResponseWriter, r *http.Request) {
 	id, err := middleware.ParamGroupId(r)
 	if err != nil {
@@ -60,17 +61,17 @@ func (rh RoleImpl) Get(w http.ResponseWriter, r *http.Request) {
 func (rh RoleImpl) Post(w http.ResponseWriter, r *http.Request) {
 	var roleEntity *entity.Role
 
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
 	if err := middleware.BindBody(w, r, &roleEntity); err != nil {
 		return
 	}
 
 	if err := middleware.ValidateBody(w, roleEntity); err != nil {
+		return
+	}
+
+	id, err := middleware.ParamGroupId(r)
+	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
