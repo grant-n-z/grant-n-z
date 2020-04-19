@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -27,7 +28,11 @@ func setUpNotConnected() {
 	})
 
 	connection = stubConnection
-	etcdClient = GetEtcdClientInstance()
+	c, _ := context.WithTimeout(ctx.GetCtx(), 10*time.Millisecond)
+	etcdClient = EtcdClientImpl{
+		Connection: connection,
+		Ctx: c,
+	}
 }
 
 // Setup connected etdc, but put is faild pattern
@@ -39,7 +44,16 @@ func setUpStubConnected() {
 	})
 
 	connection = stubConnection
-	etcdClient = NewEtcdClient()
+	c, _ := context.WithTimeout(ctx.GetCtx(), 10*time.Millisecond)
+	etcdClient = EtcdClientImpl{
+		Connection: connection,
+		Ctx: c,
+	}
+}
+
+// Test constructor
+func TestGetEtcdClientInstance(t *testing.T) {
+	GetEtcdClientInstance()
 }
 
 // This is not connected pattern for PUT
