@@ -8,6 +8,7 @@ import (
 // grant_n_z_{component}.yaml
 type YmlConfig struct {
 	App    AppConfig    `yaml:"app"`
+	Cacher CacherConfig `yaml:"cacher"`
 	Server ServerConfig `yaml:"server"`
 	Db     DbConfig     `yaml:"db"`
 	Etcd   EtcdConfig   `yaml:"etcd"`
@@ -17,6 +18,11 @@ type YmlConfig struct {
 type AppConfig struct {
 	Version  string `yaml:"version"`
 	LogLevel string `yaml:"log-level"`
+}
+
+// About app data in grant_n_z_cacher.yaml
+type CacherConfig struct {
+	TimeMillis string `yaml:"time-millis"`
 }
 
 // About server data in grant_n_z_server.yaml
@@ -50,6 +56,18 @@ func (yml YmlConfig) GetAppConfig() AppConfig {
 
 	yml.App.LogLevel = logLevel
 	return yml.App
+}
+
+// Getter CacherConfig
+func (yml YmlConfig) GetCacherConfig() CacherConfig {
+	timMillis := yml.Cacher.TimeMillis
+
+	if strings.Contains(timMillis, "$") {
+		timMillis = os.Getenv(yml.Cacher.TimeMillis[1:])
+	}
+
+	yml.Cacher.TimeMillis = timMillis
+	return yml.Cacher
 }
 
 // Getter ServerConfig

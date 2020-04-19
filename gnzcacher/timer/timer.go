@@ -35,9 +35,7 @@ func (ut UpdateTimerImpl) Start(exitCode chan int) int {
 		for {
 			select {
 			case <-ut.Ticker.C:
-				log.Logger.Info("Start to run main process")
 				ut.Runner.Run()
-				log.Logger.Info("End to run main process")
 			case c := <-exitCode:
 				log.Logger.Info("Break update cache loop")
 				ut.Ticker.Stop()

@@ -20,6 +20,20 @@ func TestGetAppConfig(t *testing.T) {
 	}
 }
 
+// GetCacherConfig test
+func TestGetCacherConfig(t *testing.T) {
+	appConfig := AppConfig{LogLevel: "$GRANT_N_Z_CACHER_TIME_MILLIS"}
+	ymlConfig := YmlConfig{App: appConfig}
+
+	// Test data
+	os.Setenv("GRANT_N_Z_CACHER_TIME_MILLIS", "100")
+
+	if !strings.EqualFold(ymlConfig.GetAppConfig().LogLevel, "100") {
+		t.Errorf("Incorrect CacherConfig test. time-millis = %s", ymlConfig.GetCacherConfig().TimeMillis)
+		t.FailNow()
+	}
+}
+
 // GetServerConfig test
 func TestGetServerConfig(t *testing.T) {
 	serverConfig := ServerConfig{SignedInPrivateKeyBase64: "$GRANT_N_Z_PRIVATE_KEY"}

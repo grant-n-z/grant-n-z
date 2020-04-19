@@ -13,6 +13,7 @@ var (
 	Etcd    EtcdConfig
 	Db      DbConfig
 	GServer ServerConfig
+	GCacher CacherConfig
 )
 
 // Initialize GrantNZ server config
@@ -20,9 +21,9 @@ var (
 func InitGrantNZServerConfig(yamlPath string) {
 	yml := readLocalYml(yamlPath)
 	App = yml.GetAppConfig()
-	GServer = yml.GetServerConfig()
 	Db = yml.GetDbConfig()
 	Etcd = yml.GetEtcdConfig()
+	GServer = yml.GetServerConfig()
 }
 
 // Initialize GrantNZ server config
@@ -32,6 +33,7 @@ func InitGrantNZCacherConfig(yamlPath string) {
 	App = yml.GetAppConfig()
 	Db = yml.GetDbConfig()
 	Etcd = yml.GetEtcdConfig()
+	GCacher = yml.GetCacherConfig()
 }
 
 // Read yaml file

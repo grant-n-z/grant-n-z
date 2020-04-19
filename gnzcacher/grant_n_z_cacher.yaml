@@ -2,6 +2,9 @@ app:
   version: 0.0.16
   log-level: $GRANT_N_Z_LOG_LEVEL
 
+cacher:
+  time-millis: $GRANT_N_Z_CACHER_TIME_MILLIS
+
 db:
   engine: $GRANT_N_Z_ENGINE
   host: $GRANT_N_Z_HOST

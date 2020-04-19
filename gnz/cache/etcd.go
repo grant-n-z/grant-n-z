@@ -10,7 +10,6 @@ import (
 
 	"go.etcd.io/etcd/clientv3"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
@@ -77,10 +76,9 @@ func GetEtcdClientInstance() EtcdClient {
 // Need to initial ctx.InitContext method
 func NewEtcdClient() EtcdClient {
 	log.Logger.Info("New `EtcdClient` instance")
-	ctxWithTimeout, _ := context.WithTimeout(ctx.GetCtx(), 20*time.Millisecond)
 	return EtcdClientImpl{
 		Connection: connection,
-		Ctx:        ctxWithTimeout,
+		Ctx:        context.Background(),
 	}
 }
 
@@ -281,7 +279,8 @@ func (e EtcdClientImpl) set(json []byte, keys []string, expiresMinutes time.Dura
 	for _, key := range keys {
 		_, err := e.Connection.Put(e.Ctx, key, string(json))
 		if err != nil {
-			log.Logger.Error(fmt.Sprintf("Cache is null. key = %v", key))
+			fmt.Println(err)
+			log.Logger.Error(fmt.Sprintf("Failed to put data. key = %v", key))
 		}
 	}
 }

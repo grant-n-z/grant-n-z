@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gnzserver
+spec:
+  selector:
+    matchLabels:
+      app: gnzserver
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: gnzserver
+    spec:
+      containers:
+      - name: gnzserver
+        image: grantnz/gnzserver:latest
+        env:
+        - name: GRANT_N_Z_LOG_LEVEL
+          value: "info"
+        - name: GRANT_N_Z_ENGINE
+          value: "mysql"
+        - name: GRANT_N_Z_HOST
+          value: "docker.for.mac.localhost"
+        - name: GRANT_N_Z_USER
+          value: "changeit"
+        - name: GRANT_N_Z_PORT
+          value: "3306"
+        - name: GRANT_N_Z_ETCD_HOST
+          value: "docker.for.mac.localhost"
+        - name: GRANT_N_Z_ETCD_PORT
+          value: "2380"
+        - name: GRANT_N_Z_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grantnz-db-secret
+              key: rdbms-password
