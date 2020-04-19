@@ -10,7 +10,7 @@ ver=`cat version`
 
 GOOS=linux GOARCH=amd64 go build
 
-docker login docker.pkg.github.com -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
 docker build -t docker.pkg.github.com/tomoyane/grant-n-z/gnzcacher:"${ver}" -t docker.pkg.github.com/tomoyane/grant-n-z/gnzcacher:latest .
 docker push docker.pkg.github.com/tomoyane/grant-n-z/gnzcacher:"${ver}"
 docker push docker.pkg.github.com/tomoyane/grant-n-z/gnzcacher:latest
@@ -22,7 +22,7 @@ ver=`cat version`
 
 GOOS=linux GOARCH=amd64 go build
 
-docker login docker.pkg.github.com -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
 docker build -t docker.pkg.github.com/tomoyane/grant-n-z/gnzserver:"${ver}" -t docker.pkg.github.com/tomoyane/grant-n-z/gnzserver:latest .
 docker push docker.pkg.github.com/tomoyane/grant-n-z/gnzserver:"${ver}"
 docker push docker.pkg.github.com/tomoyane/grant-n-z/gnzserver:latest
