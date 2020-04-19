@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
@@ -75,9 +74,6 @@ func (us UpdaterServiceImpl) UpdateUserService(userServices []*entity.UserServic
 	}
 
 	for key, value := range userServiceMap {
-		for _, v := range value {
-			fmt.Println(v.ServiceId)
-		}
 		us.EtcdClient.SetUserService(key, value, expiresMinutes)
 	}
 }
