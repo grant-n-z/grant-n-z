@@ -28,15 +28,17 @@ spec:
         - name: GRANT_N_Z_HOST
           value: "docker.for.mac.localhost"
         - name: GRANT_N_Z_USER
-          value: "changeit"
+          value: "root"
         - name: GRANT_N_Z_PORT
           value: "3306"
+        - name: GRANT_N_Z_DB
+          value: "grant_n_Z"
         - name: GRANT_N_Z_ETCD_HOST
           value: "docker.for.mac.localhost"
         - name: GRANT_N_Z_ETCD_PORT
-          value: "2380"
+          value: "2379"
         - name: GRANT_N_Z_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: grantnz-db-secret
+              name: grantnz-secret
               key: rdbms-password

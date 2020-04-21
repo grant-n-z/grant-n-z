@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: gnzserver-ingress
+spec:
+  rules:
+    - host: local.grantnz.com
+      http:
+        paths:
+        - backend:
+            serviceName: gnzserver-service
+            servicePort: 80
