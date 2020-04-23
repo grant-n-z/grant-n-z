@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	Port           = "8080"
+	Port           = "8888"
 	BannerFilePath = "./grant_n_z_server.txt"
 	ConfigFilePath = "./grant_n_z_server.yaml"
 )

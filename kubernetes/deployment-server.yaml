@@ -36,7 +36,7 @@ spec:
         - name: GRANT_N_Z_ETCD_HOST
           value: "docker.for.mac.localhost"
         - name: GRANT_N_Z_ETCD_PORT
-          value: "2380"
+          value: "2379"
         - name: GRANT_N_Z_PRIVATE_KEY
           valueFrom:
             secretKeyRef:

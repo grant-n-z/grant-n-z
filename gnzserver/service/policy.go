@@ -153,5 +153,10 @@ func (ps PolicyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorRe
 }
 
 func (ps PolicyServiceImpl) UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
-	return ps.PolicyRepository.Update(policy)
+	updatedPolicy, err := ps.PolicyRepository.Update(policy)
+	if err != nil {
+		return nil, err
+	}
+	ps.EtcdClient.SetPolicy(*updatedPolicy, 0)
+	return updatedPolicy, nil
 }

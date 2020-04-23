@@ -1,9 +1,12 @@
 package middleware
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 	"time"
+
+	"encoding/base64"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
@@ -44,6 +47,7 @@ type TokenProcessorImpl struct {
 	RoleService           service.RoleService
 	PermissionService     service.PermissionService
 	ServerConfig          common.ServerConfig
+	Token                 *jwt.Token
 }
 
 // Get TokenProcessor instance.
@@ -66,6 +70,7 @@ func NewTokenProcessor() TokenProcessor {
 		RoleService:           service.GetRoleServiceInstance(),
 		PermissionService:     service.GetPermissionServiceInstance(),
 		ServerConfig:          common.GServer,
+		Token:                 jwt.New(jwt.SigningMethodRS512),
 	}
 }
 
@@ -94,26 +99,35 @@ func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, userEn
 func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
+	decodeString, _ := base64.StdEncoding.DecodeString("LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUF3UFZtYUZ2MmlnSW8vVkhOTjl3KwpoWUZDdHNFby8rZ0gwaWtpOEh3RlBybnBpVDN2LzBySm1FM3JXakFYTHBTVXk0aHZHV1ZTNU8zOVhxSDJ3d3NxCk5uYlNySUd6T3NKWGx4NVNOdy9BT0VGV012YzdXKy9CT0VjTEZRUUt2ckk1OWlQNmplL3ViK2RjUXo0NzVsU0UKNkpHbFczRlh1dkVJelQrYlliNEZYYTVrRDJJMGllRUdzaEpXZGY2YUpCMzN4ZmViMjRaNTBJOGZ1cGxCUC9meQozSnFJNDlEeGppTm5XSS9TWC9iMzdmRGppd3BqRFVSMUEzNXFJMndUL3hCUzd1akR4bnpzajk3YmhwUVZ5eXl3CmJET3AvNWNqZ3RuUGZqRHRXL2hndExNREVMOFNaakp6Qld1ek92VHNZZE1iRStZTmZwMktOaHdHSUI4NWZza1IKWFFMUll6U2pwMHRrZ3dUNDFidTB2R2F4UC9Qa1NQMm1yb1IzVkw5dWJ2YlZrNWNFRlJyc0hVZHlNVjFYalhhKwpidEo5bDV2WVp4NDF4OE1teWxGOExQc0V3cFpITVU1dFd3SXgxZVdMQm9JWlYyM1E2SVAxVXVNTnRmRjJPR2RBCllwWmJFM1VaMXp6K0lJeHFoMjhSN2xnVmcyaExua0Q0T3M3L0ZMZG5PbEMraENsZXJZc1NtcmJuc1NRUExWK2sKRHlYaUN4M3NRQmRHSVV6cmI4MnhWK05IaTBHQ1REVVBMZTI4YXo1L2lNdjJkdElPNTUyaTVKM3hYVTViU29iRQpLdktyN09GQmdMUTUzY0FVZWk5S1Ezd3VPL1l6R2tHWkt3WVpHWkEwdHJNellxY1h1RjIySTdkV3U3L3FQK2dKClJ1R0tvQitVSXJUUnZ4UllHYUdKRVNzQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=")
+	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(decodeString)
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(tp.ServerConfig.SignedInPrivateKeyBase64), nil
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return "", errors.New("unexpected signing method")
+		}
+		return verifyKey, nil
 	})
 
 	if err != nil || !parseToken.Valid {
-		log.Logger.Error("Failed to parse token validation", err.Error())
+		log.Logger.Error("Failed to parse token validation.", err.Error())
 		return resultMap, false
 	}
 
 	claims := parseToken.Claims.(jwt.MapClaims)
-	if _, ok := claims["user_uuid"].(string); !ok {
-		log.Logger.Info("Can not get user_uuid from token")
+	if _, ok := claims["iss"].(string); !ok {
+		log.Logger.Info("Can not get iss from token")
 		return resultMap, false
 	}
-	if _, ok := claims["user_id"].(string); !ok {
-		log.Logger.Info("Can not get user_id from token")
+	if _, ok := claims["sub"].(string); !ok {
+		log.Logger.Info("Can not get sub from token")
 		return resultMap, false
 	}
-	if _, ok := claims["expires"].(string); !ok {
-		log.Logger.Info("Can not get expires from token")
+	if _, ok := claims["exp"].(string); !ok {
+		log.Logger.Info("Can not get exp from token")
+		return resultMap, false
+	}
+	if _, ok := claims["iat"].(string); !ok {
+		log.Logger.Info("Can not get iat from token")
 		return resultMap, false
 	}
 	if _, ok := claims["role_id"].(string); !ok {
@@ -129,9 +143,10 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 		return resultMap, false
 	}
 
-	resultMap["user_uuid"] = claims["user_uuid"].(string)
-	resultMap["user_id"] = claims["user_id"].(string)
-	resultMap["expires"] = claims["expires"].(string)
+	resultMap["exp"] = claims["exp"].(string)
+	resultMap["iat"] = claims["iat"].(string)
+	resultMap["sub"] = claims["sub"].(string)
+	resultMap["iss"] = claims["iss"].(string)
 	resultMap["role_id"] = claims["role_id"].(string)
 	resultMap["service_id"] = claims["service_id"].(string)
 	resultMap["policy_id"] = claims["policy_id"].(string)
@@ -205,11 +220,11 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 
 	userData, result := tp.ParseToken(strings.Replace(token, "Bearer ", "", 1))
 	if !result {
-		return nil, model.Unauthorized("Failed to token.")
+		return nil, model.Unauthorized("Token is invalid.")
 	}
 
-	userId, _ := strconv.Atoi(userData["user_id"])
-	userUuid, _ := uuid.Parse(userData["user_uuid"])
+	userId, _ := strconv.Atoi(userData["sub"])
+	userUuid, _ := uuid.Parse(userData["iss"])
 	roleId, _ := strconv.Atoi(userData["role_id"])
 	serviceId, _ := strconv.Atoi(userData["service_id"])
 	policyId, _ := strconv.Atoi(userData["policy_id"])
@@ -218,7 +233,8 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 		UserId:    userId,
 		UserUuid:  userUuid,
 		ServiceId: serviceId,
-		Expires:   userData["expires"],
+		Expires:   userData["exp"],
+		IssueDate: userData["iss"],
 		RoleId:    roleId,
 		PolicyId:  policyId,
 	}
@@ -277,17 +293,16 @@ func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId i
 }
 
 func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string {
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = strconv.Itoa(userId)
-	claims["user_uuid"] = userUuid
-	claims["expires"] = time.Now().Add(time.Hour * 1).String()
+	claims := tp.Token.Claims.(jwt.MapClaims)
+	claims["exp"] = strconv.FormatInt(time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour)).Unix(), 10)
+	claims["iat"] = strconv.FormatInt(time.Now().UnixNano(), 10)
+	claims["sub"] = strconv.Itoa(userId)
+	claims["iss"] = userUuid
 	claims["role_id"] = strconv.Itoa(roleId)
 	claims["service_id"] = strconv.Itoa(serviceId)
 	claims["policy_id"] = strconv.Itoa(policyId)
 
-	signedToken, err := token.SignedString([]byte(tp.ServerConfig.SignedInPrivateKeyBase64))
+	signedToken, err := tp.Token.SignedString(tp.ServerConfig.SignedInPrivateKey)
 	if err != nil {
 		log.Logger.Error("Failed to issue signed token", err.Error())
 		return ""

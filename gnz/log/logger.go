@@ -44,32 +44,32 @@ func NewErrorLog() *log.Logger {
 	return log.New(os.Stderr, "[E]", log.LstdFlags|log.LUTC)
 }
 
-func (l Log) Debug(log ...string) {
+func (l Log) Debug(log ...interface{}) {
 	if strings.EqualFold(l.level, "DEBUG") || strings.EqualFold(l.level, "debug") {
 		_, file, line, _ := runtime.Caller(1)
 		execFile := strings.Split(file, "/")
 		data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
-		l.d.Println(data, strings.Join(log, " "))
+		l.d.Println(data, fmt.Sprint(log...))
 	}
 }
 
-func (l Log) Info(log ...string) {
+func (l Log) Info(log ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
 	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
-	l.i.Println(data, strings.Join(log, " "))
+	l.i.Println(data, fmt.Sprint(log...))
 }
 
-func (l Log) Warn(log ...string) {
+func (l Log) Warn(log ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
 	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
-	l.w.Println(data, strings.Join(log, " "))
+	l.w.Println(data, fmt.Sprint(log...))
 }
 
-func (l Log) Error(log ...string) {
+func (l Log) Error(log ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	execFile := strings.Split(file, "/")
 	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
-	l.e.Println(data, strings.Join(log, " "))
+	l.e.Println(data, fmt.Sprint(log...))
 }

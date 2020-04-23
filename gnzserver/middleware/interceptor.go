@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -69,7 +68,7 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Logger.Error(err)
 				err := model.InternalServerError("Failed to request body bind")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
@@ -94,7 +93,7 @@ func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Logger.Error(err)
 				err := model.InternalServerError("Failed to request body bind")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
@@ -112,7 +111,7 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Logger.Error(err)
 				err := model.InternalServerError("Failed to request body bind")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
@@ -145,7 +144,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Logger.Error(err)
 				err := model.InternalServerError("Failed to request body bind")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
@@ -178,7 +177,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Logger.Error(err)
 				err := model.InternalServerError("Failed to request body bind")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
@@ -211,7 +210,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Logger.Error(err)
 				err := model.InternalServerError("Failed to request body bind")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}

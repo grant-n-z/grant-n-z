@@ -24,7 +24,7 @@ func InitRdbms() {
 		common.Db.Password,
 		common.Db.Host,
 		common.Db.Port,
-		common.Db.Db,
+		common.Db.Name,
 	)
 
 	db, err := gorm.Open("mysql", dbSource)

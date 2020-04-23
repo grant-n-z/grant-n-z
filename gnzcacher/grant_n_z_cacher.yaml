@@ -1,18 +1,18 @@
 app:
   version: 0.0.17
-  log-level: $GRANT_N_Z_LOG_LEVEL
+  log-level: $LOG_LEVEL
 
 cacher:
-  time-millis: $GRANT_N_Z_CACHER_TIME_MILLIS
+  time-millis: $CACHER_TIME_MILLIS
 
 db:
-  engine: $GRANT_N_Z_ENGINE
-  host: $GRANT_N_Z_HOST
-  user: $GRANT_N_Z_USER
-  password: $GRANT_N_Z_PASSWORD
-  port: $GRANT_N_Z_PORT
-  db: $GRANT_N_Z_DB
+  engine: $DB_ENGINE
+  host: $DB_HOST
+  user: $DB_USER
+  password: $DB_PASSWORD
+  port: $DB_PORT
+  name: $DB_NAME
 
 etcd:
-  host: $GRANT_N_Z_ETCD_HOST
-  port: $GRANT_N_Z_ETCD_PORT
+  host: $ETCD_HOST
+  port: $ETCD_PORT

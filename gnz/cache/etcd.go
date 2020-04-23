@@ -14,6 +14,8 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
+const retryCnt = 5
+
 var eInstance EtcdClient
 
 type EtcdClient interface {
@@ -58,6 +60,9 @@ type EtcdClient interface {
 
 	// Get user_service by user_id
 	GetUserService(userId int, serviceId int) *entity.UserService
+
+	// Delete policy by name or id
+	DeletePolicy(policy entity.Policy)
 }
 
 type EtcdClientImpl struct {
@@ -260,6 +265,13 @@ func (e EtcdClientImpl) GetUserService(userId int, serviceId int) *entity.UserSe
 	return nil
 }
 
+func (e EtcdClientImpl) DeletePolicy(policy entity.Policy) {
+	if e.Connection == nil {
+		return
+	}
+	e.delete([]string{fmt.Sprintf("policy=%d", policy.Id), fmt.Sprintf("policy=%v", policy.Name)})
+}
+
 // Get cache shared method
 func (e EtcdClientImpl) get(key string, structData interface{}) error {
 	response, err := e.Connection.Get(e.Ctx, key)
@@ -279,8 +291,22 @@ func (e EtcdClientImpl) set(json []byte, keys []string, expiresMinutes time.Dura
 	for _, key := range keys {
 		_, err := e.Connection.Put(e.Ctx, key, string(json))
 		if err != nil {
-			fmt.Println(err)
-			log.Logger.Error(fmt.Sprintf("Failed to put data. key = %v", key))
+			log.Logger.Error(fmt.Sprintf("Failed to put data. key = %v. err = %s", key, err.Error()))
+		}
+	}
+}
+
+// Delete cache shared method
+func (e EtcdClientImpl) delete(keys []string) {
+	for _, key := range keys {
+		for i := 0; i < retryCnt; i++ {
+			_, err := e.Connection.Delete(e.Ctx, key)
+			if err != nil {
+				fmt.Println(err)
+				log.Logger.Error(fmt.Sprintf("Failed to delete data. key = %v. err = %s", key, err.Error()))
+			} else {
+				break
+			}
 		}
 	}
 }
