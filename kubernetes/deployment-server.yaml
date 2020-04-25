@@ -49,6 +49,8 @@ spec:
           value: "docker.for.mac.localhost"
         - name: ETCD_PORT
           value: "2379"
+        - name: SERVER_PORT
+          value: "8080"
         - name: SERVER_TOKEN_EXPIRE_HOUR
           value: "100"
         - name: SERVER_SIGN_ALGORITHM
