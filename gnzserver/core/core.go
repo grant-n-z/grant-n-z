@@ -20,7 +20,6 @@ import (
 )
 
 const (
-	Port           = "8888"
 	BannerFilePath = "./grant_n_z_server.txt"
 	ConfigFilePath = "./grant_n_z_server.yaml"
 )
@@ -28,7 +27,8 @@ const (
 var (
 	exitCode   = make(chan int)
 	signalCode = make(chan os.Signal, 1)
-	server     = &http.Server{Addr: fmt.Sprintf(":%s", Port), Handler: nil}
+	port       string
+	server     *http.Server
 )
 
 type GrantNZServer struct {
@@ -59,6 +59,9 @@ func NewGrantNZServer() GrantNZServer {
 
 // Start GrantNZ server
 func (g GrantNZServer) Run() {
+	port = common.GServer.Port
+	server = &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: nil}
+
 	g.migration()
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
@@ -87,8 +90,8 @@ func (g GrantNZServer) runServer(router *mux.Router) {
 		os.Exit(1)
 	}
 
-	fmt.Printf(bannerText, Port, common.App.Version)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), router); err != nil {
+	fmt.Printf(bannerText, port, common.App.Version)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)
 	}
