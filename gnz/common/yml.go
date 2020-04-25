@@ -1,13 +1,14 @@
 package common
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
-	"crypto/rsa"
-	"encoding/base64"
+	"io/ioutil"
 
+	"crypto/rsa"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -34,15 +35,15 @@ type CacherConfig struct {
 
 // About server data in grant_n_z_server.yaml
 type ServerConfig struct {
-	Port                     string `yaml:"port"`
-	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
-	ValidatePublicKeyBase64  string `yaml:"validate-token-public-key-base64"`
-	TokenExpireHourStr       string `yaml:"token-expire-hour"`
-	SignAlgorithm            string `yaml:"sign-algorithm"`
-	SignedInPrivateKey       *rsa.PrivateKey
-	ValidatePublicKey        *rsa.PublicKey
-	SigningMethod            jwt.SigningMethod
-	TokenExpireHour          int
+	Port                   string `yaml:"port"`
+	SignedInPrivateKeyPath string `yaml:"signed-in-token-private-key-path"`
+	ValidatePublicKeyPath  string `yaml:"validate-token-public-key-path"`
+	TokenExpireHourStr     string `yaml:"token-expire-hour"`
+	SignAlgorithm          string `yaml:"sign-algorithm"`
+	SignedInPrivateKey     *rsa.PrivateKey
+	ValidatePublicKey      *rsa.PublicKey
+	SigningMethod          jwt.SigningMethod
+	TokenExpireHour        int
 }
 
 // About db data in grant_n_z_{component}.yaml
@@ -89,8 +90,8 @@ func (yml YmlConfig) GetCacherConfig() CacherConfig {
 // Getter ServerConfig
 func (yml YmlConfig) GetServerConfig() ServerConfig {
 	port := yml.Server.Port
-	privateKeyBase64 := yml.Server.SignedInPrivateKeyBase64
-	publicKeyBase64 := yml.Server.SignedInPrivateKeyBase64
+	privateKeyStr := yml.Server.SignedInPrivateKeyPath
+	publicKeyStr := yml.Server.SignedInPrivateKeyPath
 	tokenExpireHourStr := yml.Server.TokenExpireHourStr
 	signAlgorithm := yml.Server.SignAlgorithm
 
@@ -98,12 +99,12 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 		port = os.Getenv(yml.Server.Port[1:])
 	}
 
-	if strings.Contains(privateKeyBase64, "$") {
-		privateKeyBase64 = os.Getenv(yml.Server.SignedInPrivateKeyBase64[1:])
+	if strings.Contains(privateKeyStr, "$") {
+		privateKeyStr = os.Getenv(yml.Server.SignedInPrivateKeyPath[1:])
 	}
 
-	if strings.Contains(publicKeyBase64, "$") {
-		publicKeyBase64 = os.Getenv(yml.Server.ValidatePublicKeyBase64[1:])
+	if strings.Contains(publicKeyStr, "$") {
+		publicKeyStr = os.Getenv(yml.Server.ValidatePublicKeyPath[1:])
 	}
 
 	if strings.Contains(tokenExpireHourStr, "$") {
@@ -115,8 +116,8 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 	}
 
 	yml.Server.Port = port
-	yml.Server.SignedInPrivateKeyBase64 = privateKeyBase64
-	yml.Server.ValidatePublicKeyBase64 = publicKeyBase64
+	yml.Server.SignedInPrivateKeyPath = privateKeyStr
+	yml.Server.ValidatePublicKeyPath = publicKeyStr
 	yml.Server.TokenExpireHourStr = tokenExpireHourStr
 
 	// Generate server config data
@@ -136,17 +137,25 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 		panic("Invalid sign-algorithm data. Only support `rsa256` or `rsa512` or `ecdsa256` or `ecdsa512`")
 	}
 
-	privateKey, _ := base64.StdEncoding.DecodeString(yml.Server.SignedInPrivateKeyBase64)
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
+	privateKeyBytes, err := ioutil.ReadFile(yml.Server.SignedInPrivateKeyPath)
+	fmt.Println(string(privateKeyBytes))
 	if err != nil {
-		panic("Invalid signed-in-token-private-key-base64 data. " + err.Error())
+		panic("Not found private key file. " + err.Error())
+	}
+	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyBytes)
+	if err != nil {
+		panic("Invalid private key data. " + err.Error())
 	}
 	yml.Server.SignedInPrivateKey = signKey
 
-	publicKey, _ := base64.StdEncoding.DecodeString(yml.Server.ValidatePublicKeyBase64)
-	validateKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
+	publicKeyBytes, err := ioutil.ReadFile(yml.Server.ValidatePublicKeyPath)
 	if err != nil {
-		panic("Invalid validate-token-public-key-base64 data. " + err.Error())
+		panic("Not found public key file. " + err.Error())
+	}
+
+	validateKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyBytes)
+	if err != nil {
+		panic("Invalid public key data. " + err.Error())
 	}
 	yml.Server.ValidatePublicKey = validateKey
 

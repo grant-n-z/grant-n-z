@@ -4,8 +4,8 @@ app:
 
 server:
   port: $SERVER_PORT
-  signed-in-token-private-key-base64: $SERVER_PRIVATE_KEY
-  validate-token-public-key-base64: $SERVER_PUBLIC_KEY
+  signed-in-token-private-key-path: $SERVER_PRIVATE_KEY_PATH
+  validate-token-public-key-path: $SERVER_PUBLIC_KEY_PATH
   token-expire-hour: $SERVER_TOKEN_EXPIRE_HOUR
   sign-algorithm: $SERVER_SIGN_ALGORITHM
 

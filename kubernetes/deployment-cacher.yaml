@@ -19,26 +19,28 @@ spec:
     spec:
       containers:
       - name: gnzcacher
-        image: grantnz/gnzcacher:latest
+        image: grantnz/gnzcacher:test
         env:
-        - name: GRANT_N_Z_LOG_LEVEL
+        - name: LOG_LEVEL
           value: "info"
-        - name: GRANT_N_Z_ENGINE
+        - name: DB_ENGINE
           value: "mysql"
-        - name: GRANT_N_Z_HOST
+        - name: DB_HOST
           value: "docker.for.mac.localhost"
-        - name: GRANT_N_Z_USER
+        - name: DB_USER
           value: "root"
-        - name: GRANT_N_Z_PORT
+        - name: DB_PORT
           value: "3306"
-        - name: GRANT_N_Z_DB
-          value: "grant_n_Z"
-        - name: GRANT_N_Z_ETCD_HOST
+        - name: DB_NAME
+          value: "grant_n_z"
+        - name: ETCD_HOST
           value: "docker.for.mac.localhost"
-        - name: GRANT_N_Z_ETCD_PORT
+        - name: ETCD_PORT
           value: "2379"
-        - name: GRANT_N_Z_PASSWORD
+        - name: CACHER_TIME_MILLIS
+          value: "1000"
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: grantnz-secret
+              name: grantnz-db-secret
               key: rdbms-password
