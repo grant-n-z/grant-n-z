@@ -5,7 +5,9 @@ app:
 server:
   port: $SERVER_PORT
   signed-in-token-private-key-base64: $SERVER_PRIVATE_KEY
+  validate-token-public-key-base64: $SERVER_PUBLIC_KEY
   token-expire-hour: $SERVER_TOKEN_EXPIRE_HOUR
+  sign-algorithm: $SERVER_SIGN_ALGORITHM
 
 db:
   engine: $DB_ENGINE

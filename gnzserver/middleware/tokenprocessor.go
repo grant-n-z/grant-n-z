@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"encoding/base64"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 
@@ -62,6 +60,7 @@ func GetTokenProcessorInstance() TokenProcessor {
 // Constructor
 func NewTokenProcessor() TokenProcessor {
 	log.Logger.Info("New `TokenProcessor` instance")
+	serverConfig := common.GServer
 	return TokenProcessorImpl{
 		UserService:           service.GetUserServiceInstance(),
 		OperatorPolicyService: service.GetOperatorPolicyServiceInstance(),
@@ -69,8 +68,8 @@ func NewTokenProcessor() TokenProcessor {
 		PolicyService:         service.GetPolicyServiceInstance(),
 		RoleService:           service.GetRoleServiceInstance(),
 		PermissionService:     service.GetPermissionServiceInstance(),
-		ServerConfig:          common.GServer,
-		Token:                 jwt.New(jwt.SigningMethodRS512),
+		ServerConfig:          serverConfig,
+		Token:                 jwt.New(serverConfig.SigningMethod),
 	}
 }
 
@@ -99,47 +98,38 @@ func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, userEn
 func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) {
 	resultMap := map[string]string{}
 
-	decodeString, _ := base64.StdEncoding.DecodeString("LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUF3UFZtYUZ2MmlnSW8vVkhOTjl3KwpoWUZDdHNFby8rZ0gwaWtpOEh3RlBybnBpVDN2LzBySm1FM3JXakFYTHBTVXk0aHZHV1ZTNU8zOVhxSDJ3d3NxCk5uYlNySUd6T3NKWGx4NVNOdy9BT0VGV012YzdXKy9CT0VjTEZRUUt2ckk1OWlQNmplL3ViK2RjUXo0NzVsU0UKNkpHbFczRlh1dkVJelQrYlliNEZYYTVrRDJJMGllRUdzaEpXZGY2YUpCMzN4ZmViMjRaNTBJOGZ1cGxCUC9meQozSnFJNDlEeGppTm5XSS9TWC9iMzdmRGppd3BqRFVSMUEzNXFJMndUL3hCUzd1akR4bnpzajk3YmhwUVZ5eXl3CmJET3AvNWNqZ3RuUGZqRHRXL2hndExNREVMOFNaakp6Qld1ek92VHNZZE1iRStZTmZwMktOaHdHSUI4NWZza1IKWFFMUll6U2pwMHRrZ3dUNDFidTB2R2F4UC9Qa1NQMm1yb1IzVkw5dWJ2YlZrNWNFRlJyc0hVZHlNVjFYalhhKwpidEo5bDV2WVp4NDF4OE1teWxGOExQc0V3cFpITVU1dFd3SXgxZVdMQm9JWlYyM1E2SVAxVXVNTnRmRjJPR2RBCllwWmJFM1VaMXp6K0lJeHFoMjhSN2xnVmcyaExua0Q0T3M3L0ZMZG5PbEMraENsZXJZc1NtcmJuc1NRUExWK2sKRHlYaUN4M3NRQmRHSVV6cmI4MnhWK05IaTBHQ1REVVBMZTI4YXo1L2lNdjJkdElPNTUyaTVKM3hYVTViU29iRQpLdktyN09GQmdMUTUzY0FVZWk5S1Ezd3VPL1l6R2tHWkt3WVpHWkEwdHJNellxY1h1RjIySTdkV3U3L3FQK2dKClJ1R0tvQitVSXJUUnZ4UllHYUdKRVNzQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=")
-	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(decodeString)
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return "", errors.New("unexpected signing method")
 		}
-		return verifyKey, nil
+		return tp.ServerConfig.ValidatePublicKey, nil
 	})
 
 	if err != nil || !parseToken.Valid {
-		log.Logger.Error("Failed to parse token validation.", err.Error())
+		log.Logger.Info("Failed to token validation.", err.Error())
 		return resultMap, false
 	}
 
 	claims := parseToken.Claims.(jwt.MapClaims)
 	if _, ok := claims["iss"].(string); !ok {
-		log.Logger.Info("Can not get iss from token")
 		return resultMap, false
 	}
 	if _, ok := claims["sub"].(string); !ok {
-		log.Logger.Info("Can not get sub from token")
 		return resultMap, false
 	}
 	if _, ok := claims["exp"].(string); !ok {
-		log.Logger.Info("Can not get exp from token")
 		return resultMap, false
 	}
 	if _, ok := claims["iat"].(string); !ok {
-		log.Logger.Info("Can not get iat from token")
 		return resultMap, false
 	}
 	if _, ok := claims["role_id"].(string); !ok {
-		log.Logger.Info("Can not get role_id from token")
 		return resultMap, false
 	}
 	if _, ok := claims["service_id"].(string); !ok {
-		log.Logger.Info("Can not get service_id from token")
 		return resultMap, false
 	}
 	if _, ok := claims["policy_id"].(string); !ok {
-		log.Logger.Info("Can not get policy_id from token")
 		return resultMap, false
 	}
 

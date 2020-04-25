@@ -34,10 +34,14 @@ type CacherConfig struct {
 
 // About server data in grant_n_z_server.yaml
 type ServerConfig struct {
-	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
-	TokenExpireHourStr       string `yaml:"token-expire-hour"`
 	Port                     string `yaml:"port"`
+	SignedInPrivateKeyBase64 string `yaml:"signed-in-token-private-key-base64"`
+	ValidatePublicKeyBase64  string `yaml:"validate-token-public-key-base64"`
+	TokenExpireHourStr       string `yaml:"token-expire-hour"`
+	SignAlgorithm            string `yaml:"sign-algorithm"`
 	SignedInPrivateKey       *rsa.PrivateKey
+	ValidatePublicKey        *rsa.PublicKey
+	SigningMethod            jwt.SigningMethod
 	TokenExpireHour          int
 }
 
@@ -84,32 +88,68 @@ func (yml YmlConfig) GetCacherConfig() CacherConfig {
 
 // Getter ServerConfig
 func (yml YmlConfig) GetServerConfig() ServerConfig {
-	privateKeyBase64 := yml.Server.SignedInPrivateKeyBase64
-	tokenExpireHourStr := yml.Server.TokenExpireHourStr
 	port := yml.Server.Port
+	privateKeyBase64 := yml.Server.SignedInPrivateKeyBase64
+	publicKeyBase64 := yml.Server.SignedInPrivateKeyBase64
+	tokenExpireHourStr := yml.Server.TokenExpireHourStr
+	signAlgorithm := yml.Server.SignAlgorithm
+
+	if strings.Contains(port, "$") {
+		port = os.Getenv(yml.Server.Port[1:])
+	}
 
 	if strings.Contains(privateKeyBase64, "$") {
 		privateKeyBase64 = os.Getenv(yml.Server.SignedInPrivateKeyBase64[1:])
+	}
+
+	if strings.Contains(publicKeyBase64, "$") {
+		publicKeyBase64 = os.Getenv(yml.Server.ValidatePublicKeyBase64[1:])
 	}
 
 	if strings.Contains(tokenExpireHourStr, "$") {
 		tokenExpireHourStr = os.Getenv(yml.Server.TokenExpireHourStr[1:])
 	}
 
-	if strings.Contains(port, "$") {
-		port = os.Getenv(yml.Server.Port[1:])
+	if strings.Contains(signAlgorithm, "$") {
+		signAlgorithm = os.Getenv(yml.Server.SignAlgorithm[1:])
 	}
 
-	yml.Server.SignedInPrivateKeyBase64 = privateKeyBase64
-	yml.Server.TokenExpireHourStr = tokenExpireHourStr
 	yml.Server.Port = port
+	yml.Server.SignedInPrivateKeyBase64 = privateKeyBase64
+	yml.Server.ValidatePublicKeyBase64 = publicKeyBase64
+	yml.Server.TokenExpireHourStr = tokenExpireHourStr
+
+	// Generate server config data
 	yml.Server.TokenExpireHour, _ = strconv.Atoi(tokenExpireHourStr)
-	privateKey, _ := base64.StdEncoding.DecodeString(privateKeyBase64)
+
+	yml.Server.SignAlgorithm = signAlgorithm
+	switch yml.Server.SignAlgorithm {
+	case "rsa256":
+		yml.Server.SigningMethod = jwt.SigningMethodRS256
+	case "rsa512":
+		yml.Server.SigningMethod = jwt.SigningMethodRS512
+	case "ecdsa256":
+		yml.Server.SigningMethod = jwt.SigningMethodES256
+	case "ecdsa512":
+		yml.Server.SigningMethod = jwt.SigningMethodES512
+	default:
+		panic("Invalid sign-algorithm data. Only support `rsa256` or `rsa512` or `ecdsa256` or `ecdsa512`")
+	}
+
+	privateKey, _ := base64.StdEncoding.DecodeString(yml.Server.SignedInPrivateKeyBase64)
 	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
 	if err != nil {
 		panic("Invalid signed-in-token-private-key-base64 data. " + err.Error())
 	}
 	yml.Server.SignedInPrivateKey = signKey
+
+	publicKey, _ := base64.StdEncoding.DecodeString(yml.Server.ValidatePublicKeyBase64)
+	validateKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
+	if err != nil {
+		panic("Invalid validate-token-public-key-base64 data. " + err.Error())
+	}
+	yml.Server.ValidatePublicKey = validateKey
+
 	return yml.Server
 }
 
