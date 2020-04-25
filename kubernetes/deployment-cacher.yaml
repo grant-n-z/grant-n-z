@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: gnzcacher
-        image: grantnz/gnzcacher:test
+        image: grantnz/gnzcacher:latest
         env:
         - name: LOG_LEVEL
           value: "info"

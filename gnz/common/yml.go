@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -138,7 +137,6 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 	}
 
 	privateKeyBytes, err := ioutil.ReadFile(yml.Server.SignedInPrivateKeyPath)
-	fmt.Println(string(privateKeyBytes))
 	if err != nil {
 		panic("Not found private key file. " + err.Error())
 	}
