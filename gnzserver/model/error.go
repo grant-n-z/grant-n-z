@@ -25,6 +25,13 @@ func WriteError(w http.ResponseWriter, error string, code int) {
 	w.Write([]byte(error))
 }
 
+// Option
+func Options() *ErrorResBody {
+	return &ErrorResBody{
+		Code:    http.StatusNoContent,
+	}
+}
+
 // BadRequest
 func BadRequest(err ...string) *ErrorResBody {
 	var detail string

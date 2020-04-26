@@ -19,9 +19,11 @@ import (
 
 // Http Header const
 const (
-	Authorization = "Authorization"
-	Key           = "Api-Key"
-	ContentType   = "Content-Type"
+	Authorization             = "Authorization"
+	Key                       = "Api-Key"
+	ContentType               = "Content-Type"
+	AccessControlAllowOrigin  = "Access-Control-Allow-Origin"
+	AccessControlAllowHeaders = "Access-Control-Allow-Headers"
 )
 
 var iInstance Interceptor
@@ -238,6 +240,8 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 // Intercept http request header
 func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	w.Header().Set(ContentType, "application/json")
+	w.Header().Set(AccessControlAllowOrigin, "*")
+	w.Header().Set(AccessControlAllowHeaders, "*")
 	if err := validateHeader(r); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return err
@@ -260,6 +264,9 @@ func interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody
 
 // Validate http request header
 func validateHeader(r *http.Request) *model.ErrorResBody {
+	if r.Method == http.MethodOptions {
+		return model.Options()
+	}
 	if r.Header.Get(ContentType) != "application/json" {
 		log.Logger.Info("Not allowed content-type")
 		return model.BadRequest("Need to content type is only json.")
