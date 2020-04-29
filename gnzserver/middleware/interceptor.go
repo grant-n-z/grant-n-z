@@ -267,7 +267,7 @@ func validateHeader(r *http.Request) *model.ErrorResBody {
 	if r.Method == http.MethodOptions {
 		return model.Options()
 	}
-	if r.Header.Get(ContentType) != "application/json" {
+	if r.Method != http.MethodGet && r.Header.Get(ContentType) != "application/json" {
 		log.Logger.Info("Not allowed content-type")
 		return model.BadRequest("Need to content type is only json.")
 	}
