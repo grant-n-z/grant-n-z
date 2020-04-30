@@ -132,7 +132,7 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 	if _, ok := claims["policy_id"].(string); !ok {
 		return resultMap, false
 	}
-	if _, ok := claims["user_name"].(string); !ok {
+	if _, ok := claims["username"].(string); !ok {
 		return resultMap, false
 	}
 
@@ -143,7 +143,7 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 	resultMap["role_id"] = claims["role_id"].(string)
 	resultMap["service_id"] = claims["service_id"].(string)
 	resultMap["policy_id"] = claims["policy_id"].(string)
-	resultMap["user_name"] = claims["user_name"].(string)
+	resultMap["username"] = claims["username"].(string)
 
 	return resultMap, true
 }
@@ -222,7 +222,7 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 	roleId, _ := strconv.Atoi(userData["role_id"])
 	serviceId, _ := strconv.Atoi(userData["service_id"])
 	policyId, _ := strconv.Atoi(userData["policy_id"])
-	userName, _ := userData["user_name"]
+	userName, _ := userData["username"]
 
 	authUser := &model.AuthUser{
 		UserId:    userId,
@@ -297,7 +297,7 @@ func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, userName
 	claims["role_id"] = strconv.Itoa(roleId)
 	claims["service_id"] = strconv.Itoa(serviceId)
 	claims["policy_id"] = strconv.Itoa(policyId)
-	claims["user_name"] = userName
+	claims["username"] = userName
 
 	signedToken, err := tp.Token.SignedString(tp.ServerConfig.SignedInPrivateKey)
 	if err != nil {
