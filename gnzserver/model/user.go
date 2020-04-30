@@ -9,6 +9,7 @@ import (
 type AuthUser struct {
 	UserUuid  uuid.UUID `json:"user_uuid"`
 	UserId    int       `json:"user_id"`
+	UserName  string    `json:"user_name"`
 	ServiceId int       `json:"service_id"`
 	Expires   string    `json:"expires"`
 	IssueDate string    `json:"issue_date"`

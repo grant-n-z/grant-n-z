@@ -1,9 +1,8 @@
 package service
 
 import (
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
@@ -16,6 +15,9 @@ import (
 var usInstance UserService
 
 type UserService interface {
+	// Generate initial user name
+	GenInitialName() string
+
 	// Encrypt password
 	EncryptPw(password string) string
 
@@ -81,6 +83,11 @@ func NewUserService() UserService {
 		UserRepository: driver.GetUserRepositoryInstance(),
 		EtcdClient:     cache.GetEtcdClientInstance(),
 	}
+}
+
+func (us UserServiceImpl) GenInitialName() string {
+	uid := uuid.New().String()
+	return string([]rune(uid)[:6])
 }
 
 func (us UserServiceImpl) EncryptPw(password string) string {

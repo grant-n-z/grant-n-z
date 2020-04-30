@@ -2,13 +2,12 @@ package users
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
+	"net/http"
 )
 
 var uhInstance User
@@ -51,6 +50,7 @@ func (uh UserImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userEntity.Username = uh.UserService.GenInitialName()
 	if err := middleware.ValidateBody(w, userEntity); err != nil {
 		return
 	}

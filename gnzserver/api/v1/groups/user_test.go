@@ -74,6 +74,10 @@ func TestUser_Put_BadRequest_QueryParam(t *testing.T) {
 type StubUserService struct {
 }
 
+func (us StubUserService) GenInitialName() string {
+	return "1234"
+}
+
 func (us StubUserService) EncryptPw(password string) string {
 	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hash)

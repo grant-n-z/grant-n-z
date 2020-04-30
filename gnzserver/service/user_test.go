@@ -49,6 +49,15 @@ func TestGetUserServiceInstance(t *testing.T) {
 	GetUserServiceInstance()
 }
 
+// Test generate initial name
+func TestGenInitialName(t *testing.T) {
+	name := userService.GenInitialName()
+	if strings.EqualFold(name, "") {
+		t.Errorf("Incorrect GenInitialName test")
+		t.FailNow()
+	}
+}
+
 // Test encrypt password
 func TestEncryptPw(t *testing.T) {
 	pw := userService.EncryptPw("test")

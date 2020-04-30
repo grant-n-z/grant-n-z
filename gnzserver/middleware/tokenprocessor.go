@@ -132,6 +132,9 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 	if _, ok := claims["policy_id"].(string); !ok {
 		return resultMap, false
 	}
+	if _, ok := claims["user_name"].(string); !ok {
+		return resultMap, false
+	}
 
 	resultMap["exp"] = claims["exp"].(string)
 	resultMap["iat"] = claims["iat"].(string)
@@ -140,6 +143,7 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 	resultMap["role_id"] = claims["role_id"].(string)
 	resultMap["service_id"] = claims["service_id"].(string)
 	resultMap["policy_id"] = claims["policy_id"].(string)
+	resultMap["user_name"] = claims["user_name"].(string)
 
 	return resultMap, true
 }
@@ -218,10 +222,12 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 	roleId, _ := strconv.Atoi(userData["role_id"])
 	serviceId, _ := strconv.Atoi(userData["service_id"])
 	policyId, _ := strconv.Atoi(userData["policy_id"])
+	userName, _ := userData["user_name"]
 
 	authUser := &model.AuthUser{
 		UserId:    userId,
 		UserUuid:  userUuid,
+		UserName:  userName,
 		ServiceId: serviceId,
 		Expires:   userData["exp"],
 		IssueDate: userData["iss"],
@@ -249,7 +255,7 @@ func (tp TokenProcessorImpl) generateOperatorToken(userEntity entity.User) (stri
 	// OperatorRole token is not required Service id, policy id
 	serviceId := 0
 	policyId := 0
-	return tp.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil
+	return tp.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.Username, targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil
 }
 
 func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
@@ -271,7 +277,7 @@ func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId i
 	if groupId == 0 {
 		roleId := 0
 		policyId := 0
-		return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), roleId, service.Id, policyId), nil
+		return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, roleId, service.Id, policyId), nil
 	}
 
 	policy, err := tp.PolicyService.GetPolicyByUserGroup(targetUser.Id, groupId)
@@ -279,18 +285,19 @@ func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId i
 		return "", model.Forbidden("Can't issue token for group")
 	}
 
-	return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), 0, service.Id, policy.Id), nil
+	return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, 0, service.Id, policy.Id), nil
 }
 
-func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, roleId int, serviceId int, policyId int) string {
+func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, userName string, roleId int, serviceId int, policyId int) string {
 	claims := tp.Token.Claims.(jwt.MapClaims)
-	claims["exp"] = strconv.FormatInt(time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour)).Unix(), 10)
+	claims["exp"] = strconv.FormatInt(time.Now().Add(time.Hour*time.Duration(tp.ServerConfig.TokenExpireHour)).Unix(), 10)
 	claims["iat"] = strconv.FormatInt(time.Now().UnixNano(), 10)
 	claims["sub"] = strconv.Itoa(userId)
 	claims["iss"] = userUuid
 	claims["role_id"] = strconv.Itoa(roleId)
 	claims["service_id"] = strconv.Itoa(serviceId)
 	claims["policy_id"] = strconv.Itoa(policyId)
+	claims["user_name"] = userName
 
 	signedToken, err := tp.Token.SignedString(tp.ServerConfig.SignedInPrivateKey)
 	if err != nil {

@@ -118,7 +118,7 @@ func (r Router) v1() {
 		r.mux.HandleFunc("/api/v1/users/policy", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Policy.Api))
 	}
 
-	// Required Api-Key and group admin
+	// Required Api-Key and group admin permission
 	group := func() {
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/user", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.User.Api))
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/policy", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Policy.Api))
