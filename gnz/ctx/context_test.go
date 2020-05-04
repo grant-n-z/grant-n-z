@@ -16,13 +16,13 @@ func TestGetCtx(t *testing.T) {
 	}
 }
 
-// SetApiKey, GetApiKey test
+// SetClientSecret, GetClientSecret test
 func TestApiKey(t *testing.T) {
 	InitContext()
-	SetApiKey("test_api_key")
-	apiKey := GetApiKey()
+	SetClientSecret("test_api_key")
+	apiKey := GetClientSecret()
 	if !strings.EqualFold(apiKey.(string), "test_api_key") {
-		t.Errorf("Incorrect SetApiKey, GetApiKey test. ApiKey is not `test_api_key`")
+		t.Errorf("Incorrect SetClientSecret, GetClientSecret test. Secret is not `test_api_key`")
 		t.FailNow()
 	}
 }

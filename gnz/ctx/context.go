@@ -19,14 +19,14 @@ func GetCtx() context.Context {
 	return ctx
 }
 
-// Setter api key
-func SetApiKey(apiKey string) {
-	ctx = context.WithValue(ctx, "api_key", apiKey)
+// Setter secret
+func SetClientSecret(clientSecret string) {
+	ctx = context.WithValue(ctx, "secret", clientSecret)
 }
 
-// Getter api key
-func GetApiKey() interface{} {
-	return ctx.Value("api_key")
+// Getter secret
+func GetClientSecret() interface{} {
+	return ctx.Value("secret")
 }
 
 // Setter service id

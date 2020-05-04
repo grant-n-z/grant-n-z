@@ -30,7 +30,7 @@ func TestServiceString(t *testing.T) {
 		t.FailNow()
 	}
 
-	apiKey := ServiceApiKey.String()
+	apiKey := ServiceSecret.String()
 	if !strings.EqualFold(apiKey, "api_key") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()

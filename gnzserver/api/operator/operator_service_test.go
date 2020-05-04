@@ -119,7 +119,7 @@ func (ss StubService) GetServiceByName(name string) (*entity.Service, *model.Err
 	return &entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceOfSecret() (*entity.Service, *model.ErrorResBody) {
 	return &entity.Service{}, nil
 }
 
@@ -135,6 +135,6 @@ func (ss StubService) InsertServiceWithRelationalData(service *entity.Service) (
 	return &entity.Service{}, nil
 }
 
-func (ss StubService) GenerateApiKey() string {
+func (ss StubService) GenerateSecret() string {
 	return ""
 }

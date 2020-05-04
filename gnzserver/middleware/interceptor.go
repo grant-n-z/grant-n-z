@@ -20,7 +20,7 @@ import (
 // Http Header const
 const (
 	Authorization             = "Authorization"
-	Key                       = "Api-Key"
+	ClientSecret              = "Client-Secret"
 	ContentType               = "Content-Type"
 	AccessControlAllowOrigin  = "Access-Control-Allow-Origin"
 	AccessControlAllowHeaders = "Access-Control-Allow-Headers"
@@ -29,22 +29,22 @@ const (
 var iInstance Interceptor
 
 type Interceptor interface {
-	// Intercept Http request and Api-Key header
+	// Intercept Http request and Client-Secret header
 	Intercept(next http.HandlerFunc) http.HandlerFunc
 
 	// Intercept only http header
 	InterceptHeader(next http.HandlerFunc) http.HandlerFunc
 
-	// Intercept Http request and Api-Key header with user authentication
+	// Intercept Http request and Client-Secret header with user authentication
 	InterceptAuthenticateUser(next http.HandlerFunc) http.HandlerFunc
 
-	// Intercept Http request and Api-Key header with user and group admin role authentication
+	// Intercept Http request and Client-Secret header with user and group admin role authentication
 	InterceptAuthenticateGroupAdmin(next http.HandlerFunc) http.HandlerFunc
 
-	// Intercept Http request and Api-Key header with user and group user role authentication
+	// Intercept Http request and Client-Secret header with user and group user role authentication
 	InterceptAuthenticateGroupUser(next http.HandlerFunc) http.HandlerFunc
 
-	// Intercept Http request and Api-Key header with operator authentication
+	// Intercept Http request and Client-Secret header with operator authentication
 	InterceptAuthenticateOperator(next http.HandlerFunc) http.HandlerFunc
 }
 
@@ -82,7 +82,7 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 
 		userType := r.URL.Query().Get("type")
 		if !strings.EqualFold(userType, common.AuthOperator) {
-			if err := interceptApiKey(w, r); err != nil {
+			if err := interceptClientSecret(w, r); err != nil {
 				return
 			}
 		}
@@ -123,7 +123,7 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
+		if err := interceptClientSecret(w, r); err != nil {
 			return
 		}
 
@@ -156,7 +156,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
+		if err := interceptClientSecret(w, r); err != nil {
 			return
 		}
 
@@ -189,7 +189,7 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 			return
 		}
 
-		if err := interceptApiKey(w, r); err != nil {
+		if err := interceptClientSecret(w, r); err != nil {
 			return
 		}
 
@@ -249,16 +249,16 @@ func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody
 	return nil
 }
 
-// Intercept Api-Key header
-func interceptApiKey(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
-	apiKey := r.Header.Get(Key)
-	if strings.EqualFold(apiKey, "") {
-		err := model.BadRequest("Required Api-Key")
+// Intercept Client-Secret header
+func interceptClientSecret(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+	clientSecret := r.Header.Get(ClientSecret)
+	if strings.EqualFold(clientSecret, "") {
+		err := model.BadRequest("Required Client-Secret")
 		model.WriteError(w, err.ToJson(), err.Code)
 		return err
 	}
 
-	ctx.SetApiKey(apiKey)
+	ctx.SetClientSecret(clientSecret)
 	return nil
 }
 

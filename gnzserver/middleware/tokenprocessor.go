@@ -259,9 +259,9 @@ func (tp TokenProcessorImpl) generateOperatorToken(userEntity entity.User) (stri
 }
 
 func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
-	service, err := tp.Service.GetServiceOfApiKey()
+	service, err := tp.Service.GetServiceOfSecret()
 	if err != nil || service == nil {
-		return "", model.BadRequest("Not found registered services by Api-Key")
+		return "", model.BadRequest("Not found registered services by Client-Secret")
 	}
 
 	targetUser, err := tp.UserService.GetUserByEmail(userEntity.Email)

@@ -106,11 +106,11 @@ func (r Router) v1() {
 	r.mux.HandleFunc("/api/v1/auth", r.interceptor.InterceptHeader(r.Auth.Api))
 	r.mux.HandleFunc("/api/v1/services", r.interceptor.InterceptHeader(r.Service.Get)).Methods(http.MethodGet)
 
-	// Required Api-Key header
+	// Required Client-Secret header
 	r.mux.HandleFunc("/api/v1/token", r.interceptor.Intercept(r.Token.Api))
 	r.mux.HandleFunc("/api/v1/services/add_user", r.interceptor.Intercept(r.Service.Post)).Methods(http.MethodPost)
 
-	// Required Api-Key header
+	// Required Client-Secret header
 	user := func() {
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post)).Methods(http.MethodPost)
 		r.mux.HandleFunc("/api/v1/users", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put)).Methods(http.MethodPut)
@@ -119,7 +119,7 @@ func (r Router) v1() {
 		r.mux.HandleFunc("/api/v1/users/policy", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Policy.Api))
 	}
 
-	// Required Api-Key and group admin permission
+	// Required Client-Secret and group admin permission
 	group := func() {
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/user", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.User.Api))
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/policy", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Policy.Api))

@@ -33,7 +33,7 @@ func init() {
 	ctx.SetUserId(1)
 	ctx.SetServiceId(1)
 	ctx.SetUserUuid(uuid.New())
-	ctx.SetApiKey("test")
+	ctx.SetClientSecret("test")
 	common.InitGrantNZServerConfig("../grant_n_z_server.yaml")
 
 	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
@@ -141,24 +141,24 @@ func TestInterceptHeader_Success(t *testing.T) {
 	}
 }
 
-// Test intercept api Key in header
+// Test intercept api ClientSecret in header
 func TestInterceptApiKey_Error(t *testing.T) {
 	writer := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}}
-	request.Header.Set("Api-Key", "")
-	err := interceptApiKey(writer, &request)
+	request.Header.Set("Client-Secret", "")
+	err := interceptClientSecret(writer, &request)
 	if err == nil {
 		t.Errorf("Incorrect TestInterceptApiKey_Error test.")
 		t.FailNow()
 	}
 }
 
-// Test intercept api Key in header
+// Test intercept api ClientSecret in header
 func TestInterceptApiKey_Success(t *testing.T) {
 	writer := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}}
-	request.Header.Set("Api-Key", "test_key")
-	err := interceptApiKey(writer, &request)
+	request.Header.Set("Client-Secret", "test_key")
+	err := interceptClientSecret(writer, &request)
 	if err != nil {
 		t.Errorf("Incorrect TestInterceptApiKey_Success test.")
 		t.FailNow()

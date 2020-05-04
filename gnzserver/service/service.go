@@ -33,8 +33,8 @@ type Service interface {
 	// Get service by service name
 	GetServiceByName(name string) (*entity.Service, *model.ErrorResBody)
 
-	// Get service by service api key
-	GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody)
+	// Get service by service secret
+	GetServiceOfSecret() (*entity.Service, *model.ErrorResBody)
 
 	// Get service of user
 	GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody)
@@ -45,8 +45,8 @@ type Service interface {
 	// Insert service
 	InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody)
 
-	// Generate api key
-	GenerateApiKey() string
+	// Generate secret
+	GenerateSecret() string
 }
 
 // Get Policy instance.
@@ -81,10 +81,10 @@ func (ss ServiceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 	return ss.ServiceRepository.FindByName(name)
 }
 
-func (ss ServiceImpl) GetServiceOfApiKey() (*entity.Service, *model.ErrorResBody) {
-	service, err := ss.ServiceRepository.FindByApiKey(ctx.GetApiKey().(string))
+func (ss ServiceImpl) GetServiceOfSecret() (*entity.Service, *model.ErrorResBody) {
+	service, err := ss.ServiceRepository.FindBySecret(ctx.GetClientSecret().(string))
 	if service == nil || err != nil {
-		err := model.BadRequest("Api-Key is invalid")
+		err := model.BadRequest("Client-Secret is invalid")
 		return nil, err
 	}
 
@@ -97,13 +97,13 @@ func (ss ServiceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody
 
 func (ss ServiceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
-	service.ApiKey = ss.GenerateApiKey()
+	service.Secret = ss.GenerateSecret()
 	return ss.ServiceRepository.Save(service)
 }
 
 func (ss ServiceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
-	service.ApiKey = ss.GenerateApiKey()
+	service.Secret = ss.GenerateSecret()
 
 	defaultRoles := []string{common.AdminRole, common.UserRole}
 	roles := ss.EtcdClient.GetRoleByNames(defaultRoles)
@@ -130,7 +130,7 @@ func (ss ServiceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	return ss.ServiceRepository.SaveWithRelationalData(*service, roles, permissions)
 }
 
-func (ss ServiceImpl) GenerateApiKey() string {
+func (ss ServiceImpl) GenerateSecret() string {
 	key := uuid.New()
 	return strings.Replace(key.String(), "-", "", -1)
 }

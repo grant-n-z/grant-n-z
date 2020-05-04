@@ -25,7 +25,7 @@ func init() {
 	ctx.InitContext()
 	ctx.SetUserId(1)
 	ctx.SetServiceId(1)
-	ctx.SetApiKey("test_key")
+	ctx.SetClientSecret("test_key")
 
 	stubConnection, _ = gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
@@ -79,8 +79,8 @@ func TestGetServiceByName_Success(t *testing.T) {
 
 // Test get service of user
 func TestGetServiceOfApiKey_Success(t *testing.T) {
-	ctx.SetApiKey("test_key")
-	_, err := service.GetServiceOfApiKey()
+	ctx.SetClientSecret("test_key")
+	_, err := service.GetServiceOfSecret()
 	if err != nil {
 		t.Errorf("Incorrect TestGetServiceOfApiKey_Success test")
 		t.FailNow()
@@ -114,9 +114,9 @@ func TestInsertServiceWithRelationalData_Success(t *testing.T) {
 	}
 }
 
-// Test generate api key
+// Test generate secret
 func TestGenerateApiKey(t *testing.T) {
-	key := service.GenerateApiKey()
+	key := service.GenerateSecret()
 	if strings.EqualFold(key, "") {
 		t.Errorf("Incorrect TestGenerateApiKey test")
 		t.FailNow()
@@ -149,7 +149,7 @@ func (sri StubServiceRepositoryImpl) FindByName(name string) (*entity.Service, *
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindBySecret(apiKey string) (*entity.Service, *model.ErrorResBody) {
 	service := entity.Service{Name:"test"}
 	return &service, nil
 }

@@ -82,7 +82,7 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check exist service
-	serviceEntity, err := s.ServiceService.GetServiceOfApiKey()
+	serviceEntity, err := s.ServiceService.GetServiceOfSecret()
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

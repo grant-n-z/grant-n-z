@@ -26,13 +26,13 @@ type ServiceRepository interface {
 	// Find Service by service name
 	FindByName(name string) (*entity.Service, *model.ErrorResBody)
 
-	// Find Service by service Api-Key
-	FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody)
+	// Find Service by service Client-Secret
+	FindBySecret(apiKey string) (*entity.Service, *model.ErrorResBody)
 
 	// Find Service name by service id
 	FindNameById(id int) *string
 
-	// Find Service name by Api-Key
+	// Find Service name by Client-Secret
 	FindNameByApiKey(name string) *string
 
 	// Fin Service by user_id
@@ -122,9 +122,9 @@ func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, *mode
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
+func (sri ServiceRepositoryImpl) FindBySecret(secret string) (*entity.Service, *model.ErrorResBody) {
 	var service entity.Service
-	if err := sri.Connection.Where("api_key = ?", apiKey).First(&service).Error; err != nil {
+	if err := sri.Connection.Where("secret = ?", secret).First(&service).Error; err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, nil
 		}

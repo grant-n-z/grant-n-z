@@ -55,7 +55,7 @@ func (uh UserImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceEntity, err := uh.Service.GetServiceOfApiKey()
+	serviceEntity, err := uh.Service.GetServiceOfSecret()
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

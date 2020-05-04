@@ -29,7 +29,7 @@ func init() {
 	ctx.SetUserId(1)
 	ctx.SetServiceId(1)
 	ctx.SetUserUuid(uuid.New())
-	ctx.SetApiKey("test")
+	ctx.SetClientSecret("test")
 
 	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
@@ -497,7 +497,7 @@ func (sri StubServiceRepositoryImpl) FindByName(name string) (*entity.Service, *
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindByApiKey(apiKey string) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindBySecret(apiKey string) (*entity.Service, *model.ErrorResBody) {
 	service := entity.Service{Name: "test"}
 	return &service, nil
 }

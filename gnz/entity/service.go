@@ -11,7 +11,7 @@ const (
 	ServiceId
 	ServiceUuid
 	ServiceName
-	ServiceApiKey
+	ServiceSecret
 	ServiceCreatedAt
 	ServiceUpdatedAt
 )
@@ -21,7 +21,7 @@ type Service struct {
 	Id        int       `gorm:"primary_key"json:"id"`
 	Uuid      uuid.UUID `gorm:"type:varchar(128)"json:"uuid"`
 	Name      string    `gorm:"unique;type:varchar(128)"validate:"required"json:"name"`
-	ApiKey    string    `gorm:"type:varchar(128)"json:"api_key"`
+	Secret    string    `gorm:"type:varchar(128)"json:"secret"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -39,8 +39,8 @@ func (sc ServiceTableConfig) String() string {
 		return "uuid"
 	case ServiceName:
 		return "name"
-	case ServiceApiKey:
-		return "api_key"
+	case ServiceSecret:
+		return "secret"
 	case ServiceCreatedAt:
 		return "created_at"
 	case ServiceUpdatedAt:

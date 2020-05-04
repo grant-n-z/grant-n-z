@@ -55,9 +55,9 @@ func TestServiceFindByName_InternalServerError(t *testing.T) {
 	}
 }
 
-// FindByApiKey InternalServerError test
+// FindBySecret InternalServerError test
 func TestServiceFindByApiKey_InternalServerError(t *testing.T) {
-	_, err := serviceRepository.FindByApiKey("test_api_key")
+	_, err := serviceRepository.FindBySecret("test_api_key")
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestServiceFindByApiKey_InternalServerError test")
 		t.FailNow()
