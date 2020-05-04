@@ -253,7 +253,7 @@ func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody
 func interceptClientSecret(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
 	clientSecret := r.Header.Get(ClientSecret)
 	if strings.EqualFold(clientSecret, "") {
-		err := model.BadRequest("Required Client-Secret")
+		err := model.Unauthorized("Required Client-Secret")
 		model.WriteError(w, err.ToJson(), err.Code)
 		return err
 	}

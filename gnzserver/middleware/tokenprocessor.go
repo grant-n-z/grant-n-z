@@ -171,7 +171,7 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, p
 
 	policy, err := tp.PolicyService.GetPolicyById(authUser.PolicyId)
 	if err != nil {
-		return nil, model.BadRequest("You don't join this group")
+		return nil, model.Forbidden("You don't join this group")
 	}
 
 	if len(roleNames) > 0 && !strings.EqualFold(roleNames[0], "") {
@@ -241,15 +241,15 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 func (tp TokenProcessorImpl) generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody) {
 	targetUser, err := tp.UserService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
 	if err != nil || targetUser == nil {
-		return "", model.BadRequest("Failed to email or password")
+		return "", model.Unauthorized("Failed to email or password")
 	}
 
 	if !tp.UserService.ComparePw(targetUser.Password, userEntity.Password) {
-		return "", model.BadRequest("Failed to email or password")
+		return "", model.Unauthorized("Failed to email or password")
 	}
 
 	if targetUser.OperatorPolicy.RoleId != common.OperatorRoleId {
-		return "", model.BadRequest("Can not issue token")
+		return "", model.Unauthorized("You don't have operator role")
 	}
 
 	// OperatorRole token is not required Service id, policy id
@@ -261,16 +261,16 @@ func (tp TokenProcessorImpl) generateOperatorToken(userEntity entity.User) (stri
 func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
 	service, err := tp.Service.GetServiceOfSecret()
 	if err != nil || service == nil {
-		return "", model.BadRequest("Not found registered services by Client-Secret")
+		return "", model.Unauthorized("Client-Secret is invalid")
 	}
 
 	targetUser, err := tp.UserService.GetUserByEmail(userEntity.Email)
 	if err != nil || targetUser == nil {
-		return "", model.BadRequest("Failed to email or password")
+		return "", model.Unauthorized("Failed to email or password")
 	}
 
 	if !tp.UserService.ComparePw(targetUser.Password, userEntity.Password) {
-		return "", model.BadRequest("Failed to email or password")
+		return "", model.Unauthorized("Failed to email or password")
 	}
 
 	// Case of group_id is zero, not using policy.
