@@ -305,6 +305,33 @@ func ValidateBody(w http.ResponseWriter, i interface{}) *model.ErrorResBody {
 	return nil
 }
 
+// Validate request body
+func ValidateTokenRequest(w http.ResponseWriter, tokenRequest *model.TokenRequest) *model.ErrorResBody {
+	if tokenRequest.GrantType == "" {
+		tokenRequest.GrantType = "password"
+	}
+	switch tokenRequest.GrantType {
+	case model.GrantPassword.String():
+		if tokenRequest.Email == "" || tokenRequest.Password == "" || len(tokenRequest.Password) <= 7 {
+			err := model.BadRequest("Invalid request.")
+			model.WriteError(w, err.ToJson(), err.Code)
+			return err
+		}
+	case model.GrantRefreshToken.String():
+		if tokenRequest.RefreshToken == "" {
+			err := model.BadRequest("Invalid request.")
+			model.WriteError(w, err.ToJson(), err.Code)
+			return err
+		}
+	default:
+		err := model.BadRequest("Not support grant type.")
+		model.WriteError(w, err.ToJson(), err.Code)
+		return err
+	}
+
+	return nil
+}
+
 // Parse request group_id of path parameter
 func ParamGroupId(r *http.Request) (int, *model.ErrorResBody) {
 	groupId := mux.Vars(r)["group_id"]

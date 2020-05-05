@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
@@ -74,8 +73,8 @@ func TestToken_Post(t *testing.T) {
 type StubTokenProcessor struct {
 }
 
-func (tp StubTokenProcessor) Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody) {
-	return "", nil
+func (tp StubTokenProcessor) Generate(userType string, groupIdStr string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
+	return &model.TokenResponse{}, nil
 }
 
 func (tp StubTokenProcessor) ParseToken(token string) (map[string]string, bool) {
@@ -91,6 +90,6 @@ func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, p
 	return &model.AuthUser{}, nil
 }
 
-func (tp StubTokenProcessor) GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
+func (tp StubTokenProcessor) GetAuthUserInToken(token string, isRefresh bool) (*model.AuthUser, *model.ErrorResBody) {
 	return &model.AuthUser{}, nil
 }

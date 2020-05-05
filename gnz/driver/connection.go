@@ -36,6 +36,8 @@ func InitRdbms() {
 
 	if strings.EqualFold(common.App.LogLevel, "DEBUG") || strings.EqualFold(common.App.LogLevel, "debug") {
 		db.LogMode(true)
+	} else {
+		db.LogMode(false)
 	}
 
 	//db.DB().SetMaxOpenConns(10)

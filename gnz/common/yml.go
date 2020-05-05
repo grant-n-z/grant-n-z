@@ -108,6 +108,9 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 
 	if strings.Contains(tokenExpireHourStr, "$") {
 		tokenExpireHourStr = os.Getenv(yml.Server.TokenExpireHourStr[1:])
+		if tokenExpireHourStr == "" {
+			tokenExpireHourStr = "48"
+		}
 	}
 
 	if strings.Contains(signAlgorithm, "$") {

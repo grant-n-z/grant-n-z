@@ -59,23 +59,22 @@ func (s ServiceImpl) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
-	var userEntity *entity.User
-	if err := middleware.BindBody(w, r, &userEntity); err != nil {
+	var tokenRequest *model.TokenRequest
+	if err := middleware.BindBody(w, r, &tokenRequest); err != nil {
 		return
 	}
-	userEntity.Username = userEntity.Email
-	if err := middleware.ValidateBody(w, userEntity); err != nil {
+	if err := middleware.ValidateTokenRequest(w, tokenRequest); err != nil {
 		return
 	}
 
 	// Authentication user
-	token, err := s.TokenProcessor.Generate("", "", *userEntity)
+	token, err := s.TokenProcessor.Generate("", "", *tokenRequest)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
-	token = "Bearer " + token
-	authUser, err := s.TokenProcessor.GetAuthUserInToken(token)
+
+	authUser, err := s.TokenProcessor.GetAuthUserInToken("Bearer " + token.Token, tokenRequest.IsRefresh())
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

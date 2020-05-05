@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -20,7 +19,7 @@ var tpInstance TokenProcessor
 
 type TokenProcessor interface {
 	// Generate jwt token
-	Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody)
+	Generate(userType string, groupIdStr string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody)
 
 	// Parse and check token
 	ParseToken(token string) (map[string]string, bool)
@@ -33,7 +32,7 @@ type TokenProcessor interface {
 
 	// Get auth user data in token
 	// If invalid token, return 401
-	GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	GetAuthUserInToken(token string, isRefresh bool) (*model.AuthUser, *model.ErrorResBody)
 }
 
 // TokenProcessor struct
@@ -73,25 +72,29 @@ func NewTokenProcessor() TokenProcessor {
 	}
 }
 
-func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, userEntity entity.User) (string, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
 	if strings.EqualFold(groupIdStr, "") {
 		groupIdStr = "0"
 	}
 
 	groupId, err := strconv.Atoi(groupIdStr)
 	if err != nil {
-		return "", model.BadRequest("Group id is only integer of query parameter")
+		return nil, model.BadRequest("Group id is only integer of query parameter")
 	}
 
-	switch userType {
-	case common.AuthOperator:
-		return tp.generateOperatorToken(userEntity)
-	case common.AuthUser:
-		return tp.generateUserToken(userEntity, groupId)
-	case "":
-		return tp.generateUserToken(userEntity, groupId)
-	default:
-		return "", model.BadRequest("Not support type of query parameter")
+	if strings.EqualFold(tokenRequest.GrantType, model.GrantPassword.String()) {
+		switch userType {
+		case common.AuthOperator:
+			return tp.generateOperatorToken(tokenRequest)
+		case common.AuthUser:
+			return tp.generateUserToken(tokenRequest, groupId)
+		case "":
+			return tp.generateUserToken(tokenRequest, groupId)
+		default:
+			return nil, model.BadRequest("Not support type of query parameter")
+		}
+	} else {
+		return tp.generateTokenByRefreshToken(tokenRequest.RefreshToken)
 	}
 }
 
@@ -149,7 +152,7 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 }
 
 func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tp.GetAuthUserInToken(token)
+	authUser, err := tp.GetAuthUserInToken(token, false)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +167,7 @@ func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.AuthUser,
 }
 
 func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tp.GetAuthUserInToken(token)
+	authUser, err := tp.GetAuthUserInToken(token, false)
 	if err != nil {
 		return nil, err
 	}
@@ -206,8 +209,8 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, p
 	return authUser, nil
 }
 
-func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	if !strings.Contains(token, "Bearer") {
+func (tp TokenProcessorImpl) GetAuthUserInToken(token string, isRefresh bool) (*model.AuthUser, *model.ErrorResBody) {
+	if !isRefresh && !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")
 	}
@@ -238,59 +241,89 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string) (*model.AuthUser, 
 	return authUser, nil
 }
 
-func (tp TokenProcessorImpl) generateOperatorToken(userEntity entity.User) (string, *model.ErrorResBody) {
-	targetUser, err := tp.UserService.GetUserWithOperatorPolicyByEmail(userEntity.Email)
+func (tp TokenProcessorImpl) generateOperatorToken(tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
+	targetUser, err := tp.UserService.GetUserWithOperatorPolicyByEmail(tokenRequest.Email)
 	if err != nil || targetUser == nil {
-		return "", model.Unauthorized("Failed to email or password")
+		return nil, model.Unauthorized("Failed to email or password")
 	}
 
-	if !tp.UserService.ComparePw(targetUser.Password, userEntity.Password) {
-		return "", model.Unauthorized("Failed to email or password")
+	if !tp.UserService.ComparePw(targetUser.Password, tokenRequest.Password) {
+		return nil, model.Unauthorized("Failed to email or password")
 	}
 
 	if targetUser.OperatorPolicy.RoleId != common.OperatorRoleId {
-		return "", model.Unauthorized("You don't have operator role")
+		return nil, model.Unauthorized("You don't have operator role")
 	}
 
 	// OperatorRole token is not required Service id, policy id
 	serviceId := 0
 	policyId := 0
-	return tp.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.Username, targetUser.OperatorPolicy.RoleId, serviceId, policyId), nil
+
+	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
+	token := tp.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.Username, targetUser.OperatorPolicy.RoleId, serviceId, policyId, tokenExp)
+
+	refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 2)
+	refreshToken := tp.signedInToken(targetUser.UserId, targetUser.Uuid.String(), targetUser.Username, targetUser.OperatorPolicy.RoleId, serviceId, policyId, refreshTokenExp)
+
+	return &model.TokenResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (tp TokenProcessorImpl) generateUserToken(userEntity entity.User, groupId int) (string, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) generateUserToken(tokenRequest model.TokenRequest, groupId int) (*model.TokenResponse, *model.ErrorResBody) {
 	service, err := tp.Service.GetServiceOfSecret()
 	if err != nil || service == nil {
-		return "", model.Unauthorized("Client-Secret is invalid")
+		return nil, model.Unauthorized("Client-Secret is invalid")
 	}
 
-	targetUser, err := tp.UserService.GetUserByEmail(userEntity.Email)
+	targetUser, err := tp.UserService.GetUserByEmail(tokenRequest.Email)
 	if err != nil || targetUser == nil {
-		return "", model.Unauthorized("Failed to email or password")
+		return nil, model.Unauthorized("Failed to email or password")
 	}
 
-	if !tp.UserService.ComparePw(targetUser.Password, userEntity.Password) {
-		return "", model.Unauthorized("Failed to email or password")
+	if !tp.UserService.ComparePw(targetUser.Password, tokenRequest.Password) {
+		return nil, model.Unauthorized("Failed to email or password")
 	}
 
 	// Case of group_id is zero, not using policy.
+	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
 	if groupId == 0 {
 		roleId := 0
 		policyId := 0
-		return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, roleId, service.Id, policyId), nil
+
+		token := tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, roleId, service.Id, policyId, tokenExp)
+		refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 2)
+		refreshToken := tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, roleId, service.Id, policyId, refreshTokenExp)
+		return &model.TokenResponse{Token: token, RefreshToken: refreshToken}, nil
 	}
 
 	policy, err := tp.PolicyService.GetPolicyByUserGroup(targetUser.Id, groupId)
 	if err != nil {
-		return "", model.Forbidden("Can't issue token for group")
+		return nil, model.Forbidden("Can't issue token for group")
 	}
 
-	return tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, 0, service.Id, policy.Id), nil
+	token := tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, 0, service.Id, policy.Id, tokenExp)
+	refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 2)
+	refreshToken := tp.signedInToken(targetUser.Id, targetUser.Uuid.String(), targetUser.Username, 0, service.Id, policy.Id, refreshTokenExp)
+
+	return &model.TokenResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, userName string, roleId int, serviceId int, policyId int) string {
+func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string) (*model.TokenResponse, *model.ErrorResBody) {
+	authUser, err := tp.GetAuthUserInToken(refreshToken , true)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
+	token := tp.signedInToken(authUser.UserId, authUser.UserUuid.String(), authUser.UserName, authUser.RoleId, authUser.ServiceId, authUser.PolicyId, tokenExp)
+
+	refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 2)
+	newRefreshToken := tp.signedInToken(authUser.UserId, authUser.UserUuid.String(), authUser.UserName, authUser.RoleId, authUser.ServiceId, authUser.PolicyId, refreshTokenExp)
+	return &model.TokenResponse{Token: token, RefreshToken: newRefreshToken}, nil
+}
+
+func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, userName string, roleId int, serviceId int, policyId int, exp time.Time) string {
 	claims := tp.Token.Claims.(jwt.MapClaims)
-	claims["exp"] = strconv.FormatInt(time.Now().Add(time.Hour*time.Duration(tp.ServerConfig.TokenExpireHour)).Unix(), 10)
+	claims["exp"] = strconv.FormatInt(exp.Unix(), 10)
 	claims["iat"] = strconv.FormatInt(time.Now().UnixNano(), 10)
 	claims["sub"] = strconv.Itoa(userId)
 	claims["iss"] = userUuid

@@ -124,10 +124,10 @@ func TestGenerate_Error(t *testing.T) {
 	_, err := tokenProcessor.Generate(
 		common.AuthOperator,
 		"test",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "testa",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "testa",
 		},
 	)
 	if err == nil {
@@ -138,10 +138,10 @@ func TestGenerate_Error(t *testing.T) {
 	_, err = tokenProcessor.Generate(
 		common.AuthOperator,
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "testa",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "testa",
 		},
 	)
 	if err == nil {
@@ -152,9 +152,7 @@ func TestGenerate_Error(t *testing.T) {
 	_, err = tokenProcessor.Generate(
 		common.AuthUser,
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
+		model.TokenRequest{
 			Password: "testa",
 		},
 	)
@@ -166,10 +164,10 @@ func TestGenerate_Error(t *testing.T) {
 	_, err = tokenProcessor.Generate(
 		"",
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "testa",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "testa",
 		},
 	)
 	if err == nil {
@@ -180,10 +178,10 @@ func TestGenerate_Error(t *testing.T) {
 	_, err = tokenProcessor.Generate(
 		"none",
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "testa",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "testa",
 		},
 	)
 	if err == nil {
@@ -197,14 +195,41 @@ func TestGenerate_Success(t *testing.T) {
 	_, err := tokenProcessor.Generate(
 		common.AuthOperator,
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "test",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "test",
 		},
 	)
 	if err != nil {
 		t.Errorf("Incorrect TestGenerate_Success test." + err.ToJson())
+		t.FailNow()
+	}
+}
+
+// Test Generate refresh token success
+func TestGenerateRefreshToken_Success(t *testing.T) {
+	token, _ := tokenProcessor.Generate(
+		common.AuthOperator,
+		"",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "test",
+		},
+	)
+
+	token, err := tokenProcessor.Generate(
+		common.AuthOperator,
+		"",
+		model.TokenRequest{
+			GrantType:    "refresh_token",
+			RefreshToken: token.RefreshToken,
+		},
+	)
+
+	if err != nil {
+		t.Errorf("Incorrect TestGenerateRefreshToken_Success test." + err.ToJson())
 		t.FailNow()
 	}
 }
@@ -223,14 +248,14 @@ func TestParseToken_Success(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthUser,
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "test",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "test",
 		},
 	)
 
-	_, result := tokenProcessor.ParseToken(token)
+	_, result := tokenProcessor.ParseToken(token.Token)
 	if !result {
 		t.Errorf("Incorrect TestParseToken_Success test.")
 		t.FailNow()
@@ -242,14 +267,14 @@ func TestVerifyOperatorToken_Error(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthOperator,
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "test",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "test",
 		},
 	)
 
-	_, err := tokenProcessor.VerifyOperatorToken(token)
+	_, err := tokenProcessor.VerifyOperatorToken(token.Token)
 	if err == nil {
 		t.Errorf("Incorrect TestVerifyOperatorToken_Error test.")
 		t.FailNow()
@@ -261,15 +286,13 @@ func TestVerifyOperatorToken_Success(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthOperator,
 		"",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "test",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "test",
 		},
 	)
-	token = "Bearer " + token
-
-	_, err := tokenProcessor.VerifyOperatorToken(token)
+	_, err := tokenProcessor.VerifyOperatorToken("Bearer " + token.Token)
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyOperatorToken_Success test." + err.ToJson())
 		t.FailNow()
@@ -290,15 +313,13 @@ func TestVerifyUserToken_Success(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthUser,
 		"1",
-		entity.User{
-			Username: "test",
-			Email:    "test@gmail.com",
-			Password: "test",
+		model.TokenRequest{
+			GrantType: "password",
+			Email:     "test@gmail.com",
+			Password:  "test",
 		},
 	)
-	token = "Bearer " + token
-
-	_, err := tokenProcessor.VerifyUserToken(token, []string{"test_role"}, "test_permission")
+	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, []string{"test_role"}, "test_permission")
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Success test." + err.ToJson())
 		t.FailNow()

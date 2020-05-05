@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 )
 

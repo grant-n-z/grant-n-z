@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -51,25 +50,24 @@ func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
-	var userEntity *entity.User
-	if err := middleware.BindBody(w, r, &userEntity); err != nil {
+	var tokenRequest *model.TokenRequest
+	if err := middleware.BindBody(w, r, &tokenRequest); err != nil {
 		return
 	}
 
-	userEntity.Username = userEntity.Email
-	if err := middleware.ValidateBody(w, userEntity); err != nil {
+	if err := middleware.ValidateTokenRequest(w, tokenRequest); err != nil {
 		return
 	}
 
 	userType := r.URL.Query().Get("type")
 	groupId := r.URL.Query().Get("group_id")
-	token, err := th.TokenProcessor.Generate(userType, groupId, *userEntity)
+	token, err := th.TokenProcessor.Generate(userType, groupId, *tokenRequest)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	res, _ := json.Marshal(map[string]string{"token": token})
+	res, _ := json.Marshal(token)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

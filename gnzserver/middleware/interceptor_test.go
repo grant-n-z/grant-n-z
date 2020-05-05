@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"os"
 	"testing"
 	"time"
@@ -247,6 +248,79 @@ func TestValidateBody_Success(t *testing.T) {
 	err := ValidateBody(writer, user)
 	if err != nil {
 		t.Errorf("Incorrect TestValidateBody_Success test.")
+		t.FailNow()
+	}
+}
+
+// Test token for password
+func TestValidateTokenRequest_Password_Success(t *testing.T) {
+	writer := StubResponseWriter{}
+	tokenRequest := model.TokenRequest{
+		GrantType: "password",
+		Email:     "test@gmail.com",
+		Password:  "testtest",
+	}
+	err := ValidateTokenRequest(writer, &tokenRequest)
+	if err != nil {
+		t.Errorf("Incorrect TestValidateTokenRequest_Password_Success test.")
+		t.FailNow()
+	}
+}
+
+// Test token for refresh type
+func TestValidateTokenRequest_RefreshToken_Success(t *testing.T) {
+	writer := StubResponseWriter{}
+	tokenRequest := model.TokenRequest{
+		GrantType:    "refresh_token",
+		RefreshToken: "token",
+	}
+	err := ValidateTokenRequest(writer, &tokenRequest)
+	if err != nil {
+		t.Errorf("Incorrect TestValidateTokenRequest_RefreshToken_Success test.")
+		t.FailNow()
+	}
+}
+
+// Test token bad request of email
+func TestValidateTokenRequest_InvalidEmail_BadRequest(t *testing.T) {
+	writer := StubResponseWriter{}
+	tokenRequest := model.TokenRequest{
+		GrantType: "password",
+		Email:     "test@gmail.com",
+		Password:  "test",
+	}
+	err := ValidateTokenRequest(writer, &tokenRequest)
+	if err == nil {
+		t.Errorf("Incorrect TestValidateTokenRequest_InvalidEmail_BadRequest test.")
+		t.FailNow()
+	}
+}
+
+// Test token bad request of email
+func TestValidateTokenRequest_InvalidGrantType_BadRequest(t *testing.T) {
+	writer := StubResponseWriter{}
+	tokenRequest := model.TokenRequest{
+		GrantType: "none",
+		Email:     "test@gmail.com",
+		Password:  "testtest",
+	}
+	err := ValidateTokenRequest(writer, &tokenRequest)
+	if err == nil {
+		t.Errorf("Incorrect TestValidateTokenRequest_InvalidGrantType_BadRequest test.")
+		t.FailNow()
+	}
+}
+
+// Test refresh token bad request
+func TestValidateTokenRequest_InvalidRefreshToken_BadRequest(t *testing.T) {
+	writer := StubResponseWriter{}
+	tokenRequest := model.TokenRequest{
+		GrantType:    "refresh_token",
+		RefreshToken: "",
+	}
+	err := ValidateTokenRequest(writer, &tokenRequest)
+	if err == nil {
+		t.Errorf("Incorrect TestValidateTokenRequest_InvalidRefreshToken_BadRequest test.")
 		t.FailNow()
 	}
 }
