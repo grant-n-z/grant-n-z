@@ -82,14 +82,14 @@ func (tp StubTokenProcessor) ParseToken(token string) (map[string]string, bool) 
 	return resultMap, true
 }
 
-func (tp StubTokenProcessor) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	return &model.AuthUser{}, nil
+func (tp StubTokenProcessor) VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody) {
+	return &model.JwtPayload{}, nil
 }
 
-func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
-	return &model.AuthUser{}, nil
+func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.JwtPayload, *model.ErrorResBody) {
+	return &model.JwtPayload{}, nil
 }
 
-func (tp StubTokenProcessor) GetAuthUserInToken(token string, isRefresh bool) (*model.AuthUser, *model.ErrorResBody) {
-	return &model.AuthUser{}, nil
+func (tp StubTokenProcessor) GetJwtPayload(token string, isRefresh bool) (*model.JwtPayload, *model.ErrorResBody) {
+	return &model.JwtPayload{}, nil
 }

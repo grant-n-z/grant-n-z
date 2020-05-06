@@ -82,6 +82,11 @@ func (ss ServiceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 }
 
 func (ss ServiceImpl) GetServiceOfSecret() (*entity.Service, *model.ErrorResBody) {
+	service := ss.EtcdClient.GetService(ctx.GetClientSecret().(string))
+	if service != nil {
+		return service, nil
+	}
+
 	service, err := ss.ServiceRepository.FindBySecret(ctx.GetClientSecret().(string))
 	if service == nil || err != nil {
 		err := model.BadRequest("Client-Secret is invalid")

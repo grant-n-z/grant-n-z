@@ -6,8 +6,8 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 )
 
-// User data in jwt
-type AuthUser struct {
+// Payload in jwt
+type JwtPayload struct {
 	UserUuid  uuid.UUID `json:"user_uuid"`
 	UserId    int       `json:"user_id"`
 	UserName  string    `json:"user_name"`

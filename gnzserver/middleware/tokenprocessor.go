@@ -25,14 +25,14 @@ type TokenProcessor interface {
 	ParseToken(token string) (map[string]string, bool)
 
 	// Verify operator token
-	VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody)
+	VerifyUserToken(token string, roleNames []string, permissionName string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Get auth user data in token
 	// If invalid token, return 401
-	GetAuthUserInToken(token string, isRefresh bool) (*model.AuthUser, *model.ErrorResBody)
+	GetJwtPayload(token string, isRefresh bool) (*model.JwtPayload, *model.ErrorResBody)
 }
 
 // TokenProcessor struct
@@ -94,7 +94,7 @@ func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, tokenR
 			return nil, model.BadRequest("Not support type of query parameter")
 		}
 	} else {
-		return tp.generateTokenByRefreshToken(tokenRequest.RefreshToken)
+		return tp.generateTokenByRefreshToken(tokenRequest.RefreshToken, groupId)
 	}
 }
 
@@ -151,28 +151,28 @@ func (tp TokenProcessorImpl) ParseToken(token string) (map[string]string, bool) 
 	return resultMap, true
 }
 
-func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tp.GetAuthUserInToken(token, false)
+func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody) {
+	jwtPayload, err := tp.GetJwtPayload(token, false)
 	if err != nil {
 		return nil, err
 	}
 
-	operatorRole, err := tp.OperatorPolicyService.GetByUserIdAndRoleId(authUser.UserId, authUser.RoleId)
+	operatorRole, err := tp.OperatorPolicyService.GetByUserIdAndRoleId(jwtPayload.UserId, jwtPayload.RoleId)
 	if operatorRole == nil || err != nil {
 		log.Logger.Info("Not contain operator role or failed to query")
 		return nil, model.Forbidden("Forbidden this token")
 	}
 
-	return authUser, nil
+	return jwtPayload, nil
 }
 
-func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.AuthUser, *model.ErrorResBody) {
-	authUser, err := tp.GetAuthUserInToken(token, false)
+func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.JwtPayload, *model.ErrorResBody) {
+	jwtPayload, err := tp.GetJwtPayload(token, false)
 	if err != nil {
 		return nil, err
 	}
 
-	policy, err := tp.PolicyService.GetPolicyById(authUser.PolicyId)
+	policy, err := tp.PolicyService.GetPolicyById(jwtPayload.PolicyId)
 	if err != nil {
 		return nil, model.Forbidden("You don't join this group")
 	}
@@ -201,15 +201,15 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, p
 		}
 	}
 
-	userService, err := tp.UserService.GetUserServiceByUserIdAndServiceId(authUser.UserId, authUser.ServiceId)
+	userService, err := tp.UserService.GetUserServiceByUserIdAndServiceId(jwtPayload.UserId, jwtPayload.ServiceId)
 	if userService == nil || err != nil {
 		return nil, model.Forbidden("Forbidden the user cannot access Service")
 	}
 
-	return authUser, nil
+	return jwtPayload, nil
 }
 
-func (tp TokenProcessorImpl) GetAuthUserInToken(token string, isRefresh bool) (*model.AuthUser, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) GetJwtPayload(token string, isRefresh bool) (*model.JwtPayload, *model.ErrorResBody) {
 	if !isRefresh && !strings.Contains(token, "Bearer") {
 		log.Logger.Info("Not found authorization header or not contain `Bearer` in authorization header")
 		return nil, model.Unauthorized("Unauthorized.")
@@ -226,19 +226,24 @@ func (tp TokenProcessorImpl) GetAuthUserInToken(token string, isRefresh bool) (*
 	serviceId, _ := strconv.Atoi(userData["service_id"])
 	policyId, _ := strconv.Atoi(userData["policy_id"])
 	userName, _ := userData["username"]
+	expires, _ := userData["exp"]
 
-	authUser := &model.AuthUser{
+	if err := tp.checkExpired(expires); err != nil {
+		return nil, err
+	}
+
+	jwtPayload := &model.JwtPayload{
 		UserId:    userId,
 		UserUuid:  userUuid,
 		UserName:  userName,
 		ServiceId: serviceId,
-		Expires:   userData["exp"],
+		Expires:   expires,
 		IssueDate: userData["iss"],
 		RoleId:    roleId,
 		PolicyId:  policyId,
 	}
 
-	return authUser, nil
+	return jwtPayload, nil
 }
 
 func (tp TokenProcessorImpl) generateOperatorToken(tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
@@ -295,6 +300,7 @@ func (tp TokenProcessorImpl) generateUserToken(tokenRequest model.TokenRequest, 
 		return &model.TokenResponse{Token: token, RefreshToken: refreshToken}, nil
 	}
 
+	// If user has policy, bellow process
 	policy, err := tp.PolicyService.GetPolicyByUserGroup(targetUser.Id, groupId)
 	if err != nil {
 		return nil, model.Forbidden("Can't issue token for group")
@@ -307,17 +313,37 @@ func (tp TokenProcessorImpl) generateUserToken(tokenRequest model.TokenRequest, 
 	return &model.TokenResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string) (*model.TokenResponse, *model.ErrorResBody) {
-	authUser, err := tp.GetAuthUserInToken(refreshToken , true)
+func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string, groupId int) (*model.TokenResponse, *model.ErrorResBody) {
+	jwtPayload, err := tp.GetJwtPayload(refreshToken, true)
 	if err != nil {
 		return nil, err
 	}
+	service, err := tp.Service.GetServiceOfSecret()
+	if err != nil || service == nil {
+		return nil, model.Unauthorized("Client-Secret is invalid")
+	}
 
+	// Case of group_id is zero, not using policy.
 	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
-	token := tp.signedInToken(authUser.UserId, authUser.UserUuid.String(), authUser.UserName, authUser.RoleId, authUser.ServiceId, authUser.PolicyId, tokenExp)
+	if groupId == 0 {
+		roleId := 0
+		policyId := 0
+		token := tp.signedInToken(jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.UserName, roleId, service.Id, policyId, tokenExp)
+		refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 2)
+		refreshToken := tp.signedInToken(jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.UserName, roleId, service.Id, policyId, refreshTokenExp)
+		return &model.TokenResponse{Token: token, RefreshToken: refreshToken}, nil
+	}
+
+	// If user has policy, bellow process
+	policy, err := tp.PolicyService.GetPolicyByUserGroup(jwtPayload.UserId, groupId)
+	if err != nil {
+		return nil, model.Forbidden("Can't issue token for group")
+	}
+
+	token := tp.signedInToken(jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.UserName, jwtPayload.RoleId, service.Id, policy.Id, tokenExp)
 
 	refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 2)
-	newRefreshToken := tp.signedInToken(authUser.UserId, authUser.UserUuid.String(), authUser.UserName, authUser.RoleId, authUser.ServiceId, authUser.PolicyId, refreshTokenExp)
+	newRefreshToken := tp.signedInToken(jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.UserName, jwtPayload.RoleId, service.Id, policy.Id, refreshTokenExp)
 	return &model.TokenResponse{Token: token, RefreshToken: newRefreshToken}, nil
 }
 
@@ -339,4 +365,14 @@ func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, userName
 	}
 
 	return signedToken
+}
+
+func (tp TokenProcessorImpl) checkExpired(exp string) *model.ErrorResBody {
+	i, _ := strconv.ParseInt(exp, 10, 64)
+	expiredAt := time.Unix(i, 0).Unix()
+	now := time.Now().Unix()
+	if now > expiredAt {
+		return model.Unauthorized("The access token provided has expired.")
+	}
+	return nil
 }
