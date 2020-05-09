@@ -16,6 +16,7 @@ type JwtPayload struct {
 	IssueDate string    `json:"issue_date"`
 	RoleId    int       `json:"role_id"`
 	PolicyId  int       `json:"policy_id"`
+	IsRefresh bool      `json:"is_refresh"`
 }
 
 // The table `users` and `operator_policies` struct

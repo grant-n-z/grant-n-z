@@ -234,34 +234,6 @@ func TestGenerateRefreshToken_Success(t *testing.T) {
 	}
 }
 
-// Test parse token
-func TestParseToken_Error(t *testing.T) {
-	_, result := tokenProcessor.ParseToken("InvalidToken")
-	if result {
-		t.Errorf("Incorrect TestParseToken_Error test.")
-		t.FailNow()
-	}
-}
-
-// Test parse token
-func TestParseToken_Success(t *testing.T) {
-	token, _ := tokenProcessor.Generate(
-		common.AuthUser,
-		"",
-		model.TokenRequest{
-			GrantType: "password",
-			Email:     "test@gmail.com",
-			Password:  "test",
-		},
-	)
-
-	_, result := tokenProcessor.ParseToken(token.Token)
-	if !result {
-		t.Errorf("Incorrect TestParseToken_Success test.")
-		t.FailNow()
-	}
-}
-
 // Test verify operator token
 func TestVerifyOperatorToken_Error(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
