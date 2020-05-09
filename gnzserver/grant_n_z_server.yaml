@@ -1,5 +1,5 @@
 app:
-  version: 0.0.27
+  version: 0.0.28
   log-level: $LOG_LEVEL
 
 server:
