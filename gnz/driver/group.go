@@ -25,7 +25,7 @@ type GroupRepository interface {
 
 	// Get all groups by user_id
 	// Join user_groups and groups
-	FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
+	FindByUserId(userId int) ([]*entity.Group, *model.ErrorResBody)
 
 	// Get all groups with user_groups with policy that has user
 	// Join user_groups and groups and polices
@@ -105,7 +105,7 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 	return group, nil
 }
 
-func (gr GroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
+func (gr GroupRepositoryImpl) FindByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 
 	if err := gr.Connection.Table(entity.UserGroupTable.String()).

@@ -65,7 +65,7 @@ func (gs GroupServiceImpl) GetGroupById(id int) (*entity.Group, *model.ErrorResB
 }
 
 func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
-	return gs.GroupRepository.FindGroupsByUserId(ctx.GetUserId().(int))
+	return gs.GroupRepository.FindByUserId(ctx.GetUserId().(int))
 }
 
 func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {

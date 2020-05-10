@@ -48,9 +48,9 @@ func TestGroupFindByName_InternalServerError(t *testing.T) {
 	}
 }
 
-// FindGroupsByUserId InternalServerError test
+// FindByUserId InternalServerError test
 func TestGroupFindGroupsByUserId_InternalServerError(t *testing.T) {
-	_, err := groupRepository.FindGroupsByUserId(1)
+	_, err := groupRepository.FindByUserId(1)
 	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Incorrect TestGroupFindGroupsByUserId_InternalServerError test")
 		t.FailNow()

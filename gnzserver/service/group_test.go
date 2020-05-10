@@ -110,7 +110,7 @@ func (gr StubGroupRepositoryImpl) FindByName(name string) (*entity.Group, *model
 	return group, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
+func (gr StubGroupRepositoryImpl) FindByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 	return groups, nil
 }
