@@ -108,8 +108,11 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.Err
 func (gr GroupRepositoryImpl) FindByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 
+	target := entity.GroupTable.String() + "." + entity.GroupId.String() + "," + entity.GroupTable.String() + "." + entity.GroupUuid.String() + "," +
+		entity.GroupTable.String() + "." + entity.GroupName.String() + "," + entity.GroupTable.String() + "." + entity.GroupCreatedAt.String() + "," +
+		entity.GroupTable.String() + "." + entity.GroupUpdatedAt.String()
 	if err := gr.Connection.Table(entity.UserGroupTable.String()).
-		Select("*").
+		Select(target).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.GroupTable.String(),
 			entity.UserGroupTable.String(),
