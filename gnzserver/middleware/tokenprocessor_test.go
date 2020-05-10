@@ -345,6 +345,11 @@ func (uri StubUserRepositoryImpl) FindUserGroupByUserIdAndGroupId(userId int, gr
 	return nil, nil
 }
 
+func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	var userResponse []*model.UserResponse
+	return userResponse, nil
+}
+
 func (uri StubUserRepositoryImpl) FindUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	var userServices []*entity.UserService
 	return userServices, nil

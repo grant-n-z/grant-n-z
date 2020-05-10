@@ -20,6 +20,10 @@ type User interface {
 	// Http PUT method
 	// Add user to group
 	put(w http.ResponseWriter, r *http.Request)
+
+	// Http GET method
+	// get user of group
+	get(w http.ResponseWriter, r *http.Request)
 }
 
 type UserImpl struct {
@@ -46,6 +50,8 @@ func (u UserImpl) Api(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		u.put(w, r)
+	case http.MethodGet:
+		u.get(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -91,6 +97,23 @@ func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, _ := json.Marshal(userGroup)
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func (u UserImpl) get(w http.ResponseWriter, r *http.Request) {
+	id, err := middleware.ParamGroupId(r)
+	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
+	userResponse, errUser := u.UserService.GetUserByGroupId(id)
+	if errUser != nil {
+		model.WriteError(w, errUser.ToJson(), errUser.Code)
+		return
+	}
+	res, _ := json.Marshal(userResponse)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

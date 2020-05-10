@@ -128,6 +128,10 @@ func (us StubUserService) GetUserGroupByUserIdAndGroupId(userId int, groupId int
 	return &entity.UserGroup{}, nil
 }
 
+func (us StubUserService) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	return []*model.UserResponse{}, nil
+}
+
 func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	return []*entity.UserService{}, nil
 }

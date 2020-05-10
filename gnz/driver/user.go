@@ -20,6 +20,9 @@ type UserRepository interface {
 	// Find User by user email
 	FindByEmail(email string) (*entity.User, *model.ErrorResBody)
 
+	// Find User by group_id
+	FindByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody)
+
 	// Find User and operator policy by user email
 	FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody)
 
@@ -103,6 +106,31 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.Er
 	}
 
 	return &user, nil
+}
+
+func (uri UserRepositoryImpl) FindByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	var userResponse []*model.UserResponse
+
+	target := entity.UserTable.String() + "." + entity.UserUuid.String() + "," + entity.UserTable.String() +
+		"." + entity.UserUsername.String() + "," + entity.UserTable.String() + "." + entity.UserEmail.String()
+	if err := uri.Connection.Table(entity.UserGroupTable.String()).
+		Select(target).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId,
+			entity.UserTable.String(),
+			entity.UserId)).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId), groupId).
+		Scan(&userResponse).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		return nil, model.InternalServerError()
+	}
+
+	return userResponse, nil
 }
 
 func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {

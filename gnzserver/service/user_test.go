@@ -138,6 +138,15 @@ func TestGetUserGroupByUserIdAndGroupId_Success(t *testing.T) {
 	}
 }
 
+// Test get user by group id
+func TestGetUserByGroupId_Success(t *testing.T) {
+	_, err := userService.GetUserByGroupId(1)
+	if err != nil {
+		t.Errorf("Incorrect TestGetUserByGroupId_Success test")
+		t.FailNow()
+	}
+}
+
 // Test user services
 func TestGetUserServices_Success(t *testing.T) {
 	_, err := userService.GetUserServices()
@@ -216,6 +225,11 @@ func (uri StubUserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorRe
 func (uri StubUserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.ErrorResBody) {
 	var user entity.User
 	return &user, nil
+}
+
+func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	var userResponse []*model.UserResponse
+	return userResponse, nil
 }
 
 func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {

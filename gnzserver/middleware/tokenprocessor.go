@@ -187,7 +187,7 @@ func (tp TokenProcessorImpl) GetJwtPayload(token string, isRefresh bool) (*model
 	jwtPayload := &model.JwtPayload{
 		UserId:    userId,
 		UserUuid:  userUuid,
-		UserName:  userName,
+		Username:  userName,
 		ServiceId: serviceId,
 		Expires:   expires,
 		IssueDate: payload["iss"],
@@ -248,7 +248,7 @@ func (tp TokenProcessorImpl) generateUserToken(tokenRequest model.TokenRequest, 
 		return nil, model.Forbidden("Can't issue token for group")
 	}
 
-	return tp.generateTokenResponse(tokenExp, refreshTokenExp, targetUser.Id, targetUser.Uuid.String(), targetUser.Username, 0, service.Id, policy.Id), nil
+	return tp.generateTokenResponse(tokenExp, refreshTokenExp, targetUser.Id, targetUser.Uuid.String(), targetUser.Username, policy.RoleId, service.Id, policy.Id), nil
 }
 
 func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string, groupId int) (*model.TokenResponse, *model.ErrorResBody) {
@@ -266,7 +266,7 @@ func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string, gr
 
 	// Case of group_id is zero, not using policy.
 	if groupId == 0 {
-		return tp.generateTokenResponse(tokenExp, refreshTokenExp, jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.UserName, 0, service.Id, 0), nil
+		return tp.generateTokenResponse(tokenExp, refreshTokenExp, jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.Username, 0, service.Id, 0), nil
 	}
 
 	// If user has policy, bellow process
@@ -275,7 +275,7 @@ func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string, gr
 		return nil, model.Forbidden("Can't issue token for group")
 	}
 
-	return tp.generateTokenResponse(tokenExp, refreshTokenExp, jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.UserName, jwtPayload.RoleId, service.Id, policy.Id), nil
+	return tp.generateTokenResponse(tokenExp, refreshTokenExp, jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.Username, jwtPayload.RoleId, service.Id, policy.Id), nil
 }
 
 func (tp TokenProcessorImpl) generateTokenResponse(tokenExp time.Time, refreshTokenExp time.Time, userId int, userUuid string, username string, roleId int, serviceId int, policyId int) *model.TokenResponse {

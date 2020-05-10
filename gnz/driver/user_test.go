@@ -37,6 +37,15 @@ func TestUserFindByEmail_InternalServerError(t *testing.T) {
 	}
 }
 
+// FindById InternalServerError test
+func TestUserFindByGroupId_InternalServerError(t *testing.T) {
+	_, err := userRepository.FindByGroupId(1)
+	if err.Code != http.StatusInternalServerError {
+		t.Errorf("Incorrect TestUserFindByGroupId_InternalServerError test")
+		t.FailNow()
+	}
+}
+
 // FindWithOperatorPolicyByEmail InternalServerError test
 func TestUserFindWithOperatorPolicyByEmail_InternalServerError(t *testing.T) {
 	_, err := userRepository.FindWithOperatorPolicyByEmail("test@gmail.com")

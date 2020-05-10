@@ -10,7 +10,7 @@ import (
 type JwtPayload struct {
 	UserUuid  uuid.UUID `json:"user_uuid"`
 	UserId    int       `json:"user_id"`
-	UserName  string    `json:"user_name"`
+	Username  string    `json:"user_name"`
 	ServiceId int       `json:"service_id"`
 	Expires   string    `json:"expires"`
 	IssueDate string    `json:"issue_date"`
@@ -35,4 +35,11 @@ type UserWithUserServiceWithService struct {
 // Add user id
 type AddUser struct {
 	UserEmail string `json:"user_email"`
+}
+
+// user struct
+type UserResponse struct {
+	Uuid string `json:"uuid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }

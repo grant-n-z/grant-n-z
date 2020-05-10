@@ -155,6 +155,10 @@ func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.Error
 	return []*entity.UserService{}, nil
 }
 
+func (us StubUserService) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	return []*model.UserResponse{}, nil
+}
+
 func (us StubUserService) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
 	return &entity.UserService{}, nil
 }

@@ -39,6 +39,9 @@ type UserService interface {
 	// Get UserGroup by user_id and group_id
 	GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
 
+	// Get Users by group_id
+	GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody)
+
 	// Get all UserService
 	GetUserServices() ([]*entity.UserService, *model.ErrorResBody)
 
@@ -135,6 +138,10 @@ func (us UserServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, service
 		return userService, nil
 	}
 	return us.UserRepository.FindUserServiceByUserIdAndServiceId(userId, serviceId)
+}
+
+func (us UserServiceImpl) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	return us.UserRepository.FindByGroupId(groupId)
 }
 
 func (us UserServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {

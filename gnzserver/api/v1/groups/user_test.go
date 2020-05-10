@@ -34,7 +34,7 @@ func TestGetUserInstance(t *testing.T) {
 // Test method not allowed
 func TestUser_MethodNotAllowed(t *testing.T) {
 	response := StubResponseWriter{}
-	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
+	request := http.Request{Header: http.Header{}, Method: http.MethodPatch}
 	user.Api(response, &request)
 
 	if statusCode != http.StatusMethodNotAllowed {
@@ -65,6 +65,18 @@ func TestUser_Put_BadRequest_QueryParam(t *testing.T) {
 
 	if statusCode != http.StatusBadRequest {
 		t.Errorf("Incorrect TestRole_Post_BadRequest_QueryParam test.")
+		t.FailNow()
+	}
+}
+
+// Test get bad request
+func TestUser_Get_BadRequest_QueryParam(t *testing.T) {
+	response := StubResponseWriter{}
+	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
+	user.Api(response, &request)
+
+	if statusCode != http.StatusBadRequest {
+		t.Errorf("Incorrect TestUser_Get_BadRequest_QueryParam test.")
 		t.FailNow()
 	}
 }
@@ -109,6 +121,10 @@ func (us StubUserService) GetUserWithUserServiceWithServiceByEmail(email string)
 
 func (us StubUserService) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
 	return &entity.UserGroup{}, nil
+}
+
+func (us StubUserService) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
+	return []*model.UserResponse{}, nil
 }
 
 func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
