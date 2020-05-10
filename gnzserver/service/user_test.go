@@ -246,6 +246,10 @@ func (uri StubUserRepositoryImpl) FindUserServiceByUserIdAndServiceId(userId int
 	return nil, nil
 }
 
+func (uri StubUserRepositoryImpl) FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, *model.ErrorResBody) {
+	return nil, nil
+}
+
 func (uri StubUserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
 	return &userGroup, nil
 }

@@ -38,7 +38,7 @@ func GetPolicyInstance() Policy {
 }
 
 func NewPolicy() Policy {
-	log.Logger.Info("New `groups.Policy` instance")
+	log.Logger.Info("New `v1.groups.Policy` instance")
 	return PolicyImpl{
 		PolicyService:     service.GetPolicyServiceInstance(),
 		UserService:       service.GetUserServiceInstance(),

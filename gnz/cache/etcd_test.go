@@ -118,6 +118,12 @@ func TestSetUserService_FailedPut(t *testing.T) {
 	etcdClient.SetUserService(1, []entity.UserService{{}}, 10)
 }
 
+// SetUserGroup failed test
+func TestSetUserGroup_FailedPut(t *testing.T) {
+	setUpStubConnected()
+	etcdClient.SetUserGroup(1, []entity.UserGroup{{}}, 10)
+}
+
 // This is not connected pattern for GET
 // GetPolicy nil test
 func TestGetPolicy_NotConnected(t *testing.T) {
@@ -294,6 +300,16 @@ func TestGetUserService_Nil(t *testing.T) {
 	userService := etcdClient.GetUserService(1, 1)
 	if userService != nil {
 		t.Errorf("Incorrect TestGetUserService_Nil test")
+		t.FailNow()
+	}
+}
+
+// GetUserGroup nil test
+func TestGetUserGroup_Nil(t *testing.T) {
+	setUpStubConnected()
+	userGroup := etcdClient.GetUserGroup(1, 1)
+	if userGroup != nil {
+		t.Errorf("Incorrect TestGetUserGroup_Nil test")
 		t.FailNow()
 	}
 }

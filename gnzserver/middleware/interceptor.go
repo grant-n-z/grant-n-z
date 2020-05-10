@@ -128,15 +128,15 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenProcessor.VerifyUserToken(token, []string{}, "")
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{}, "", 0)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid)
-		ctx.SetServiceId(authUser.ServiceId)
+		ctx.SetUserId(jwtPayload.UserId)
+		ctx.SetUserUuid(jwtPayload.UserUuid)
+		ctx.SetServiceId(jwtPayload.ServiceId)
 
 		next.ServeHTTP(w, r)
 	}
@@ -161,15 +161,20 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole}, "")
+		groupId, err := ParamGroupId(r)
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole}, "", groupId)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid)
-		ctx.SetServiceId(authUser.ServiceId)
+		ctx.SetUserId(jwtPayload.UserId)
+		ctx.SetUserUuid(jwtPayload.UserUuid)
+		ctx.SetServiceId(jwtPayload.ServiceId)
 
 		next.ServeHTTP(w, r)
 	}
@@ -194,15 +199,20 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole, common.UserRole}, "")
+		groupId, err := ParamGroupId(r)
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole, common.UserRole}, "", groupId)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid)
-		ctx.SetServiceId(authUser.ServiceId)
+		ctx.SetUserId(jwtPayload.UserId)
+		ctx.SetUserUuid(jwtPayload.UserUuid)
+		ctx.SetServiceId(jwtPayload.ServiceId)
 
 		next.ServeHTTP(w, r)
 	}
@@ -223,15 +233,15 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 		}
 
 		token := r.Header.Get(Authorization)
-		authUser, err := i.tokenProcessor.VerifyOperatorToken(token)
+		jwtPayload, err := i.tokenProcessor.VerifyOperatorToken(token)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(authUser.UserId)
-		ctx.SetUserUuid(authUser.UserUuid)
-		ctx.SetServiceId(authUser.ServiceId)
+		ctx.SetUserId(jwtPayload.UserId)
+		ctx.SetUserUuid(jwtPayload.UserUuid)
+		ctx.SetServiceId(jwtPayload.ServiceId)
 
 		next.ServeHTTP(w, r)
 	}

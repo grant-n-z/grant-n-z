@@ -70,3 +70,10 @@ func TestUpdateUserService(t *testing.T) {
 	userServices = []*entity.UserService{{Id: 1, UserId: 1, ServiceId: 1}}
 	updaterService.UpdateUserService(userServices)
 }
+
+// Test update user group
+func TestUpdateUserGroup(t *testing.T) {
+	var userGroups []*entity.UserGroup
+	userGroups = []*entity.UserGroup{{Id: 1, UserId: 1, GroupId: 1}}
+	updaterService.UpdateUserGroup(userGroups)
+}

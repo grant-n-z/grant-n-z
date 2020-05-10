@@ -43,6 +43,7 @@ type UsersRouter struct {
 }
 
 type GroupsRouter struct {
+	Group      groups.Group
 	User       groups.User
 	Policy     groups.Policy
 	Role       groups.Role
@@ -63,6 +64,7 @@ func NewRouter() Router {
 	}
 
 	groupsRouter := GroupsRouter{
+		Group:      groups.GetGroupInstance(),
 		User:       groups.GetUserInstance(),
 		Policy:     groups.GetPolicyInstance(),
 		Role:       groups.GetRoleInstance(),
@@ -104,16 +106,16 @@ func (r Router) Run() *mux.Router {
 func (r Router) v1() {
 	// No restriction
 	r.mux.HandleFunc("/api/v1/auth", r.interceptor.InterceptHeader(r.Auth.Api))
-	r.mux.HandleFunc("/api/v1/services", r.interceptor.InterceptHeader(r.Service.Get)).Methods(http.MethodGet)
+	r.mux.HandleFunc("/api/v1/services", r.interceptor.InterceptHeader(r.Service.Get)).Methods(http.MethodGet, http.MethodOptions)
 
 	// Required Client-Secret header
 	r.mux.HandleFunc("/api/v1/token", r.interceptor.Intercept(r.Token.Api))
-	r.mux.HandleFunc("/api/v1/services/add_user", r.interceptor.Intercept(r.Service.Post)).Methods(http.MethodPost)
+	r.mux.HandleFunc("/api/v1/services/add_user", r.interceptor.Intercept(r.Service.Post)).Methods(http.MethodPost, http.MethodOptions)
 
 	// Required Client-Secret header
 	user := func() {
-		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post)).Methods(http.MethodPost)
-		r.mux.HandleFunc("/api/v1/users", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put)).Methods(http.MethodPut)
+		r.mux.HandleFunc("/api/v1/users", r.interceptor.Intercept(r.UsersRouter.User.Post)).Methods(http.MethodPost, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/users", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.User.Put)).Methods(http.MethodPut, http.MethodOptions)
 		r.mux.HandleFunc("/api/v1/users/group", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Group.Api))
 		r.mux.HandleFunc("/api/v1/users/service", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Service.Api))
 		r.mux.HandleFunc("/api/v1/users/policy", r.interceptor.InterceptAuthenticateUser(r.UsersRouter.Policy.Api))
@@ -121,14 +123,15 @@ func (r Router) v1() {
 
 	// Required Client-Secret and group admin permission
 	group := func() {
+		r.mux.HandleFunc("/api/v1/groups/{group_id}", r.interceptor.InterceptAuthenticateUser(r.GroupsRouter.Group.Get)).Methods(http.MethodGet, http.MethodOptions)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/user", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.User.Api))
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/policy", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Policy.Api))
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupUser(r.GroupsRouter.Role.Get)).Methods(http.MethodGet)
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Role.Post)).Methods(http.MethodPost)
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Role.Delete)).Methods(http.MethodDelete)
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.interceptor.InterceptAuthenticateGroupUser(r.GroupsRouter.Permission.Get)).Methods(http.MethodGet)
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Permission.Post)).Methods(http.MethodPost)
-		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Permission.Delete)).Methods(http.MethodDelete)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupUser(r.GroupsRouter.Role.Get)).Methods(http.MethodGet, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Role.Post)).Methods(http.MethodPost, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Role.Delete)).Methods(http.MethodDelete, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.interceptor.InterceptAuthenticateGroupUser(r.GroupsRouter.Permission.Get)).Methods(http.MethodGet, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Permission.Post)).Methods(http.MethodPost, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}/permission", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Permission.Delete)).Methods(http.MethodDelete, http.MethodOptions)
 	}
 
 	user()

@@ -21,6 +21,9 @@ type ExtractorService interface {
 
 	// Get user_services for offset and limit
 	GetUserServices(offset int, limit int) []*entity.UserService
+
+	// Get user_groups for offset and limit
+	GetUserGroups(offset int, limit int) []*entity.UserGroup
 }
 
 type ExtractorServiceImpl struct {
@@ -89,4 +92,14 @@ func (us ExtractorServiceImpl) GetUserServices(offset int, limit int) []*entity.
 	}
 
 	return userServices
+}
+
+func (us ExtractorServiceImpl) GetUserGroups(offset int, limit int) []*entity.UserGroup {
+	userGroups, err := us.UserRepository.FindUserGroupsOffSetAndLimit(offset, limit)
+	if err != nil {
+		log.Logger.Error("Get user_group query is failed", err.ToJson())
+		return []*entity.UserGroup{}
+	}
+
+	return userGroups
 }

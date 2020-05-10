@@ -86,7 +86,7 @@ func (tp StubTokenProcessor) VerifyOperatorToken(token string) (*model.JwtPayloa
 	return &model.JwtPayload{}, nil
 }
 
-func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.JwtPayload, *model.ErrorResBody) {
+func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, permissionName string, groupId int) (*model.JwtPayload, *model.ErrorResBody) {
 	return &model.JwtPayload{}, nil
 }
 

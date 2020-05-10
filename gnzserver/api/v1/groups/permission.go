@@ -36,7 +36,7 @@ func GetPermissionInstance() Permission {
 }
 
 func NewPermission() Permission {
-	log.Logger.Info("New `Permission` instance")
+	log.Logger.Info("New `v1.groups.Permission` instance")
 	return PermissionImpl{
 		PermissionService: service.GetPermissionServiceInstance(),
 	}

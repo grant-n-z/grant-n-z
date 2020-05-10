@@ -54,7 +54,7 @@ func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	roleName := r.URL.Query().Get("role")
 	permissionName := r.URL.Query().Get("permission")
 
-	_, err := ah.tokenProcessor.VerifyUserToken(token, []string{roleName}, permissionName)
+	_, err := ah.tokenProcessor.VerifyUserToken(token, []string{roleName}, permissionName, 0)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

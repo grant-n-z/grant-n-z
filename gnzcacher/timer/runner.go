@@ -32,6 +32,7 @@ func (r RunnerImpl) Run() {
 	go r.executeRole()
 	go r.executeService()
 	go r.executeUserService()
+	go r.executeUserGroup()
 }
 
 func (r RunnerImpl) executePolicy() {
@@ -91,5 +92,17 @@ func (r RunnerImpl) executeUserService() {
 		dataLength = len(userServices)
 		offset += limit
 		log.Logger.Info(fmt.Sprintf("Update user_service length = %d", dataLength))
+	}
+}
+
+func (r RunnerImpl) executeUserGroup() {
+	dataLength := 1
+	offset := 0
+	for dataLength != 0 {
+		userGroups := r.ExtractorService.GetUserGroups(offset, limit)
+		r.UpdaterService.UpdateUserGroup(userGroups)
+		dataLength = len(userGroups)
+		offset += limit
+		log.Logger.Info(fmt.Sprintf("Update user_group length = %d", dataLength))
 	}
 }

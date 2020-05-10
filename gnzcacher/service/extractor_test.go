@@ -94,3 +94,17 @@ func TestGetUserServices(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+// Test get user groups
+func TestGetUserGroups(t *testing.T) {
+	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
+	extractorService = ExtractorServiceImpl{
+		UserRepository: stubUserRepository,
+	}
+
+	userGroups := extractorService.GetUserGroups(1, 1)
+	if len(userGroups) > 0 {
+		t.Errorf("Incorrect TestGetUserGroups test")
+		t.FailNow()
+	}
+}

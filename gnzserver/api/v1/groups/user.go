@@ -35,7 +35,7 @@ func GetUserInstance() User {
 }
 
 func NewUser() User {
-	log.Logger.Info("New `groups.User` instance")
+	log.Logger.Info("New `v1.groups.User` instance")
 	return UserImpl{
 		GroupService: service.GetGroupServiceInstance(),
 		UserService:  service.GetUserServiceInstance(),

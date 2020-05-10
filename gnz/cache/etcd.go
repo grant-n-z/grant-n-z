@@ -34,6 +34,9 @@ type EtcdClient interface {
 	// Set user_service with expires
 	SetUserService(userId int, userServices []entity.UserService, expiresMinutes time.Duration)
 
+	// Set user_group with expires
+	SetUserGroup(userId int, userGroups []entity.UserGroup, expiresMinutes time.Duration)
+
 	// Get policy by id or name
 	GetPolicy(data interface{}) *entity.Policy
 
@@ -60,6 +63,9 @@ type EtcdClient interface {
 
 	// Get user_service by user_id
 	GetUserService(userId int, serviceId int) *entity.UserService
+
+	// Get user_group by user_id
+	GetUserGroup(userId int, groupId int) *entity.UserGroup
 
 	// Delete policy by name or id
 	DeletePolicy(policy entity.Policy)
@@ -125,6 +131,14 @@ func (e EtcdClientImpl) SetUserService(userId int, userServices []entity.UserSer
 	}
 	userServicesJson, _ := json.Marshal(userServices)
 	e.set(userServicesJson, []string{fmt.Sprintf("user_service.user_id=%d", userId)}, expiresMinutes)
+}
+
+func (e EtcdClientImpl) SetUserGroup(userId int, userGroups []entity.UserGroup, expiresMinutes time.Duration) {
+	if e.Connection == nil {
+		return
+	}
+	userGroupJson, _ := json.Marshal(userGroups)
+	e.set(userGroupJson, []string{fmt.Sprintf("user_group.user_id=%d", userId)}, expiresMinutes)
 }
 
 func (e EtcdClientImpl) GetPolicy(data interface{}) *entity.Policy {
@@ -259,6 +273,25 @@ func (e EtcdClientImpl) GetUserService(userId int, serviceId int) *entity.UserSe
 
 	for _, us := range userServices {
 		if us.ServiceId == serviceId {
+			return &us
+		}
+	}
+	return nil
+}
+
+func (e EtcdClientImpl) GetUserGroup(userId int, groupId int) *entity.UserGroup {
+	if e.Connection == nil {
+		return nil
+	}
+	var userGroups []entity.UserGroup
+	err := e.get(fmt.Sprintf("user_group.user_id=%d", userId), &userGroups)
+	if err != nil {
+		log.Logger.Info("Cloud not get cache ", err.Error())
+		return nil
+	}
+
+	for _, us := range userGroups {
+		if us.GroupId == groupId {
 			return &us
 		}
 	}

@@ -25,6 +25,9 @@ type UpdaterService interface {
 
 	// Update user_service cache
 	UpdateUserService(userServices []*entity.UserService)
+
+	// Update user_group cache
+	UpdateUserGroup(userGroups []*entity.UserGroup)
 }
 
 type UpdaterServiceImpl struct {
@@ -75,5 +78,24 @@ func (us UpdaterServiceImpl) UpdateUserService(userServices []*entity.UserServic
 
 	for key, value := range userServiceMap {
 		us.EtcdClient.SetUserService(key, value, expiresMinutes)
+	}
+}
+
+func (us UpdaterServiceImpl) UpdateUserGroup(userGroups []*entity.UserGroup) {
+	userGroupMap := map[int][]entity.UserGroup{}
+	for _, userGroup := range userGroups {
+		savedUserGroups := userGroupMap[userGroup.UserId]
+		if savedUserGroups == nil {
+			var userGroupArray []entity.UserGroup
+			userGroupArray = append(userGroupArray, *userGroup)
+			userGroupMap[userGroup.UserId] = userGroupArray
+		} else {
+			savedUserGroups = append(savedUserGroups, *userGroup)
+			userGroupMap[userGroup.UserId] = savedUserGroups
+		}
+	}
+
+	for key, value := range userGroupMap {
+		us.EtcdClient.SetUserGroup(key, value, expiresMinutes)
 	}
 }

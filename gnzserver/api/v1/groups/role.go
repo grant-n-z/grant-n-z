@@ -36,7 +36,7 @@ func GetRoleInstance() Role {
 }
 
 func NewRole() Role {
-	log.Logger.Info("New `Role` instance")
+	log.Logger.Info("New `v1.groups.Role` instance")
 	return RoleImpl{RoleService: service.GetRoleServiceInstance()}
 }
 

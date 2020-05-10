@@ -25,7 +25,7 @@ type TokenProcessor interface {
 	VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string, roleNames []string, permissionName string) (*model.JwtPayload, *model.ErrorResBody)
+	VerifyUserToken(token string, roleNames []string, permissionName string, groupId int) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Get auth user data in token
 	// If invalid token, return 401
@@ -110,7 +110,7 @@ func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.JwtPayloa
 	return jwtPayload, nil
 }
 
-func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string) (*model.JwtPayload, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string, groupId int) (*model.JwtPayload, *model.ErrorResBody) {
 	jwtPayload, err := tp.GetJwtPayload(token, false)
 	if err != nil || jwtPayload.IsRefresh {
 		return nil, err
@@ -147,7 +147,14 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, p
 
 	userService, err := tp.UserService.GetUserServiceByUserIdAndServiceId(jwtPayload.UserId, jwtPayload.ServiceId)
 	if userService == nil || err != nil {
-		return nil, model.Forbidden("Forbidden the user cannot access Service")
+		return nil, model.Forbidden("Forbidden the user cannot access this service")
+	}
+
+	if groupId != 0 {
+		userGroup, err := tp.UserService.GetUserGroupByUserIdAndGroupId(jwtPayload.UserId, groupId)
+		if userGroup == nil || err != nil {
+			return nil, model.Forbidden("Forbidden the user cannot access this group")
+		}
 	}
 
 	return jwtPayload, nil

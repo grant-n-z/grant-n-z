@@ -273,7 +273,7 @@ func TestVerifyOperatorToken_Success(t *testing.T) {
 
 // Test verify user token
 func TestVerifyUserToken_Error(t *testing.T) {
-	_, err := tokenProcessor.VerifyUserToken("test_token", []string{"test_role"}, "test_permission")
+	_, err := tokenProcessor.VerifyUserToken("test_token", []string{"test_role"}, "test_permission", 0)
 	if err == nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Error test." + err.ToJson())
 		t.FailNow()
@@ -291,7 +291,7 @@ func TestVerifyUserToken_Success(t *testing.T) {
 			Password:  "test",
 		},
 	)
-	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, []string{"test_role"}, "test_permission")
+	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, []string{"test_role"}, "test_permission", 0)
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Success test." + err.ToJson())
 		t.FailNow()
@@ -358,6 +358,11 @@ func (uri StubUserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, lim
 func (uri StubUserRepositoryImpl) FindUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
 	userService := entity.UserService{Id: 1}
 	return &userService, nil
+}
+
+func (uri StubUserRepositoryImpl) FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, *model.ErrorResBody) {
+	userGroup := []*entity.UserGroup{{Id: 1}}
+	return userGroup, nil
 }
 
 func (uri StubUserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
@@ -593,7 +598,7 @@ func (gr StubGroupRepositoryImpl) FindByName(name string) (*entity.Group, *model
 	return group, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindGroupsByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
+func (gr StubGroupRepositoryImpl) FindByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
 	var groups []*entity.Group
 	return groups, nil
 }
