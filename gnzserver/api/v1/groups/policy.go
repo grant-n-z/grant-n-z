@@ -21,6 +21,10 @@ type Policy interface {
 	// Http PUT method
 	// Update user's policy
 	put(w http.ResponseWriter, r *http.Request)
+
+	// Http GET method
+	// Update user's policy
+	get(w http.ResponseWriter, r *http.Request)
 }
 
 type PolicyImpl struct {
@@ -51,6 +55,8 @@ func (p PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		p.put(w, r)
+	case http.MethodGet:
+		p.get(w, r)
 	default:
 		err := model.MethodNotAllowed()
 		model.WriteError(w, err.ToJson(), err.Code)
@@ -111,6 +117,24 @@ func (p PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, _ := json.Marshal(insertedPolicy)
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func (p PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
+	id, err := middleware.ParamGroupId(r)
+	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
+	policies, err := p.PolicyService.GetPoliciesOfUserGroup(id)
+	if err != nil {
+		model.WriteError(w, err.ToJson(), err.Code)
+		return
+	}
+
+	res, _ := json.Marshal(policies)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

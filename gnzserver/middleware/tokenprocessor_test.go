@@ -345,9 +345,9 @@ func (uri StubUserRepositoryImpl) FindUserGroupByUserIdAndGroupId(userId int, gr
 	return nil, nil
 }
 
-func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
-	var userResponse []*model.UserResponse
-	return userResponse, nil
+func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody) {
+	var users []*entity.User
+	return users, nil
 }
 
 func (uri StubUserRepositoryImpl) FindUserServices() ([]*entity.UserService, *model.ErrorResBody) {
@@ -657,6 +657,10 @@ func (pri StubPolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt i
 func (pri StubPolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
 	var policies []*entity.Policy
 	return policies, nil
+}
+
+func (pri StubPolicyRepositoryImpl) FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	return model.UserPolicyOnGroupResponse{}, nil
 }
 
 func (pri StubPolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {

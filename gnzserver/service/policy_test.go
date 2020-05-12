@@ -40,6 +40,7 @@ func init() {
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
 		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
 		GroupRepository:      StubGroupRepositoryImpl{Connection: stubConnection},
+		UserRepository:       StubUserRepositoryImpl{Connection: stubConnection},
 	}
 }
 
@@ -75,11 +76,20 @@ func TestGetPoliciesOfUser_Success(t *testing.T) {
 	}
 }
 
-// Test get policies by user_group
+// Test get policy by user_group
 func TestGetPolicyByUserGroup_Success(t *testing.T) {
 	_, err := policyService.GetPolicyByUserGroup(1, 1)
 	if err != nil {
 		t.Errorf("Incorrect TestGetPolicyByUserGroup_Success test")
+		t.FailNow()
+	}
+}
+
+// Test get policies by user_group
+func TestGetPoliciesOfUserGroup_Success(t *testing.T) {
+	_, err := policyService.GetPoliciesOfUserGroup(1)
+	if err != nil {
+		t.Errorf("Incorrect TestGetPoliciesOfUserGroup_Success test")
 		t.FailNow()
 	}
 }
@@ -126,6 +136,10 @@ func (pri StubPolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, 
 func (pri StubPolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {
 	var policy entity.Policy
 	return policy, nil
+}
+
+func (pri StubPolicyRepositoryImpl) FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	return model.UserPolicyOnGroupResponse{}, nil
 }
 
 func (pri StubPolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {

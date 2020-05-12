@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -24,6 +25,9 @@ type PolicyRepository interface {
 
 	// Find by id
 	FindById(id int) (entity.Policy, *model.ErrorResBody)
+
+	// Find policy data by user id
+	FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody)
 
 	// Update
 	Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
@@ -92,6 +96,52 @@ func (pri PolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorRes
 		}
 
 		return policy, model.InternalServerError(err.Error())
+	}
+
+	return policy, nil
+}
+
+func (pri PolicyRepositoryImpl) FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	var policy model.UserPolicyOnGroupResponse
+	target := entity.UserTable.String() + "." + entity.UserUsername.String() + "," + entity.UserTable.String() + "." + entity.UserEmail.String() +
+		"," + entity.PolicyTable.String() + "." + entity.PolicyName.String() + " AS policy_name," + entity.RoleTable.String() + "." + entity.RoleName.String() +
+		" AS role_name," + entity.PermissionTable.String() + "." + entity.PermissionName.String() + " AS permission_name"
+
+	if err := pri.Connection.Table(entity.UserGroupTable.String()).
+		Select(target).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupId.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyUserGroupId.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.RoleTable.String(),
+			entity.RoleTable.String(),
+			entity.RoleId.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyRoleId.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PermissionTable.String(),
+			entity.PermissionTable.String(),
+			entity.PermissionId.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyPermissionId.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId.String(),
+			entity.UserTable.String(),
+			entity.UserId.String())).
+		Where(fmt.Sprintf("%s.%s = ? AND %s.%s = ?",
+			entity.UserGroupTable.String(),
+			entity.UserGroupUserId.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupId.String()), userId, groupId).
+		Scan(&policy).Error; err != nil {
+
+		log.Logger.Warn(err.Error())
+		return policy, model.InternalServerError()
 	}
 
 	return policy, nil

@@ -38,6 +38,15 @@ type PolicyResponse struct {
 	GroupName      string `json:"group_name"`
 }
 
+// The user policy response struct
+type UserPolicyOnGroupResponse struct {
+	Username       string `json:"username"`
+	Email          string `json:"email"`
+	PolicyName     string `json:"policy_name"`
+	RoleName       string `json:"role_name"`
+	PermissionName string `json:"permission_name"`
+}
+
 // PolicyResponse constructor
 func NewPolicyResponse() PolicyResponseBuilder {
 	return &PolicyResponse{}

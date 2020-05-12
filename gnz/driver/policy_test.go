@@ -57,6 +57,15 @@ func TestPolicyFindById_InternalServerError(t *testing.T) {
 	}
 }
 
+// indPolicyResponseOfUserByUserIdAndGroupId InternalServerError test
+func TestFindPolicyResponseOfUserByUserIdAndGroupId_InternalServerError(t *testing.T) {
+	_, err := policyRepository.FindPolicyResponseOfUserByUserIdAndGroupId(1, 1)
+	if err.Code != http.StatusInternalServerError {
+		t.Errorf("Incorrect TestFindPolicyResponseOfUserByUserIdAndGroupId_InternalServerError test")
+		t.FailNow()
+	}
+}
+
 // Update InternalServerError test
 func TestPolicyUpdate_InternalServerError(t *testing.T) {
 	_, err := policyRepository.Update(entity.Policy{})

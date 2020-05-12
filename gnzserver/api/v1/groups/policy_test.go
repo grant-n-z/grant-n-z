@@ -35,7 +35,7 @@ func TestGetPolicyInstance(t *testing.T) {
 // Test method not allowed
 func TestPolicy_MethodNotAllowed(t *testing.T) {
 	response := StubResponseWriter{}
-	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
+	request := http.Request{Header: http.Header{}, Method: http.MethodPatch}
 	policy.Api(response, &request)
 
 	if statusCode != http.StatusMethodNotAllowed {
@@ -70,6 +70,18 @@ func TestPolicy_Put_BadRequest_QueryParam(t *testing.T) {
 	}
 }
 
+// Test get bad request
+func TestPolicy_Get_BadRequest_QueryParam(t *testing.T) {
+	response := StubResponseWriter{}
+	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
+	policy.Api(response, &request)
+
+	if statusCode != http.StatusBadRequest {
+		t.Errorf("Incorrect TestPolicy_Get_BadRequest_QueryParam test.")
+		t.FailNow()
+	}
+}
+
 // Less than stub struct
 // PolicyService
 type StubPolicyService struct {
@@ -89,6 +101,10 @@ func (ps StubPolicyService) GetPoliciesOfUser() ([]model.PolicyResponse, *model.
 
 func (ps StubPolicyService) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
 	return &entity.Policy{}, nil
+}
+
+func (ps StubPolicyService) GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	return []model.UserPolicyOnGroupResponse{}, nil
 }
 
 func (ps StubPolicyService) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {

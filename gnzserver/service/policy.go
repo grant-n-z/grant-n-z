@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
@@ -27,6 +28,9 @@ type PolicyService interface {
 	// Get policy by user_groups data
 	GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody)
 
+	// Get policies by group id
+	GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody)
+
 	// Get policy by id
 	GetPolicyById(id int) (entity.Policy, *model.ErrorResBody)
 
@@ -42,6 +46,7 @@ type PolicyServiceImpl struct {
 	RoleRepository       driver.RoleRepository
 	ServiceRepository    driver.ServiceRepository
 	GroupRepository      driver.GroupRepository
+	UserRepository       driver.UserRepository
 }
 
 // Get PolicyService instance.
@@ -63,6 +68,7 @@ func NewPolicyService() PolicyService {
 		RoleRepository:       driver.GetRoleRepositoryInstance(),
 		ServiceRepository:    driver.GetServiceRepositoryInstance(),
 		GroupRepository:      driver.GetGroupRepositoryInstance(),
+		UserRepository:       driver.GetUserRepositoryInstance(),
 	}
 }
 
@@ -132,6 +138,25 @@ func (ps PolicyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*enti
 	}
 
 	return &groupWithPolicy.Policy, nil
+}
+
+func (ps PolicyServiceImpl) GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	users, err := ps.UserRepository.FindByGroupId(groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	var userPolicies []model.UserPolicyOnGroupResponse
+	for _, user := range users {
+		fmt.Println(groupId)
+		policyResponse, err := ps.PolicyRepository.FindPolicyResponseOfUserByUserIdAndGroupId(user.Id, groupId)
+		if err != nil {
+			return nil, err
+		}
+		userPolicies = append(userPolicies, policyResponse)
+	}
+
+	return userPolicies, nil
 }
 
 func (ps PolicyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {

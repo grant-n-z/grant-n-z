@@ -73,6 +73,10 @@ func (ps StubPolicyService) GetPolicyByUserGroup(userId int, groupId int) (*enti
 	return &entity.Policy{}, nil
 }
 
+func (ps StubPolicyService) GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	return []model.UserPolicyOnGroupResponse{}, nil
+}
+
 func (ps StubPolicyService) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
 	return entity.Policy{}, nil
 }
