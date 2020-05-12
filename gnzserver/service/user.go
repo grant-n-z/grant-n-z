@@ -141,7 +141,16 @@ func (us UserServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, service
 }
 
 func (us UserServiceImpl) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
-	return us.UserRepository.FindByGroupId(groupId)
+	users, err := us.UserRepository.FindByGroupId(groupId)
+	if err != nil{
+		return nil, err
+	}
+
+	var userResponse []*model.UserResponse
+	for _, user := range users {
+		userResponse = append(userResponse, &model.UserResponse{Uuid: user.Uuid.String(), Username: user.Username, Email: user.Email})
+	}
+	return userResponse, nil
 }
 
 func (us UserServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {

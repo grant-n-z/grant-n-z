@@ -227,9 +227,9 @@ func (uri StubUserRepositoryImpl) FindByEmail(email string) (*entity.User, *mode
 	return &user, nil
 }
 
-func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
-	var userResponse []*model.UserResponse
-	return userResponse, nil
+func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody) {
+	var users []*entity.User
+	return users, nil
 }
 
 func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
