@@ -18,14 +18,14 @@ func TestServiceRoleString(t *testing.T) {
 		t.FailNow()
 	}
 
-	roleId := ServiceRoleRoleId.String()
-	if !strings.EqualFold(roleId, "role_id") {
+	roleId := ServiceRoleRoleUuid.String()
+	if !strings.EqualFold(roleId, "role_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	serviceId := ServiceRoleServiceId.String()
-	if !strings.EqualFold(serviceId, "service_id") {
+	serviceId := ServiceRoleServiceUuid.String()
+	if !strings.EqualFold(serviceId, "service_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

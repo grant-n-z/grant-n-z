@@ -2,6 +2,7 @@ package groups
 
 import (
 	"bytes"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"testing"
 
 	"io/ioutil"
@@ -9,7 +10,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -21,9 +21,11 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
-	user = UserImpl{UserService: StubUserService{}}
+	user = UserImpl{
+		UserService: StubUserService{},
+		GroupService: StubGroupService{},
+	}
 }
 
 // Test constructor
@@ -38,7 +40,7 @@ func TestUser_MethodNotAllowed(t *testing.T) {
 	user.Api(response, &request)
 
 	if statusCode != http.StatusMethodNotAllowed {
-		t.Errorf("Incorrect TestUser_MethodNotAllowed test.")
+		t.Errorf("Incorrect TestUser_MethodNotAllowed test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -51,32 +53,32 @@ func TestUser_Put_BadRequest_Body(t *testing.T) {
 	user.Api(response, &request)
 
 	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestRole_Post_BadRequest_Body test.")
+		t.Errorf("Incorrect TestRole_Post_BadRequest_Body test. %d", statusCode)
 		t.FailNow()
 	}
 }
 
-// Test put bad request
-func TestUser_Put_BadRequest_QueryParam(t *testing.T) {
+// Test put
+func TestUser_Put_Ok(t *testing.T) {
 	response := StubResponseWriter{}
 	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"user_email\":\"test@gmail.com\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPut, Body: invalid}
 	user.Api(response, &request)
 
-	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestRole_Post_BadRequest_QueryParam test.")
+	if statusCode != http.StatusOK {
+		t.Errorf("Incorrect TestUser_Put_Ok test. %d", statusCode)
 		t.FailNow()
 	}
 }
 
-// Test get bad request
-func TestUser_Get_BadRequest_QueryParam(t *testing.T) {
+// Test get
+func TestUser_Get_Ok(t *testing.T) {
 	response := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
 	user.Api(response, &request)
 
-	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestUser_Get_BadRequest_QueryParam test.")
+	if statusCode != http.StatusOK {
+		t.Errorf("Incorrect TestUser_Get_Ok test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -100,10 +102,11 @@ func (us StubUserService) ComparePw(passwordHash string, password string) bool {
 	if err != nil {
 		return false
 	}
+
 	return true
 }
 
-func (us StubUserService) GetUserById(id int) (*entity.User, *model.ErrorResBody) {
+func (us StubUserService) GetUserByUuid(uuid string) (*entity.User, *model.ErrorResBody) {
 	return &entity.User{}, nil
 }
 
@@ -119,20 +122,28 @@ func (us StubUserService) GetUserWithUserServiceWithServiceByEmail(email string)
 	return &model.UserWithUserServiceWithService{}, nil
 }
 
-func (us StubUserService) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
+func (us StubUserService) GetUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, *model.ErrorResBody) {
 	return &entity.UserGroup{}, nil
-}
-
-func (us StubUserService) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
-	return []*model.UserResponse{}, nil
 }
 
 func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	return []*entity.UserService{}, nil
 }
 
-func (us StubUserService) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+func (us StubUserService) GetUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, *model.ErrorResBody) {
 	return &entity.UserService{}, nil
+}
+
+func (us StubUserService) GetUserByGroupUuid(groupUuid string) ([]*model.UserResponse, *model.ErrorResBody) {
+	return []*model.UserResponse{}, nil
+}
+
+func (us StubUserService) GetUserPoliciesByUserUuid(userUuid string) []structure.UserPolicy {
+	return []structure.UserPolicy{}
+}
+
+func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+	return []structure.UserGroup{}
 }
 
 func (us StubUserService) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {

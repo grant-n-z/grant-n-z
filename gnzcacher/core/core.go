@@ -8,7 +8,6 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzcacher/timer"
@@ -29,7 +28,6 @@ type GrantNZCacher struct {
 }
 
 func init() {
-	ctx.InitContext()
 	log.InitLogger(common.App.LogLevel)
 	common.InitGrantNZCacherConfig(ConfigFilePath)
 	driver.InitRdbms()

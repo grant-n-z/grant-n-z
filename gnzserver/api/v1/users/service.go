@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
@@ -13,6 +14,7 @@ var shInstance Service
 
 type Service interface {
 	// Implement service api
+	// Endpoint is `/api/v1/users/service`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http GET method
@@ -35,7 +37,7 @@ func GetServiceInstance() Service {
 
 // Constructor
 func NewService() Service {
-	log.Logger.Info("New `Service` instance")
+	log.Logger.Info("New `v1.users.Service` instance")
 	return ServiceImpl{Service: service.GetServiceInstance()}
 }
 
@@ -50,7 +52,8 @@ func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh ServiceImpl) get(w http.ResponseWriter, r *http.Request) {
-	result, err := sh.Service.GetServiceOfUser()
+	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
+	result, err := sh.Service.GetServiceByUser(jwt.UserUuid.String())
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

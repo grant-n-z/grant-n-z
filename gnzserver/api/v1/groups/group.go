@@ -14,6 +14,7 @@ var ghInstance Group
 
 type Group interface {
 	// Http GET method
+	// Endpoint is `/api/v1/groups/{group_uuid}`
 	Get(w http.ResponseWriter, r *http.Request)
 }
 
@@ -36,13 +37,7 @@ func NewGroup() Group {
 }
 
 func (gh GroupImpl) Get(w http.ResponseWriter, r *http.Request) {
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	group, err := gh.GroupService.GetGroupById(id)
+	group, err := gh.GroupService.GetGroupByUuid(middleware.ParamGroupUuid(r))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

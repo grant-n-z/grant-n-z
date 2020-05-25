@@ -18,14 +18,14 @@ func TestServiceGroupString(t *testing.T) {
 		t.FailNow()
 	}
 
-	groupId := ServiceGroupGroupId.String()
-	if !strings.EqualFold(groupId, "group_id") {
+	groupId := ServiceGroupGroupUuid.String()
+	if !strings.EqualFold(groupId, "group_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	serviceId := ServiceGroupServiceId.String()
-	if !strings.EqualFold(serviceId, "service_id") {
+	serviceId := ServiceGroupServiceUuid.String()
+	if !strings.EqualFold(serviceId, "service_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

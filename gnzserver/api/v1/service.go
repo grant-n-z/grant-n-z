@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -68,20 +69,20 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication user
-	token, err := s.TokenProcessor.Generate("", "", *tokenRequest)
+	token, err := s.TokenProcessor.Generate(common.AuthUser, *tokenRequest)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
-	authUser, err := s.TokenProcessor.GetJwtPayload("Bearer " + token.Token, tokenRequest.IsRefresh())
+	jwt, err := s.TokenProcessor.GetJwtPayload("Bearer " + token.Token, false)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
 	// Check exist service
-	serviceEntity, err := s.ServiceService.GetServiceOfSecret()
+	serviceEntity, err := s.ServiceService.GetServiceBySecret(r.Context().Value(middleware.ScopeSecret).(string))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -89,8 +90,8 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 
 	// Insert user_services
 	userServiceEntity := &entity.UserService{
-		UserId:    authUser.UserId,
-		ServiceId: serviceEntity.Id,
+		UserUuid:    jwt.UserUuid,
+		ServiceUuid: serviceEntity.Uuid,
 	}
 	userService, err := s.UserService.InsertUserService(*userServiceEntity)
 	if err != nil {

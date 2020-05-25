@@ -15,6 +15,7 @@ var uInstance User
 
 type User interface {
 	// Implement permission api
+	// Endpoint is `/api/v1/groups/{id}/user`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http PUT method
@@ -68,27 +69,21 @@ func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	group, errGroup := u.GroupService.GetGroupById(id)
+	group, errGroup := u.GroupService.GetGroupByUuid(middleware.ParamGroupUuid(r))
 	if errGroup != nil {
 		model.WriteError(w, errGroup.ToJson(), errGroup.Code)
 		return
 	}
 
 	user, errUser := u.UserService.GetUserWithUserServiceWithServiceByEmail(addUserEntity.UserEmail)
-	if errUser != nil || user == nil {
+	if errUser != nil {
 		model.WriteError(w, errUser.ToJson(), errUser.Code)
 		return
 	}
 
 	userGroupEntity := entity.UserGroup{
-		UserId:  user.User.Id,
-		GroupId: group.Id,
+		UserUuid:  user.User.Uuid,
+		GroupUuid: group.Uuid,
 	}
 	userGroup, errUserGroup := u.UserService.InsertUserGroup(userGroupEntity)
 	if errUserGroup != nil {
@@ -102,17 +97,12 @@ func (u UserImpl) put(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u UserImpl) get(w http.ResponseWriter, r *http.Request) {
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	userResponse, errUser := u.UserService.GetUserByGroupId(id)
+	userResponse, errUser := u.UserService.GetUserByGroupUuid(middleware.ParamGroupUuid(r))
 	if errUser != nil {
 		model.WriteError(w, errUser.ToJson(), errUser.Code)
 		return
 	}
+
 	res, _ := json.Marshal(userResponse)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)

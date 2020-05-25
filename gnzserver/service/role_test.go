@@ -6,12 +6,11 @@ import (
 
 	"go.etcd.io/etcd/clientv3"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
 var (
@@ -21,9 +20,6 @@ var (
 // Set up
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
-	ctx.SetUserId(1)
-	ctx.SetServiceId(1)
 
 	stubConnection, _ = gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
@@ -33,10 +29,7 @@ func init() {
 	})
 
 	roleService = RoleServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient: cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		RoleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 }
@@ -55,9 +48,9 @@ func TestGetRoles_Success(t *testing.T) {
 	}
 }
 
-// Test get role by id
-func TestGetRoleById_Success(t *testing.T) {
-	_, err := roleService.GetRoleById(1)
+// Test get role by uuid
+func TestGetRoleByUuid_Success(t *testing.T) {
+	_, err := roleService.GetRoleByUuid(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetRoleById_Success test")
 		t.FailNow()
@@ -82,9 +75,9 @@ func TestGetRoleByNames_Success(t *testing.T) {
 	}
 }
 
-// Test get role by group id
-func TestGetRolesByGroupId_Success(t *testing.T) {
-	_, err := roleService.GetRolesByGroupId(1)
+// Test get role by group uuid
+func TestGetRolesByGroupUuid_Success(t *testing.T) {
+	_, err := roleService.GetRolesByGroupUuid(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetRolesByGroupId_Success test")
 		t.FailNow()
@@ -102,7 +95,7 @@ func TestInsertRoleInsertRole_Success(t *testing.T) {
 
 // Test insert with relational data
 func TestRoleInsertWithRelationalData_Success(t *testing.T) {
-	_, err := roleService.InsertWithRelationalData(1, entity.Role{})
+	_, err := roleService.InsertWithRelationalData(uuid.New().String(), entity.Role{})
 	if err != nil {
 		t.Errorf("Incorrect TestRoleInsertWithRelationalData_Success test")
 		t.FailNow()
@@ -115,46 +108,49 @@ type StubRoleRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (rri StubRoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindAll() ([]*entity.Role, error) {
 	var roles []*entity.Role
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error) {
 	var roles []*entity.Role
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByUuid(uuid string) (*entity.Role, error) {
 	var role entity.Role
 	return &role, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByName(name string) (*entity.Role, error) {
 	var role entity.Role
 	return &role, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, error) {
 	var roles []entity.Role
 	roles = append(roles, entity.Role{Name: "test"})
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Role, error) {
 	var roles []*entity.Role
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindNameById(id int) *string {
-	role, _ := rri.FindById(id)
+func (rri StubRoleRepositoryImpl) FindNameByUuid(uuid string) *string {
+	role, err := rri.FindByUuid(uuid)
+	if err != nil {
+		return nil
+	}
 	return &role.Name
 }
 
-func (rri StubRoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) Save(role entity.Role) (*entity.Role, error) {
 	return &role, nil
 }
 
-func (rri StubRoleRepositoryImpl) SaveWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) SaveWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, error) {
 	return &role, nil
 }

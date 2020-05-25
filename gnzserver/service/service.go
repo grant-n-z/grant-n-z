@@ -7,7 +7,6 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -27,17 +26,17 @@ type Service interface {
 	// Get service
 	GetServices() ([]*entity.Service, *model.ErrorResBody)
 
-	// Get service by service id
-	GetServiceById(id int) (*entity.Service, *model.ErrorResBody)
+	// Get service by service uuid
+	GetServiceByUuid(uuid string) (*entity.Service, *model.ErrorResBody)
 
 	// Get service by service name
 	GetServiceByName(name string) (*entity.Service, *model.ErrorResBody)
 
 	// Get service by service secret
-	GetServiceOfSecret() (*entity.Service, *model.ErrorResBody)
+	GetServiceBySecret(secret string) (*entity.Service, *model.ErrorResBody)
 
 	// Get service of user
-	GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody)
+	GetServiceByUser(userUuid string) ([]*entity.Service, *model.ErrorResBody)
 
 	// Insert service
 	InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody)
@@ -70,69 +69,110 @@ func NewServiceService() Service {
 }
 
 func (ss ServiceImpl) GetServices() ([]*entity.Service, *model.ErrorResBody) {
-	return ss.ServiceRepository.FindAll()
-}
-
-func (ss ServiceImpl) GetServiceById(id int) (*entity.Service, *model.ErrorResBody) {
-	return ss.ServiceRepository.FindById(id)
-}
-
-func (ss ServiceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResBody) {
-	return ss.ServiceRepository.FindByName(name)
-}
-
-func (ss ServiceImpl) GetServiceOfSecret() (*entity.Service, *model.ErrorResBody) {
-	service := ss.EtcdClient.GetService(ctx.GetClientSecret().(string))
-	if service != nil {
-		return service, nil
+	services, err := ss.ServiceRepository.FindAll()
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
 
-	service, err := ss.ServiceRepository.FindBySecret(ctx.GetClientSecret().(string))
-	if service == nil || err != nil {
-		err := model.BadRequest("Client-Secret is invalid")
-		return nil, err
+	return services, nil
+}
+
+func (ss ServiceImpl) GetServiceByUuid(uuid string) (*entity.Service, *model.ErrorResBody) {
+	service, err := ss.ServiceRepository.FindByUuid(uuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	return service, nil
 }
 
-func (ss ServiceImpl) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
-	return ss.ServiceRepository.FindServicesByUserId(ctx.GetUserId().(int))
+func (ss ServiceImpl) GetServiceByName(name string) (*entity.Service, *model.ErrorResBody) {
+	service, err := ss.ServiceRepository.FindByName(name)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return service, nil
+}
+
+func (ss ServiceImpl) GetServiceBySecret(secret string) (*entity.Service, *model.ErrorResBody) {
+	service, err := ss.ServiceRepository.FindBySecret(secret)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return service, nil
+}
+
+func (ss ServiceImpl) GetServiceByUser(userUuid string) ([]*entity.Service, *model.ErrorResBody) {
+	services, err := ss.ServiceRepository.FindServicesByUserUuid(userUuid)
+	if err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return services, nil
 }
 
 func (ss ServiceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
 	service.Secret = ss.GenerateSecret()
-	return ss.ServiceRepository.Save(service)
+	savedService, err := ss.ServiceRepository.Save(service)
+	if err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return savedService, nil
 }
 
 func (ss ServiceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
 	service.Uuid = uuid.New()
 	service.Secret = ss.GenerateSecret()
 
-	defaultRoles := []string{common.AdminRole, common.UserRole}
-	roles := ss.EtcdClient.GetRoleByNames(defaultRoles)
-	if roles == nil || len(roles) == 0 {
-		masterRoles, err := ss.RoleRepository.FindByNames([]string{common.AdminRole, common.UserRole})
-		if err != nil {
-			log.Logger.Info("Failed to get role for insert groups process")
-			return nil, model.InternalServerError()
+	roles, err := ss.RoleRepository.FindByNames([]string{common.AdminRole, common.UserRole})
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found role")
 		}
-		roles = masterRoles
+		return nil, model.InternalServerError()
 	}
 
-	defaultPermissions := []string{common.AdminPermission, common.ReadPermission, common.WritePermission}
-	permissions := ss.EtcdClient.GetPermissionByNames(defaultPermissions)
-	if permissions == nil || len(permissions) == 0 {
-		masterPermissions, err := ss.PermissionRepository.FindByNames(defaultPermissions)
-		if err != nil {
-			log.Logger.Info("Failed to get permission for insert groups process")
-			return nil, model.InternalServerError()
+	permissions, err := ss.PermissionRepository.FindByNames([]string{common.AdminPermission, common.ReadPermission, common.WritePermission})
+	if err != nil {
+		if !strings.Contains(err.Error(), "record not found") {
+			return nil, nil
 		}
-		permissions = masterPermissions
+		return nil, model.InternalServerError(err.Error())
 	}
 
-	return ss.ServiceRepository.SaveWithRelationalData(*service, roles, permissions)
+	saveWithRelationalData, err := ss.ServiceRepository.SaveWithRelationalData(*service, roles, permissions)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit services data.")
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return saveWithRelationalData, nil
 }
 
 func (ss ServiceImpl) GenerateSecret() string {

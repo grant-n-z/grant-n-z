@@ -2,45 +2,43 @@ package driver
 
 import (
 	"fmt"
-	"strings"
-
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/model"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 var rrInstance RoleRepository
 
 type RoleRepository interface {
 	// Find all roles
-	FindAll() ([]*entity.Role, *model.ErrorResBody)
+	FindAll() ([]*entity.Role, error)
 
 	// Find role for offset and limit
-	FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, *model.ErrorResBody)
+	FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error)
 
-	// Find role by id
-	FindById(id int) (*entity.Role, *model.ErrorResBody)
+	// Find role by uuid
+	FindByUuid(uuid string) (*entity.Role, error)
 
 	// FInd role by role name
-	FindByName(name string) (*entity.Role, *model.ErrorResBody)
+	FindByName(name string) (*entity.Role, error)
 
 	// Find roles by role name array
-	FindByNames(name []string) ([]entity.Role, *model.ErrorResBody)
+	FindByNames(name []string) ([]entity.Role, error)
 
-	// Find roles by group id
+	// Find roles by group uuid
 	// Join group_roles and roles
-	FindByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody)
+	FindByGroupUuid(groupUuid string) ([]*entity.Role, error)
 
-	// Find role name by id
-	FindNameById(id int) *string
+	// Find role name by uuid
+	FindNameByUuid(uuid string) *string
 
 	// Save role
-	Save(role entity.Role) (*entity.Role, *model.ErrorResBody)
+	Save(role entity.Role) (*entity.Role, error)
 
 	// Save role with relational data
-	SaveWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody)
+	SaveWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, error)
 }
 
 type RoleRepositoryImpl struct {
@@ -59,72 +57,52 @@ func NewRoleRepository() RoleRepository {
 	return RoleRepositoryImpl{Connection: connection}
 }
 
-func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, error) {
 	var roles []*entity.Role
 	if err := rri.Connection.Find(&roles).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error) {
 	var roles []*entity.Role
 	if err := rri.Connection.Limit(limit).Offset(offset).Find(&roles).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindByUuid(uuid string) (*entity.Role, error) {
 	var role entity.Role
-	if err := rri.Connection.Where("id = ?", id).Find(&role).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+	if err := rri.Connection.Where("uuid = ?", uuid).Find(&role).Error; err != nil {
+		return nil, err
 	}
 
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, error) {
 	var role entity.Role
 	if err := rri.Connection.Where("name = ?", name).Find(&role).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, error) {
 	var roles []entity.Role
 	if err := rri.Connection.Where("name IN (?)", names).Find(&roles).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Role, error) {
 	var roles []*entity.Role
 
 	if err := rri.Connection.Table(entity.GroupRoleTable.String()).
@@ -132,79 +110,56 @@ func (rri RoleRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Role, *model
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.RoleTable.String(),
 			entity.GroupRoleTable.String(),
-			entity.GroupRoleRoleId,
+			entity.GroupRoleRoleUuid.String(),
 			entity.RoleTable.String(),
-			entity.RoleId)).
+			entity.RoleUuid.String())).
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.GroupRoleTable.String(),
-			entity.GroupRoleGroupId), groupId).
+			entity.GroupRoleGroupUuid.String()), groupUuid).
 		Scan(&roles).Error; err != nil {
 
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, model.NotFound("Not found role")
-		}
-
-		return nil, model.InternalServerError()
+			return nil, err
 	}
 
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindNameById(id int) *string {
-	if id == 0 {
-		return nil
-	}
-	role, err := rri.FindById(id)
+func (rri RoleRepositoryImpl) FindNameByUuid(uuid string) *string {
+	role, err := rri.FindByUuid(uuid)
 	if err != nil {
 		return nil
 	}
 	return &role.Name
 }
 
-func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, error) {
 	if err := rri.Connection.Create(&role).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit data.")
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) SaveWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rri RoleRepositoryImpl) SaveWithRelationalData(gUuid string, role entity.Role) (*entity.Role, error) {
 	tx := rri.Connection.Begin()
 
 	// Save role
 	if err := tx.Create(&role).Error; err != nil {
-		log.Logger.Warn("Failed to save roles at transaction process", err.Error())
 		tx.Rollback()
-		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit roles data.")
-		}
-
-		return nil, model.InternalServerError()
+		return nil, err
 	}
 
 	// Save group_roles
+	groupUuid, _ := uuid.FromBytes([]byte(gUuid))
 	groupRole := entity.GroupRole{
-		RoleId:  role.Id,
-		GroupId: groupId,
+		RoleUuid:  role.Uuid,
+		GroupUuid: groupUuid,
 	}
 	if err := tx.Create(&groupRole).Error; err != nil {
-		log.Logger.Warn("Failed to save group_roles at transaction process", err.Error())
 		tx.Rollback()
-		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit group_roles data.")
-		}
-
-		return nil, model.InternalServerError()
+		return nil, err
 	}
 
 	tx.Commit()
-
 	return &role, nil
 }

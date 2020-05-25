@@ -1,25 +1,26 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
 const (
 	UserServiceTable UserServiceTableConfig = iota
 	UserServiceId
-	UserServiceUserId
-	UserServiceServiceId
+	UserServiceUserUuid
+	UserServiceServiceUuid
 	UserServiceCreatedAt
 	UserServiceUpdatedAt
 )
 
 // The table `user_services` struct
 type UserService struct {
-	Id        int       `json:"id"`
-	UserId    int       `validate:"required"json:"user_id"`
-	ServiceId int       `validate:"required"json:"service_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id          int       `json:"id"`
+	UserUuid    uuid.UUID `validate:"required"json:"user_uuid"`
+	ServiceUuid uuid.UUID `validate:"required"json:"service_uuid"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // UserService table config struct
@@ -31,10 +32,10 @@ func (usc UserServiceTableConfig) String() string {
 		return "user_services"
 	case UserServiceId:
 		return "id"
-	case UserServiceUserId:
-		return "user_id"
-	case UserServiceServiceId:
-		return "service_id"
+	case UserServiceUserUuid:
+		return "user_uuid"
+	case UserServiceServiceUuid:
+		return "service_uuid"
 	case UserServiceCreatedAt:
 		return "created_at"
 	case UserServiceUpdatedAt:

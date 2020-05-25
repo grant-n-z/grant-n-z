@@ -7,12 +7,11 @@ import (
 
 	"go.etcd.io/etcd/clientv3"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
 var (
@@ -22,10 +21,6 @@ var (
 // Set up
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
-	ctx.SetUserId(1)
-	ctx.SetServiceId(1)
-	ctx.SetClientSecret("test_key")
 
 	stubConnection, _ = gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
@@ -35,10 +30,7 @@ func init() {
 	})
 
 	service = ServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
@@ -61,7 +53,7 @@ func TestGetServices_Success(t *testing.T) {
 
 // Test get service by id
 func TestGetServiceById_Success(t *testing.T) {
-	_, err := service.GetServiceById(1)
+	_, err := service.GetServiceByUuid(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetServiceById_Success test")
 		t.FailNow()
@@ -79,8 +71,7 @@ func TestGetServiceByName_Success(t *testing.T) {
 
 // Test get service of user
 func TestGetServiceOfApiKey_Success(t *testing.T) {
-	ctx.SetClientSecret("test_key")
-	_, err := service.GetServiceOfSecret()
+	_, err := service.GetServiceBySecret("secret")
 	if err != nil {
 		t.Errorf("Incorrect TestGetServiceOfApiKey_Success test")
 		t.FailNow()
@@ -89,7 +80,7 @@ func TestGetServiceOfApiKey_Success(t *testing.T) {
 
 // Test get service of user
 func TestGetServiceOfUser_Success(t *testing.T) {
-	_, err := service.GetServiceOfUser()
+	_, err := service.GetServiceByUser(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetServiceOfUser_Success test")
 		t.FailNow()
@@ -129,54 +120,52 @@ type StubServiceRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (sri StubServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindAll() ([]*entity.Service, error) {
 	var services []*entity.Service
 	return services, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, error) {
 	var services []*entity.Service
 	return services, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindByUuid(uuid string) (*entity.Service, error) {
 	var service entity.Service
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindByName(name string) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindByName(name string) (*entity.Service, error) {
 	var service entity.Service
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindBySecret(apiKey string) (*entity.Service, *model.ErrorResBody) {
-	service := entity.Service{Name:"test"}
+func (sri StubServiceRepositoryImpl) FindBySecret(secret string) (*entity.Service, error) {
+	service := entity.Service{Name: "test"}
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindNameById(id int) *string {
-	service, _ := sri.FindById(id)
+func (sri StubServiceRepositoryImpl) FindNameByUuid(uuid string) *string {
+	service, err := sri.FindByUuid(uuid)
+	if err != nil {
+		return nil
+	}
 	return &service.Name
 }
 
-func (sri StubServiceRepositoryImpl) FindNameByApiKey(name string) *string {
-	service, _ := sri.FindByName(name)
-	return &service.Name
-}
-
-func (sri StubServiceRepositoryImpl) FindServicesByUserId(userId int) ([]*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindServicesByUserUuid(userUuid string) ([]*entity.Service, error) {
 	var services []*entity.Service
 	return services, nil
 }
 
-func (sri StubServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, error) {
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, error) {
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) Update(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) Update(service entity.Service) (*entity.Service, error) {
 	return &service, nil
 }

@@ -3,6 +3,8 @@ package model
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 // GrantNZ error data
@@ -28,7 +30,7 @@ func WriteError(w http.ResponseWriter, error string, code int) {
 // Option
 func Options() *ErrorResBody {
 	return &ErrorResBody{
-		Code:    http.StatusNoContent,
+		Code: http.StatusNoContent,
 	}
 }
 
@@ -125,9 +127,16 @@ func UnProcessableEntity(err ...string) *ErrorResBody {
 
 // InternalServerError
 func InternalServerError(err ...string) *ErrorResBody {
-	return &ErrorResBody{
+	var detail string
+	if err != nil {
+		detail = err[0]
+	}
+
+	body := ErrorResBody{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal server error.",
-		Detail:  "Failed to internal processing.",
+		Detail:  detail,
 	}
+	log.Logger.Error(body.ToJson())
+	return &body
 }

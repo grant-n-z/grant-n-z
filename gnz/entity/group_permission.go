@@ -2,24 +2,26 @@ package entity
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
 	GroupPermissionTable GroupPermissionTableConfig = iota
 	GroupPermissionId
-	GroupPermissionPermissionId
-	GroupPermissionGroupId
+	GroupPermissionPermissionUuid
+	GroupPermissionGroupUuid
 	GroupPermissionCreatedAt
 	GroupPermissionUpdatedAt
 )
 
 // The table `group_permissions` struct
 type GroupPermission struct {
-	Id           int       `json:"id"`
-	PermissionId int       `validate:"required"json:"permission_id"`
-	GroupId      int       `validate:"required"json:"group_id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Id             int       `json:"id"`
+	PermissionUuid uuid.UUID `validate:"required"json:"permission_uuid"`
+	GroupUuid      uuid.UUID `validate:"required"json:"group_uuid"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // GroupPermission table config
@@ -31,10 +33,10 @@ func (gp GroupPermissionTableConfig) String() string {
 		return "group_permissions"
 	case GroupPermissionId:
 		return "id"
-	case GroupPermissionPermissionId:
-		return "permission_id"
-	case GroupPermissionGroupId:
-		return "group_id"
+	case GroupPermissionPermissionUuid:
+		return "permission_uuid"
+	case GroupPermissionGroupUuid:
+		return "group_uuid"
 	case GroupPermissionCreatedAt:
 		return "created_at"
 	case GroupPermissionUpdatedAt:

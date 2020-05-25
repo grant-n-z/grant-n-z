@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"strconv"
+	"context"
 	"strings"
 
 	"encoding/json"
@@ -12,18 +12,19 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
-// Http Header const
+// Http Header, Request scope const
 const (
 	Authorization             = "Authorization"
 	ClientSecret              = "Client-Secret"
 	ContentType               = "Content-Type"
 	AccessControlAllowOrigin  = "Access-Control-Allow-Origin"
 	AccessControlAllowHeaders = "Access-Control-Allow-Headers"
+	ScopeSecret               = "secret"
+	ScopeJwt                  = "jwt"
 )
 
 var iInstance Interceptor
@@ -80,13 +81,11 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		userType := r.URL.Query().Get("type")
-		if !strings.EqualFold(userType, common.AuthOperator) {
-			if err := interceptClientSecret(w, r); err != nil {
-				return
-			}
+		secret, err := interceptClientSecret(w, r)
+		if err != nil {
+			return
 		}
-
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -123,21 +122,20 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			return
 		}
 
-		if err := interceptClientSecret(w, r); err != nil {
+		secret, err := interceptClientSecret(w, r)
+		if err != nil {
 			return
 		}
 
 		token := r.Header.Get(Authorization)
-		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{}, "", 0)
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{}, []string{}, "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(jwtPayload.UserId)
-		ctx.SetUserUuid(jwtPayload.UserUuid)
-		ctx.SetServiceId(jwtPayload.ServiceId)
-
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -156,26 +154,21 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 			return
 		}
 
-		if err := interceptClientSecret(w, r); err != nil {
+		secret, err := interceptClientSecret(w, r)
+		if err != nil {
 			return
 		}
 
 		token := r.Header.Get(Authorization)
-		groupId, err := ParamGroupId(r)
-		if err != nil {
-			model.WriteError(w, err.ToJson(), err.Code)
-			return
-		}
-		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole}, "", groupId)
+		groupId := ParamGroupUuid(r)
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole}, []string{}, groupId)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(jwtPayload.UserId)
-		ctx.SetUserUuid(jwtPayload.UserUuid)
-		ctx.SetServiceId(jwtPayload.ServiceId)
-
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -194,26 +187,21 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 			return
 		}
 
-		if err := interceptClientSecret(w, r); err != nil {
+		secret, err := interceptClientSecret(w, r)
+		if err != nil {
 			return
 		}
 
 		token := r.Header.Get(Authorization)
-		groupId, err := ParamGroupId(r)
-		if err != nil {
-			model.WriteError(w, err.ToJson(), err.Code)
-			return
-		}
-		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole, common.UserRole}, "", groupId)
+		groupId := ParamGroupUuid(r)
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole, common.UserRole}, []string{}, groupId)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		ctx.SetUserId(jwtPayload.UserId)
-		ctx.SetUserUuid(jwtPayload.UserUuid)
-		ctx.SetServiceId(jwtPayload.ServiceId)
-
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -239,10 +227,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 			return
 		}
 
-		ctx.SetUserId(jwtPayload.UserId)
-		ctx.SetUserUuid(jwtPayload.UserUuid)
-		ctx.SetServiceId(jwtPayload.ServiceId)
-
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -260,16 +245,14 @@ func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody
 }
 
 // Intercept Client-Secret header
-func interceptClientSecret(w http.ResponseWriter, r *http.Request) *model.ErrorResBody {
+func interceptClientSecret(w http.ResponseWriter, r *http.Request) (*string, *model.ErrorResBody) {
 	clientSecret := r.Header.Get(ClientSecret)
 	if strings.EqualFold(clientSecret, "") {
 		err := model.Unauthorized("Required Client-Secret")
 		model.WriteError(w, err.ToJson(), err.Code)
-		return err
+		return nil, err
 	}
-
-	ctx.SetClientSecret(clientSecret)
-	return nil
+	return &clientSecret, nil
 }
 
 // Validate http request header
@@ -342,13 +325,7 @@ func ValidateTokenRequest(w http.ResponseWriter, tokenRequest *model.TokenReques
 	return nil
 }
 
-// Parse request group_id of path parameter
-func ParamGroupId(r *http.Request) (int, *model.ErrorResBody) {
-	groupId := mux.Vars(r)["group_id"]
-	id, err := strconv.Atoi(groupId)
-	if err != nil {
-		err := model.BadRequest("Path parameter is only integer")
-		return 0, err
-	}
-	return id, nil
+// Parse request group_uuid of path parameter
+func ParamGroupUuid(r *http.Request) string {
+	return mux.Vars(r)["group_uuid"]
 }

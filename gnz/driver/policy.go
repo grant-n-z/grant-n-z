@@ -2,7 +2,6 @@ package driver
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jinzhu/gorm"
 
@@ -15,22 +14,25 @@ var plrInstance PolicyRepository
 
 type PolicyRepository interface {
 	// Find all policy
-	FindAll() ([]*entity.Policy, *model.ErrorResBody)
+	FindAll() ([]*entity.Policy, error)
 
 	// Find policy for offset and limit
-	FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody)
+	FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error)
 
-	// Find policy by role id
-	FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
+	// Find policy by role uuid
+	FindByRoleUuid(roleUuid string) ([]*entity.Policy, error)
 
-	// Find by id
-	FindById(id int) (entity.Policy, *model.ErrorResBody)
+	// Find by uuid
+	FindByUuid(uuid string) (entity.Policy, error)
 
-	// Find policy data by user id
-	FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody)
+	// Find policy data by user uuid and group uuid
+	FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error)
+
+	// Find policy data by user uuid and group uuid
+	FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error)
 
 	// Update
-	Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
+	Update(policy entity.Policy) (*entity.Policy, error)
 }
 
 type PolicyRepositoryImpl struct {
@@ -49,114 +51,178 @@ func NewPolicyRepository() PolicyRepository {
 	return PolicyRepositoryImpl{Connection: connection}
 }
 
-func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody) {
+func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	if err := pri.Connection.Find(&policies).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri PolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	if err := pri.Connection.Limit(limitCnt).Offset(offsetCnt).Find(&policies).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri PolicyRepositoryImpl) FindByRoleUuid(roleUuid string) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
-	if err := pri.Connection.Where("role_id = ?", roleId).Find(&policies).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+	if err := pri.Connection.Where("role_uuid = ?", roleUuid).Find(&policies).Error; err != nil {
+		return nil, err
 	}
 
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {
+func (pri PolicyRepositoryImpl) FindByUuid(uuid string) (entity.Policy, error) {
 	var policy entity.Policy
-	if err := pri.Connection.Where("id = ?", id).Find(&policy).Error; err != nil {
-		if strings.Contains(err.Error(), "record not found") {
-			return policy, nil
-		}
-
-		return policy, model.InternalServerError(err.Error())
+	if err := pri.Connection.Where("uuid = ?", uuid).Find(&policy).Error; err != nil {
+		return entity.Policy{}, err
 	}
 
 	return policy, nil
 }
 
-func (pri PolicyRepositoryImpl) FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+func (pri PolicyRepositoryImpl) FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error) {
 	var policy model.UserPolicyOnGroupResponse
-	target := entity.UserTable.String() + "." + entity.UserUsername.String() + "," + entity.UserTable.String() + "." + entity.UserEmail.String() +
-		"," + entity.PolicyTable.String() + "." + entity.PolicyName.String() + " AS policy_name," + entity.RoleTable.String() + "." + entity.RoleName.String() +
-		" AS role_name," + entity.PermissionTable.String() + "." + entity.PermissionName.String() + " AS permission_name"
+
+	target := entity.UserTable.String() + "." +
+		entity.UserUsername.String() + "," +
+		entity.UserTable.String() + "." +
+		entity.UserEmail.String() + "," +
+		entity.PolicyTable.String() + "." +
+		entity.PolicyName.String() + " AS policy_name," +
+		entity.RoleTable.String() + "." +
+		entity.RoleName.String() + " AS role_name," +
+		entity.PermissionTable.String() + "." +
+		entity.PermissionName.String() + " AS permission_name," +
+		entity.ServiceTable.String() + "." +
+		entity.ServiceName.String() + " AS service_name"
 
 	if err := pri.Connection.Table(entity.UserGroupTable.String()).
 		Select(target).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.PolicyTable.String(),
 			entity.UserGroupTable.String(),
-			entity.UserGroupId.String(),
+			entity.UserGroupUuid.String(),
 			entity.PolicyTable.String(),
-			entity.PolicyUserGroupId.String())).
+			entity.PolicyUserGroupUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.RoleTable.String(),
 			entity.RoleTable.String(),
-			entity.RoleId.String(),
+			entity.RoleUuid.String(),
 			entity.PolicyTable.String(),
-			entity.PolicyRoleId.String())).
+			entity.PolicyRoleUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.PermissionTable.String(),
 			entity.PermissionTable.String(),
-			entity.PermissionId.String(),
+			entity.PermissionUuid.String(),
 			entity.PolicyTable.String(),
-			entity.PolicyPermissionId.String())).
+			entity.PolicyPermissionUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.UserTable.String(),
 			entity.UserGroupTable.String(),
-			entity.UserGroupUserId.String(),
+			entity.UserGroupUserUuid.String(),
 			entity.UserTable.String(),
-			entity.UserId.String())).
-		Where(fmt.Sprintf("%s.%s = ? AND %s.%s = ?",
+			entity.UserUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyServiceUuid.String(),
+			entity.ServiceTable.String(),
+			entity.ServiceUuid.String())).
+		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserGroupTable.String(),
-			entity.UserGroupUserId.String(),
+			entity.UserGroupUserUuid.String()), userUuid).
+		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserGroupTable.String(),
-			entity.UserGroupGroupId.String()), userId, groupId).
+			entity.UserGroupGroupUuid.String()), groupUuid).
 		Scan(&policy).Error; err != nil {
 
-		log.Logger.Warn(err.Error())
-		return policy, model.InternalServerError()
+		return model.UserPolicyOnGroupResponse{}, err
 	}
 
 	return policy, nil
 }
 
-func (pri PolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
-	if err := pri.Connection.Where("user_group_id = ?", policy.UserGroupId).Assign(policy).FirstOrCreate(&policy).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit data.")
-		} else if strings.Contains(err.Error(), "1452") {
-			return nil, model.BadRequest("Not register relational id.")
-		}
+func (pri PolicyRepositoryImpl) FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error) {
+	var policy []model.UserPolicyOnServiceResponse
 
-		return nil, model.InternalServerError()
+	target := entity.UserTable.String() + "." +
+		entity.UserUsername.String() + "," +
+		entity.UserTable.String() + "." +
+		entity.UserEmail.String() + "," +
+		entity.PolicyTable.String() + "." +
+		entity.PolicyName.String() + " AS policy_name," +
+		entity.RoleTable.String() + "." +
+		entity.RoleName.String() + " AS role_name," +
+		entity.RoleTable.String() + "." +
+		entity.RoleUuid.String() + " AS role_uuid," +
+		entity.PermissionTable.String() + "." +
+		entity.PermissionName.String() + " AS permission_name," +
+		entity.PermissionTable.String() + "." +
+		entity.PermissionUuid.String() + " AS permission_uuid," +
+		entity.GroupTable.String() + "." +
+		entity.GroupName.String() + " AS group_name," +
+		entity.GroupTable.String() + "." +
+		entity.GroupUuid.String() + " AS group_uuid"
+
+	if err := pri.Connection.Table(entity.UserTable.String()).
+		Select(target).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserTable.String(),
+			entity.UserTable.String(),
+			entity.UserUuid.String(),
+			entity.UserServiceTable.String(),
+			entity.UserServiceUserUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserServiceTable.String(),
+			entity.UserServiceTable.String(),
+			entity.UserServiceServiceUuid.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyServiceUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyPermissionUuid.String(),
+			entity.PermissionTable.String(),
+			entity.PermissionUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyRoleUuid.String(),
+			entity.RoleTable.String(),
+			entity.RoleUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.PolicyTable.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyUserGroupUuid.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserGroupTable.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupUuid.String(),
+			entity.GroupTable.String(),
+			entity.GroupUuid.String())).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.UserTable.String(),
+			entity.UserUuid.String()), userUuid).
+		Scan(&policy).Error; err != nil {
+
+		return []model.UserPolicyOnServiceResponse{}, err
+	}
+
+	return policy, nil
+}
+
+func (pri PolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, error) {
+	if err := pri.Connection.Where("user_group_uuid = ?", policy.UserGroupUuid).Assign(policy).FirstOrCreate(&policy).Error; err != nil {
+		return nil, err
 	}
 
 	return &policy, nil

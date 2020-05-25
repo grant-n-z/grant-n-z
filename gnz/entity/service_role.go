@@ -1,25 +1,26 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
 const (
 	ServiceRoleTable ServiceRoleTableConfig = iota
 	ServiceRoleId
-	ServiceRoleRoleId
-	ServiceRoleServiceId
+	ServiceRoleRoleUuid
+	ServiceRoleServiceUuid
 	ServiceRoleCreatedAt
 	ServiceRoleUpdatedAt
 )
 
 // The table `service_roles` struct
 type ServiceRole struct {
-	Id        int       `json:"id"`
-	RoleId    int       `validate:"required"json:"role_id"`
-	ServiceId int       `validate:"required"json:"service_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id          int       `json:"id"`
+	RoleUuid    uuid.UUID `validate:"required"json:"role_uuid"`
+	ServiceUuid uuid.UUID `validate:"required"json:"service_uuid"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // ServiceRole table config
@@ -31,10 +32,10 @@ func (ur ServiceRoleTableConfig) String() string {
 		return "service_roles"
 	case ServiceRoleId:
 		return "id"
-	case ServiceRoleRoleId:
-		return "role_id"
-	case ServiceRoleServiceId:
-		return "service_id"
+	case ServiceRoleRoleUuid:
+		return "role_uuid"
+	case ServiceRoleServiceUuid:
+		return "service_uuid"
 	case ServiceRoleCreatedAt:
 		return "created_at"
 	case ServiceRoleUpdatedAt:

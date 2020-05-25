@@ -31,7 +31,7 @@ func InitEtcd() {
 		Close()
 		return
 	}
-	log.Logger.Info("Connected etcd", common.Etcd.Host)
+	log.Logger.Info("Connected etcd. ", common.Etcd.Host)
 	connection = client
 }
 

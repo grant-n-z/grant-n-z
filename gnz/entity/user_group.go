@@ -1,14 +1,16 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
 const (
 	UserGroupTable UserGroupTableConfig = iota
 	UserGroupId
-	UserGroupUserId
-	UserGroupGroupId
+	UserGroupUuid
+	UserGroupUserUuid
+	UserGroupGroupUuid
 	UserGroupCreatedAt
 	UserGroupUpdatedAt
 )
@@ -16,8 +18,9 @@ const (
 // The table `user_groups` struct
 type UserGroup struct {
 	Id        int       `gorm:"primary_key"json:"id"`
-	UserId    int       `validate:"required"json:"user_id"`
-	GroupId   int       `validate:"required"json:"group_id"`
+	Uuid      uuid.UUID `validate:"required"json:"uuid"`
+	UserUuid  uuid.UUID `validate:"required"json:"user_uuid"`
+	GroupUuid uuid.UUID `validate:"required"json:"group_uuid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -31,10 +34,12 @@ func (ugc UserGroupTableConfig) String() string {
 		return "user_groups"
 	case UserGroupId:
 		return "id"
-	case UserGroupUserId:
-		return "user_id"
-	case UserGroupGroupId:
-		return "group_id"
+	case UserGroupUuid:
+		return "uuid"
+	case UserGroupUserUuid:
+		return "user_uuid"
+	case UserGroupGroupUuid:
+		return "group_uuid"
 	case UserGroupCreatedAt:
 		return "created_at"
 	case UserGroupUpdatedAt:

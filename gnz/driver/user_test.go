@@ -1,11 +1,11 @@
 package driver
 
 import (
+	"testing"
+
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"net/http"
-	"testing"
 )
 
 var userRepository UserRepository
@@ -19,119 +19,128 @@ func init() {
 	userRepository = GetUserRepositoryInstance()
 }
 
-// FindById InternalServerError test
-func TestUserFindById_InternalServerError(t *testing.T) {
-	_, err := userRepository.FindById(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindById_InternalServerError test")
+// FindByUuid InternalServerError test
+func TestUserFindById_Error(t *testing.T) {
+	_, err := userRepository.FindByUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindById_Error test")
 		t.FailNow()
 	}
 }
 
 // FindByEmail InternalServerError test
-func TestUserFindByEmail_InternalServerError(t *testing.T) {
+func TestUserFindByEmail_Error(t *testing.T) {
 	_, err := userRepository.FindByEmail("test@gmail.com")
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindByEmail_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindByEmail_Error test")
 		t.FailNow()
 	}
 }
 
-// FindById InternalServerError test
-func TestUserFindByGroupId_InternalServerError(t *testing.T) {
-	_, err := userRepository.FindByGroupId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindByGroupId_InternalServerError test")
+// FindByUuid InternalServerError test
+func TestUserFindByGroupId_Error(t *testing.T) {
+	_, err := userRepository.FindByGroupUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindByGroupId_Error test")
 		t.FailNow()
 	}
 }
 
 // FindWithOperatorPolicyByEmail InternalServerError test
-func TestUserFindWithOperatorPolicyByEmail_InternalServerError(t *testing.T) {
+func TestUserFindWithOperatorPolicyByEmail_Error(t *testing.T) {
 	_, err := userRepository.FindWithOperatorPolicyByEmail("test@gmail.com")
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindWithOperatorPolicyByEmail_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindWithOperatorPolicyByEmail_Error test")
 		t.FailNow()
 	}
 }
 
-// FindUserGroupByUserIdAndGroupId InternalServerError test
-func TestUserFindUserGroupByUserIdAndGroupId_InternalServerError(t *testing.T) {
-	_, err := userRepository.FindUserGroupByUserIdAndGroupId(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindUserGroupByUserIdAndGroupId_InternalServerError test")
+// FindUserGroupByUserUuidAndGroupUuid InternalServerError test
+func TestUserFindUserGroupByUserIdAndGroupId_Error(t *testing.T) {
+	_, err := userRepository.FindUserGroupByUserUuidAndGroupUuid("uuid", "uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindUserGroupByUserIdAndGroupId_Error test")
 		t.FailNow()
 	}
 }
 
 // FindUserServices InternalServerError test
-func TestUserFindUserServices_InternalServerError(t *testing.T) {
+func TestUserFindUserServices_Error(t *testing.T) {
 	_, err := userRepository.FindUserServices()
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindUserServices_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindUserServices_Error test")
 		t.FailNow()
 	}
 }
 
 // FindUserServicesOffSetAndLimit InternalServerError test
-func TestUserFindUserServicesOffSetAndLimit_InternalServerError(t *testing.T) {
+func TestUserFindUserServicesOffSetAndLimit_Error(t *testing.T) {
 	_, err := userRepository.FindUserServicesOffSetAndLimit(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindUserServicesOffSetAndLimit_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindUserServicesOffSetAndLimit_Error test")
 		t.FailNow()
 	}
 }
 
-// FindUserServiceByUserIdAndServiceId InternalServerError test
-func TestUserFindUserServiceByUserIdAndServiceId_InternalServerError(t *testing.T) {
-	_, err := userRepository.FindUserServiceByUserIdAndServiceId(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserFindUserServiceByUserIdAndServiceId_InternalServerError test")
+// FindUserGroupsOffSetAndLimit InternalServerError test
+func TestUserFindUserGroupsOffSetAndLimit_Error(t *testing.T) {
+	_, err := userRepository.FindUserGroupsOffSetAndLimit(1, 1)
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindUserGroupsOffSetAndLimit_Error test")
+		t.FailNow()
+	}
+}
+
+// FindUserServiceByUserUuidAndServiceUuid InternalServerError test
+func TestUserFindUserServiceByUserIdAndServiceId_Error(t *testing.T) {
+	_, err := userRepository.FindUserServiceByUserUuidAndServiceUuid("uuid", "uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestUserFindUserServiceByUserIdAndServiceId_Error test")
 		t.FailNow()
 	}
 }
 
 // SaveUserGroup InternalServerError test
-func TestUserSaveUserGroup_InternalServerError(t *testing.T) {
+func TestUserSaveUserGroup_Error(t *testing.T) {
 	_, err := userRepository.SaveUserGroup(entity.UserGroup{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserSaveUserGroup_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserSaveUserGroup_Error test")
 		t.FailNow()
 	}
 }
 
 // SaveUser InternalServerError test
-func TestUserSaveUser_InternalServerError(t *testing.T) {
+func TestUserSaveUser_Error(t *testing.T) {
 	_, err := userRepository.SaveUser(entity.User{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserSaveUser_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserSaveUser_Error test")
 		t.FailNow()
 	}
 }
 
 // SaveWithUserService InternalServerError test
-func TestUserSaveWithUserService_InternalServerError(t *testing.T) {
+func TestUserSaveWithUserService_Error(t *testing.T) {
 	_, err := userRepository.SaveWithUserService(entity.User{}, entity.UserService{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestSaveWithUserService_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestSaveWithUserService_Error test")
 		t.FailNow()
 	}
 }
 
 // SaveUserService InternalServerError test
-func TestUserSaveUserService_InternalServerError(t *testing.T) {
+func TestUserSaveUserService_Error(t *testing.T) {
 	_, err := userRepository.SaveUserService(entity.UserService{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserSaveUserService_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserSaveUserService_Error test")
 		t.FailNow()
 	}
 }
 
 // UpdateUser InternalServerError test
-func TestUserUpdateUser_InternalServerError(t *testing.T) {
+func TestUserUpdateUser_Error(t *testing.T) {
 	_, err := userRepository.UpdateUser(entity.User{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestUserUpdateUser_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestUserUpdateUser_Error test")
 		t.FailNow()
 	}
 }

@@ -2,13 +2,14 @@ package operator
 
 import (
 	"bytes"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
+	"net/http"
+	"testing"
+
+	"io/ioutil"
+
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
-	"io/ioutil"
-	"net/http"
-	"testing"
 )
 
 var (
@@ -17,7 +18,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	operatorService = OperatorServiceImpl{Service: StubService{}}
 }
@@ -111,7 +111,7 @@ func (ss StubService) GetServices() ([]*entity.Service, *model.ErrorResBody) {
 	return []*entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceById(id int) (*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceByUuid(uuid string) (*entity.Service, *model.ErrorResBody) {
 	return &entity.Service{}, nil
 }
 
@@ -119,11 +119,11 @@ func (ss StubService) GetServiceByName(name string) (*entity.Service, *model.Err
 	return &entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceOfSecret() (*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceBySecret(secret string) (*entity.Service, *model.ErrorResBody) {
 	return &entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceByUser(userUuid string) ([]*entity.Service, *model.ErrorResBody) {
 	return []*entity.Service{}, nil
 }
 

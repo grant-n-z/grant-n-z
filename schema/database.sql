@@ -56,7 +56,8 @@ CREATE TABLE services (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE (name)
+  UNIQUE (name),
+  UNIQUE (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `users`
@@ -69,7 +70,8 @@ CREATE TABLE users (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE (email)
+  UNIQUE (email),
+  UNIQUE (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `permissions`
@@ -80,7 +82,8 @@ CREATE TABLE permissions (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE (name)
+  UNIQUE (name),
+  UNIQUE (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `groups`
@@ -90,7 +93,8 @@ CREATE TABLE groups (
   name varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `roles`
@@ -101,165 +105,168 @@ CREATE TABLE roles (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE (name)
+  UNIQUE (name),
+  UNIQUE (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `user_services`
 CREATE TABLE user_services (
   id int(11) NOT NULL AUTO_INCREMENT,
-  user_id int(11) NOT NULL,
-  service_id int(11) NOT NULL,
+  user_uuid varchar(128) NOT NULL,
+  service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (user_id),
-  INDEX (service_id),
-  CONSTRAINT fk_user_services_user_id
-  FOREIGN KEY (user_id)
-  REFERENCES users (id)
+  INDEX (user_uuid),
+  INDEX (service_uuid),
+  CONSTRAINT fk_user_services_user_uuid
+  FOREIGN KEY (user_uuid)
+  REFERENCES users (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_user_services_service_id
-  FOREIGN KEY (service_id)
-  REFERENCES services (id)
+  CONSTRAINT fk_user_services_service_uuid
+  FOREIGN KEY (service_uuid)
+  REFERENCES services (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `user_groups`
 CREATE TABLE user_groups (
   id int(11) NOT NULL AUTO_INCREMENT,
-  user_id int(11) NOT NULL,
-  group_id int(11) NOT NULL,
+  uuid varchar(128) NOT NULL,
+  user_uuid varchar(128) NOT NULL,
+  group_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (user_id),
-  INDEX (group_id),
-  CONSTRAINT fk_user_groups_user_id
-  FOREIGN KEY (user_id)
-  REFERENCES users (id)
+  UNIQUE (uuid),
+  INDEX (user_uuid),
+  INDEX (group_uuid),
+  CONSTRAINT fk_user_groups_user_uuid
+  FOREIGN KEY (user_uuid)
+  REFERENCES users (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_user_groups_group_id
-  FOREIGN KEY (group_id)
-  REFERENCES groups (id)
+  CONSTRAINT fk_user_groups_group_uuid
+  FOREIGN KEY (group_uuid)
+  REFERENCES groups (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_groups`
 CREATE TABLE service_groups (
   id int(11) NOT NULL AUTO_INCREMENT,
-  group_id int(11) NOT NULL,
-  service_id int(11) NOT NULL,
+  group_uuid varchar(128) NOT NULL,
+  service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (group_id),
-  INDEX (service_id),
-  CONSTRAINT fk_service_groups_group_id
-  FOREIGN KEY (group_id)
-  REFERENCES groups (id)
+  INDEX (group_uuid),
+  INDEX (service_uuid),
+  CONSTRAINT fk_service_groups_group_uuid
+  FOREIGN KEY (group_uuid)
+  REFERENCES groups (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_service_groups_service_id
-  FOREIGN KEY (service_id)
-  REFERENCES services (id)
+  CONSTRAINT fk_service_groups_serviceuuid
+  FOREIGN KEY (service_uuid)
+  REFERENCES services (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_roles`
 CREATE TABLE service_roles (
   id int(11) NOT NULL AUTO_INCREMENT,
-  role_id int(11) NOT NULL,
-  service_id int(11) NOT NULL,
+  role_uuid varchar(128) NOT NULL,
+  service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (role_id),
-  INDEX (service_id),
-  CONSTRAINT fk_service_roles_role_id
-  FOREIGN KEY (role_id)
-  REFERENCES roles (id)
+  INDEX (role_uuid),
+  INDEX (service_uuid),
+  CONSTRAINT fk_service_roles_role_uuid
+  FOREIGN KEY (role_uuid)
+  REFERENCES roles (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_service_roles_service_id
-  FOREIGN KEY (service_id)
-  REFERENCES services (id)
+  CONSTRAINT fk_service_roles_service_uuid
+  FOREIGN KEY (service_uuid)
+  REFERENCES services (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_permissions`
 CREATE TABLE service_permissions (
   id int(11) NOT NULL AUTO_INCREMENT,
-  permission_id int(11) NOT NULL,
-  service_id int(11) NOT NULL,
+  permission_uuid varchar(128) NOT NULL,
+  service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (permission_id),
-  INDEX (service_id),
-  CONSTRAINT fk_service_permissions_permission_id
-  FOREIGN KEY (permission_id)
-  REFERENCES permissions (id)
+  INDEX (permission_uuid),
+  INDEX (service_uuid),
+  CONSTRAINT fk_service_permissions_permission_uuid
+  FOREIGN KEY (permission_uuid)
+  REFERENCES permissions (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_service_permissions_service_id
-  FOREIGN KEY (service_id)
-  REFERENCES services (id)
+  CONSTRAINT fk_service_permissions_service_uuid
+  FOREIGN KEY (service_uuid)
+  REFERENCES services (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `group_roles`
 CREATE TABLE group_roles (
   id int(11) NOT NULL AUTO_INCREMENT,
-  role_id int(11) NOT NULL,
-  group_id int(11) NOT NULL,
+  role_uuid varchar(128) NOT NULL,
+  group_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (role_id),
-  INDEX (group_id),
-  CONSTRAINT fk_group_roles_role_id
-  FOREIGN KEY (role_id)
-  REFERENCES roles (id)
+  INDEX (role_uuid),
+  INDEX (group_uuid),
+  CONSTRAINT fk_group_roles_role_uuid
+  FOREIGN KEY (role_uuid)
+  REFERENCES roles (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_group_roles_group_id
-  FOREIGN KEY (group_id)
-  REFERENCES groups (id)
+  CONSTRAINT fk_group_roles_group_uuid
+  FOREIGN KEY (group_uuid)
+  REFERENCES groups (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `group_permissions`
 CREATE TABLE group_permissions (
   id int(11) NOT NULL AUTO_INCREMENT,
-  permission_id int(11) NOT NULL,
-  group_id int(11) NOT NULL,
+  permission_uuid varchar(128) NOT NULL,
+  group_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (permission_id),
-  INDEX (group_id),
-  CONSTRAINT fk_group_permissions_permission_id
-  FOREIGN KEY (permission_id)
-  REFERENCES permissions (id)
+  INDEX (permission_uuid),
+  INDEX (group_uuid),
+  CONSTRAINT fk_group_permissions_permission_uuid
+  FOREIGN KEY (permission_uuid)
+  REFERENCES permissions (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_group_permissions_group_id
-  FOREIGN KEY (group_id)
-  REFERENCES groups (id)
+  CONSTRAINT fk_group_permissions_group_uuid
+  FOREIGN KEY (group_uuid)
+  REFERENCES groups (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `operator_policies`
 CREATE TABLE operator_policies (
   id int(11) NOT NULL AUTO_INCREMENT,
-  role_id int(11) NOT NULL,
-  user_id int(11) NOT NULL,
+  role_uuid varchar(128) NOT NULL,
+  user_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  INDEX (user_id),
   PRIMARY KEY (id),
-  CONSTRAINT fk_operator_policies_role_id
-  FOREIGN KEY (role_id)
-  REFERENCES roles (id)
+  INDEX (user_uuid),
+  CONSTRAINT fk_operator_policies_role_uuid
+  FOREIGN KEY (role_uuid)
+  REFERENCES roles (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_operator_policies_user_id
-  FOREIGN KEY (user_id)
-  REFERENCES users (id)
+  CONSTRAINT fk_operator_policies_user_uuid
+  FOREIGN KEY (user_uuid)
+  REFERENCES users (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -267,31 +274,31 @@ CREATE TABLE operator_policies (
 CREATE TABLE policies (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(128) NOT NULL,
-  role_id int(11) NOT NULL,
-  permission_id int(11) NOT NULL,
-  service_id int(11) NOT NULL,
-  user_group_id int(11) NOT NULL,
+  role_uuid varchar(128) NOT NULL,
+  permission_uuid varchar(128) NOT NULL,
+  service_uuid varchar(128) NOT NULL,
+  user_group_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX (role_id),
-  INDEX (permission_id),
-  INDEX (service_id),
-  INDEX (user_group_id),
-  CONSTRAINT fk_policies_role_id
-  FOREIGN KEY (role_id)
-  REFERENCES roles (id)
+  INDEX (role_uuid),
+  INDEX (permission_uuid),
+  INDEX (service_uuid),
+  INDEX (user_group_uuid),
+  CONSTRAINT fk_policies_role_uuid
+  FOREIGN KEY (role_uuid)
+  REFERENCES roles (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_policies_permission_id
-  FOREIGN KEY (permission_id)
-  REFERENCES permissions (id)
+  CONSTRAINT fk_policies_permission_uuid
+  FOREIGN KEY (permission_uuid)
+  REFERENCES permissions (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_policies_service_id
-  FOREIGN KEY (service_id)
-  REFERENCES services (id)
+  CONSTRAINT fk_policies_service_uuid
+  FOREIGN KEY (service_uuid)
+  REFERENCES services (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT fk_policies_user_group_id
-  FOREIGN KEY (user_group_id)
-  REFERENCES user_groups (id)
+  CONSTRAINT fk_policies_user_group_uuid
+  FOREIGN KEY (user_group_uuid)
+  REFERENCES user_groups (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

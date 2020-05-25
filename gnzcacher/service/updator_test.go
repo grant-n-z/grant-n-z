@@ -1,13 +1,15 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnz/log"
-	"go.etcd.io/etcd/clientv3"
 	"testing"
 	"time"
+
+	"go.etcd.io/etcd/clientv3"
+
+	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 var (
@@ -17,7 +19,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	stubEtcdConnection, _ = clientv3.New(clientv3.Config{
 		Endpoints:            []string{},
@@ -26,7 +27,6 @@ func init() {
 	})
 	etcdClient := cache.EtcdClientImpl{
 		Connection: stubEtcdConnection,
-		Ctx:        ctx.GetCtx(),
 	}
 	updaterService = UpdaterServiceImpl{EtcdClient: etcdClient}
 }
@@ -38,42 +38,42 @@ func TestNewUpdaterService(t *testing.T) {
 
 // Test update policy
 func TestUpdatePolicy(t *testing.T) {
-	var policies []*entity.Policy
-	policies = []*entity.Policy{{Id: 1, Name: "test"}}
+	policies := make(map[string][]structure.UserPolicy)
+	policies["test"] = []structure.UserPolicy{{GroupUuid: uuid.New().String()}}
 	updaterService.UpdatePolicy(policies)
 }
 
 // Test update permission
 func TestUpdatePermission(t *testing.T) {
-	var permissions []*entity.Permission
-	permissions = []*entity.Permission{{Id: 1, Name: "test"}}
+	var permissions []structure.Permission
+	permissions = []structure.Permission{{Name: "test"}}
 	updaterService.UpdatePermission(permissions)
 }
 
 // Test update role
 func TestUpdateRole(t *testing.T) {
-	var roles []*entity.Role
-	roles = []*entity.Role{{Id: 1, Name: "test"}}
+	var roles []structure.Role
+	roles = []structure.Role{{Name: "test"}}
 	updaterService.UpdateRole(roles)
 }
 
 // Test update service
 func TestUpdateService(t *testing.T) {
-	var services []*entity.Service
-	services = []*entity.Service{{Id: 1, Name: "test"}}
+	var services []structure.Service
+	services = []structure.Service{{Name: "test"}}
 	updaterService.UpdateService(services)
 }
 
 // Test update user service
 func TestUpdateUserService(t *testing.T) {
-	var userServices []*entity.UserService
-	userServices = []*entity.UserService{{Id: 1, UserId: 1, ServiceId: 1}}
-	updaterService.UpdateUserService(userServices)
+	services := make(map[string][]structure.UserService)
+	services["test"] = []structure.UserService{{ServiceName: "service"}}
+	updaterService.UpdateUserService(services)
 }
 
 // Test update user group
 func TestUpdateUserGroup(t *testing.T) {
-	var userGroups []*entity.UserGroup
-	userGroups = []*entity.UserGroup{{Id: 1, UserId: 1, GroupId: 1}}
-	updaterService.UpdateUserGroup(userGroups)
+	groups := make(map[string][]structure.UserGroup)
+	groups["test"] = []structure.UserGroup{{GroupName: "group"}}
+	updaterService.UpdateUserGroup(groups)
 }

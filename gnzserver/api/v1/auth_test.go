@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 )
@@ -23,7 +22,6 @@ func init() {
 	os.Setenv("SERVER_PUBLIC_KEY_PATH", "../../../gnz/common/test-public.key")
 	os.Setenv("SERVER_SIGN_ALGORITHM", "rsa256")
 	log.InitLogger("info")
-	ctx.InitContext()
 	common.InitGrantNZServerConfig("../../grant_n_z_server.yaml")
 
 	auth = AuthImpl{tokenProcessor: StubTokenProcessor{}}

@@ -1,11 +1,16 @@
 package model
 
 import (
+	"github.com/tomoyane/grant-n-z/gnz/log"
 	"strings"
 	"testing"
 
 	"net/http"
 )
+
+func init() {
+	log.InitLogger("info")
+}
 
 // Test to json
 func TestToJson(t *testing.T) {

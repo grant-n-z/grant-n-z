@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -21,7 +20,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	operatorPolicy = OperatorPolicyImpl{OperatorPolicyService: StubOperatorPolicyService{}}
 }
@@ -58,7 +56,7 @@ func TestOperatorPolicy_Get(t *testing.T) {
 // Test post bad request
 func TestOperatorPolicy_Post_BadRequest(t *testing.T) {
 	response := StubResponseWriter{}
-	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"role_id\":1, \"user_id\":\"invalid\"}")))
+	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"role_uuid\":\"fdf515e7-b163-435e-bc69-0fc0f90bd90b\", \"user_uuid\":\"invalid\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
 	operatorPolicy.Api(response, &request)
 
@@ -71,7 +69,7 @@ func TestOperatorPolicy_Post_BadRequest(t *testing.T) {
 // Test post
 func TestOperatorPolicy_Post(t *testing.T) {
 	response := StubResponseWriter{}
-	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"role_id\":1, \"user_id\":1}")))
+	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"role_uuid\":\"fdf515e7-b163-435e-bc69-0fc0f90bd90b\", \"user_uuid\":\"123515e7-b163-435e-bc69-0fc0f90bd90b\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
 	operatorPolicy.Api(response, &request)
 
@@ -84,7 +82,7 @@ func TestOperatorPolicy_Post(t *testing.T) {
 // Test put
 func TestOperatorPolicy_Put(t *testing.T) {
 	response := StubResponseWriter{}
-	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"role_id\":1, \"user_id\":1}")))
+	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"role_uuid\":\"fdf515e7-b163-435e-bc69-0fc0f90bd90b\", \"user_uuid\":\"123515e7-b163-435e-bc69-0fc0f90bd90b\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPut, Body: invalid}
 	operatorPolicy.Api(response, &request)
 
@@ -136,14 +134,14 @@ func (ops StubOperatorPolicyService) GetAll() ([]*entity.OperatorPolicy, *model.
 	return []*entity.OperatorPolicy{}, nil
 }
 
-func (ops StubOperatorPolicyService) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops StubOperatorPolicyService) GetByUserUuid(userUuid string) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
 	return []*entity.OperatorPolicy{}, nil
 }
 
-func (ops StubOperatorPolicyService) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (ops StubOperatorPolicyService) GetByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, *model.ErrorResBody) {
 	return &entity.OperatorPolicy{}, nil
 }
 
-func (ops StubOperatorPolicyService) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
-	return entity, nil
+func (ops StubOperatorPolicyService) Insert(policy *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
+	return &entity.OperatorPolicy{}, nil
 }

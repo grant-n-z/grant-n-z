@@ -1,11 +1,13 @@
 package service
 
 import (
-	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
+	"strings"
+
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -24,8 +26,8 @@ type UserService interface {
 	// Compare encrypt password and decrypt password
 	ComparePw(passwordHash string, password string) bool
 
-	// Get User by user id
-	GetUserById(id int) (*entity.User, *model.ErrorResBody)
+	// Get User by user uuid
+	GetUserByUuid(uuid string) (*entity.User, *model.ErrorResBody)
 
 	// Get User by user email
 	GetUserByEmail(email string) (*entity.User, *model.ErrorResBody)
@@ -36,17 +38,23 @@ type UserService interface {
 	// Get User and user service and service by user email
 	GetUserWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody)
 
-	// Get UserGroup by user_id and group_id
-	GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody)
+	// Get UserGroup by user uuid and group uuid
+	GetUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, *model.ErrorResBody)
 
-	// Get Users by group_id
-	GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody)
+	// Get Users by group uuid
+	GetUserByGroupUuid(groupUuid string) ([]*model.UserResponse, *model.ErrorResBody)
 
 	// Get all UserService
 	GetUserServices() ([]*entity.UserService, *model.ErrorResBody)
 
-	// Get UserService by user_id and service_id
-	GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody)
+	// Get UserService by user uuid and service uuid
+	GetUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, *model.ErrorResBody)
+
+	// Get UserPolicy in etcd by user uuid
+	GetUserPoliciesByUserUuid(userUuid string) []structure.UserPolicy
+
+	// Get UserPolicy in etcd by user uuid
+	GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup
 
 	// Insert UserGroup
 	InsertUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody)
@@ -101,90 +109,191 @@ func (us UserServiceImpl) EncryptPw(password string) string {
 func (us UserServiceImpl) ComparePw(passwordHash string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
 	if err != nil {
-		log.Logger.Info("Failed to compare password", err.Error())
 		return false
 	}
 
 	return true
 }
 
-func (us UserServiceImpl) GetUserById(id int) (*entity.User, *model.ErrorResBody) {
-	return us.UserRepository.FindById(id)
+func (us UserServiceImpl) GetUserByUuid(uuid string) (*entity.User, *model.ErrorResBody) {
+	user, err := us.UserRepository.FindByUuid(uuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return user, nil
 }
 
 func (us UserServiceImpl) GetUserByEmail(email string) (*entity.User, *model.ErrorResBody) {
-	return us.UserRepository.FindByEmail(email)
+	user, err := us.UserRepository.FindByEmail(email)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return user, nil
 }
 
 func (us UserServiceImpl) GetUserWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
-	return us.UserRepository.FindWithOperatorPolicyByEmail(email)
+	userWithOperatorPolicy, err := us.UserRepository.FindWithOperatorPolicyByEmail(email)
+	if err != nil {
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return userWithOperatorPolicy, nil
 }
 
 func (us UserServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody) {
-	return us.UserRepository.FindWithUserServiceWithServiceByEmail(email)
+	userWithService, err := us.UserRepository.FindWithUserServiceWithServiceByEmail(email)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return userWithService, nil
 }
 
-func (us UserServiceImpl) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
-	return us.UserRepository.FindUserGroupByUserIdAndGroupId(userId, groupId)
+func (us UserServiceImpl) GetUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, *model.ErrorResBody) {
+	userGroup, err := us.UserRepository.FindUserGroupByUserUuidAndGroupUuid(userUuid, groupUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return userGroup, nil
 }
 
 func (us UserServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
-	return us.UserRepository.FindUserServices()
-}
-
-func (us UserServiceImpl) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
-	userService := us.EtcdClient.GetUserService(userId, serviceId)
-	if userService != nil {
-		return userService, nil
+	userServices, err := us.UserRepository.FindUserServices()
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
-	return us.UserRepository.FindUserServiceByUserIdAndServiceId(userId, serviceId)
+
+	return userServices, nil
 }
 
-func (us UserServiceImpl) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
-	users, err := us.UserRepository.FindByGroupId(groupId)
-	if err != nil{
-		return nil, err
+func (us UserServiceImpl) GetUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, *model.ErrorResBody) {
+	userServices, err := us.UserRepository.FindUserServiceByUserUuidAndServiceUuid(userUuid, serviceUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return userServices, nil
+}
+
+func (us UserServiceImpl) GetUserByGroupUuid(groupUuid string) ([]*model.UserResponse, *model.ErrorResBody) {
+	users, err := us.UserRepository.FindByGroupUuid(groupUuid)
+	if err != nil {
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	var userResponse []*model.UserResponse
 	for _, user := range users {
 		userResponse = append(userResponse, &model.UserResponse{Uuid: user.Uuid.String(), Username: user.Username, Email: user.Email})
 	}
+
 	return userResponse, nil
 }
 
+func (us UserServiceImpl) GetUserPoliciesByUserUuid(userUuid string) []structure.UserPolicy {
+	return us.EtcdClient.GetUserPolicy(userUuid)
+}
+
+func (us UserServiceImpl) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+	return us.EtcdClient.GetUserGroup(userUuid)
+}
+
 func (us UserServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
-	userGroup, err := us.GetUserGroupByUserIdAndGroupId(userGroupEntity.UserId, userGroupEntity.GroupId)
-	if err != nil || userGroup != nil {
+	_, err := us.UserRepository.FindUserGroupByUserUuidAndGroupUuid(userGroupEntity.UserUuid.String(), userGroupEntity.GroupUuid.String())
+	if err != nil {
 		conflictErr := model.Conflict("This user already joins group")
 		return nil, conflictErr
 	}
-	return us.UserRepository.SaveUserGroup(userGroupEntity)
+
+	savedUserGroup, err := us.UserRepository.SaveUserGroup(userGroupEntity)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return savedUserGroup, nil
 }
 
 func (us UserServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
 	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
-	return us.UserRepository.SaveUser(user)
+
+	savedUser, err := us.UserRepository.SaveUser(user)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return savedUser, nil
 }
 
 func (us UserServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
 	user.Uuid = uuid.New()
 	user.Password = us.EncryptPw(user.Password)
-	return us.UserRepository.SaveWithUserService(user, userService)
+
+	savedUser, err := us.UserRepository.SaveWithUserService(user, userService)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service data.")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return savedUser, nil
 }
 
 func (us UserServiceImpl) InsertUserService(userServiceEntity entity.UserService) (*entity.UserService, *model.ErrorResBody) {
-	userService, err := us.UserRepository.FindUserServiceByUserIdAndServiceId(userServiceEntity.UserId, userServiceEntity.ServiceId)
-	if err != nil || userService != nil {
+	_, err := us.UserRepository.FindUserServiceByUserUuidAndServiceUuid(userServiceEntity.UserUuid.String(), userServiceEntity.ServiceUuid.String())
+	if err != nil {
 		return nil, model.Conflict("Already the user has this service account")
 	}
-	return us.UserRepository.SaveUserService(userServiceEntity)
+
+	savedUserService, err := us.UserRepository.SaveUserService(userServiceEntity)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		} else {
+			return nil, model.InternalServerError(err.Error())
+		}
+	}
+
+	return savedUserService, nil
 }
 
 func (us UserServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
-	user.Id = ctx.GetUserId().(int)
-	user.Uuid = ctx.GetUserUuid().(uuid.UUID)
 	user.Password = us.EncryptPw(user.Password)
-	return us.UserRepository.UpdateUser(user)
+
+	updatedUser, err := us.UserRepository.UpdateUser(user)
+	if err != nil {
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return updatedUser, nil
 }

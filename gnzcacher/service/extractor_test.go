@@ -28,8 +28,10 @@ func TestNewExtractorService(t *testing.T) {
 // Test get policies
 func TestGetPolicies(t *testing.T) {
 	stubPolicyRepository := driver.PolicyRepositoryImpl{Connection: stubConnection}
+	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		PolicyRepository: stubPolicyRepository,
+		UserRepository: stubUserRepository,
 	}
 
 	policies := extractorService.GetPolicies(1, 1)
@@ -98,8 +100,10 @@ func TestGetUserServices(t *testing.T) {
 // Test get user groups
 func TestGetUserGroups(t *testing.T) {
 	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
+	stubUGroupRepository := driver.GroupRepositoryImpl{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		UserRepository: stubUserRepository,
+		GroupRepository: stubUGroupRepository,
 	}
 
 	userGroups := extractorService.GetUserGroups(1, 1)

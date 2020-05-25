@@ -2,27 +2,25 @@ package driver
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnzserver/model"
+	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 var oprInstance OperatorPolicyRepository
 
 type OperatorPolicyRepository interface {
-	FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody)
+	FindAll() ([]*entity.OperatorPolicy, error)
 
-	FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody)
+	FindByUserUuid(userUuid string) ([]*entity.OperatorPolicy, error)
 
-	FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody)
+	FindByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, error)
 
-	FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody)
+	FindRoleNameByUserUuid(userUuid string) ([]string, error)
 
-	Save(role entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody)
+	Save(role entity.OperatorPolicy) (*entity.OperatorPolicy, error)
 }
 
 type OperatorPolicyRepositoryImpl struct {
@@ -41,65 +39,49 @@ func NewOperatorPolicyRepository() OperatorPolicyRepository {
 	return OperatorPolicyRepositoryImpl{Connection: connection}
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
 	if err := opr.Connection.Find(&entities).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	return entities, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr OperatorPolicyRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
-	if err := opr.Connection.Where("user_id = ?", userId).Find(&entities).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+	if err := opr.Connection.Where("user_uuid = ?", userUuid).Find(&entities).Error; err != nil {
+		return nil, err
 	}
 
 	return entities, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr OperatorPolicyRepositoryImpl) FindByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, error) {
 	var operatorMemberRole entity.OperatorPolicy
-	if err := opr.Connection.Where("user_id = ? AND role_id = ?", userId, roleId).Find(&operatorMemberRole).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
-		}
-
-		return nil, model.InternalServerError(err.Error())
+	if err := opr.Connection.Where("user_uuid = ? AND role_uuid = ?", userUuid, roleUuid).Find(&operatorMemberRole).Error; err != nil {
+		return nil, err
 	}
 
 	return &operatorMemberRole, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
+func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserUuid(userUuid string) ([]string, error) {
 	query := opr.Connection.Table(entity.OperatorPolicyTable.String()).
 		Select("name").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.RoleTable.String(),
 			entity.OperatorPolicyTable.String(),
-			entity.OperatorPolicyId,
+			entity.OperatorPolicyRoleUuid.String(),
 			entity.RoleTable.String(),
-			entity.RoleId)).
+			entity.RoleUuid.String())).
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.OperatorPolicyTable.String(),
-			entity.OperatorPolicyUserId), userId)
+			entity.OperatorPolicyUserUuid.String()), userUuid)
 
 	rows, err := query.Rows()
 	if err != nil {
-		log.Logger.Warn(err.Error())
-		return nil, model.InternalServerError(err.Error())
+		return nil, err
 	}
 
 	var result struct {
@@ -110,7 +92,7 @@ func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]stri
 	for rows.Next() {
 		err := query.ScanRows(rows, &result)
 		if err != nil {
-			return nil, model.InternalServerError(err.Error())
+			return nil, err
 		}
 		if result.name != nil {
 			names = append(names, *result.name)
@@ -120,16 +102,9 @@ func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]stri
 	return names, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, error) {
 	if err := opr.Connection.Create(&entity).Error; err != nil {
-		log.Logger.Warn(err.Error())
-		if strings.Contains(err.Error(), "1062") {
-			return nil, model.Conflict("Already exit data.")
-		} else if strings.Contains(err.Error(), "1452") {
-			return nil, model.BadRequest("Not register relational id.")
-		}
-
-		return nil, model.InternalServerError()
+		return nil, err
 	}
 
 	return &entity, nil

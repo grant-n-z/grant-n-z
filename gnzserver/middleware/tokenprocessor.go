@@ -2,13 +2,16 @@ package middleware
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-	"github.com/google/uuid"
+	"encoding/json"
 
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -19,13 +22,13 @@ var tpInstance TokenProcessor
 
 type TokenProcessor interface {
 	// Generate jwt token
-	Generate(userType string, groupIdStr string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody)
+	Generate(userType string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody)
 
 	// Verify operator token
 	VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string, roleNames []string, permissionName string, groupId int) (*model.JwtPayload, *model.ErrorResBody)
+	VerifyUserToken(token string, roleNames []string, permissionNames []string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Get auth user data in token
 	// If invalid token, return 401
@@ -69,29 +72,18 @@ func NewTokenProcessor() TokenProcessor {
 	}
 }
 
-func (tp TokenProcessorImpl) Generate(userType string, groupIdStr string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
-	if strings.EqualFold(groupIdStr, "") {
-		groupIdStr = "0"
-	}
-
-	groupId, err := strconv.Atoi(groupIdStr)
-	if err != nil {
-		return nil, model.BadRequest("Group id is only integer of query parameter")
-	}
-
+func (tp TokenProcessorImpl) Generate(userType string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
 	if strings.EqualFold(tokenRequest.GrantType, model.GrantPassword.String()) {
 		switch userType {
 		case common.AuthOperator:
 			return tp.generateOperatorToken(tokenRequest)
 		case common.AuthUser:
-			return tp.generateUserToken(tokenRequest, groupId)
-		case "":
-			return tp.generateUserToken(tokenRequest, groupId)
+			return tp.generateUserToken(tokenRequest)
 		default:
 			return nil, model.BadRequest("Not support type of query parameter")
 		}
 	} else {
-		return tp.generateTokenByRefreshToken(tokenRequest.RefreshToken, groupId)
+		return tp.generateTokenByRefreshToken(tokenRequest.RefreshToken)
 	}
 }
 
@@ -101,59 +93,57 @@ func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.JwtPayloa
 		return nil, err
 	}
 
-	operatorRole, err := tp.OperatorPolicyService.GetByUserIdAndRoleId(jwtPayload.UserId, jwtPayload.RoleId)
-	if operatorRole == nil || err != nil {
-		log.Logger.Info("Not contain operator role or failed to query")
+	operatorRoles, err := tp.OperatorPolicyService.GetByUserUuid(jwtPayload.UserUuid.String())
+	if err != nil {
+		return nil, model.Forbidden("Forbidden this token")
+	}
+
+	if len(operatorRoles) == 0 {
 		return nil, model.Forbidden("Forbidden this token")
 	}
 
 	return jwtPayload, nil
 }
 
-func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionName string, groupId int) (*model.JwtPayload, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionNames []string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody) {
 	jwtPayload, err := tp.GetJwtPayload(token, false)
 	if err != nil || jwtPayload.IsRefresh {
 		return nil, err
 	}
 
-	policy, err := tp.PolicyService.GetPolicyById(jwtPayload.PolicyId)
-	if err != nil {
-		return nil, model.Forbidden("You don't join this group")
+	policies := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid.String())
+	if policies == nil {
+		return nil, model.InternalServerError("Resource data is null")
 	}
 
-	if len(roleNames) > 0 && !strings.EqualFold(roleNames[0], "") {
-		roles, err := tp.RoleService.GetRoleByNames(roleNames)
-		if err != nil {
-			return nil, model.Forbidden("Forbidden the user has not role")
-		}
-		result := false
-		for _, role := range roles {
-			if role.Id == policy.RoleId {
-				result = true
-				break
+	if groupUuid != "" {
+		hasGroup := false
+		userGroups := tp.UserService.GetUserGroupsByUserUuid(jwtPayload.UserUuid.String())
+		for _, group := range userGroups {
+			if groupUuid == group.GroupUuid {
+				hasGroup = true
 			}
 		}
-		if !result {
-			return nil, model.Forbidden("Forbidden the user policy does not match role")
+		if !hasGroup {
+			return nil, model.Forbidden("Forbidden the user not join this group")
 		}
 	}
 
-	if !strings.EqualFold(permissionName, "") {
-		permission, err := tp.PermissionService.GetPermissionByName(permissionName)
-		if permission == nil || err != nil || permission.Id != policy.PermissionId {
-			return nil, model.Forbidden("Forbidden the user has not permission")
+	if len(roleNames) != 0 || len(permissionNames) != 0 {
+		hasRole := false
+		hasPermission := false
+		roleNameJoin := strings.Join(roleNames, ",")
+		permissionNameJoin := strings.Join(permissionNames, ",")
+		for _, policy := range jwtPayload.UserPolicies {
+			if strings.Contains(roleNameJoin, policy.RoleName) {
+				hasRole = true
+			}
+			if strings.Contains(permissionNameJoin, policy.PermissionName) {
+				hasPermission = true
+			}
 		}
-	}
-
-	userService, err := tp.UserService.GetUserServiceByUserIdAndServiceId(jwtPayload.UserId, jwtPayload.ServiceId)
-	if userService == nil || err != nil {
-		return nil, model.Forbidden("Forbidden the user cannot access this service")
-	}
-
-	if groupId != 0 {
-		userGroup, err := tp.UserService.GetUserGroupByUserIdAndGroupId(jwtPayload.UserId, groupId)
-		if userGroup == nil || err != nil {
-			return nil, model.Forbidden("Forbidden the user cannot access this group")
+		if !hasRole || !hasPermission {
+			return nil, model.Forbidden("Forbidden the user has role or permission")
 		}
 	}
 
@@ -171,32 +161,12 @@ func (tp TokenProcessorImpl) GetJwtPayload(token string, isRefresh bool) (*model
 		return nil, model.Unauthorized("Token is invalid.")
 	}
 
-	userId, _ := strconv.Atoi(payload["sub"])
-	userUuid, _ := uuid.Parse(payload["iss"])
-	roleId, _ := strconv.Atoi(payload["role_id"])
-	serviceId, _ := strconv.Atoi(payload["service_id"])
-	policyId, _ := strconv.Atoi(payload["policy_id"])
-	userName, _ := payload["username"]
-	expires, _ := payload["exp"]
-	refresh, _ := strconv.ParseBool(payload["is_refresh"])
-
-	if err := tp.checkExpired(expires); err != nil {
+	err := tp.checkExpired(payload.Expires)
+	if err != nil {
 		return nil, err
 	}
 
-	jwtPayload := &model.JwtPayload{
-		UserId:    userId,
-		UserUuid:  userUuid,
-		Username:  userName,
-		ServiceId: serviceId,
-		Expires:   expires,
-		IssueDate: payload["iss"],
-		RoleId:    roleId,
-		PolicyId:  policyId,
-		IsRefresh: refresh,
-	}
-
-	return jwtPayload, nil
+	return &payload, nil
 }
 
 func (tp TokenProcessorImpl) generateOperatorToken(tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
@@ -209,95 +179,92 @@ func (tp TokenProcessorImpl) generateOperatorToken(tokenRequest model.TokenReque
 		return nil, model.Unauthorized("Failed to email or password")
 	}
 
-	if targetUser.OperatorPolicy.RoleId != common.OperatorRoleId {
+	if targetUser.Role.Name != common.OperatorRole {
 		return nil, model.Unauthorized("You don't have operator role")
 	}
 
 	// OperatorRole token is not required Service id, policy id
 	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
 	refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 200)
-	return tp.generateTokenResponse(tokenExp, refreshTokenExp, targetUser.UserId, targetUser.Uuid.String(), targetUser.Username, targetUser.OperatorPolicy.RoleId, 0, 0), nil
+	userPolicies := []structure.UserPolicy{{
+		RoleName:       common.OperatorRole,
+		PermissionName: common.AdminPermission,
+	}}
+	token := tp.generateTokenResponse(tokenExp, refreshTokenExp, userPolicies, targetUser.UserUuid.String(), targetUser.Username)
+	return token, nil
 }
 
-func (tp TokenProcessorImpl) generateUserToken(tokenRequest model.TokenRequest, groupId int) (*model.TokenResponse, *model.ErrorResBody) {
-	service, err := tp.Service.GetServiceOfSecret()
-	if err != nil || service == nil {
-		return nil, model.Unauthorized("Client-Secret is invalid")
-	}
-
-	targetUser, err := tp.UserService.GetUserByEmail(tokenRequest.Email)
-	if err != nil || targetUser == nil {
+func (tp TokenProcessorImpl) generateUserToken(tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
+	user, err := tp.UserService.GetUserByEmail(tokenRequest.Email)
+	if err != nil {
 		return nil, model.Unauthorized("Failed to email or password")
 	}
 
-	if !tp.UserService.ComparePw(targetUser.Password, tokenRequest.Password) {
+	if !tp.UserService.ComparePw(user.Password, tokenRequest.Password) {
 		return nil, model.Unauthorized("Failed to email or password")
 	}
 
-	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
-	refreshTokenExp := time.Now().Add((time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour)) * 200)
-
-	// Case of group_id is zero, not using policy.
-	if groupId == 0 {
-		return tp.generateTokenResponse(tokenExp, refreshTokenExp, targetUser.Id, targetUser.Uuid.String(), targetUser.Username, 0, service.Id, 0), nil
-	}
-
-	// If user has policy, bellow process
-	policy, err := tp.PolicyService.GetPolicyByUserGroup(targetUser.Id, groupId)
+	policies, err := tp.PolicyService.GetPoliciesByUser(user.Uuid.String())
 	if err != nil {
 		return nil, model.Forbidden("Can't issue token for group")
 	}
 
-	return tp.generateTokenResponse(tokenExp, refreshTokenExp, targetUser.Id, targetUser.Uuid.String(), targetUser.Username, policy.RoleId, service.Id, policy.Id), nil
+	var userPolicies []structure.UserPolicy
+	for _, policyRes := range policies {
+		userPolicy := structure.UserPolicy{
+			ServiceUuid:    policyRes.ServiceUuid.String(),
+			GroupUuid:      policyRes.GroupUuid.String(),
+			RoleName:       policyRes.RoleName,
+			PermissionName: policyRes.PermissionName,
+		}
+		userPolicies = append(userPolicies, userPolicy)
+	}
+
+	exp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
+	rExp := time.Now().Add((time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour)) * 200)
+	return tp.generateTokenResponse(exp, rExp, userPolicies, user.Uuid.String(), user.Username), nil
 }
 
-func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string, groupId int) (*model.TokenResponse, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string) (*model.TokenResponse, *model.ErrorResBody) {
 	jwtPayload, err := tp.GetJwtPayload(refreshToken, true)
 	if err != nil {
 		return nil, err
 	}
-	service, err := tp.Service.GetServiceOfSecret()
-	if err != nil || service == nil {
-		return nil, model.Unauthorized("Client-Secret is invalid")
+
+	exp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
+	rExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 200)
+
+	policy := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid.String())
+	if policy == nil {
+		return nil, model.InternalServerError("Resource data is null")
 	}
 
-	tokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
-	refreshTokenExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 200)
-
-	// Case of group_id is zero, not using policy.
-	if groupId == 0 {
-		return tp.generateTokenResponse(tokenExp, refreshTokenExp, jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.Username, 0, service.Id, 0), nil
-	}
-
-	// If user has policy, bellow process
-	policy, err := tp.PolicyService.GetPolicyByUserGroup(jwtPayload.UserId, groupId)
-	if err != nil {
-		return nil, model.Forbidden("Can't issue token for group")
-	}
-
-	return tp.generateTokenResponse(tokenExp, refreshTokenExp, jwtPayload.UserId, jwtPayload.UserUuid.String(), jwtPayload.Username, jwtPayload.RoleId, service.Id, policy.Id), nil
+	return tp.generateTokenResponse(exp, rExp, policy, jwtPayload.UserUuid.String(), jwtPayload.Username), nil
 }
 
-func (tp TokenProcessorImpl) generateTokenResponse(tokenExp time.Time, refreshTokenExp time.Time, userId int, userUuid string, username string, roleId int, serviceId int, policyId int) *model.TokenResponse {
-	token := tp.signedInToken(userId, userUuid, username, roleId, serviceId, policyId, tokenExp, false)
-	refreshToken := tp.signedInToken(userId, userUuid, username, roleId, serviceId, policyId, refreshTokenExp, true)
-	return &model.TokenResponse{Token: token, RefreshToken: refreshToken}
+func (tp TokenProcessorImpl) generateTokenResponse(exp time.Time, rExp time.Time, userPolicy []structure.UserPolicy, userUuid string, username string) *model.TokenResponse {
+	token := tp.signedInToken(userUuid, username, userPolicy, exp, false)
+	refreshToken := tp.signedInToken(userUuid, username, userPolicy, rExp, true)
+	return &model.TokenResponse{
+		Token:        token,
+		RefreshToken: refreshToken,
+	}
 }
 
-func (tp TokenProcessorImpl) signedInToken(userId int, userUuid string, userName string, roleId int, serviceId int, policyId int, exp time.Time, isRefresh bool) string {
+func (tp TokenProcessorImpl) signedInToken(userUuid string, username string, userPolicy []structure.UserPolicy, exp time.Time, isRefresh bool) string {
+	userPolicyJson, _ := json.Marshal(userPolicy)
+
 	claims := tp.Token.Claims.(jwt.MapClaims)
 	claims["exp"] = strconv.FormatInt(exp.Unix(), 10)
 	claims["iat"] = strconv.FormatInt(time.Now().UnixNano(), 10)
-	claims["sub"] = strconv.Itoa(userId)
+	claims["sub"] = uuid.New().String() // TODO: grant nz server uuid
 	claims["iss"] = userUuid
-	claims["role_id"] = strconv.Itoa(roleId)
-	claims["service_id"] = strconv.Itoa(serviceId)
-	claims["policy_id"] = strconv.Itoa(policyId)
-	claims["username"] = userName
+	claims["user_policies"] = string(userPolicyJson)
+	claims["username"] = username
 	if isRefresh {
-		claims["is_refresh"] = "true"
+		claims["is_refresh"] = true
 	} else {
-		claims["is_refresh"] = "false"
+		claims["is_refresh"] = false
 	}
 
 	signedToken, err := tp.Token.SignedString(tp.ServerConfig.SignedInPrivateKey)
@@ -319,9 +286,7 @@ func (tp TokenProcessorImpl) checkExpired(exp string) *model.ErrorResBody {
 	return nil
 }
 
-func (tp TokenProcessorImpl) parseToken(token string) (map[string]string, bool) {
-	resultMap := map[string]string{}
-
+func (tp TokenProcessorImpl) parseToken(token string) (model.JwtPayload, bool) {
 	parseToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return "", errors.New("unexpected signing method")
@@ -329,20 +294,34 @@ func (tp TokenProcessorImpl) parseToken(token string) (map[string]string, bool) 
 		return tp.ServerConfig.ValidatePublicKey, nil
 	})
 
-	if err != nil || !parseToken.Valid {
-		log.Logger.Info("Failed to token validation.", err.Error())
-		return resultMap, false
+	if err != nil {
+		log.Logger.Info("Failed to token parse.", err.Error())
+		return model.JwtPayload{}, false
+	}
+
+	if !parseToken.Valid {
+		log.Logger.Info("Failed to token validation.")
+		return model.JwtPayload{}, false
 	}
 
 	claims := parseToken.Claims.(jwt.MapClaims)
-	resultMap["exp"] = claims["exp"].(string)
-	resultMap["iat"] = claims["iat"].(string)
-	resultMap["sub"] = claims["sub"].(string)
-	resultMap["iss"] = claims["iss"].(string)
-	resultMap["role_id"] = claims["role_id"].(string)
-	resultMap["service_id"] = claims["service_id"].(string)
-	resultMap["policy_id"] = claims["policy_id"].(string)
-	resultMap["username"] = claims["username"].(string)
-	resultMap["is_refresh"] = claims["is_refresh"].(string)
-	return resultMap, true
+
+	var userPolicies []structure.UserPolicy
+	err = json.Unmarshal([]byte(claims["user_policies"].(string)), &userPolicies)
+	if err != nil {
+		return model.JwtPayload{}, false
+	}
+
+	iss, _ := uuid.FromBytes([]byte(claims["iss"].(string)))
+	jwtPayload := model.JwtPayload{
+		ServerId:     claims["sub"].(string),
+		UserUuid:     iss,
+		Username:     claims["username"].(string),
+		UserPolicies: userPolicies,
+		Expires:      claims["exp"].(string),
+		IssueDate:    claims["iat"].(string),
+		IsRefresh:    claims["is_refresh"].(bool),
+	}
+
+	return jwtPayload, true
 }

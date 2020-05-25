@@ -2,12 +2,12 @@ package v1
 
 import (
 	"bytes"
+	"testing"
+
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"testing"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
@@ -18,7 +18,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	token = TokenImpl{
 		TokenProcessor: StubTokenProcessor{},
@@ -73,20 +72,15 @@ func TestToken_Post(t *testing.T) {
 type StubTokenProcessor struct {
 }
 
-func (tp StubTokenProcessor) Generate(userType string, groupIdStr string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
+func (tp StubTokenProcessor) Generate(userType string, tokenRequest model.TokenRequest) (*model.TokenResponse, *model.ErrorResBody) {
 	return &model.TokenResponse{}, nil
-}
-
-func (tp StubTokenProcessor) ParseToken(token string) (map[string]string, bool) {
-	resultMap := map[string]string{}
-	return resultMap, true
 }
 
 func (tp StubTokenProcessor) VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody) {
 	return &model.JwtPayload{}, nil
 }
 
-func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, permissionName string, groupId int) (*model.JwtPayload, *model.ErrorResBody) {
+func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames []string, permissionNames []string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody) {
 	return &model.JwtPayload{}, nil
 }
 

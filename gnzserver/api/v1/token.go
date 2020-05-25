@@ -13,6 +13,7 @@ var thInstance Token
 
 type Token interface {
 	// Implement token api
+	// Endpoint is `/api/v1/token`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
@@ -35,7 +36,7 @@ func GetTokenInstance() Token {
 
 // Constructor
 func NewToken() Token {
-	log.Logger.Info("New `Token` instance")
+	log.Logger.Info("New `v1.Token` instance")
 	return TokenImpl{TokenProcessor: middleware.GetTokenProcessorInstance()}
 }
 
@@ -60,8 +61,7 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userType := r.URL.Query().Get("type")
-	groupId := r.URL.Query().Get("group_id")
-	token, err := th.TokenProcessor.Generate(userType, groupId, *tokenRequest)
+	token, err := th.TokenProcessor.Generate(userType, *tokenRequest)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

@@ -8,7 +8,6 @@ import (
 
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -21,7 +20,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	permission = PermissionImpl{PermissionService: StubPermissionService{}}
 }
@@ -31,14 +29,14 @@ func TestGetPermissionInstance(t *testing.T) {
 	GetPermissionInstance()
 }
 
-// Test get bad request
-func TestPermission_Get_BadRequest(t *testing.T) {
+// Test get
+func TestPermission_Get_Success(t *testing.T) {
 	response := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}, URL: &url.URL{}, Method: http.MethodGet}
 	permission.Get(response, &request)
 
-	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestPermission_Get_BadRequest test.")
+	if statusCode != http.StatusOK {
+		t.Errorf("Incorrect TestPermission_Get_BadRequest test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -51,7 +49,7 @@ func TestPermission_Post_BadRequest(t *testing.T) {
 	permission.Post(response, &request)
 
 	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestPermission_Post_BadRequest test.")
+		t.Errorf("Incorrect TestPermission_Post_BadRequest test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -82,7 +80,7 @@ func (ps StubPermissionService) GetPermissions() ([]*entity.Permission, *model.E
 	return []*entity.Permission{}, nil
 }
 
-func (ps StubPermissionService) GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody) {
+func (ps StubPermissionService) GetPermissionByUuid(uuid string) (*entity.Permission, *model.ErrorResBody) {
 	return &entity.Permission{}, nil
 }
 
@@ -90,7 +88,7 @@ func (ps StubPermissionService) GetPermissionByName(name string) (*entity.Permis
 	return &entity.Permission{}, nil
 }
 
-func (ps StubPermissionService) GetPermissionsByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody) {
+func (ps StubPermissionService) GetPermissionsByGroupUuid(groupUuid string) ([]*entity.Permission, *model.ErrorResBody) {
 	return []*entity.Permission{}, nil
 }
 
@@ -98,6 +96,6 @@ func (ps StubPermissionService) InsertPermission(permission *entity.Permission) 
 	return &entity.Permission{}, nil
 }
 
-func (ps StubPermissionService) InsertWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
+func (ps StubPermissionService) InsertWithRelationalData(groupUuid string, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	return &entity.Permission{}, nil
 }

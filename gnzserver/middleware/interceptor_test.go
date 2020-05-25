@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"os"
 	"testing"
 	"time"
@@ -13,13 +12,12 @@ import (
 
 	"go.etcd.io/etcd/clientv3"
 
-	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
 
@@ -30,11 +28,6 @@ func init() {
 	os.Setenv("SERVER_PUBLIC_KEY_PATH", "../../gnz/common/test-public.key")
 	os.Setenv("SERVER_SIGN_ALGORITHM", "rsa256")
 	log.InitLogger("info")
-	ctx.InitContext()
-	ctx.SetUserId(1)
-	ctx.SetServiceId(1)
-	ctx.SetUserUuid(uuid.New())
-	ctx.SetClientSecret("test")
 	common.InitGrantNZServerConfig("../grant_n_z_server.yaml")
 
 	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
@@ -46,10 +39,7 @@ func init() {
 
 	userService := service.UserServiceImpl{
 		UserRepository: StubUserRepositoryImpl{Connection: stubConnection},
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:     cache.EtcdClientImpl{Connection: stubEtcdConnection},
 	}
 
 	operatorPolicyService := service.OperatorPolicyServiceImpl{
@@ -59,20 +49,14 @@ func init() {
 	}
 
 	ser := service.ServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 
 	policyService := service.PolicyServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		PolicyRepository:     StubPolicyRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
@@ -81,18 +65,12 @@ func init() {
 	}
 
 	roleService := service.RoleServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:     cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		RoleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	permissionService := service.PermissionServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 
@@ -147,7 +125,7 @@ func TestInterceptApiKey_Error(t *testing.T) {
 	writer := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}}
 	request.Header.Set("Client-Secret", "")
-	err := interceptClientSecret(writer, &request)
+	_, err := interceptClientSecret(writer, &request)
 	if err == nil {
 		t.Errorf("Incorrect TestInterceptApiKey_Error test.")
 		t.FailNow()
@@ -159,7 +137,7 @@ func TestInterceptApiKey_Success(t *testing.T) {
 	writer := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}}
 	request.Header.Set("Client-Secret", "test_key")
-	err := interceptClientSecret(writer, &request)
+	_, err := interceptClientSecret(writer, &request)
 	if err != nil {
 		t.Errorf("Incorrect TestInterceptApiKey_Success test.")
 		t.FailNow()
@@ -326,13 +304,13 @@ func TestValidateTokenRequest_InvalidRefreshToken_BadRequest(t *testing.T) {
 }
 
 // Test param group id
-func TestParamGroupId_Error(t *testing.T) {
+func TestParamGroupId(t *testing.T) {
 	request := http.Request{Header: http.Header{}, URL: &url.URL{}}
 	request.URL.Host = "localhost:8080"
-	request.URL.Path = "/api/v1/groups/1/user"
-	_, err := ParamGroupId(&request)
-	if err == nil {
-		t.Errorf("Incorrect TestParamGroupId_Error test.")
+	request.URL.Path = "/api/v1/groups/62e1a5b6-9ac3-4024-918d-5012375d5108/user"
+	id := ParamGroupUuid(&request)
+	if id != "" {
+		t.Errorf("Incorrect TestParamGroupId test. " + id)
 		t.FailNow()
 	}
 }

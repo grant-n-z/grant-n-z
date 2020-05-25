@@ -2,12 +2,14 @@ package users
 
 import (
 	"bytes"
+	"context"
+	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"testing"
 
 	"io/ioutil"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -20,7 +22,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	group = GroupImpl{
 		groupService: StubGroupService{},
@@ -48,7 +49,12 @@ func TestGroup_MethodNotAllowed(t *testing.T) {
 func TestGroup_Get(t *testing.T) {
 	response := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
-	group.Api(response, &request)
+
+	jwt := model.JwtPayload{
+		UserUuid: uuid.New(),
+		Username: "user",
+	}
+	group.Api(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt)))
 
 	if statusCode != http.StatusOK {
 		t.Errorf("Incorrect TestGroup_Get test.")
@@ -74,6 +80,13 @@ func TestGroup_Post(t *testing.T) {
 	response := StubResponseWriter{}
 	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"name\":\"test\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
+
+	jwt := model.JwtPayload{
+		UserUuid: uuid.New(),
+		Username: "user",
+	}
+	request = *request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt))
+	request  = *request .WithContext(context.WithValue(request.Context(), middleware.ScopeSecret, "secret"))
 	group.Api(response, &request)
 
 	if statusCode != http.StatusCreated {
@@ -91,16 +104,16 @@ func (gs StubGroupService) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
 	return []*entity.Group{}, nil
 }
 
-func (gs StubGroupService) GetGroupById(id int) (*entity.Group, *model.ErrorResBody) {
+func (gs StubGroupService) GetGroupByUuid(uuid string) (*entity.Group, *model.ErrorResBody) {
 	return &entity.Group{}, nil
 }
 
-func (gs StubGroupService) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
+func (gs StubGroupService) GetGroupByUser(userUuid string) ([]*entity.Group, *model.ErrorResBody) {
 	return []*entity.Group{}, nil
 }
 
-func (gs StubGroupService) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {
-	return &group, nil
+func (gs StubGroupService) InsertGroupWithRelationalData(group entity.Group, userUuid string, serviceUuid string) (*entity.Group, *model.ErrorResBody) {
+	return &entity.Group{}, nil
 }
 
 // Less than stub struct

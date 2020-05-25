@@ -13,6 +13,7 @@ var ahInstance Auth
 
 type Auth interface {
 	// Implement auth api
+	// Endpoint is `/api/v1/auth`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http GET method
@@ -35,7 +36,7 @@ func GetAuthInstance() Auth {
 
 // Constructor
 func NewAuth() Auth {
-	log.Logger.Info("New `Auth` instance")
+	log.Logger.Info("New `v1.Auth` instance")
 	return AuthImpl{tokenProcessor: middleware.GetTokenProcessorInstance()}
 }
 
@@ -54,7 +55,7 @@ func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	roleName := r.URL.Query().Get("role")
 	permissionName := r.URL.Query().Get("permission")
 
-	_, err := ah.tokenProcessor.VerifyUserToken(token, []string{roleName}, permissionName, 0)
+	_, err := ah.tokenProcessor.VerifyUserToken(token, []string{roleName}, []string{permissionName}, "")
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

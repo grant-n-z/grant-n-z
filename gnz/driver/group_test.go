@@ -1,9 +1,9 @@
 package driver
 
 import (
-	"net/http"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -22,61 +22,61 @@ func init() {
 }
 
 // FindAll InternalServerError test
-func TestGroupFindAll_InternalServerError(t *testing.T) {
+func TestGroupFindAll_Error(t *testing.T) {
 	_, err := groupRepository.FindAll()
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupFindAll_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestGroupFindAll_Error test")
 		t.FailNow()
 	}
 }
 
-// FindById InternalServerError test
-func TestGroupFindById_InternalServerError(t *testing.T) {
-	_, err := groupRepository.FindById(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupFindById_InternalServerError test")
+// FindByUuid InternalServerError test
+func TestGroupFindById_Error(t *testing.T) {
+	_, err := groupRepository.FindByUuid(uuid.New().String())
+	if err == nil {
+		t.Errorf("Incorrect TestGroupFindById_Error test")
 		t.FailNow()
 	}
 }
 
 // FindByName InternalServerError test
-func TestGroupFindByName_InternalServerError(t *testing.T) {
+func TestGroupFindByName_Error(t *testing.T) {
 	_, err := groupRepository.FindByName("name")
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupFindByName_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestGroupFindByName_Error test")
 		t.FailNow()
 	}
 }
 
-// FindByUserId InternalServerError test
-func TestGroupFindGroupsByUserId_InternalServerError(t *testing.T) {
-	_, err := groupRepository.FindByUserId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupFindGroupsByUserId_InternalServerError test")
+// FindByUserUuid InternalServerError test
+func TestGroupFindGroupsByUserId_Error(t *testing.T) {
+	_, err := groupRepository.FindByUserUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestGroupFindGroupsByUserId_Error test")
 		t.FailNow()
 	}
 }
 
-// FindGroupWithUserWithPolicyGroupsByUserId InternalServerError test
-func TestGroupFindGroupWithUserWithPolicyGroupsByUserId_InternalServerError(t *testing.T) {
-	_, err := groupRepository.FindGroupWithUserWithPolicyGroupsByUserId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupFindGroupWithUserWithPolicyGroupsByUserId_InternalServerError test")
+// FindGroupWithUserWithPolicyGroupsByUserUuid InternalServerError test
+func TestGroupFindGroupWithUserWithPolicyGroupsByUserId_Error(t *testing.T) {
+	_, err := groupRepository.FindGroupWithUserWithPolicyGroupsByUserUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestGroupFindGroupWithUserWithPolicyGroupsByUserId_Error test")
 		t.FailNow()
 	}
 }
 
-// FindGroupWithUserWithPolicyGroupsByUserId InternalServerError test
-func TestGroupFindGroupWithPolicyByUserIdAndGroupId_InternalServerError(t *testing.T) {
-	_, err := groupRepository.FindGroupWithPolicyByUserIdAndGroupId(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupFindGroupWithPolicyByUserIdAndGroupId_InternalServerError test")
+// FindGroupWithUserWithPolicyGroupsByUserUuid InternalServerError test
+func TestGroupFindGroupWithPolicyByUserIdAndGroupId_Error(t *testing.T) {
+	_, err := groupRepository.FindGroupWithPolicyByUserUuidAndGroupUuid("uuid", "uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestGroupFindGroupWithPolicyByUserIdAndGroupId_Error test")
 		t.FailNow()
 	}
 }
 
 // SaveWithRelationalData InternalServerError test
-func TestGroupSaveWithRelationalData_InternalServerError(t *testing.T) {
+func TestGroupSaveWithRelationalData_Error(t *testing.T) {
 	_, err := groupRepository.SaveWithRelationalData(
 		entity.Group{},
 		entity.ServiceGroup{},
@@ -86,8 +86,8 @@ func TestGroupSaveWithRelationalData_InternalServerError(t *testing.T) {
 		entity.Policy{},
 	)
 
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestGroupSaveWithRelationalData_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestGroupSaveWithRelationalData_Error test")
 		t.FailNow()
 	}
 }

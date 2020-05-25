@@ -1,9 +1,10 @@
 package service
 
 import (
-	"fmt"
+	"strings"
+
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -18,24 +19,24 @@ type PolicyService interface {
 	// Get all policy
 	GetPolicies() ([]*entity.Policy, *model.ErrorResBody)
 
-	// Get policy by role idr
-	GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody)
+	// Get policy by role uuid
+	GetPoliciesByRoleUuid(roleUuid string) ([]*entity.Policy, *model.ErrorResBody)
 
 	// Get policies of user
 	// The method uses request scope user id
-	GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody)
+	GetPoliciesByUser(userUuid string) ([]model.PolicyResponse, *model.ErrorResBody)
 
 	// Get policy by user_groups data
-	GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody)
+	GetPolicyByUserGroup(userUuid string, groupUuid string) (*entity.Policy, *model.ErrorResBody)
 
-	// Get policies by group id
-	GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody)
+	// Get policies by group uuid
+	GetPoliciesByUserGroup(groupUuid string) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody)
 
-	// Get policy by id
-	GetPolicyById(id int) (entity.Policy, *model.ErrorResBody)
+	// Get policy by uuid
+	GetPolicyByUuid(uuid string) (entity.Policy, *model.ErrorResBody)
 
 	// Insert or update policy
-	UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody)
+	UpdatePolicy(policyRequest model.PolicyRequest, secret string, groupUuid string) (*entity.Policy, *model.ErrorResBody)
 }
 
 // PolicyService struct
@@ -73,85 +74,101 @@ func NewPolicyService() PolicyService {
 }
 
 func (ps PolicyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody) {
-	return ps.PolicyRepository.FindAll()
-}
-
-func (ps PolicyServiceImpl) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
-	return ps.PolicyRepository.FindByRoleId(roleId)
-}
-
-func (ps PolicyServiceImpl) GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody) {
-	userGroupPolicies, err := ps.GroupRepository.FindGroupWithUserWithPolicyGroupsByUserId(ctx.GetUserId().(int))
+	policies, err := ps.PolicyRepository.FindAll()
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return policies, nil
+}
+
+func (ps PolicyServiceImpl) GetPoliciesByRoleUuid(roleUuid string) ([]*entity.Policy, *model.ErrorResBody) {
+	policies, err := ps.PolicyRepository.FindByRoleUuid(roleUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return policies, nil
+}
+
+func (ps PolicyServiceImpl) GetPoliciesByUser(userUuid string) ([]model.PolicyResponse, *model.ErrorResBody) {
+	userGroupPolicies, err := ps.GroupRepository.FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil,nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	var policyResponses []model.PolicyResponse
 	for _, ugp := range userGroupPolicies {
-		if ugp.ServiceId == ctx.GetServiceId() {
-			role := ps.EtcdClient.GetRole(ugp.Policy.RoleId)
-			if role == nil {
-				masterRole, err := ps.RoleRepository.FindById(ugp.Policy.RoleId)
-				if err != nil {
-					return nil, err
-				}
-				role = masterRole
+		role, err := ps.RoleRepository.FindByUuid(ugp.Policy.RoleUuid.String())
+		if err != nil {
+			if strings.Contains(err.Error(), "record not found") {
+				return nil, model.NotFound("Not found role that have policy")
 			}
-
-			permission := ps.EtcdClient.GetPermission(ugp.Policy.PermissionId)
-			if permission == nil {
-				masterPermission, err := ps.PermissionRepository.FindById(ugp.Policy.PermissionId)
-				if err != nil {
-					return nil, err
-				}
-				permission = masterPermission
-			}
-
-			service := ps.EtcdClient.GetService(ugp.Policy.ServiceId)
-			if service == nil {
-				masterService, err := ps.ServiceRepository.FindById(ugp.Policy.ServiceId)
-				if err != nil {
-					return nil, err
-				}
-				service = masterService
-			}
-
-			policyResponse := model.NewPolicyResponse().
-				SetName(&ugp.Policy.Name).
-				SetRoleName(&role.Name).
-				SetPermissionName(&permission.Name).
-				SetServiceName(&service.Name).
-				SetGroupName(&ugp.Group.Name).
-				Build()
-
-			policyResponses = append(policyResponses, policyResponse)
+			return nil, model.InternalServerError(err.Error())
 		}
+
+		permission, err := ps.PermissionRepository.FindByUuid(ugp.Policy.PermissionUuid.String())
+		if err != nil {
+			if strings.Contains(err.Error(), "record not found") {
+				return nil, model.NotFound("Not found permission that have policy")
+			}
+			return nil, model.InternalServerError(err.Error())
+		}
+
+		service, err := ps.ServiceRepository.FindByUuid(ugp.Policy.ServiceUuid.String())
+		if err != nil {
+			if strings.Contains(err.Error(), "record not found") {
+				return nil, model.NotFound("Not found service that have policy")
+			}
+			return nil, model.InternalServerError(err.Error())
+		}
+
+		policyResponse := model.NewPolicyResponse().
+			SetName(&ugp.Policy.Name).
+			SetRoleName(&role.Name).
+			SetPermissionName(&permission.Name).
+			SetServiceName(&service.Name).
+			SetGroupName(&ugp.Group.Name).
+			Build()
+
+		policyResponses = append(policyResponses, policyResponse)
 	}
 
 	return policyResponses, nil
 }
 
-func (ps PolicyServiceImpl) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
-	groupWithPolicy, err := ps.GroupRepository.FindGroupWithPolicyByUserIdAndGroupId(userId, groupId)
+func (ps PolicyServiceImpl) GetPolicyByUserGroup(userUuid string, groupUuid string) (*entity.Policy, *model.ErrorResBody) {
+	groupWithPolicy, err := ps.GroupRepository.FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid, groupUuid)
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	return &groupWithPolicy.Policy, nil
 }
 
-func (ps PolicyServiceImpl) GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
-	users, err := ps.UserRepository.FindByGroupId(groupId)
+func (ps PolicyServiceImpl) GetPoliciesByUserGroup(groupUuid string) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+	users, err := ps.UserRepository.FindByGroupUuid(groupUuid)
 	if err != nil {
-		return nil, err
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	var userPolicies []model.UserPolicyOnGroupResponse
 	for _, user := range users {
-		fmt.Println(groupId)
-		policyResponse, err := ps.PolicyRepository.FindPolicyResponseOfUserByUserIdAndGroupId(user.Id, groupId)
+		policyResponse, err := ps.PolicyRepository.FindPolicyOfUserGroupByUserUuidAndGroupUuid(user.Uuid.String(), groupUuid)
 		if err != nil {
-			return nil, err
+			return nil, model.InternalServerError()
 		}
 		userPolicies = append(userPolicies, policyResponse)
 	}
@@ -159,29 +176,97 @@ func (ps PolicyServiceImpl) GetPoliciesOfUserGroup(groupId int) ([]model.UserPol
 	return userPolicies, nil
 }
 
-func (ps PolicyServiceImpl) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
-	if id == 0 {
-		return entity.Policy{}, nil
-	}
-
-	cachePolicy := ps.EtcdClient.GetPolicy(id)
-	if cachePolicy != nil {
-		return *cachePolicy, nil
-	}
-
-	policy, err := ps.PolicyRepository.FindById(id)
+func (ps PolicyServiceImpl) GetPolicyByUuid(uuid string) (entity.Policy, *model.ErrorResBody) {
+	policy, err := ps.PolicyRepository.FindByUuid(uuid)
 	if err != nil {
-		return policy, err
+		if strings.Contains(err.Error(), "record not found") {
+			return policy, nil
+		}
+
+		return policy, model.InternalServerError(err.Error())
 	}
 
 	return policy, nil
 }
 
-func (ps PolicyServiceImpl) UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+func (ps PolicyServiceImpl) UpdatePolicy(policyRequest model.PolicyRequest, secret string, groupUuid string) (*entity.Policy, *model.ErrorResBody) {
+	user, errUser := ps.UserRepository.FindByEmail(policyRequest.ToUserEmail)
+	if errUser != nil {
+		if strings.Contains(errUser.Error(), "record not found") {
+			return nil, model.BadRequest("Not exist this user")
+		}
+		return nil, model.InternalServerError(errUser.Error())
+	}
+
+	userGroup, errGroup := ps.UserRepository.FindUserGroupByUserUuidAndGroupUuid(user.Uuid.String(), groupUuid)
+	if errGroup != nil {
+		if strings.Contains(errGroup.Error(), "record not found") {
+			return nil, model.BadRequest("Not exist this user in group")
+		}
+		return nil, model.InternalServerError(errGroup.Error())
+	}
+
+	role, errRole := ps.RoleRepository.FindByUuid(policyRequest.RoleUuid)
+	if errRole != nil {
+		if strings.Contains(errRole.Error(), "record not found") {
+			return nil, model.BadRequest("Not exist role")
+		}
+		return nil, model.InternalServerError(errRole.Error())
+	}
+
+	permission, errPermission := ps.PermissionRepository.FindByUuid(policyRequest.PermissionUuid)
+	if errPermission != nil {
+		if strings.Contains(errPermission.Error(), "record not found") {
+			return nil, model.BadRequest("Not exist permission")
+		}
+		return nil, model.InternalServerError(errPermission.Error())
+	}
+
+	ser, errSer := ps.ServiceRepository.FindBySecret(secret)
+	if errSer != nil {
+		if strings.Contains(errSer.Error(), "record not found") {
+			return nil, model.BadRequest("Not exist service")
+		}
+		return nil, model.InternalServerError(errSer.Error())
+	}
+
+	policy := entity.Policy{
+		Name:           policyRequest.Name,
+		RoleUuid:       role.Uuid,
+		PermissionUuid: permission.Uuid,
+		ServiceUuid:    ser.Uuid,
+		UserGroupUuid:  userGroup.Uuid,
+	}
+
+	// Update RDBMS
 	updatedPolicy, err := ps.PolicyRepository.Update(policy)
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		} else {
+			return nil, model.InternalServerError()
+		}
 	}
-	ps.EtcdClient.SetPolicy(*updatedPolicy, 0)
+
+	// Update etcd
+	userPolicies := ps.EtcdClient.GetUserPolicy(user.Uuid.String())
+	var updatePolicies []structure.UserPolicy
+	for _, userPolicy := range userPolicies {
+		if updatedPolicy.ServiceUuid.String() == userPolicy.ServiceUuid {
+			policy := structure.UserPolicy{
+				ServiceUuid: updatedPolicy.ServiceUuid.String(),
+				GroupUuid: groupUuid,
+				RoleName: role.Name,
+				PermissionName: permission.Name,
+			}
+			updatePolicies = append(updatePolicies, policy)
+		} else {
+			updatePolicies = append(updatePolicies, userPolicy)
+		}
+	}
+
+	ps.EtcdClient.SetUserPolicy(user.Uuid.String(), updatePolicies)
 	return updatedPolicy, nil
 }

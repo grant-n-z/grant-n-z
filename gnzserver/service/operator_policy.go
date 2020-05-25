@@ -1,7 +1,6 @@
 package service
 
 import (
-	"strconv"
 	"strings"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
@@ -13,14 +12,19 @@ import (
 var opsInstance OperatorPolicyService
 
 type OperatorPolicyService interface {
+	// Get
 	Get(queryParam string) ([]*entity.OperatorPolicy, *model.ErrorResBody)
 
+	// Get all operator policy
 	GetAll() ([]*entity.OperatorPolicy, *model.ErrorResBody)
 
-	GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody)
+	// Get by user uuid
+	GetByUserUuid(userUuid string) ([]*entity.OperatorPolicy, *model.ErrorResBody)
 
-	GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody)
+	// Get user uuid and role uuid
+	GetByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, *model.ErrorResBody)
 
+	// Insert policy
 	Insert(operatorPolicy *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody)
 }
 
@@ -51,13 +55,7 @@ func (ops OperatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorP
 		return ops.GetAll()
 	}
 
-	i, castErr := strconv.Atoi(queryParam)
-	if castErr != nil {
-		log.Logger.Warn("The user_id is only integer")
-		return nil, model.BadRequest(castErr.Error())
-	}
-
-	entities, err := ops.GetByUserId(i)
+	entities, err := ops.GetByUserUuid(queryParam)
 	if err != nil {
 		return nil, err
 	}
@@ -70,27 +68,64 @@ func (ops OperatorPolicyServiceImpl) Get(queryParam string) ([]*entity.OperatorP
 }
 
 func (ops OperatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
-	return ops.OperatorPolicyRepository.FindAll()
+	operatorPolicies, err := ops.OperatorPolicyRepository.FindAll()
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return operatorPolicies, nil
 }
 
-func (ops OperatorPolicyServiceImpl) GetByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
-	return ops.OperatorPolicyRepository.FindByUserId(userId)
+func (ops OperatorPolicyServiceImpl) GetByUserUuid(userUuid string) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+	operatorPolicies, err := ops.OperatorPolicyRepository.FindByUserUuid(userUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return operatorPolicies, nil
 }
 
-func (ops OperatorPolicyServiceImpl) GetByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
-	return ops.OperatorPolicyRepository.FindByUserIdAndRoleId(userId, roleId)
+func (ops OperatorPolicyServiceImpl) GetByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, *model.ErrorResBody) {
+	operatorPolicy, err := ops.OperatorPolicyRepository.FindByUserUuidAndRoleUuid(userUuid, roleUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return operatorPolicy, nil
 }
 
 func (ops OperatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
-	if userEntity, _ := ops.UserRepository.FindById(entity.UserId); userEntity == nil {
-		log.Logger.Warn("Not found user id")
-		return nil, model.BadRequest("Not found user id")
+	if _, err := ops.UserRepository.FindByUuid(entity.UserUuid.String()); err != nil {
+		if !strings.Contains(err.Error(), "record not found") {
+			return nil, model.InternalServerError(err.Error())
+		}
 	}
 
-	if roleEntity, _ := ops.RoleRepository.FindById(entity.RoleId); roleEntity == nil {
-		log.Logger.Warn("Not found role id")
-		return nil, model.BadRequest("Not found role id")
+	if _, err := ops.RoleRepository.FindByUuid(entity.RoleUuid.String()); err != nil {
+		if !strings.Contains(err.Error(), "record not found") {
+			return nil, model.InternalServerError(err.Error())
+		}
 	}
 
-	return ops.OperatorPolicyRepository.Save(*entity)
+	savedOperatorPolicy, err := ops.OperatorPolicyRepository.Save(*entity)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		} else if strings.Contains(err.Error(), "1452") {
+			return nil, model.BadRequest("Not register relational id.")
+		} else {
+			return nil, model.InternalServerError(err.Error())
+		}
+	}
+
+	return savedOperatorPolicy, nil
 }

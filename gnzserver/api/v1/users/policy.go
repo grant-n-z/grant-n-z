@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
@@ -13,6 +14,7 @@ var plhInstance Policy
 
 type Policy interface {
 	// Implement policy api
+	// Endpoint is `/api/v1/users/policy`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http GET method
@@ -36,7 +38,7 @@ func GetPolicyInstance() Policy {
 
 // Constructor
 func NewPolicy() Policy {
-	log.Logger.Info("New `Policy` instance")
+	log.Logger.Info("New `v1.users.Policy` instance")
 	return PolicyImpl{PolicyService: service.GetPolicyServiceInstance()}
 }
 
@@ -51,7 +53,8 @@ func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
-	policyResponses, err := ph.PolicyService.GetPoliciesOfUser()
+	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
+	policyResponses, err := ph.PolicyService.GetPoliciesByUser(jwt.UserUuid.String())
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

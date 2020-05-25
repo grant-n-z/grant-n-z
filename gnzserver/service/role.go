@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
@@ -15,8 +17,8 @@ type RoleService interface {
 	// Get all roles
 	GetRoles() ([]*entity.Role, *model.ErrorResBody)
 
-	// Get role by role id
-	GetRoleById(id int) (*entity.Role, *model.ErrorResBody)
+	// Get role by role uuid
+	GetRoleByUuid(uuid string) (*entity.Role, *model.ErrorResBody)
 
 	// Get role by name
 	GetRoleByName(name string) (*entity.Role, *model.ErrorResBody)
@@ -24,15 +26,15 @@ type RoleService interface {
 	// Get role by name array
 	GetRoleByNames(name []string) ([]entity.Role, *model.ErrorResBody)
 
-	// Get role by group id
+	// Get role by group uuid
 	// Join group_roles and roles
-	GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody)
+	GetRolesByGroupUuid(groupUuid string) ([]*entity.Role, *model.ErrorResBody)
 
 	// Insert role
 	InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody)
 
 	// Insert role with relational data
-	InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody)
+	InsertWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, *model.ErrorResBody)
 }
 
 type RoleServiceImpl struct {
@@ -57,39 +59,88 @@ func NewRoleService() RoleService {
 
 func (rs RoleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
 	roles, err := rs.RoleRepository.FindAll()
-	if roles == nil {
-		return []*entity.Role{}, err
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
-	return []*entity.Role{}, nil
+
+	return roles, nil
 }
 
-func (rs RoleServiceImpl) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
-	return rs.RoleRepository.FindById(id)
+func (rs RoleServiceImpl) GetRoleByUuid(uuid string) (*entity.Role, *model.ErrorResBody) {
+	role, err := rs.RoleRepository.FindByUuid(uuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return role, nil
 }
 
 func (rs RoleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.ErrorResBody) {
-	return rs.RoleRepository.FindByName(name)
+	role, err := rs.RoleRepository.FindByName(name)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return role, nil
 }
 
 func (rs RoleServiceImpl) GetRoleByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
-	roles := rs.EtcdClient.GetRoleByNames(names)
-	if roles != nil && len(roles) > 0 {
-		return roles, nil
+
+	roles, err := rs.RoleRepository.FindByNames(names)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
 
-	return rs.RoleRepository.FindByNames(names)
+	return roles, nil
 }
 
-func (rs RoleServiceImpl) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
-	return rs.RoleRepository.FindByGroupId(groupId)
+func (rs RoleServiceImpl) GetRolesByGroupUuid(groupUuid string) ([]*entity.Role, *model.ErrorResBody) {
+	roles, err := rs.RoleRepository.FindByGroupUuid(groupUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return roles, nil
 }
 
 func (rs RoleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
 	role.Uuid = uuid.New()
-	return rs.RoleRepository.Save(*role)
+	savedRole, err := rs.RoleRepository.Save(*role)
+	if err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return savedRole, nil
 }
 
-func (rs RoleServiceImpl) InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rs RoleServiceImpl) InsertWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, *model.ErrorResBody) {
 	role.Uuid = uuid.New()
-	return rs.RoleRepository.SaveWithRelationalData(groupId, role)
+	savedRole, err := rs.RoleRepository.SaveWithRelationalData(groupUuid, role)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit roles data.")
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return savedRole, nil
 }

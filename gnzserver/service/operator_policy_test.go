@@ -3,13 +3,12 @@ package service
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
-	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
 var (
@@ -19,9 +18,6 @@ var (
 // Set up
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
-	ctx.SetUserId(1)
-	ctx.SetServiceId(1)
 
 	stubConnection, _ = gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 
@@ -81,7 +77,7 @@ func TestOperatorPolicy_GetByUserIdAndRoleId_Success(t *testing.T) {
 		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
-	_, err := operatorPolicyService.GetByUserIdAndRoleId(1, 1)
+	_, err := operatorPolicyService.GetByUserUuidAndRoleUuid(uuid.New().String(), uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestOperatorPolicy_GetByUserIdAndRoleId test")
 		t.FailNow()
@@ -96,7 +92,7 @@ func TestOperatorPolicy_Insert_Success(t *testing.T) {
 		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
-	_, err := operatorPolicyService.Insert(&entity.OperatorPolicy{Id:1, UserId:1, RoleId:1})
+	_, err := operatorPolicyService.Insert(&entity.OperatorPolicy{Id: 1, UserUuid: uuid.New(), RoleUuid: uuid.New()})
 	if err != nil {
 		t.Errorf("Incorrect TestOperatorPolicy_GetByUserIdAndRoleId test")
 		t.FailNow()
@@ -109,26 +105,25 @@ type StubOperatorPolicyRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
 	return entities, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
 	return entities, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) FindByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, error) {
 	var operatorMemberRole entity.OperatorPolicy
 	return &operatorMemberRole, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
-	var names []string
-	return names, nil
+func (opr StubOperatorPolicyRepositoryImpl) FindRoleNameByUserUuid(userUuid string) ([]string, error) {
+	return []string{""}, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, error) {
 	return &entity, nil
 }

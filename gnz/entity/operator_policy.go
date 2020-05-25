@@ -1,14 +1,15 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
 const (
 	OperatorPolicyTable OperatorPolicyTableConfig = iota
 	OperatorPolicyId
-	OperatorPolicyRoleId
-	OperatorPolicyUserId
+	OperatorPolicyRoleUuid
+	OperatorPolicyUserUuid
 	OperatorPolicyCreatedAt
 	OperatorPolicyUpdatedAt
 )
@@ -16,8 +17,8 @@ const (
 // The table `operator_policies` struct
 type OperatorPolicy struct {
 	Id        int       `json:"id"`
-	RoleId    int       `validate:"required"json:"role_id"`
-	UserId    int       `validate:"required"json:"user_id"`
+	RoleUuid  uuid.UUID `validate:"required"json:"role_uuid"`
+	UserUuid  uuid.UUID `validate:"required"json:"user_uuid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -31,10 +32,10 @@ func (opc OperatorPolicyTableConfig) String() string {
 		return "operator_policies"
 	case OperatorPolicyId:
 		return "id"
-	case OperatorPolicyRoleId:
-		return "role_id"
-	case OperatorPolicyUserId:
-		return "user_id"
+	case OperatorPolicyRoleUuid:
+		return "role_uuid"
+	case OperatorPolicyUserUuid:
+		return "user_uuid"
 	case OperatorPolicyCreatedAt:
 		return "created_at"
 	case OperatorPolicyUpdatedAt:

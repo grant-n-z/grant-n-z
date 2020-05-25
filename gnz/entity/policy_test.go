@@ -24,26 +24,26 @@ func TestPolicyString(t *testing.T) {
 		t.FailNow()
 	}
 
-	roleId := PolicyRoleId.String()
-	if !strings.EqualFold(roleId, "role_id") {
+	roleId := PolicyRoleUuid.String()
+	if !strings.EqualFold(roleId, "role_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	permissionId := PolicyPermissionId.String()
-	if !strings.EqualFold(permissionId, "permission_id") {
+	permissionId := PolicyPermissionUuid.String()
+	if !strings.EqualFold(permissionId, "permission_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	serviceId := PolicyServiceId.String()
-	if !strings.EqualFold(serviceId, "service_id") {
+	serviceId := PolicyServiceUuid.String()
+	if !strings.EqualFold(serviceId, "service_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	userGroupId := PolicyUserGroupId.String()
-	if !strings.EqualFold(userGroupId, "user_group_id") {
+	userGroupId := PolicyUserGroupUuid.String()
+	if !strings.EqualFold(userGroupId, "user_group_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

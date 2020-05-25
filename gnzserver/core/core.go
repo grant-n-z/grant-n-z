@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
@@ -36,7 +35,6 @@ type GrantNZServer struct {
 }
 
 func init() {
-	ctx.InitContext()
 	common.InitGrantNZServerConfig(ConfigFilePath)
 	log.InitLogger(common.App.LogLevel)
 	driver.InitRdbms()
@@ -66,7 +64,7 @@ func (g GrantNZServer) Run() {
 	shutdownCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	go g.subscribeSignal(signalCode, exitCode)
-	go g.gracefulShutdown(shutdownCtx, exitCode, *server)
+	go g.gracefulShutdown(shutdownCtx, exitCode, server)
 	go driver.PingRdbms()
 
 	g.runServer(g.runRouter())
@@ -129,7 +127,7 @@ func (g GrantNZServer) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 }
 
 // Graceful shutdown
-func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, server http.Server) {
+func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, server *http.Server) {
 	code := <-exitCode
 	server.Shutdown(ctx)
 

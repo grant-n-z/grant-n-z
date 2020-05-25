@@ -8,7 +8,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
@@ -17,7 +16,6 @@ var migration Migration
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
@@ -28,10 +26,7 @@ func init() {
 
 	userService := service.UserServiceImpl{
 		UserRepository: StubUserRepositoryImpl{Connection: stubConnection},
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:     cache.EtcdClientImpl{Connection: stubEtcdConnection},
 	}
 
 	operatorPolicyService := service.OperatorPolicyServiceImpl{
@@ -41,28 +36,19 @@ func init() {
 	}
 
 	ser := service.ServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 
 	roleService := service.RoleServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:     cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		RoleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	permissionService := service.PermissionServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 

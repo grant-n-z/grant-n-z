@@ -1,12 +1,16 @@
 package users
 
 import (
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
+	"context"
+	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
+	"testing"
+
+	"net/http"
+
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
-	"net/http"
-	"testing"
 )
 
 var (
@@ -15,7 +19,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	ser = ServiceImpl{
 		Service: StubService{},
@@ -43,7 +46,12 @@ func TestService_MethodNotAllowed(t *testing.T) {
 func TestService_Get(t *testing.T) {
 	response := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
-	ser.Api(response, &request)
+
+	jwt := model.JwtPayload{
+		UserUuid: uuid.New(),
+		Username: "user",
+	}
+	ser.Api(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt)))
 
 	if statusCode != http.StatusOK {
 		t.Errorf("Incorrect TestService_Get test.")
@@ -60,7 +68,7 @@ func (ss StubService) GetServices() ([]*entity.Service, *model.ErrorResBody) {
 	return []*entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceById(id int) (*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceByUuid(uuid string) (*entity.Service, *model.ErrorResBody) {
 	return &entity.Service{}, nil
 }
 
@@ -68,20 +76,20 @@ func (ss StubService) GetServiceByName(name string) (*entity.Service, *model.Err
 	return &entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceOfSecret() (*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceBySecret(secret string) (*entity.Service, *model.ErrorResBody) {
 	return &entity.Service{}, nil
 }
 
-func (ss StubService) GetServiceOfUser() ([]*entity.Service, *model.ErrorResBody) {
+func (ss StubService) GetServiceByUser(userUuid string) ([]*entity.Service, *model.ErrorResBody) {
 	return []*entity.Service{}, nil
 }
 
 func (ss StubService) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
-	return &service, nil
+	return &entity.Service{}, nil
 }
 
 func (ss StubService) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
-	return service, nil
+	return &entity.Service{}, nil
 }
 
 func (ss StubService) GenerateSecret() string {

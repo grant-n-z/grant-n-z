@@ -2,27 +2,27 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 )
 
 // Payload in jwt
 type JwtPayload struct {
-	UserUuid  uuid.UUID `json:"user_uuid"`
-	UserId    int       `json:"user_id"`
-	Username  string    `json:"user_name"`
-	ServiceId int       `json:"service_id"`
-	Expires   string    `json:"expires"`
-	IssueDate string    `json:"issue_date"`
-	RoleId    int       `json:"role_id"`
-	PolicyId  int       `json:"policy_id"`
-	IsRefresh bool      `json:"is_refresh"`
+	UserUuid     uuid.UUID              `json:"user_uuid"`
+	Username     string                 `json:"user_name"`
+	ServerId     string                 `json:"server_id"`
+	Expires      string                 `json:"expires"`
+	IssueDate    string                 `json:"issue_date"`
+	UserPolicies []structure.UserPolicy `json:"user_policies"`
+	IsRefresh    bool                   `json:"is_refresh"`
 }
 
-// The table `users` and `operator_policies` struct
+// The table `users` and `operator_policies` and `roles` struct
 type UserWithOperatorPolicy struct {
 	entity.User
 	entity.OperatorPolicy
+	entity.Role
 }
 
 // The table `users` and `user_services` and `services` struct
@@ -34,12 +34,12 @@ type UserWithUserServiceWithService struct {
 
 // Add user id
 type AddUser struct {
-	UserEmail string `json:"user_email"`
+	UserEmail string `validate:"required"json:"user_email"`
 }
 
 // user struct
 type UserResponse struct {
-	Uuid string `json:"uuid"`
+	Uuid     string `json:"uuid"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }

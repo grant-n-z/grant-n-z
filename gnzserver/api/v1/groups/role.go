@@ -15,12 +15,15 @@ var rlhInstance Role
 
 type Role interface {
 	// Http GET method
+	// Endpoint is `/api/v1/groups/{id}/role`
 	Get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
+	// Endpoint is `/api/v1/groups/{id}/role`
 	Post(w http.ResponseWriter, r *http.Request)
 
 	// Http DELETE method
+	// Endpoint is `/api/v1/groups/{id}/role`
 	Delete(w http.ResponseWriter, r *http.Request)
 }
 
@@ -41,13 +44,7 @@ func NewRole() Role {
 }
 
 func (rh RoleImpl) Get(w http.ResponseWriter, r *http.Request) {
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	roles, err := rh.RoleService.GetRolesByGroupId(id)
+	roles, err := rh.RoleService.GetRolesByGroupUuid(middleware.ParamGroupUuid(r))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -69,13 +66,7 @@ func (rh RoleImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	role, err := rh.RoleService.InsertWithRelationalData(id, *roleEntity)
+	role, err := rh.RoleService.InsertWithRelationalData(middleware.ParamGroupUuid(r), *roleEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

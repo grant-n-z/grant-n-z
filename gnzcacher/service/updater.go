@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 )
 
 // 10 minute cache expires
@@ -12,22 +12,22 @@ const expiresMinutes = 600 * time.Second
 
 type UpdaterService interface {
 	// Update policy cache
-	UpdatePolicy(policies []*entity.Policy)
+	UpdatePolicy(policyMap map[string][]structure.UserPolicy)
 
 	// Update permission cache
-	UpdatePermission(permissions []*entity.Permission)
+	UpdatePermission(permissions []structure.Permission)
 
 	// Update role cache
-	UpdateRole(roles []*entity.Role)
+	UpdateRole(roles []structure.Role)
 
 	// Update service cache
-	UpdateService(services []*entity.Service)
+	UpdateService(services []structure.Service)
 
 	// Update user_service cache
-	UpdateUserService(userServices []*entity.UserService)
+	UpdateUserService(serviceMap map[string][]structure.UserService)
 
 	// Update user_group cache
-	UpdateUserGroup(userGroups []*entity.UserGroup)
+	UpdateUserGroup(groupMap map[string][]structure.UserGroup)
 }
 
 type UpdaterServiceImpl struct {
@@ -38,64 +38,38 @@ func NewUpdaterService() UpdaterService {
 	return UpdaterServiceImpl{EtcdClient: cache.NewEtcdClient()}
 }
 
-func (us UpdaterServiceImpl) UpdatePolicy(policies []*entity.Policy) {
-	for _, policy := range policies {
-		us.EtcdClient.SetPolicy(*policy, expiresMinutes)
+func (us UpdaterServiceImpl) UpdatePolicy(policyMap map[string][]structure.UserPolicy) {
+	for key, value := range policyMap {
+		us.EtcdClient.SetUserPolicy(key, value)
 	}
 }
 
-func (us UpdaterServiceImpl) UpdatePermission(permissions []*entity.Permission) {
+func (us UpdaterServiceImpl) UpdatePermission(permissions []structure.Permission) {
 	for _, permission := range permissions {
-		us.EtcdClient.SetPermission(*permission, expiresMinutes)
+		us.EtcdClient.SetPermission(permission.Uuid, permission)
 	}
 }
 
-func (us UpdaterServiceImpl) UpdateRole(roles []*entity.Role) {
+func (us UpdaterServiceImpl) UpdateRole(roles []structure.Role) {
 	for _, role := range roles {
-		us.EtcdClient.SetRole(*role, expiresMinutes)
+		us.EtcdClient.SetRole(role.Uuid, role)
 	}
 }
 
-func (us UpdaterServiceImpl) UpdateService(services []*entity.Service) {
+func (us UpdaterServiceImpl) UpdateService(services []structure.Service) {
 	for _, service := range services {
-		us.EtcdClient.SetService(*service, expiresMinutes)
+		us.EtcdClient.SetService(service.Uuid, service)
 	}
 }
 
-func (us UpdaterServiceImpl) UpdateUserService(userServices []*entity.UserService) {
-	userServiceMap := map[int][]entity.UserService{}
-	for _, userService := range userServices {
-		savedUserServices := userServiceMap[userService.UserId]
-		if savedUserServices == nil {
-			var userServiceArray []entity.UserService
-			userServiceArray = append(userServiceArray, *userService)
-			userServiceMap[userService.UserId] = userServiceArray
-		} else {
-			savedUserServices = append(savedUserServices, *userService)
-			userServiceMap[userService.UserId] = savedUserServices
-		}
-	}
-
-	for key, value := range userServiceMap {
-		us.EtcdClient.SetUserService(key, value, expiresMinutes)
+func (us UpdaterServiceImpl) UpdateUserService(serviceMap map[string][]structure.UserService) {
+	for key, value := range serviceMap {
+		us.EtcdClient.SetUserService(key, value)
 	}
 }
 
-func (us UpdaterServiceImpl) UpdateUserGroup(userGroups []*entity.UserGroup) {
-	userGroupMap := map[int][]entity.UserGroup{}
-	for _, userGroup := range userGroups {
-		savedUserGroups := userGroupMap[userGroup.UserId]
-		if savedUserGroups == nil {
-			var userGroupArray []entity.UserGroup
-			userGroupArray = append(userGroupArray, *userGroup)
-			userGroupMap[userGroup.UserId] = userGroupArray
-		} else {
-			savedUserGroups = append(savedUserGroups, *userGroup)
-			userGroupMap[userGroup.UserId] = savedUserGroups
-		}
-	}
-
-	for key, value := range userGroupMap {
-		us.EtcdClient.SetUserGroup(key, value, expiresMinutes)
+func (us UpdaterServiceImpl) UpdateUserGroup(policyMap map[string][]structure.UserGroup) {
+	for key, value := range policyMap {
+		us.EtcdClient.SetUserGroup(key, value)
 	}
 }

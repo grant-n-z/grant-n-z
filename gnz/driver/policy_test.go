@@ -3,8 +3,6 @@ package driver
 import (
 	"testing"
 
-	"net/http"
-
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -22,55 +20,64 @@ func init() {
 }
 
 // FindAll InternalServerError test
-func TestPolicyFindAll_InternalServerError(t *testing.T) {
+func TestPolicyFindAll_Error(t *testing.T) {
 	_, err := policyRepository.FindAll()
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPolicyFindAll_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPolicyFindAll_Error test")
 		t.FailNow()
 	}
 }
 
 // FindOffSetAndLimit InternalServerError test
-func TestPolicyFindOffSetAndLimit_InternalServerError(t *testing.T) {
+func TestPolicyFindOffSetAndLimit_Error(t *testing.T) {
 	_, err := policyRepository.FindOffSetAndLimit(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPolicyFindOffSetAndLimit_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPolicyFindOffSetAndLimit_Error test")
 		t.FailNow()
 	}
 }
 
-// FindByRoleId InternalServerError test
-func TestPolicyFindByRoleId_InternalServerError(t *testing.T) {
-	_, err := policyRepository.FindByRoleId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPolicyFindByRoleId_InternalServerError test")
+// FindByRoleUuid InternalServerError test
+func TestPolicyFindByRoleId_Error(t *testing.T) {
+	_, err := policyRepository.FindByRoleUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestPolicyFindByRoleId_Error test")
 		t.FailNow()
 	}
 }
 
-// FindById InternalServerError test
-func TestPolicyFindById_InternalServerError(t *testing.T) {
-	_, err := policyRepository.FindById(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPolicyFindById_InternalServerError test")
+// FindByUuid InternalServerError test
+func TestPolicyFindById_Error(t *testing.T) {
+	_, err := policyRepository.FindByUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestPolicyFindById_Error test")
 		t.FailNow()
 	}
 }
 
-// indPolicyResponseOfUserByUserIdAndGroupId InternalServerError test
-func TestFindPolicyResponseOfUserByUserIdAndGroupId_InternalServerError(t *testing.T) {
-	_, err := policyRepository.FindPolicyResponseOfUserByUserIdAndGroupId(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestFindPolicyResponseOfUserByUserIdAndGroupId_InternalServerError test")
+// TestFindPolicyOfUserGroupByUserUuidAndGroupUuid InternalServerError test
+func TestFindPolicyOfUserGroupByUserUuidAndGroupUuid_Error(t *testing.T) {
+	_, err := policyRepository.FindPolicyOfUserGroupByUserUuidAndGroupUuid("uuid", "uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestFindPolicyOfUserGroupByUserUuidAndGroupUuid_Error test")
+		t.FailNow()
+	}
+}
+
+// FindPolicyOfUserServiceByUserUuidAndServiceUuid InternalServerError test
+func TestFindPolicyOfUserServiceByUserUuidAndGroupUuid_Error(t *testing.T) {
+	_, err := policyRepository.FindPolicyOfUserServiceByUserUuidAndServiceUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect FindPolicyOfUserServiceByUserUuidAndServiceUuid test")
 		t.FailNow()
 	}
 }
 
 // Update InternalServerError test
-func TestPolicyUpdate_InternalServerError(t *testing.T) {
+func TestPolicyUpdate_Error(t *testing.T) {
 	_, err := policyRepository.Update(entity.Policy{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPolicyUpdate_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPolicyUpdate_Error test")
 		t.FailNow()
 	}
 }

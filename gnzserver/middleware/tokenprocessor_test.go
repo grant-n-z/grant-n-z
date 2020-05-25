@@ -1,18 +1,16 @@
 package middleware
 
 import (
-	"encoding/base64"
-	"github.com/dgrijalva/jwt-go"
+	"fmt"
 	"testing"
-	"time"
 
-	"go.etcd.io/etcd/clientv3"
+	"encoding/base64"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
-	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -25,25 +23,12 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
-	ctx.SetUserId(1)
-	ctx.SetServiceId(1)
-	ctx.SetUserUuid(uuid.New())
-	ctx.SetClientSecret("test")
 
 	stubConnection, _ := gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
-	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
-		Endpoints:            []string{},
-		DialTimeout:          5 * time.Millisecond,
-		DialKeepAliveTimeout: 5 * time.Millisecond,
-	})
 
 	userService := service.UserServiceImpl{
 		UserRepository: StubUserRepositoryImpl{Connection: stubConnection},
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:     StubEtcdlClient{},
 	}
 
 	operatorPolicyService := service.OperatorPolicyServiceImpl{
@@ -53,20 +38,14 @@ func init() {
 	}
 
 	ser := service.ServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           StubEtcdlClient{},
 		ServiceRepository:    StubServiceRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 
 	policyService := service.PolicyServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           StubEtcdlClient{},
 		PolicyRepository:     StubPolicyRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
@@ -75,18 +54,12 @@ func init() {
 	}
 
 	roleService := service.RoleServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:     StubEtcdlClient{},
 		RoleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
 	permissionService := service.PermissionServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           StubEtcdlClient{},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 	}
 
@@ -123,7 +96,6 @@ func TestGetTokenProcessorInstance(t *testing.T) {
 func TestGenerate_Error(t *testing.T) {
 	_, err := tokenProcessor.Generate(
 		common.AuthOperator,
-		"test",
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
@@ -137,7 +109,6 @@ func TestGenerate_Error(t *testing.T) {
 
 	_, err = tokenProcessor.Generate(
 		common.AuthOperator,
-		"",
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
@@ -151,7 +122,6 @@ func TestGenerate_Error(t *testing.T) {
 
 	_, err = tokenProcessor.Generate(
 		common.AuthUser,
-		"",
 		model.TokenRequest{
 			Password: "testa",
 		},
@@ -162,7 +132,6 @@ func TestGenerate_Error(t *testing.T) {
 	}
 
 	_, err = tokenProcessor.Generate(
-		"",
 		"",
 		model.TokenRequest{
 			GrantType: "password",
@@ -177,7 +146,6 @@ func TestGenerate_Error(t *testing.T) {
 
 	_, err = tokenProcessor.Generate(
 		"none",
-		"",
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
@@ -193,8 +161,7 @@ func TestGenerate_Error(t *testing.T) {
 // Test Generate token success
 func TestGenerate_Success(t *testing.T) {
 	_, err := tokenProcessor.Generate(
-		common.AuthOperator,
-		"",
+		common.AuthUser,
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
@@ -202,16 +169,15 @@ func TestGenerate_Success(t *testing.T) {
 		},
 	)
 	if err != nil {
-		t.Errorf("Incorrect TestGenerate_Success test." + err.ToJson())
+		t.Errorf("Incorrect TestGenerate_Success test. " + err.ToJson())
 		t.FailNow()
 	}
 }
 
 // Test Generate refresh token success
 func TestGenerateRefreshToken_Success(t *testing.T) {
-	token, _ := tokenProcessor.Generate(
-		common.AuthOperator,
-		"",
+	to, _ := tokenProcessor.Generate(
+		common.AuthUser,
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
@@ -219,17 +185,16 @@ func TestGenerateRefreshToken_Success(t *testing.T) {
 		},
 	)
 
-	token, err := tokenProcessor.Generate(
-		common.AuthOperator,
-		"",
+	_, err := tokenProcessor.Generate(
+		common.AuthUser,
 		model.TokenRequest{
-			GrantType:    "refresh_token",
-			RefreshToken: token.RefreshToken,
+			GrantType:    model.GrantRefreshToken.String(),
+			RefreshToken: to.RefreshToken,
 		},
 	)
 
 	if err != nil {
-		t.Errorf("Incorrect TestGenerateRefreshToken_Success test." + err.ToJson())
+		t.Errorf("Incorrect TestGenerateRefreshToken_Success test. %s", err.ToJson())
 		t.FailNow()
 	}
 }
@@ -237,8 +202,7 @@ func TestGenerateRefreshToken_Success(t *testing.T) {
 // Test verify operator token
 func TestVerifyOperatorToken_Error(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
-		common.AuthOperator,
-		"",
+		common.AuthUser,
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
@@ -257,14 +221,13 @@ func TestVerifyOperatorToken_Error(t *testing.T) {
 func TestVerifyOperatorToken_Success(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthOperator,
-		"",
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
 			Password:  "test",
 		},
 	)
-	_, err := tokenProcessor.VerifyOperatorToken("Bearer " + token.Token)
+	_, err := tokenProcessor.VerifyOperatorToken(fmt.Sprintf("Bearer %s", token.Token))
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyOperatorToken_Success test." + err.ToJson())
 		t.FailNow()
@@ -273,7 +236,7 @@ func TestVerifyOperatorToken_Success(t *testing.T) {
 
 // Test verify user token
 func TestVerifyUserToken_Error(t *testing.T) {
-	_, err := tokenProcessor.VerifyUserToken("test_token", []string{"test_role"}, "test_permission", 0)
+	_, err := tokenProcessor.VerifyUserToken("test_token", []string{"test_role"}, []string{"test_permission"}, "")
 	if err == nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Error test." + err.ToJson())
 		t.FailNow()
@@ -284,14 +247,13 @@ func TestVerifyUserToken_Error(t *testing.T) {
 func TestVerifyUserToken_Success(t *testing.T) {
 	token, _ := tokenProcessor.Generate(
 		common.AuthUser,
-		"1",
 		model.TokenRequest{
 			GrantType: "password",
 			Email:     "test@gmail.com",
 			Password:  "test",
 		},
 	)
-	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, []string{"test_role"}, "test_permission", 0)
+	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, []string{"test_role"}, []string{"test_permission"}, "")
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Success test." + err.ToJson())
 		t.FailNow()
@@ -304,12 +266,12 @@ type StubUserRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (uri StubUserRepositoryImpl) FindById(id int) (*entity.User, *model.ErrorResBody) {
+func (uri StubUserRepositoryImpl) FindByUuid(uuid string) (*entity.User, error) {
 	var user entity.User
 	return &user, nil
 }
 
-func (uri StubUserRepositoryImpl) FindByEmail(email string) (*entity.User, *model.ErrorResBody) {
+func (uri StubUserRepositoryImpl) FindByEmail(email string) (*entity.User, error) {
 	user := entity.User{
 		Username: "test",
 		Email:    email,
@@ -318,7 +280,12 @@ func (uri StubUserRepositoryImpl) FindByEmail(email string) (*entity.User, *mode
 	return &user, nil
 }
 
-func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
+func (uri StubUserRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.User, error) {
+	var users []*entity.User
+	return users, nil
+}
+
+func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, error) {
 	user := entity.User{
 		Id:       1,
 		Username: "test",
@@ -326,68 +293,65 @@ func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*
 		Password: "$2a$10$oqIkJ.fryDacNpVwOkONYe4spwRj9ynuh/YoYOifAlzNa5uWVX/aa",
 	}
 	operatorPolicy := entity.OperatorPolicy{
-		RoleId: 1,
-		UserId: 1,
+		RoleUuid: uuid.New(),
+		UserUuid: uuid.New(),
 	}
 	uwo := model.UserWithOperatorPolicy{
-		user,
-		operatorPolicy,
+		User:           user,
+		OperatorPolicy: operatorPolicy,
+		Role: entity.Role{Name: common.OperatorRole},
 	}
 	return &uwo, nil
 }
 
-func (uri StubUserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, *model.ErrorResBody) {
+func (uri StubUserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, error) {
 	var uus model.UserWithUserServiceWithService
 	return &uus, nil
 }
 
-func (uri StubUserRepositoryImpl) FindUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
-	return nil, nil
-}
-
-func (uri StubUserRepositoryImpl) FindByGroupId(groupId int) ([]*entity.User, *model.ErrorResBody) {
-	var users []*entity.User
-	return users, nil
-}
-
-func (uri StubUserRepositoryImpl) FindUserServices() ([]*entity.UserService, *model.ErrorResBody) {
-	var userServices []*entity.UserService
-	return userServices, nil
-}
-
-func (uri StubUserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, *model.ErrorResBody) {
-	var userServices []*entity.UserService
-	return userServices, nil
-}
-
-func (uri StubUserRepositoryImpl) FindUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
-	userService := entity.UserService{Id: 1}
-	return &userService, nil
-}
-
-func (uri StubUserRepositoryImpl) FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, *model.ErrorResBody) {
-	userGroup := []*entity.UserGroup{{Id: 1}}
-	return userGroup, nil
-}
-
-func (uri StubUserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
+func (uri StubUserRepositoryImpl) FindUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, error) {
+	var userGroup entity.UserGroup
 	return &userGroup, nil
 }
 
-func (uri StubUserRepositoryImpl) SaveUser(user entity.User) (*entity.User, *model.ErrorResBody) {
-	return &user, nil
+func (uri StubUserRepositoryImpl) FindUserServices() ([]*entity.UserService, error) {
+	var userServices []*entity.UserService
+	return userServices, nil
 }
 
-func (uri StubUserRepositoryImpl) SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
-	return &user, nil
+func (uri StubUserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, error) {
+	var userServices []*entity.UserService
+	return userServices, nil
 }
 
-func (uri StubUserRepositoryImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
-	return &user, nil
+func (uri StubUserRepositoryImpl) FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, error) {
+	var userGroups []*entity.UserGroup
+	return userGroups, nil
 }
 
-func (uri StubUserRepositoryImpl) SaveUserService(userService entity.UserService) (*entity.UserService, *model.ErrorResBody) {
+func (uri StubUserRepositoryImpl) FindUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, error) {
+	var userService entity.UserService
 	return &userService, nil
+}
+
+func (uri StubUserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, error) {
+	return &userGroup, nil
+}
+
+func (uri StubUserRepositoryImpl) SaveUser(user entity.User) (*entity.User, error) {
+	return &user, nil
+}
+
+func (uri StubUserRepositoryImpl) SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, error) {
+	return &user, nil
+}
+
+func (uri StubUserRepositoryImpl) SaveUserService(userService entity.UserService) (*entity.UserService, error) {
+	return &userService, nil
+}
+
+func (uri StubUserRepositoryImpl) UpdateUser(user entity.User) (*entity.User, error) {
+	return &user, nil
 }
 
 // Less than stub struct
@@ -396,30 +360,28 @@ type StubOperatorPolicyRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
 	return entities, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindByUserId(userId int) ([]*entity.OperatorPolicy, *model.ErrorResBody) {
-	var entities []*entity.OperatorPolicy
-	return entities, nil
+func (opr StubOperatorPolicyRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.OperatorPolicy, error) {
+	return []*entity.OperatorPolicy{{RoleUuid: uuid.New(), UserUuid: uuid.New()}}, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindByUserIdAndRoleId(userId int, roleId int) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) FindByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, error) {
 	operatorMemberRole := entity.OperatorPolicy{
-		RoleId: 1,
-		UserId: 1,
+		RoleUuid: uuid.New(),
+		UserUuid: uuid.New(),
 	}
 	return &operatorMemberRole, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) FindRoleNameByUserId(userId int) ([]string, *model.ErrorResBody) {
-	var names []string
-	return names, nil
+func (opr StubOperatorPolicyRepositoryImpl) FindRoleNameByUserUuid(userUuid string) ([]string, error) {
+	return []string{""}, nil
 }
 
-func (opr StubOperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
+func (opr StubOperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, error) {
 	return &entity, nil
 }
 
@@ -429,48 +391,51 @@ type StubRoleRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (rri StubRoleRepositoryImpl) FindAll() ([]*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindAll() ([]*entity.Role, error) {
 	var roles []*entity.Role
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error) {
 	var roles []*entity.Role
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindById(id int) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByUuid(uuid string) (*entity.Role, error) {
 	var role entity.Role
 	return &role, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindByName(name string) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByName(name string) (*entity.Role, error) {
 	var role entity.Role
 	return &role, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, error) {
 	var roles []entity.Role
 	roles = append(roles, entity.Role{Id: 1, Name: "test_role"})
 	roles = append(roles, entity.Role{Id: 2, Name: "test_role"})
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Role, error) {
 	var roles []*entity.Role
 	return roles, nil
 }
 
-func (rri StubRoleRepositoryImpl) FindNameById(id int) *string {
-	role, _ := rri.FindById(id)
+func (rri StubRoleRepositoryImpl) FindNameByUuid(uuid string) *string {
+	role, err := rri.FindByUuid(uuid)
+	if err != nil {
+		return nil
+	}
 	return &role.Name
 }
 
-func (rri StubRoleRepositoryImpl) Save(role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) Save(role entity.Role) (*entity.Role, error) {
 	return &role, nil
 }
 
-func (rri StubRoleRepositoryImpl) SaveWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rri StubRoleRepositoryImpl) SaveWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, error) {
 	return &role, nil
 }
 
@@ -480,55 +445,53 @@ type StubServiceRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (sri StubServiceRepositoryImpl) FindAll() ([]*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindAll() ([]*entity.Service, error) {
 	var services []*entity.Service
 	return services, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, error) {
 	var services []*entity.Service
 	return services, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindById(id int) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindByUuid(uuid string) (*entity.Service, error) {
 	var service entity.Service
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindByName(name string) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindByName(name string) (*entity.Service, error) {
 	var service entity.Service
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindBySecret(apiKey string) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindBySecret(secret string) (*entity.Service, error) {
 	service := entity.Service{Name: "test"}
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) FindNameById(id int) *string {
-	service, _ := sri.FindById(id)
+func (sri StubServiceRepositoryImpl) FindNameByUuid(uuid string) *string {
+	service, err := sri.FindByUuid(uuid)
+	if err != nil {
+		return nil
+	}
 	return &service.Name
 }
 
-func (sri StubServiceRepositoryImpl) FindNameByApiKey(name string) *string {
-	service, _ := sri.FindByName(name)
-	return &service.Name
-}
-
-func (sri StubServiceRepositoryImpl) FindServicesByUserId(userId int) ([]*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) FindServicesByUserUuid(userUuid string) ([]*entity.Service, error) {
 	var services []*entity.Service
 	return services, nil
 }
 
-func (sri StubServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, error) {
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, error) {
 	return &service, nil
 }
 
-func (sri StubServiceRepositoryImpl) Update(service entity.Service) (*entity.Service, *model.ErrorResBody) {
+func (sri StubServiceRepositoryImpl) Update(service entity.Service) (*entity.Service, error) {
 	return &service, nil
 }
 
@@ -538,47 +501,46 @@ type StubPermissionRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (pri StubPermissionRepositoryImpl) FindAll() ([]*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) FindAll() ([]*entity.Permission, error) {
 	permissions := []*entity.Permission{{Id: 1, Name: "test_permission"}}
 	return permissions, nil
 }
 
-func (pri StubPermissionRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, error) {
 	var permissions []*entity.Permission
 	return permissions, nil
 }
 
-func (pri StubPermissionRepositoryImpl) FindById(id int) (*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) FindByUuid(uuid string) (*entity.Permission, error) {
 	var permission entity.Permission
 	return &permission, nil
 }
 
-func (pri StubPermissionRepositoryImpl) FindByName(name string) (*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) FindByName(name string) (*entity.Permission, error) {
 	permission := entity.Permission{Id: 1, Name: "test_permission"}
 	return &permission, nil
 }
 
-func (pri StubPermissionRepositoryImpl) FindByNames(names []string) ([]entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) FindByNames(names []string) ([]entity.Permission, error) {
 	var permissions []entity.Permission
 	permissions = append(permissions, entity.Permission{Id: 1, Name: "test_permission"})
 	return permissions, nil
 }
 
-func (pri StubPermissionRepositoryImpl) FindByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Permission, error) {
 	var permissions []*entity.Permission
 	return permissions, nil
 }
 
-func (pri StubPermissionRepositoryImpl) FindNameById(id int) *string {
-	permission, _ := pri.FindById(id)
-	return &permission.Name
+func (pri StubPermissionRepositoryImpl) FindNameByUuid(uuid string) *string {
+	return nil
 }
 
-func (pri StubPermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, error) {
 	return &permission, nil
 }
 
-func (pri StubPermissionRepositoryImpl) SaveWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
+func (pri StubPermissionRepositoryImpl) SaveWithRelationalData(groupUuid string, permission entity.Permission) (*entity.Permission, error) {
 	return &permission, nil
 }
 
@@ -588,43 +550,35 @@ type StubGroupRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (gr StubGroupRepositoryImpl) FindAll() ([]*entity.Group, *model.ErrorResBody) {
-	var groups []*entity.Group
-	return groups, nil
+func (gr StubGroupRepositoryImpl) FindAll() ([]*entity.Group, error) {
+	return []*entity.Group{}, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindById(id int) (*entity.Group, *model.ErrorResBody) {
+func (gr StubGroupRepositoryImpl) FindByUuid(uuid string) (*entity.Group, error) {
 	var group entity.Group
 	return &group, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindByName(name string) (*entity.Group, *model.ErrorResBody) {
+func (gr StubGroupRepositoryImpl) FindByName(name string) (*entity.Group, error) {
 	var group *entity.Group
 	return group, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindByUserId(userId int) ([]*entity.Group, *model.ErrorResBody) {
+func (gr StubGroupRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.Group, error) {
 	var groups []*entity.Group
 	return groups, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserId(userId int) ([]*model.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
-	var groupWithUserGroupWithPolicies []*model.GroupWithUserGroupWithPolicy
-	groupWithUserGroupWithPolicies = append(groupWithUserGroupWithPolicies, &model.GroupWithUserGroupWithPolicy{entity.Group{}, entity.UserGroup{}, entity.Policy{ServiceId: 1}})
-	return groupWithUserGroupWithPolicies, nil
+func (gr StubGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid string) ([]*model.GroupWithUserGroupWithPolicy, error) {
+	uid, _ := uuid.FromBytes([]byte("20aabf03-7f3f-479c-91d2-909c844de26c"))
+	var policies []*model.GroupWithUserGroupWithPolicy
+	policies = append(policies, &model.GroupWithUserGroupWithPolicy{Policy: entity.Policy{UserGroupUuid: uid, RoleUuid: uid, PermissionUuid: uid, ServiceUuid: uid}})
+	return policies, nil
 }
 
-func (gr StubGroupRepositoryImpl) FindGroupWithPolicyByUserIdAndGroupId(userId int, groupId int) (*model.GroupWithUserGroupWithPolicy, *model.ErrorResBody) {
-	group := entity.Group{}
-	userGroup := entity.UserGroup{}
-	policy := entity.Policy{Id: 1}
-	groupWithUserGroupWithPolicy := model.GroupWithUserGroupWithPolicy{
-		group,
-		userGroup,
-		policy,
-	}
+func (gr StubGroupRepositoryImpl) FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*model.GroupWithUserGroupWithPolicy, error) {
+	var groupWithUserGroupWithPolicy model.GroupWithUserGroupWithPolicy
 	return &groupWithUserGroupWithPolicy, nil
-
 }
 
 func (gr StubGroupRepositoryImpl) SaveWithRelationalData(
@@ -633,7 +587,7 @@ func (gr StubGroupRepositoryImpl) SaveWithRelationalData(
 	userGroup entity.UserGroup,
 	groupPermission entity.GroupPermission,
 	groupRole entity.GroupRole,
-	policy entity.Policy) (*entity.Group, *model.ErrorResBody) {
+	policy entity.Policy) (*entity.Group, error) {
 
 	return &group, nil
 }
@@ -644,33 +598,92 @@ type StubPolicyRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (pri StubPolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindAll() ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	return policies, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	return policies, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindByRoleUuid(roleUuid string) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	return policies, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
-	return model.UserPolicyOnGroupResponse{}, nil
-}
-
-func (pri StubPolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {
-	policy := entity.Policy{
-		RoleId:       1,
-		PermissionId: 1,
-	}
+func (pri StubPolicyRepositoryImpl) FindByUuid(uuid string) (entity.Policy, error) {
+	var policy entity.Policy
 	return policy, nil
 }
 
-func (pri StubPolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error) {
+	var policy model.UserPolicyOnGroupResponse
+	return policy, nil
+}
+
+func (pri StubPolicyRepositoryImpl) FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error) {
+	var policy []model.UserPolicyOnServiceResponse
+	return policy, nil
+}
+
+func (pri StubPolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, error) {
 	return &policy, nil
+}
+
+// Less than stub struct
+// Policy repository
+type StubEtcdlClient struct {
+}
+
+func (e StubEtcdlClient) SetUserPolicy(userUuid string, policy []structure.UserPolicy) {
+}
+
+func (e StubEtcdlClient) SetPermission(permissionUuid string, permission structure.Permission) {
+}
+
+func (e StubEtcdlClient) SetRole(roleUuid string, role structure.Role) {
+}
+
+func (e StubEtcdlClient) SetService(serviceUuid string, service structure.Service) {
+}
+
+func (e StubEtcdlClient) SetUserService(userUuid string, userServices []structure.UserService) {
+}
+
+func (e StubEtcdlClient) SetUserGroup(userUuid string, userGroups []structure.UserGroup) {
+}
+
+func (e StubEtcdlClient) GetUserPolicy(userUuid string) []structure.UserPolicy {
+	uid := "6311b383-4587-469d-8aa1-8103142d33e8"
+	return []structure.UserPolicy{{ServiceUuid: uid, GroupUuid: uid, RoleName: "tst_role", PermissionName: "test_permission"}}
+}
+
+func (e StubEtcdlClient) GetPermission(permissionUuid string) *structure.Permission {
+	var permission structure.Permission
+	return &permission
+}
+
+func (e StubEtcdlClient) GetRole(roleUuid string) *structure.Role {
+	var role structure.Role
+	return &role
+}
+
+func (e StubEtcdlClient) GetService(serviceUuid string) *structure.Service {
+	var service structure.Service
+	return &service
+}
+
+func (e StubEtcdlClient) GetUserService(userUuid string) []structure.UserService {
+	var userServices []structure.UserService
+	return userServices
+}
+
+func (e StubEtcdlClient) GetUserGroup(userUuid string) []structure.UserGroup {
+	var userGroups []structure.UserGroup
+	return userGroups
+}
+
+func (e StubEtcdlClient) DeleteUserPolicy(userUuid string) {
 }

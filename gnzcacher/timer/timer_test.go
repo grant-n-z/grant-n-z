@@ -9,7 +9,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzcacher/service"
@@ -28,10 +27,7 @@ func init() {
 		DialTimeout:          5 * time.Millisecond,
 		DialKeepAliveTimeout: 5 * time.Millisecond,
 	})
-	etcdClient := cache.EtcdClientImpl{
-		Connection: stubEtcdConnection,
-		Ctx:        ctx.GetCtx(),
-	}
+	etcdClient := cache.EtcdClientImpl{Connection: stubEtcdConnection}
 
 	stubPolicyRepository := driver.PolicyRepositoryImpl{Connection: stubConnection}
 	stubPermissionRepository := driver.PermissionRepositoryImpl{Connection: stubConnection}

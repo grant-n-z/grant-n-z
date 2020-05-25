@@ -3,8 +3,6 @@ package driver
 import (
 	"testing"
 
-	"net/http"
-
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -22,46 +20,46 @@ func init() {
 }
 
 // FindAll InternalServerError test
-func TestOperatorPolicyFindAll_InternalServerError(t *testing.T) {
+func TestOperatorPolicyFindAll_Error(t *testing.T) {
 	_, err := operatorPolicyRepository.FindAll()
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestOperatorPolicyFindAll_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestOperatorPolicyFindAll_Error test")
 		t.FailNow()
 	}
 }
 
-// FindByUserId InternalServerError test
-func TestOperatorPolicyFindByUserId_InternalServerError(t *testing.T) {
-	_, err := operatorPolicyRepository.FindByUserId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestOperatorPolicyFindByUserId_InternalServerError test")
+// FindByUserUuid InternalServerError test
+func TestOperatorPolicyFindByUserId_Error(t *testing.T) {
+	_, err := operatorPolicyRepository.FindByUserUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestOperatorPolicyFindByUserId_Error test")
 		t.FailNow()
 	}
 }
 
-// FindByUserIdAndRoleId InternalServerError test
-func TestOperatorPolicyFindByUserIdAndRoleId_InternalServerError(t *testing.T) {
-	_, err := operatorPolicyRepository.FindByUserIdAndRoleId(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestOperatorPolicyFindByUserIdAndRoleId_InternalServerError test")
+// FindByUserUuidAndRoleUuid InternalServerError test
+func TestOperatorPolicyFindByUserIdAndRoleId_Error(t *testing.T) {
+	_, err := operatorPolicyRepository.FindByUserUuidAndRoleUuid("uuid", "uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestOperatorPolicyFindByUserIdAndRoleId_Error test")
 		t.FailNow()
 	}
 }
 
-// FindRoleNameByUserId InternalServerError test
-func TestOperatorPolicyFindRoleNameByUserId_InternalServerError(t *testing.T) {
-	_, err := operatorPolicyRepository.FindRoleNameByUserId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestOperatorPolicyFindRoleNameByUserId_InternalServerError test")
+// FindRoleNameByUserUuid InternalServerError test
+func TestOperatorPolicyFindRoleNameByUserId_Error(t *testing.T) {
+	_, err := operatorPolicyRepository.FindRoleNameByUserUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestOperatorPolicyFindRoleNameByUserId_Error test")
 		t.FailNow()
 	}
 }
 
 // Save InternalServerError test
-func TestOperatorPolicySave_InternalServerError(t *testing.T) {
+func TestOperatorPolicySave_Error(t *testing.T) {
 	_, err := operatorPolicyRepository.Save(entity.OperatorPolicy{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestOperatorPolicySave_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestOperatorPolicySave_Error test")
 		t.FailNow()
 	}
 }

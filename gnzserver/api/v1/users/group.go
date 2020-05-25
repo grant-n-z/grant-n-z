@@ -15,6 +15,7 @@ var ghInstance Group
 
 type Group interface {
 	// Implement group api
+	// Endpoint is `/api/v1/users/group`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http GET method
@@ -43,7 +44,7 @@ func GetGroupInstance() Group {
 
 // Constructor
 func NewGroup() Group {
-	log.Logger.Info("New `Group` instance")
+	log.Logger.Info("New `v1.users.Group` instance")
 	return GroupImpl{groupService: service.GetGroupServiceInstance()}
 }
 
@@ -60,7 +61,8 @@ func (gh GroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
-	groups, err := gh.groupService.GetGroupOfUser()
+	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
+	groups, err := gh.groupService.GetGroupByUser(jwt.UserUuid.String())
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -81,7 +83,8 @@ func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity)
+	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
+	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity, jwt.UserUuid.String(), r.Context().Value(middleware.ScopeSecret).(string))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

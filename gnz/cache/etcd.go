@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"encoding/json"
 
 	"go.etcd.io/etcd/clientv3"
 
-	"github.com/tomoyane/grant-n-z/gnz/entity"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
@@ -19,56 +18,56 @@ const retryCnt = 5
 var eInstance EtcdClient
 
 type EtcdClient interface {
-	// Set policy with expires
-	SetPolicy(policy entity.Policy, expiresMinutes time.Duration)
-
 	// Set permission with expires
-	SetPermission(permission entity.Permission, expiresMinutes time.Duration)
+	// key: permission={uuid}
+	// value: {"name":"{name}"}
+	SetPermission(permissionUuid string, permission structure.Permission)
 
 	// Set role with expires
-	SetRole(role entity.Role, expiresMinutes time.Duration)
+	// key: role={uuid}
+	// value: {"name":"{name}"}
+	SetRole(roleUuid string, role structure.Role)
 
 	// Set service with expires
-	SetService(service entity.Service, expiresMinutes time.Duration)
+	// key: service={uuid}
+	// value: {"name":"{name}"}
+	SetService(serviceUuid string, service structure.Service)
+
+	// Set policy with expires
+	// key: user_policy={user_uuid}
+	// value: [{"service_uuid":"{uuid}","group_uuid":"{uuid}","role_name":"{name}","permission_name":"{name}"}]
+	SetUserPolicy(userUuid string, policy []structure.UserPolicy)
 
 	// Set user_service with expires
-	SetUserService(userId int, userServices []entity.UserService, expiresMinutes time.Duration)
+	// key: user_service={user_uuid}
+	// value: [{"service_name":"{name}","service_uuid":"{uuid}"}]
+	SetUserService(userUuid string, userServices []structure.UserService)
 
 	// Set user_group with expires
-	SetUserGroup(userId int, userGroups []entity.UserGroup, expiresMinutes time.Duration)
+	// key: user_group={user_uuid}
+	// value: [{"group_name":"{name}","group_uuid":"{uuid}"}]
+	SetUserGroup(userUuid string, userGroups []structure.UserGroup)
 
-	// Get policy by id or name
-	GetPolicy(data interface{}) *entity.Policy
+	// Get policy by user uuid
+	GetUserPolicy(userUuid string) []structure.UserPolicy
 
-	// Get policy by names
-	GetPolicyByNames(names []string) []entity.Policy
+	// Get permission by uuid
+	GetPermission(permissionUuid string) *structure.Permission
 
-	// Get permission by id or name
-	GetPermission(data interface{}) *entity.Permission
+	// Get role by uuid
+	GetRole(roleUuid string) *structure.Role
 
-	// Get permission by names
-	GetPermissionByNames(names []string) []entity.Permission
+	// Get service by uuid
+	GetService(serviceUuid string) *structure.Service
 
-	// Get role by id or name
-	GetRole(data interface{}) *entity.Role
+	// Get user_service by user uuid
+	GetUserService(userUuid string) []structure.UserService
 
-	// Get role by names
-	GetRoleByNames(names []string) []entity.Role
+	// Get user_group by user uuid
+	GetUserGroup(userUuid string) []structure.UserGroup
 
-	// Get service by id or name
-	GetService(data interface{}) *entity.Service
-
-	// Get service by names
-	GetServiceByNames(names []string) []entity.Service
-
-	// Get user_service by user_id
-	GetUserService(userId int, serviceId int) *entity.UserService
-
-	// Get user_group by user_id
-	GetUserGroup(userId int, groupId int) *entity.UserGroup
-
-	// Delete policy by name or id
-	DeletePolicy(policy entity.Policy)
+	// Delete policy by user uuid
+	DeleteUserPolicy(userUuid string)
 }
 
 type EtcdClientImpl struct {
@@ -93,220 +92,99 @@ func NewEtcdClient() EtcdClient {
 	}
 }
 
-func (e EtcdClientImpl) SetPolicy(policy entity.Policy, expiresMinutes time.Duration) {
-	if e.Connection == nil {
-		return
-	}
+func (e EtcdClientImpl) SetUserPolicy(userUuid string, policy []structure.UserPolicy) {
 	policyJson, _ := json.Marshal(policy)
-	e.set(policyJson, []string{fmt.Sprintf("policy=%d", policy.Id), fmt.Sprintf("policy=%v", policy.Name)}, expiresMinutes)
+	e.set([]string{fmt.Sprintf("user_policy=%s", userUuid)}, policyJson)
 }
 
-func (e EtcdClientImpl) SetPermission(permission entity.Permission, expiresMinutes time.Duration) {
-	if e.Connection == nil {
-		return
-	}
+func (e EtcdClientImpl) SetPermission(permissionUuid string, permission structure.Permission) {
 	permissionJson, _ := json.Marshal(permission)
-	e.set(permissionJson, []string{fmt.Sprintf("permission=%d", permission.Id), fmt.Sprintf("permission=%v", permission.Name)}, expiresMinutes)
+	e.set([]string{fmt.Sprintf("permission=%s", permissionUuid)}, permissionJson)
 }
 
-func (e EtcdClientImpl) SetRole(role entity.Role, expiresMinutes time.Duration) {
-	if e.Connection == nil {
-		return
-	}
+func (e EtcdClientImpl) SetRole(roleUuid string, role structure.Role) {
 	roleJson, _ := json.Marshal(role)
-	e.set(roleJson, []string{fmt.Sprintf("role=%d", role.Id), fmt.Sprintf("role=%v", role.Name)}, expiresMinutes)
+	e.set([]string{fmt.Sprintf("role=%s", roleUuid)}, roleJson)
 }
 
-func (e EtcdClientImpl) SetService(service entity.Service, expiresMinutes time.Duration) {
-	if e.Connection == nil {
-		return
-	}
+func (e EtcdClientImpl) SetService(serviceUuid string, service structure.Service) {
 	serviceJson, _ := json.Marshal(service)
-	e.set(serviceJson, []string{fmt.Sprintf("service=%d", service.Id), fmt.Sprintf("service=%v", service.Name), fmt.Sprintf("service=%v", service.Secret)}, expiresMinutes)
+	e.set([]string{fmt.Sprintf("service=%s", serviceUuid)}, serviceJson)
 }
 
-func (e EtcdClientImpl) SetUserService(userId int, userServices []entity.UserService, expiresMinutes time.Duration) {
-	if e.Connection == nil {
-		return
-	}
-	userServicesJson, _ := json.Marshal(userServices)
-	e.set(userServicesJson, []string{fmt.Sprintf("user_service.user_id=%d", userId)}, expiresMinutes)
+func (e EtcdClientImpl) SetUserService(userUuid string, userServices []structure.UserService) {
+	userServiceJson, _ := json.Marshal(userServices)
+	e.set([]string{fmt.Sprintf("user_service=%s", userUuid)}, userServiceJson)
 }
 
-func (e EtcdClientImpl) SetUserGroup(userId int, userGroups []entity.UserGroup, expiresMinutes time.Duration) {
-	if e.Connection == nil {
-		return
-	}
+func (e EtcdClientImpl) SetUserGroup(userUuid string, userGroups []structure.UserGroup) {
 	userGroupJson, _ := json.Marshal(userGroups)
-	e.set(userGroupJson, []string{fmt.Sprintf("user_group.user_id=%d", userId)}, expiresMinutes)
+	e.set([]string{fmt.Sprintf("user_group=%s", userUuid)}, userGroupJson)
 }
 
-func (e EtcdClientImpl) GetPolicy(data interface{}) *entity.Policy {
-	if e.Connection == nil {
-		return nil
-	}
-	var policy entity.Policy
-	err := e.get(fmt.Sprintf("policy=%v", data), &policy)
+func (e EtcdClientImpl) GetUserPolicy(userUuid string) []structure.UserPolicy {
+	var policy []structure.UserPolicy
+	err := e.get(fmt.Sprintf("user_policy=%s", userUuid), &policy)
 	if err != nil {
-		log.Logger.Info("Cloud not get cache ", err.Error())
 		return nil
 	}
-	return &policy
-}
-func (e EtcdClientImpl) GetPolicyByNames(names []string) []entity.Policy {
-	if e.Connection == nil {
-		return nil
-	}
-	var policies []entity.Policy
-	for _, name := range names {
-		var policy entity.Policy
-		err := e.get(fmt.Sprintf("policy=%v", name), &policy)
-		if err != nil {
-			log.Logger.Info("Cloud not get cache ", err.Error())
-			continue
-		}
-		policies = append(policies, policy)
-	}
-	return policies
+	return policy
 }
 
-func (e EtcdClientImpl) GetPermission(data interface{}) *entity.Permission {
-	if e.Connection == nil {
-		return nil
-	}
-	var permission entity.Permission
-	err := e.get(fmt.Sprintf("permission=%v", data), &permission)
+func (e EtcdClientImpl) GetPermission(permissionUuid string) *structure.Permission {
+	var permission structure.Permission
+	err := e.get(fmt.Sprintf("permission=%s", permissionUuid), &permission)
 	if err != nil {
-		log.Logger.Info("Cloud not get cache ", err.Error())
 		return nil
 	}
 	return &permission
 }
 
-func (e EtcdClientImpl) GetPermissionByNames(names []string) []entity.Permission {
-	if e.Connection == nil {
-		return nil
-	}
-	var permissions []entity.Permission
-	for _, name := range names {
-		var permission entity.Permission
-		err := e.get(fmt.Sprintf("permission=%v", name), &permission)
-		if err != nil {
-			log.Logger.Info("Cloud not get cache ", err.Error())
-			continue
-		}
-		permissions = append(permissions, permission)
-	}
-	return permissions
-}
-
-func (e EtcdClientImpl) GetRole(data interface{}) *entity.Role {
-	if e.Connection == nil {
-		return nil
-	}
-	var role entity.Role
-	err := e.get(fmt.Sprintf("role=%v", data), &role)
+func (e EtcdClientImpl) GetRole(roleUuid string) *structure.Role {
+	var role structure.Role
+	err := e.get(fmt.Sprintf("role=%s", roleUuid), &role)
 	if err != nil {
-		log.Logger.Info("Cloud not get cache ", err.Error())
 		return nil
 	}
 	return &role
 }
 
-func (e EtcdClientImpl) GetRoleByNames(names []string) []entity.Role {
-	if e.Connection == nil {
-		return nil
-	}
-	var roles []entity.Role
-	for _, name := range names {
-		var role entity.Role
-		err := e.get(fmt.Sprintf("role=%v", name), &role)
-		if err != nil {
-			log.Logger.Info("Cloud not get cache ", err.Error())
-			continue
-		}
-		roles = append(roles, role)
-	}
-	return roles
-}
-
-func (e EtcdClientImpl) GetService(data interface{}) *entity.Service {
-	if e.Connection == nil {
-		return nil
-	}
-	var service entity.Service
-	err := e.get(fmt.Sprintf("service=%v", data), &service)
+func (e EtcdClientImpl) GetService(serviceUuid string) *structure.Service {
+	var service structure.Service
+	err := e.get(fmt.Sprintf("service=%s", serviceUuid), &service)
 	if err != nil {
-		log.Logger.Info("Cloud not get cache ", err.Error())
 		return nil
 	}
 	return &service
 }
 
-func (e EtcdClientImpl) GetServiceByNames(names []string) []entity.Service {
-	if e.Connection == nil {
-		return nil
-	}
-	var services []entity.Service
-	for _, name := range names {
-		var service entity.Service
-		err := e.get(fmt.Sprintf("service=%v", name), &service)
-		if err != nil {
-			log.Logger.Info("Cloud not get cache ", err.Error())
-			continue
-		}
-		services = append(services, service)
-	}
-	return services
-}
-
-func (e EtcdClientImpl) GetUserService(userId int, serviceId int) *entity.UserService {
-	if e.Connection == nil {
-		return nil
-	}
-	var userServices []entity.UserService
-	err := e.get(fmt.Sprintf("user_service.user_id=%d", userId), &userServices)
+func (e EtcdClientImpl) GetUserService(userUuid string) []structure.UserService {
+	var userServices []structure.UserService
+	err := e.get(fmt.Sprintf("user_service=%s", userUuid), &userServices)
 	if err != nil {
-		log.Logger.Info("Cloud not get cache ", err.Error())
 		return nil
 	}
-
-	for _, us := range userServices {
-		if us.ServiceId == serviceId {
-			return &us
-		}
-	}
-	return nil
+	return userServices
 }
 
-func (e EtcdClientImpl) GetUserGroup(userId int, groupId int) *entity.UserGroup {
-	if e.Connection == nil {
-		return nil
-	}
-	var userGroups []entity.UserGroup
-	err := e.get(fmt.Sprintf("user_group.user_id=%d", userId), &userGroups)
+func (e EtcdClientImpl) GetUserGroup(userUuid string) []structure.UserGroup {
+	var userGroups []structure.UserGroup
+	err := e.get(fmt.Sprintf("user_group=%s", userUuid), &userGroups)
 	if err != nil {
-		log.Logger.Info("Cloud not get cache ", err.Error())
 		return nil
 	}
-
-	for _, us := range userGroups {
-		if us.GroupId == groupId {
-			return &us
-		}
-	}
-	return nil
+	return userGroups
 }
 
-func (e EtcdClientImpl) DeletePolicy(policy entity.Policy) {
-	if e.Connection == nil {
-		return
-	}
-	e.delete([]string{fmt.Sprintf("policy=%d", policy.Id), fmt.Sprintf("policy=%v", policy.Name)})
+func (e EtcdClientImpl) DeleteUserPolicy(userUuid string) {
+	e.delete([]string{fmt.Sprintf("user_policy=%s", userUuid)})
 }
 
 // Get cache shared method
 func (e EtcdClientImpl) get(key string, structData interface{}) error {
+	if e.Connection == nil {
+		return errors.New("Not connected etcd")
+	}
 	response, err := e.Connection.Get(e.Ctx, key)
 	if err != nil || len(response.Kvs) == 0 {
 		return errors.New(fmt.Sprintf("Cache is null. key = %v", key))
@@ -320,7 +198,10 @@ func (e EtcdClientImpl) get(key string, structData interface{}) error {
 }
 
 // Set cache shared method
-func (e EtcdClientImpl) set(json []byte, keys []string, expiresMinutes time.Duration) {
+func (e EtcdClientImpl) set(keys []string, json []byte) {
+	if e.Connection == nil {
+		return
+	}
 	for _, key := range keys {
 		_, err := e.Connection.Put(e.Ctx, key, string(json))
 		if err != nil {
@@ -331,6 +212,9 @@ func (e EtcdClientImpl) set(json []byte, keys []string, expiresMinutes time.Dura
 
 // Delete cache shared method
 func (e EtcdClientImpl) delete(keys []string) {
+	if e.Connection == nil {
+		return
+	}
 	for _, key := range keys {
 		for i := 0; i < retryCnt; i++ {
 			_, err := e.Connection.Delete(e.Ctx, key)

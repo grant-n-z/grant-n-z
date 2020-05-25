@@ -18,14 +18,14 @@ func TestGroupRoleString(t *testing.T) {
 		t.FailNow()
 	}
 
-	roleId := GroupRoleRoleId.String()
-	if !strings.EqualFold(roleId, "role_id") {
+	roleUuid := GroupRoleRoleUuid.String()
+	if !strings.EqualFold(roleUuid, "role_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	groupId := GroupRoleGroupId.String()
-	if !strings.EqualFold(groupId, "group_id") {
+	groupUuid := GroupRoleGroupUuid.String()
+	if !strings.EqualFold(groupUuid, "group_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

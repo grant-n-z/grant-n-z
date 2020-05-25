@@ -2,13 +2,14 @@ package groups
 
 import (
 	"bytes"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
+	"testing"
+
+	"io/ioutil"
+	"net/http"
+
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
-	"io/ioutil"
-	"net/http"
-	"testing"
 )
 
 var (
@@ -17,12 +18,11 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	policy = PolicyImpl{
-		PolicyService: StubPolicyService{},
-		UserService: StubUserService{},
-		RoleService: StubRoleService{},
+		PolicyService:     StubPolicyService{},
+		UserService:       StubUserService{},
+		RoleService:       StubRoleService{},
 		PermissionService: StubPermissionService{},
 	}
 }
@@ -71,13 +71,13 @@ func TestPolicy_Put_BadRequest_QueryParam(t *testing.T) {
 }
 
 // Test get bad request
-func TestPolicy_Get_BadRequest_QueryParam(t *testing.T) {
+func TestPolicy_Get_Success(t *testing.T) {
 	response := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
 	policy.Api(response, &request)
 
-	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestPolicy_Get_BadRequest_QueryParam test.")
+	if statusCode != http.StatusOK {
+		t.Errorf("Incorrect TestPolicy_Get_Success test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -91,26 +91,26 @@ func (ps StubPolicyService) GetPolicies() ([]*entity.Policy, *model.ErrorResBody
 	return []*entity.Policy{}, nil
 }
 
-func (ps StubPolicyService) GetPoliciesByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
+func (ps StubPolicyService) GetPoliciesByRoleUuid(roleUuid string) ([]*entity.Policy, *model.ErrorResBody) {
 	return []*entity.Policy{}, nil
 }
 
-func (ps StubPolicyService) GetPoliciesOfUser() ([]model.PolicyResponse, *model.ErrorResBody) {
+func (ps StubPolicyService) GetPoliciesByUser(userUuid string) ([]model.PolicyResponse, *model.ErrorResBody) {
 	return []model.PolicyResponse{}, nil
 }
 
-func (ps StubPolicyService) GetPolicyByUserGroup(userId int, groupId int) (*entity.Policy, *model.ErrorResBody) {
+func (ps StubPolicyService) GetPolicyByUserGroup(userUuid string, groupUuid string) (*entity.Policy, *model.ErrorResBody) {
 	return &entity.Policy{}, nil
 }
 
-func (ps StubPolicyService) GetPoliciesOfUserGroup(groupId int) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
+func (ps StubPolicyService) GetPoliciesByUserGroup(groupUuid string) ([]model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
 	return []model.UserPolicyOnGroupResponse{}, nil
 }
 
-func (ps StubPolicyService) GetPolicyById(id int) (entity.Policy, *model.ErrorResBody) {
+func (ps StubPolicyService) GetPolicyByUuid(uuid string) (entity.Policy, *model.ErrorResBody) {
 	return entity.Policy{}, nil
 }
 
-func (ps StubPolicyService) UpdatePolicy(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+func (ps StubPolicyService) UpdatePolicy(policyRequest model.PolicyRequest, secret string, groupUuid string) (*entity.Policy, *model.ErrorResBody) {
 	return &entity.Policy{}, nil
 }

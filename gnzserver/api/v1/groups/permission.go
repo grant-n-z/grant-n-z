@@ -15,12 +15,15 @@ var phInstance Permission
 
 type Permission interface {
 	// Http GET method
+	// Endpoint is `/api/v1/groups/{group_uuid}/permission`
 	Get(w http.ResponseWriter, r *http.Request)
 
 	// Http POST method
+	// Endpoint is `/api/v1/groups/{group_uuid}/permission`
 	Post(w http.ResponseWriter, r *http.Request)
 
 	// Http DELETE method
+	// Endpoint is `/api/v1/groups/{group_uuid}/permission`
 	Delete(w http.ResponseWriter, r *http.Request)
 }
 
@@ -43,13 +46,8 @@ func NewPermission() Permission {
 }
 
 func (ph PermissionImpl) Get(w http.ResponseWriter, r *http.Request) {
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	permissions, err := ph.PermissionService.GetPermissionsByGroupId(id)
+	groupUuid := middleware.ParamGroupUuid(r)
+	permissions, err := ph.PermissionService.GetPermissionsByGroupUuid(groupUuid)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -63,12 +61,6 @@ func (ph PermissionImpl) Get(w http.ResponseWriter, r *http.Request) {
 func (ph PermissionImpl) Post(w http.ResponseWriter, r *http.Request) {
 	var permissionEntity *entity.Permission
 
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
 	if err := middleware.BindBody(w, r, &permissionEntity); err != nil {
 		return
 	}
@@ -77,7 +69,7 @@ func (ph PermissionImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permission, err := ph.PermissionService.InsertWithRelationalData(id, *permissionEntity)
+	permission, err := ph.PermissionService.InsertWithRelationalData(middleware.ParamGroupUuid(r), *permissionEntity)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

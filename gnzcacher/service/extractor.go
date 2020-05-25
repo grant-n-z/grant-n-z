@@ -1,29 +1,28 @@
 package service
 
 import (
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnz/log"
 )
 
 type ExtractorService interface {
 	// Get policies for offset and limit
-	GetPolicies(offset int, limit int) []*entity.Policy
+	GetPolicies(offset int, limit int) map[string][]structure.UserPolicy
 
 	// Get permissions for offset and limit
-	GetPermissions(offset int, limit int) []*entity.Permission
+	GetPermissions(offset int, limit int) []structure.Permission
 
 	// Get roles for offset and limit
-	GetRoles(offset int, limit int) []*entity.Role
+	GetRoles(offset int, limit int) []structure.Role
 
 	// Get services for offset and limit
-	GetServices(offset int, limit int) []*entity.Service
+	GetServices(offset int, limit int) []structure.Service
 
 	// Get user_services for offset and limit
-	GetUserServices(offset int, limit int) []*entity.UserService
+	GetUserServices(offset int, limit int) map[string][]structure.UserService
 
 	// Get user_groups for offset and limit
-	GetUserGroups(offset int, limit int) []*entity.UserGroup
+	GetUserGroups(offset int, limit int) map[string][]structure.UserGroup
 }
 
 type ExtractorServiceImpl struct {
@@ -32,6 +31,7 @@ type ExtractorServiceImpl struct {
 	RoleRepository       driver.RoleRepository
 	ServiceRepository    driver.ServiceRepository
 	UserRepository       driver.UserRepository
+	GroupRepository      driver.GroupRepository
 }
 
 func NewExtractorService() ExtractorService {
@@ -41,65 +41,155 @@ func NewExtractorService() ExtractorService {
 		RoleRepository:       driver.NewRoleRepository(),
 		ServiceRepository:    driver.NewServiceRepository(),
 		UserRepository:       driver.GetUserRepositoryInstance(),
+		GroupRepository:      driver.GetGroupRepositoryInstance(),
 	}
 }
 
-func (us ExtractorServiceImpl) GetPolicies(offset int, limit int) []*entity.Policy {
-	policies, err := us.PolicyRepository.FindOffSetAndLimit(offset, limit)
+func (es ExtractorServiceImpl) GetPolicies(offset int, limit int) map[string][]structure.UserPolicy {
+	userServices, err := es.UserRepository.FindUserServicesOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get policy query is failed", err.ToJson())
-		return []*entity.Policy{}
+		return nil
 	}
 
-	return policies
+	userPolicyMap := make(map[string][]structure.UserPolicy)
+	checkedUserUuid := ""
+	var userPolicies []structure.UserPolicy
+	for _, userService := range userServices {
+		if checkedUserUuid == userService.UserUuid.String() {
+			continue
+		}
+
+		policies, err := es.PolicyRepository.FindPolicyOfUserServiceByUserUuidAndServiceUuid(userService.UserUuid.String())
+		if err != nil {
+			return nil
+		}
+
+		for _, policy := range policies {
+			userPolicies = append(userPolicies, structure.UserPolicy{
+				ServiceUuid:    userService.ServiceUuid.String(),
+				GroupUuid:      policy.GroupUuid,
+				RoleName:       policy.RoleName,
+				PermissionName: policy.PermissionName,
+			})
+		}
+
+		userPolicyMap[userService.UserUuid.String()] = userPolicies
+		checkedUserUuid = userService.UserUuid.String()
+	}
+
+	return userPolicyMap
 }
 
-func (us ExtractorServiceImpl) GetPermissions(offset int, limit int) []*entity.Permission {
-	permissions, err := us.PermissionRepository.FindOffSetAndLimit(offset, limit)
+func (es ExtractorServiceImpl) GetPermissions(offset int, limit int) []structure.Permission {
+	permissions, err := es.PermissionRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get permission query is failed", err.ToJson())
-		return []*entity.Permission{}
+		return []structure.Permission{}
 	}
 
-	return permissions
+	var stPermissions []structure.Permission
+	for _, permission := range permissions {
+		stPermissions = append(stPermissions, structure.Permission{
+			Name: permission.Name,
+			Uuid: permission.Uuid.String(),
+		})
+	}
+
+	return stPermissions
 }
 
-func (us ExtractorServiceImpl) GetRoles(offset int, limit int) []*entity.Role {
-	roles, err := us.RoleRepository.FindOffSetAndLimit(offset, limit)
+func (es ExtractorServiceImpl) GetRoles(offset int, limit int) []structure.Role {
+	roles, err := es.RoleRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get role query is failed", err.ToJson())
-		return []*entity.Role{}
+		return []structure.Role{}
 	}
 
-	return roles
+	var stRoles []structure.Role
+	for _, role := range roles {
+		stRoles = append(stRoles, structure.Role{
+			Name: role.Name,
+			Uuid: role.Uuid.String(),
+		})
+	}
+
+	return stRoles
 }
 
-func (us ExtractorServiceImpl) GetServices(offset int, limit int) []*entity.Service {
-	services, err := us.ServiceRepository.FindOffSetAndLimit(offset, limit)
+func (es ExtractorServiceImpl) GetServices(offset int, limit int) []structure.Service {
+	services, err := es.ServiceRepository.FindOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get service query is failed", err.ToJson())
-		return []*entity.Service{}
+		return []structure.Service{}
 	}
 
-	return services
+	var stServices []structure.Service
+	for _, ser := range services {
+		stServices = append(stServices, structure.Service{
+			Name: ser.Name,
+			Uuid: ser.Uuid.String(),
+		})
+	}
+
+	return stServices
 }
 
-func (us ExtractorServiceImpl) GetUserServices(offset int, limit int) []*entity.UserService {
-	userServices, err := us.UserRepository.FindUserServicesOffSetAndLimit(offset, limit)
+func (es ExtractorServiceImpl) GetUserServices(offset int, limit int) map[string][]structure.UserService {
+	userServices, err := es.UserRepository.FindUserServicesOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get user_service query is failed", err.ToJson())
-		return []*entity.UserService{}
+		return map[string][]structure.UserService{}
 	}
 
-	return userServices
+	userServiceMap := make(map[string][]structure.UserService)
+	checkedUserUuid := ""
+	var stUserServices []structure.UserService
+	for _, userService := range userServices {
+		ser, err := es.ServiceRepository.FindByUuid(userService.ServiceUuid.String())
+		if err != nil {
+			return map[string][]structure.UserService{}
+		}
+
+		if checkedUserUuid != userService.UserUuid.String() {
+			stUserServices = stUserServices[:0]
+		}
+
+		stUserServices = append(stUserServices, structure.UserService{
+			ServiceUUid: userService.ServiceUuid.String(),
+			ServiceName: ser.Name,
+		})
+
+		userServiceMap[userService.UserUuid.String()] = stUserServices
+		checkedUserUuid = userService.UserUuid.String()
+	}
+
+	return userServiceMap
 }
 
-func (us ExtractorServiceImpl) GetUserGroups(offset int, limit int) []*entity.UserGroup {
-	userGroups, err := us.UserRepository.FindUserGroupsOffSetAndLimit(offset, limit)
+func (es ExtractorServiceImpl) GetUserGroups(offset int, limit int) map[string][]structure.UserGroup {
+	userGroups, err := es.UserRepository.FindUserGroupsOffSetAndLimit(offset, limit)
 	if err != nil {
-		log.Logger.Error("Get user_group query is failed", err.ToJson())
-		return []*entity.UserGroup{}
+		return map[string][]structure.UserGroup{}
 	}
 
-	return userGroups
+	userGroupMap := make(map[string][]structure.UserGroup)
+	checkedUserUuid := ""
+	var stUserGroups []structure.UserGroup
+	for _, userGroup := range userGroups {
+		group, err := es.GroupRepository.FindByUuid(userGroup.GroupUuid.String())
+		if err != nil {
+			return map[string][]structure.UserGroup{}
+		}
+
+
+		if checkedUserUuid != userGroup.UserUuid.String() {
+			stUserGroups = stUserGroups[:0]
+		}
+
+		stUserGroups = append(stUserGroups, structure.UserGroup{
+			GroupUuid: userGroup.GroupUuid.String(),
+			GroupName: group.Name,
+		})
+
+		userGroupMap[userGroup.UserUuid.String()] = stUserGroups
+		checkedUserUuid = userGroup.UserUuid.String()
+	}
+
+	return userGroupMap
 }

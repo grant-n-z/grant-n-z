@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/google/uuid"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/common"
@@ -35,13 +36,14 @@ func (m Migration) V1() {
 	}
 
 	// Generate operator user
+	// Create only first time
 	operatorUser := entity.User{
-		Id:       1,
+		Uuid:     uuid.New(),
 		Username: common.OperatorRole,
 		Email:    "operator@gmail.com",
 		Password: "grant_n_z_operator",
 	}
-	_, userErr := m.userService.InsertUser(operatorUser)
+	savedOperatorUser, userErr := m.userService.InsertUser(operatorUser)
 	if userErr != nil {
 		if userErr.Code != http.StatusConflict {
 			panic("Failed to generate user for migration")
@@ -51,7 +53,7 @@ func (m Migration) V1() {
 
 	// Generate operator role
 	operatorRole := entity.Role{
-		Id:   1,
+		Uuid: uuid.New(),
 		Name: common.OperatorRole,
 	}
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
@@ -63,7 +65,7 @@ func (m Migration) V1() {
 
 	// Generate admin role
 	adminRole := entity.Role{
-		Id:   2,
+		Uuid: uuid.New(),
 		Name: common.AdminRole,
 	}
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
@@ -75,7 +77,7 @@ func (m Migration) V1() {
 
 	// Generate user role
 	userRole := entity.Role{
-		Id:   3,
+		Uuid: uuid.New(),
 		Name: common.UserRole,
 	}
 	_, roleErr3 := m.roleService.InsertRole(&userRole)
@@ -88,7 +90,7 @@ func (m Migration) V1() {
 
 	// Generate admin permission
 	adminPermission := entity.Permission{
-		Id:   1,
+		Uuid: uuid.New(),
 		Name: common.AdminPermission,
 	}
 	_, permissionErr01 := m.permissionService.InsertPermission(&adminPermission)
@@ -100,7 +102,7 @@ func (m Migration) V1() {
 
 	// Generate read permission
 	readPermission := entity.Permission{
-		Id:   2,
+		Uuid: uuid.New(),
 		Name: common.ReadPermission,
 	}
 	_, permissionErr02 := m.permissionService.InsertPermission(&readPermission)
@@ -112,7 +114,7 @@ func (m Migration) V1() {
 
 	// Generate write permission
 	writePermission := entity.Permission{
-		Id:   3,
+		Uuid: uuid.New(),
 		Name: common.WritePermission,
 	}
 	_, permissionErr03 := m.permissionService.InsertPermission(&writePermission)
@@ -125,8 +127,8 @@ func (m Migration) V1() {
 
 	// Generate operator operator_member_role
 	operatorMemberRole := entity.OperatorPolicy{
-		UserId: 1,
-		RoleId: 1,
+		UserUuid: savedOperatorUser.Uuid,
+		RoleUuid: operatorRole.Uuid,
 	}
 	_, operatorRoleMemberErr := m.operatorPolicyService.Insert(&operatorMemberRole)
 	if operatorRoleMemberErr != nil {
@@ -138,11 +140,6 @@ func (m Migration) V1() {
 }
 
 func (m Migration) checkV1Migration() bool {
-	operatorAdminUser, err := m.userService.GetUserById(1)
-	if err != nil && err.Code != http.StatusNotFound {
-		panic(failedMigrationMsg)
-	}
-
 	operatorAdminRole, err := m.roleService.GetRoleByName(common.OperatorRole)
 	if err != nil && err.Code != http.StatusNotFound {
 		log.Logger.Info("Not found operator role")
@@ -160,13 +157,13 @@ func (m Migration) checkV1Migration() bool {
 		log.Logger.Info("Not found admin permission")
 		panic(failedMigrationMsg)
 	}
-	var operatorPolicy []*entity.OperatorPolicy
-	operatorPolicy, err = m.operatorPolicyService.GetByUserId(1)
-	if err != nil && err.Code != http.StatusNotFound {
-		panic(failedMigrationMsg)
-	}
+		var operatorPolicy []*entity.OperatorPolicy
+		operatorPolicy, err = m.operatorPolicyService.GetAll()
+		if err != nil && err.Code != http.StatusNotFound {
+			panic(failedMigrationMsg)
+		}
 
-	if operatorAdminUser != nil && operatorAdminRole != nil && adminRole != nil && adminPermission != nil && len(operatorPolicy) != 0 {
+	if operatorAdminRole != nil && adminRole != nil && adminPermission != nil && len(operatorPolicy) != 0 {
 		log.Logger.Info("Skip to database migration")
 		return false
 	}

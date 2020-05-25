@@ -18,14 +18,14 @@ func TestServicePermissionString(t *testing.T) {
 		t.FailNow()
 	}
 
-	permissionId := ServicePermissionPermissionId.String()
-	if !strings.EqualFold(permissionId, "permission_id") {
+	permissionId := ServicePermissionPermissionUuid.String()
+	if !strings.EqualFold(permissionId, "permission_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	serviceId := ServicePermissionServiceId.String()
-	if !strings.EqualFold(serviceId, "service_id") {
+	serviceId := ServicePermissionServiceUuid.String()
+	if !strings.EqualFold(serviceId, "service_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

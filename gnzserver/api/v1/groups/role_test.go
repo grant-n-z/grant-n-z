@@ -7,7 +7,6 @@ import (
 
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -19,7 +18,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	role = RoleImpl{RoleService: StubRoleService{}}
 }
@@ -29,14 +27,14 @@ func TestGetRoleInstance(t *testing.T) {
 	GetRoleInstance()
 }
 
-// Test get bad request
-func TestRole_Get_BadRequest(t *testing.T) {
+// Test get
+func TestRole_Get_Success(t *testing.T) {
 	response := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
 	role.Get(response, &request)
 
-	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestGet_BadRequest test.")
+	if statusCode != http.StatusOK {
+		t.Errorf("Incorrect TestGet_BadRequest test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -55,14 +53,14 @@ func TestRole_Post_BadRequest_Body(t *testing.T) {
 }
 
 // Test post bad request
-func TestRole_Post_BadRequest_QueryParam(t *testing.T) {
+func TestRole_Post_BadRequest_Success(t *testing.T) {
 	response := StubResponseWriter{}
 	invalid := ioutil.NopCloser(bytes.NewReader([]byte("{\"name\":\"test\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
 	role.Post(response, &request)
 
-	if statusCode != http.StatusBadRequest {
-		t.Errorf("Incorrect TestRole_Post_BadRequest_QueryParam test.")
+	if statusCode != http.StatusCreated {
+		t.Errorf("Incorrect TestRole_Post_BadRequest_QueryParam test. %d", statusCode)
 		t.FailNow()
 	}
 }
@@ -76,7 +74,7 @@ func (rs StubRoleService) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
 	return []*entity.Role{}, nil
 }
 
-func (rs StubRoleService) GetRoleById(id int) (*entity.Role, *model.ErrorResBody) {
+func (rs StubRoleService) GetRoleByUuid(uuid string) (*entity.Role, *model.ErrorResBody) {
 	return &entity.Role{}, nil
 }
 
@@ -88,7 +86,7 @@ func (rs StubRoleService) GetRoleByNames(names []string) ([]entity.Role, *model.
 	return []entity.Role{}, nil
 }
 
-func (rs StubRoleService) GetRolesByGroupId(groupId int) ([]*entity.Role, *model.ErrorResBody) {
+func (rs StubRoleService) GetRolesByGroupUuid(groupUuid string) ([]*entity.Role, *model.ErrorResBody) {
 	return []*entity.Role{}, nil
 }
 
@@ -96,6 +94,6 @@ func (rs StubRoleService) InsertRole(role *entity.Role) (*entity.Role, *model.Er
 	return &entity.Role{}, nil
 }
 
-func (rs StubRoleService) InsertWithRelationalData(groupId int, role entity.Role) (*entity.Role, *model.ErrorResBody) {
+func (rs StubRoleService) InsertWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, *model.ErrorResBody) {
 	return &entity.Role{}, nil
 }

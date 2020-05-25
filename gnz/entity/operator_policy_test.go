@@ -18,14 +18,14 @@ func TestOperatorPolicyString(t *testing.T) {
 		t.FailNow()
 	}
 
-	roleId := OperatorPolicyRoleId.String()
-	if !strings.EqualFold(roleId, "role_id") {
+	roleUuid := OperatorPolicyRoleUuid.String()
+	if !strings.EqualFold(roleUuid, "role_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	userId := OperatorPolicyUserId.String()
-	if !strings.EqualFold(userId, "user_id") {
+	userUuid := OperatorPolicyUserUuid.String()
+	if !strings.EqualFold(userUuid, "user_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

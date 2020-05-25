@@ -2,6 +2,9 @@ package users
 
 import (
 	"bytes"
+	"context"
+	"github.com/google/uuid"
+	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"testing"
 
 	"io/ioutil"
@@ -9,7 +12,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -21,7 +24,6 @@ var (
 
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
 
 	user = UserImpl{
 		UserService: StubUserService{},
@@ -52,7 +54,7 @@ func TestUser_Post(t *testing.T) {
 	response := StubResponseWriter{}
 	body := ioutil.NopCloser(bytes.NewReader([]byte("{\"username\":\"test\",\"email\":\"test@gmail.com\",\"password\":\"testtest\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: body}
-	user.Post(response, &request)
+	user.Post(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeSecret, "secret")))
 
 	if statusCode != http.StatusCreated {
 		t.Errorf("Incorrect TestUser_Post test.")
@@ -78,7 +80,12 @@ func TestUser_Put(t *testing.T) {
 	response := StubResponseWriter{}
 	body := ioutil.NopCloser(bytes.NewReader([]byte("{\"username\":\"test\",\"email\":\"test@gmail.com\",\"password\":\"testtest\"}")))
 	request := http.Request{Header: http.Header{}, Method: http.MethodPut, Body: body}
-	user.Put(response, &request)
+
+	jwt := model.JwtPayload{
+		UserUuid: uuid.New(),
+		Username: "user",
+	}
+	user.Put(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt)))
 
 	if statusCode != http.StatusOK {
 		t.Errorf("Incorrect TestUser_Put test.")
@@ -105,10 +112,11 @@ func (us StubUserService) ComparePw(passwordHash string, password string) bool {
 	if err != nil {
 		return false
 	}
+
 	return true
 }
 
-func (us StubUserService) GetUserById(id int) (*entity.User, *model.ErrorResBody) {
+func (us StubUserService) GetUserByUuid(uuid string) (*entity.User, *model.ErrorResBody) {
 	return &entity.User{}, nil
 }
 
@@ -124,20 +132,28 @@ func (us StubUserService) GetUserWithUserServiceWithServiceByEmail(email string)
 	return &model.UserWithUserServiceWithService{}, nil
 }
 
-func (us StubUserService) GetUserGroupByUserIdAndGroupId(userId int, groupId int) (*entity.UserGroup, *model.ErrorResBody) {
+func (us StubUserService) GetUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, *model.ErrorResBody) {
 	return &entity.UserGroup{}, nil
-}
-
-func (us StubUserService) GetUserByGroupId(groupId int) ([]*model.UserResponse, *model.ErrorResBody) {
-	return []*model.UserResponse{}, nil
 }
 
 func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	return []*entity.UserService{}, nil
 }
 
-func (us StubUserService) GetUserServiceByUserIdAndServiceId(userId int, serviceId int) (*entity.UserService, *model.ErrorResBody) {
+func (us StubUserService) GetUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, *model.ErrorResBody) {
 	return &entity.UserService{}, nil
+}
+
+func (us StubUserService) GetUserByGroupUuid(groupUuid string) ([]*model.UserResponse, *model.ErrorResBody) {
+	return []*model.UserResponse{}, nil
+}
+
+func (us StubUserService) GetUserPoliciesByUserUuid(userUuid string) []structure.UserPolicy {
+	return []structure.UserPolicy{}
+}
+
+func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+	return []structure.UserGroup{}
 }
 
 func (us StubUserService) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {

@@ -18,14 +18,14 @@ func TestGroupPermissionString(t *testing.T) {
 		t.FailNow()
 	}
 
-	permissionId := GroupPermissionPermissionId.String()
-	if !strings.EqualFold(permissionId, "permission_id") {
+	permissionUuid := GroupPermissionPermissionUuid.String()
+	if !strings.EqualFold(permissionUuid, "permission_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	groupId := GroupPermissionGroupId.String()
-	if !strings.EqualFold(groupId, "group_id") {
+	groupUuid := GroupPermissionGroupUuid.String()
+	if !strings.EqualFold(groupUuid, "group_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

@@ -1,9 +1,11 @@
 package service
 
 import (
-	"github.com/google/uuid"
-	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"strings"
 
+	"github.com/google/uuid"
+
+	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -16,21 +18,21 @@ type PermissionService interface {
 	// Get all permissions
 	GetPermissions() ([]*entity.Permission, *model.ErrorResBody)
 
-	// Get permission by id
-	GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody)
+	// Get permission by uuid
+	GetPermissionByUuid(uuid string) (*entity.Permission, *model.ErrorResBody)
 
 	// Get permission by name
 	GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody)
 
-	// Get permissions by group id
+	// Get permissions by group uuid
 	// Join group_permission and permission
-	GetPermissionsByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody)
+	GetPermissionsByGroupUuid(groupUuid string) ([]*entity.Permission, *model.ErrorResBody)
 
 	// Inert permission
 	InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody)
 
 	// Insert permission with relational data
-	InsertWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody)
+	InsertWithRelationalData(groupUuid string, permission entity.Permission) (*entity.Permission, *model.ErrorResBody)
 }
 
 type PermissionServiceImpl struct {
@@ -55,35 +57,75 @@ func NewPermissionService() PermissionService {
 
 func (ps PermissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.ErrorResBody) {
 	permissions, err := ps.PermissionRepository.FindAll()
-	if permissions == nil {
-		return []*entity.Permission{}, err
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
 
 	return permissions, nil
 }
 
-func (ps PermissionServiceImpl) GetPermissionById(id int) (*entity.Permission, *model.ErrorResBody) {
-	return ps.PermissionRepository.FindById(id)
+func (ps PermissionServiceImpl) GetPermissionByUuid(uuid string) (*entity.Permission, *model.ErrorResBody) {
+	permission, err := ps.PermissionRepository.FindByUuid(uuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return permission, nil
 }
 
 func (ps PermissionServiceImpl) GetPermissionByName(name string) (*entity.Permission, *model.ErrorResBody) {
-	permission := ps.EtcdClient.GetPermission(name)
-	if permission != nil {
-		return permission, nil
+	permission, err := ps.PermissionRepository.FindByName(name)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found permission")
+		}
+		return nil, model.InternalServerError(err.Error())
 	}
-	return ps.PermissionRepository.FindByName(name)
+
+	return permission, nil
 }
 
-func (ps PermissionServiceImpl) GetPermissionsByGroupId(groupId int) ([]*entity.Permission, *model.ErrorResBody) {
-	return ps.PermissionRepository.FindByGroupId(groupId)
+func (ps PermissionServiceImpl) GetPermissionsByGroupUuid(groupUuid string) ([]*entity.Permission, *model.ErrorResBody) {
+	permissions, err := ps.PermissionRepository.FindByGroupUuid(groupUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found permissions")
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return permissions, nil
 }
 
 func (ps PermissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	permission.Uuid = uuid.New()
-	return ps.PermissionRepository.Save(*permission)
+	savedPermission, err := ps.PermissionRepository.Save(*permission)
+	if err != nil {
+		log.Logger.Warn(err.Error())
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit data.")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return savedPermission, nil
 }
 
-func (ps PermissionServiceImpl) InsertWithRelationalData(groupId int, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
+func (ps PermissionServiceImpl) InsertWithRelationalData(groupUuid string, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
 	permission.Uuid = uuid.New()
-	return ps.PermissionRepository.SaveWithRelationalData(groupId, permission)
+	savedData, err := ps.PermissionRepository.SaveWithRelationalData(groupUuid, permission)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit group permission data.")
+		}
+		return nil, model.InternalServerError()
+	}
+
+	return savedData, nil
 }

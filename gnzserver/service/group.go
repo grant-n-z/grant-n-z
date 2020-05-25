@@ -1,11 +1,12 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
 	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -18,14 +19,14 @@ type GroupService interface {
 	// Get all groups
 	GetGroups() ([]*entity.Group, *model.ErrorResBody)
 
-	// Get group by id
-	GetGroupById(id int) (*entity.Group, *model.ErrorResBody)
+	// Get group by uuid
+	GetGroupByUuid(uuid string) (*entity.Group, *model.ErrorResBody)
 
 	// Get group that has the user
-	GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody)
+	GetGroupByUser(userUuid string) ([]*entity.Group, *model.ErrorResBody)
 
 	// Insert group
-	InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody)
+	InsertGroupWithRelationalData(group entity.Group, userUuid string, secret string) (*entity.Group, *model.ErrorResBody)
 }
 
 // GroupService struct
@@ -34,6 +35,7 @@ type GroupServiceImpl struct {
 	GroupRepository      driver.GroupRepository
 	RoleRepository       driver.RoleRepository
 	PermissionRepository driver.PermissionRepository
+	ServiceRepository    driver.ServiceRepository
 }
 
 // Get Policy instance.
@@ -53,78 +55,115 @@ func NewGroupService() GroupService {
 		GroupRepository:      driver.GetGroupRepositoryInstance(),
 		RoleRepository:       driver.GetRoleRepositoryInstance(),
 		PermissionRepository: driver.GetPermissionRepositoryInstance(),
+		ServiceRepository:    driver.GetServiceRepositoryInstance(),
 	}
 }
 
 func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
-	return gs.GroupRepository.FindAll()
+	groups, err := gs.GroupRepository.FindAll()
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return groups, nil
 }
 
-func (gs GroupServiceImpl) GetGroupById(id int) (*entity.Group, *model.ErrorResBody) {
-	return gs.GroupRepository.FindById(id)
+func (gs GroupServiceImpl) GetGroupByUuid(uuid string) (*entity.Group, *model.ErrorResBody) {
+	group, err := gs.GroupRepository.FindByUuid(uuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found group")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return group, nil
 }
 
-func (gs GroupServiceImpl) GetGroupOfUser() ([]*entity.Group, *model.ErrorResBody) {
-	return gs.GroupRepository.FindByUserId(ctx.GetUserId().(int))
+func (gs GroupServiceImpl) GetGroupByUser(userUuid string) ([]*entity.Group, *model.ErrorResBody) {
+	groups, err := gs.GroupRepository.FindByUserUuid(userUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return groups, nil
 }
 
-func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group) (*entity.Group, *model.ErrorResBody) {
+func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUuid string, secret string) (*entity.Group, *model.ErrorResBody) {
 	group.Uuid = uuid.New()
 
-	role := gs.EtcdClient.GetRole(common.AdminRole)
-	if role == nil {
-		masterRole, err := gs.RoleRepository.FindByName(common.AdminRole)
-		if err != nil {
-			log.Logger.Info("Failed to get role for insert groups process")
-			return nil, model.InternalServerError()
+	role, err := gs.RoleRepository.FindByName(common.AdminRole)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found relation role")
 		}
-		role = masterRole
+		return nil, model.InternalServerError(err.Error())
 	}
 
-	permission := gs.EtcdClient.GetPermission(common.AdminPermission)
-	if permission == nil {
-		masterPermission, err := gs.PermissionRepository.FindByName(common.AdminPermission)
-		if err != nil {
-			log.Logger.Info("Failed to get permission for insert groups process")
-			return nil, model.InternalServerError()
+	permission, err := gs.PermissionRepository.FindByName(common.AdminPermission)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found relation permission")
 		}
-		permission = masterPermission
+		return nil, model.InternalServerError(err.Error())
 	}
 
-	serviceId := ctx.GetServiceId().(int)
+	ser, err := gs.ServiceRepository.FindBySecret(secret)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found relation service")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	userUuid, _ := uuid.FromBytes([]byte(uUuid))
+
 	// New ServiceGroup
 	serviceGroup := entity.ServiceGroup{
-		GroupId:   group.Id,
-		ServiceId: serviceId,
+		GroupUuid:   group.Uuid,
+		ServiceUuid: ser.Uuid,
 	}
 
 	// New UserGroup
-	userId := ctx.GetUserId().(int)
 	userGroup := entity.UserGroup{
-		UserId:  userId,
-		GroupId: group.Id,
+		UserUuid:  userUuid,
+		GroupUuid: group.Uuid,
 	}
 
 	// New GroupPermission
 	groupPermission := entity.GroupPermission{
-		PermissionId: permission.Id,
-		GroupId:      group.Id,
+		PermissionUuid: permission.Uuid,
+		GroupUuid:      group.Uuid,
 	}
 
 	// New GroupRole
 	groupRole := entity.GroupRole{
-		RoleId:  role.Id,
-		GroupId: group.Id,
+		RoleUuid:  role.Uuid,
+		GroupUuid: group.Uuid,
 	}
 
 	// New Policy
 	policy := entity.Policy{
-		Name:         common.AdminPolicy,
-		RoleId:       role.Id,
-		PermissionId: permission.Id,
-		ServiceId:    serviceId,
-		UserGroupId:  userGroup.Id,
+		Name:           common.AdminPolicy,
+		RoleUuid:       role.Uuid,
+		PermissionUuid: permission.Uuid,
+		ServiceUuid:    ser.Uuid,
+		UserGroupUuid:  userGroup.Uuid,
 	}
 
-	return gs.GroupRepository.SaveWithRelationalData(group, serviceGroup, userGroup, groupPermission, groupRole, policy)
+	savedData, err := gs.GroupRepository.SaveWithRelationalData(group, serviceGroup, userGroup, groupPermission, groupRole, policy)
+	if err != nil {
+		if strings.Contains(err.Error(), "1062") {
+			return nil, model.Conflict("Already exit service group data.")
+		}
+		return nil, model.InternalServerError("Failed to save transaction")
+	}
+
+	return savedData, nil
 }

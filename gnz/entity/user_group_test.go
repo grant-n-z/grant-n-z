@@ -18,14 +18,20 @@ func TestUserGroupString(t *testing.T) {
 		t.FailNow()
 	}
 
-	userId := UserGroupUserId.String()
-	if !strings.EqualFold(userId, "user_id") {
+	uid := UserGroupUuid.String()
+	if !strings.EqualFold(uid, "uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}
 
-	groupId := UserGroupGroupId.String()
-	if !strings.EqualFold(groupId, "group_id") {
+	userId := UserGroupUserUuid.String()
+	if !strings.EqualFold(userId, "user_uuid") {
+		t.Errorf("Incorrect TestString test")
+		t.FailNow()
+	}
+
+	groupId := UserGroupGroupUuid.String()
+	if !strings.EqualFold(groupId, "group_uuid") {
 		t.Errorf("Incorrect TestString test")
 		t.FailNow()
 	}

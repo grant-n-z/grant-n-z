@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -19,9 +19,6 @@ var (
 // Set up
 func init() {
 	log.InitLogger("info")
-	ctx.InitContext()
-	ctx.SetUserId(1)
-	ctx.SetServiceId(1)
 
 	stubConnection, _ = gorm.Open("sqlite3", "/tmp/test_grant_nz.db")
 	stubEtcdConnection, _ := clientv3.New(clientv3.Config{
@@ -31,10 +28,7 @@ func init() {
 	})
 
 	policyService = PolicyServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{
-			Connection: stubEtcdConnection,
-			Ctx:        ctx.GetCtx(),
-		},
+		EtcdClient:           cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		PolicyRepository:     StubPolicyRepositoryImpl{Connection: stubConnection},
 		PermissionRepository: StubPermissionRepositoryImpl{Connection: stubConnection},
 		RoleRepository:       StubRoleRepositoryImpl{Connection: stubConnection},
@@ -60,7 +54,7 @@ func TestGetPolicies_Success(t *testing.T) {
 
 // Test get policies by role id
 func TestGetPoliciesByRoleId_Success(t *testing.T) {
-	_, err := policyService.GetPoliciesByRoleId(1)
+	_, err := policyService.GetPoliciesByRoleUuid(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetPoliciesByRoleId_Success test")
 		t.FailNow()
@@ -69,7 +63,7 @@ func TestGetPoliciesByRoleId_Success(t *testing.T) {
 
 // Test get policies of request user
 func TestGetPoliciesOfUser_Success(t *testing.T) {
-	_, err := policyService.GetPoliciesOfUser()
+	_, err := policyService.GetPoliciesByUser(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetPoliciesOfUser_Success test")
 		t.FailNow()
@@ -78,7 +72,7 @@ func TestGetPoliciesOfUser_Success(t *testing.T) {
 
 // Test get policy by user_group
 func TestGetPolicyByUserGroup_Success(t *testing.T) {
-	_, err := policyService.GetPolicyByUserGroup(1, 1)
+	_, err := policyService.GetPolicyByUserGroup(uuid.New().String(), uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetPolicyByUserGroup_Success test")
 		t.FailNow()
@@ -87,7 +81,7 @@ func TestGetPolicyByUserGroup_Success(t *testing.T) {
 
 // Test get policies by user_group
 func TestGetPoliciesOfUserGroup_Success(t *testing.T) {
-	_, err := policyService.GetPoliciesOfUserGroup(1)
+	_, err := policyService.GetPoliciesByUserGroup(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetPoliciesOfUserGroup_Success test")
 		t.FailNow()
@@ -96,7 +90,7 @@ func TestGetPoliciesOfUserGroup_Success(t *testing.T) {
 
 // Test get policies by id
 func TestGetPolicyById_Success(t *testing.T) {
-	_, err := policyService.GetPolicyById(1)
+	_, err := policyService.GetPolicyByUuid(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetPolicyById_Success test")
 		t.FailNow()
@@ -105,7 +99,7 @@ func TestGetPolicyById_Success(t *testing.T) {
 
 // Test update
 func TestUpdatePolicy_Success(t *testing.T) {
-	_, err := policyService.UpdatePolicy(entity.Policy{})
+	_, err := policyService.UpdatePolicy(model.PolicyRequest{}, "", "")
 	if err != nil {
 		t.Errorf("Incorrect TestUpdatePolicy_Success test")
 		t.FailNow()
@@ -118,30 +112,36 @@ type StubPolicyRepositoryImpl struct {
 	Connection *gorm.DB
 }
 
-func (pri StubPolicyRepositoryImpl) FindAll() ([]*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindAll() ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	return policies, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	return policies, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindByRoleId(roleId int) ([]*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindByRoleUuid(roleUuid string) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	return policies, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindById(id int) (entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindByUuid(uuid string) (entity.Policy, error) {
 	var policy entity.Policy
 	return policy, nil
 }
 
-func (pri StubPolicyRepositoryImpl) FindPolicyResponseOfUserByUserIdAndGroupId(userId int, groupId int) (model.UserPolicyOnGroupResponse, *model.ErrorResBody) {
-	return model.UserPolicyOnGroupResponse{}, nil
+func (pri StubPolicyRepositoryImpl) FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error) {
+	var policy model.UserPolicyOnGroupResponse
+	return policy, nil
 }
 
-func (pri StubPolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, *model.ErrorResBody) {
+func (pri StubPolicyRepositoryImpl) FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error) {
+	var policy []model.UserPolicyOnServiceResponse
+	return policy, nil
+}
+
+func (pri StubPolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, error) {
 	return &policy, nil
 }

@@ -2,21 +2,24 @@ package users
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
-	"net/http"
 )
 
 var uhInstance User
 
 type User interface {
 	// Http POST method.
+	// Endpoint is `/api/v1/users`
 	Post(w http.ResponseWriter, r *http.Request)
 
 	// Http PUT method.
+	// Endpoint is `/api/v1/users`
 	Put(w http.ResponseWriter, r *http.Request)
 }
 
@@ -37,7 +40,7 @@ func GetUserInstance() User {
 
 // Constructor.
 func NewUser() User {
-	log.Logger.Info("New `User` instance")
+	log.Logger.Info("New `v1.users.User` instance")
 	return UserImpl{
 		UserService: service.GetUserServiceInstance(),
 		Service:     service.GetServiceInstance(),
@@ -55,15 +58,15 @@ func (uh UserImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceEntity, err := uh.Service.GetServiceOfSecret()
+	serviceEntity, err := uh.Service.GetServiceBySecret(r.Context().Value(middleware.ScopeSecret).(string))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
 	}
 
 	userServiceEntity := &entity.UserService{
-		UserId:    userEntity.Id,
-		ServiceId: serviceEntity.Id,
+		UserUuid:    userEntity.Uuid,
+		ServiceUuid: serviceEntity.Uuid,
 	}
 
 	if _, err = uh.UserService.InsertUserWithUserService(*userEntity, *userServiceEntity); err != nil {
@@ -86,6 +89,8 @@ func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
+	userEntity.Uuid = jwt.UserUuid
 	if _, err := uh.UserService.UpdateUser(*userEntity); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

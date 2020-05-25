@@ -2,13 +2,15 @@ package entity
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
 	GroupRoleTable GroupRoleTableConfig = iota
 	GroupRoleId
-	GroupRoleRoleId
-	GroupRoleGroupId
+	GroupRoleRoleUuid
+	GroupRoleGroupUuid
 	GroupRoleCreatedAt
 	GroupRoleUpdatedAt
 )
@@ -16,8 +18,8 @@ const (
 // The table `group_roles` struct
 type GroupRole struct {
 	Id        int       `json:"id"`
-	RoleId    int       `validate:"required"json:"role_id"`
-	GroupId   int       `validate:"required"json:"group_id"`
+	RoleUuid  uuid.UUID `validate:"required"json:"role_uuid"`
+	GroupUuid uuid.UUID `validate:"required"json:"group_uuid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -31,10 +33,10 @@ func (gr GroupRoleTableConfig) String() string {
 		return "group_roles"
 	case GroupRoleId:
 		return "id"
-	case GroupRoleRoleId:
-		return "role_id"
-	case GroupRoleGroupId:
-		return "group_id"
+	case GroupRoleRoleUuid:
+		return "role_uuid"
+	case GroupRoleGroupUuid:
+		return "group_uuid"
 	case GroupRoleCreatedAt:
 		return "created_at"
 	case GroupRoleUpdatedAt:

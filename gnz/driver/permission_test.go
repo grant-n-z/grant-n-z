@@ -3,8 +3,6 @@ package driver
 import (
 	"testing"
 
-	"net/http"
-
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -22,62 +20,62 @@ func init() {
 }
 
 // FindAll InternalServerError test
-func TestPermissionFindAll_InternalServerError(t *testing.T) {
+func TestPermissionFindAll_Error(t *testing.T) {
 	_, err := permissionRepository.FindAll()
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionFindAll_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionFindAll_Error test")
 		t.FailNow()
 	}
 }
 
 // FindOffSetAndLimit InternalServerError test
-func TestPermissionFindOffSetAndLimit_InternalServerError(t *testing.T) {
+func TestPermissionFindOffSetAndLimit_Error(t *testing.T) {
 	_, err := permissionRepository.FindOffSetAndLimit(1, 1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionFindOffSetAndLimit_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionFindOffSetAndLimit_Error test")
 		t.FailNow()
 	}
 }
 
-// FindById InternalServerError test
-func TestPermissionFindById_InternalServerError(t *testing.T) {
-	_, err := permissionRepository.FindById(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionFindById_InternalServerError test")
+// FindByUuid InternalServerError test
+func TestPermissionFindById_Error(t *testing.T) {
+	_, err := permissionRepository.FindByUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionFindById_Error test")
 		t.FailNow()
 	}
 }
 
 // FindByName InternalServerError test
-func TestPermissionFindByName_InternalServerError(t *testing.T) {
+func TestPermissionFindByName_Error(t *testing.T) {
 	_, err := permissionRepository.FindByName("test")
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionFindByName_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionFindByName_Error test")
 		t.FailNow()
 	}
 }
 
 // FindByNames InternalServerError test
-func TestPermissionFindByNames_InternalServerError(t *testing.T) {
+func TestPermissionFindByNames_Error(t *testing.T) {
 	_, err := permissionRepository.FindByNames([]string{"test"})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionFindByNames_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionFindByNames_Error test")
 		t.FailNow()
 	}
 }
 
-// FindByGroupId InternalServerError test
-func TestPermissionFindByGroupId_InternalServerError(t *testing.T) {
-	_, err := permissionRepository.FindByGroupId(1)
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionFindByGroupId_InternalServerError test")
+// FindByGroupUuid InternalServerError test
+func TestPermissionFindByGroupId_Error(t *testing.T) {
+	_, err := permissionRepository.FindByGroupUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionFindByGroupId_Error test")
 		t.FailNow()
 	}
 }
 
-// FindNameById name is nil test
+// FindNameByUuid name is nil test
 func TestPermissionFindNameById_Nil(t *testing.T) {
-	name := permissionRepository.FindNameById(1)
+	name := permissionRepository.FindNameByUuid("uuid")
 	if name != nil {
 		t.Errorf("Incorrect TestPermissionFindNameById_Nil test")
 		t.FailNow()
@@ -85,19 +83,19 @@ func TestPermissionFindNameById_Nil(t *testing.T) {
 }
 
 // Save InternalServerError test
-func TestPermissionSave_InternalServerError(t *testing.T) {
+func TestPermissionSave_Error(t *testing.T) {
 	_, err := permissionRepository.Save(entity.Permission{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionSave_InternalServerError test")
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionSave_Error test")
 		t.FailNow()
 	}
 }
 
 // SaveWithRelationalData InternalServerError test
-func TestPermissionSaveWithRelationalData_InternalServerError(t *testing.T) {
-	_, err := permissionRepository.SaveWithRelationalData(1, entity.Permission{})
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Incorrect TestPermissionSaveWithRelationalData_InternalServerError test")
+func TestPermissionSaveWithRelationalData_Error(t *testing.T) {
+	_, err := permissionRepository.SaveWithRelationalData("uuid", entity.Permission{})
+	if err == nil {
+		t.Errorf("Incorrect TestPermissionSaveWithRelationalData_Error test")
 		t.FailNow()
 	}
 }

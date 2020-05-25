@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/ctx"
-	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
@@ -16,6 +14,7 @@ var pInstance Policy
 
 type Policy interface {
 	// Implement permission api
+	// Endpoint is `/api/v1/groups/{id}/policy`
 	Api(w http.ResponseWriter, r *http.Request)
 
 	// Http PUT method
@@ -73,44 +72,8 @@ func (p PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	user, errUser := p.UserService.GetUserByEmail(policyRequest.ToUserEmail)
-	if errUser != nil {
-		model.WriteError(w, errUser.ToJson(), errUser.Code)
-		return
-	}
-
-	userGroup, errGroup := p.UserService.GetUserGroupByUserIdAndGroupId(user.Id, id)
-	if errGroup != nil {
-		model.WriteError(w, errGroup.ToJson(), errGroup.Code)
-		return
-	}
-
-	role, errRole := p.RoleService.GetRoleById(policyRequest.RoleId)
-	if errRole != nil {
-		model.WriteError(w, errRole.ToJson(), errRole.Code)
-		return
-	}
-
-	permission, errPermission := p.PermissionService.GetPermissionById(policyRequest.PermissionId)
-	if errPermission != nil {
-		model.WriteError(w, errPermission.ToJson(), errPermission.Code)
-		return
-	}
-
-	policy := entity.Policy{
-		Name:         policyRequest.Name,
-		RoleId:       role.Id,
-		PermissionId: permission.Id,
-		ServiceId:    ctx.GetServiceId().(int),
-		UserGroupId:  userGroup.Id,
-	}
-	insertedPolicy, errPolicy := p.PolicyService.UpdatePolicy(policy)
+	secret := r.Context().Value(middleware.ScopeSecret).(string)
+	insertedPolicy, errPolicy := p.PolicyService.UpdatePolicy(*policyRequest, secret, middleware.ParamGroupUuid(r))
 	if errPolicy != nil {
 		model.WriteError(w, errPolicy.ToJson(), errPolicy.Code)
 		return
@@ -122,13 +85,7 @@ func (p PolicyImpl) put(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
-	id, err := middleware.ParamGroupId(r)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
-	}
-
-	policies, err := p.PolicyService.GetPoliciesOfUserGroup(id)
+	policies, err := p.PolicyService.GetPoliciesByUserGroup(middleware.ParamGroupUuid(r))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
