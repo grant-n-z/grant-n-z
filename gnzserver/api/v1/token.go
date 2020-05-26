@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -61,6 +62,9 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userType := r.URL.Query().Get("type")
+	if userType == "" {
+		userType = common.AuthUser
+	}
 	token, err := th.TokenProcessor.Generate(userType, *tokenRequest)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)

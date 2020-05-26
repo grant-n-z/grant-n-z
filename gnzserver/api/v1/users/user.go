@@ -2,6 +2,7 @@ package users
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -90,7 +91,8 @@ func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	userEntity.Uuid = jwt.UserUuid
+	userUuid, _ := uuid.FromBytes([]byte(jwt.UserUuid))
+	userEntity.Uuid = userUuid
 	if _, err := uh.UserService.UpdateUser(*userEntity); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

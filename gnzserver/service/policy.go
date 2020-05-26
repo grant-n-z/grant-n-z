@@ -101,12 +101,12 @@ func (ps PolicyServiceImpl) GetPoliciesByUser(userUuid string) ([]model.PolicyRe
 	userGroupPolicies, err := ps.GroupRepository.FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil,nil
+			return []model.PolicyResponse{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	var policyResponses []model.PolicyResponse
+	policyResponses := []model.PolicyResponse{}
 	for _, ugp := range userGroupPolicies {
 		role, err := ps.RoleRepository.FindByUuid(ugp.Policy.RoleUuid.String())
 		if err != nil {

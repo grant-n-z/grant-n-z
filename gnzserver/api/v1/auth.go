@@ -52,10 +52,11 @@ func (ah AuthImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (ah AuthImpl) get(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get(middleware.Authorization)
-	roleName := r.URL.Query().Get("role")
-	permissionName := r.URL.Query().Get("permission")
+	groupUuids := r.URL.Query().Get("group_uuid")
+	roleNames := r.URL.Query().Get("role")
+	permissionNames := r.URL.Query().Get("permission")
 
-	_, err := ah.tokenProcessor.VerifyUserToken(token, []string{roleName}, []string{permissionName}, "")
+	_, err := ah.tokenProcessor.VerifyUserToken(token, roleNames, permissionNames, groupUuids)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

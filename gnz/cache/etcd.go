@@ -183,16 +183,22 @@ func (e EtcdClientImpl) DeleteUserPolicy(userUuid string) {
 // Get cache shared method
 func (e EtcdClientImpl) get(key string, structData interface{}) error {
 	if e.Connection == nil {
-		return errors.New("Not connected etcd")
+		detail := "Not connected etcd"
+		log.Logger.Info(detail)
+		return errors.New(detail)
 	}
 	response, err := e.Connection.Get(e.Ctx, key)
 	if err != nil || len(response.Kvs) == 0 {
-		return errors.New(fmt.Sprintf("Cache is null. key = %v", key))
+		detail := fmt.Sprintf("Cache data is not existence. key = %v" + key)
+		log.Logger.Info(detail)
+		return errors.New(detail)
 	}
 	kvs := response.Kvs[0]
 	err = json.Unmarshal(kvs.Value, &structData)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to convert json to struct for cache. %v", err.Error()))
+		detail := fmt.Sprintf("Failed to convert json to struct for cache. %v", err.Error())
+		log.Logger.Info(detail)
+		return errors.New(detail)
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"encoding/json"
@@ -70,9 +71,9 @@ func NewInterceptor() Interceptor {
 func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if err := recover(); err != nil {
-				log.Logger.Error(err)
-				err := model.InternalServerError("Failed to request body bind")
+			if rec := recover(); rec != nil {
+				log.Logger.Trace(rec)
+				err := model.InternalServerError("Unexpected occurred")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
 		}()
@@ -81,11 +82,14 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		secret, err := interceptClientSecret(w, r)
-		if err != nil {
-			return
+		userType := r.URL.Query().Get("type")
+		if userType != common.AuthOperator {
+			secret, err := interceptClientSecret(w, r)
+			if err != nil {
+				return
+			}
+			r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
 		}
-		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -93,9 +97,9 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if err := recover(); err != nil {
-				log.Logger.Error(err)
-				err := model.InternalServerError("Failed to request body bind")
+			if rec := recover(); rec != nil {
+				log.Logger.Trace(rec)
+				err := model.InternalServerError("Unexpected occurred")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
 		}()
@@ -111,9 +115,9 @@ func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc
 func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if err := recover(); err != nil {
-				log.Logger.Error(err)
-				err := model.InternalServerError("Failed to request body bind")
+			if rec := recover(); rec != nil {
+				log.Logger.Trace(rec)
+				err := model.InternalServerError("Unexpected occurred")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
 		}()
@@ -128,14 +132,14 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 		}
 
 		token := r.Header.Get(Authorization)
-		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{}, []string{}, "")
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, "", "", "")
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
-		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, *jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -143,9 +147,9 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if err := recover(); err != nil {
-				log.Logger.Error(err)
-				err := model.InternalServerError("Failed to request body bind")
+			if rec := recover(); rec != nil {
+				log.Logger.Trace(rec)
+				err := model.InternalServerError("Unexpected occurred")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
 		}()
@@ -161,14 +165,14 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 
 		token := r.Header.Get(Authorization)
 		groupId := ParamGroupUuid(r)
-		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole}, []string{}, groupId)
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, common.AdminRole, "", groupId)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
-		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, *jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -176,9 +180,9 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if err := recover(); err != nil {
-				log.Logger.Error(err)
-				err := model.InternalServerError("Failed to request body bind")
+			if rec := recover(); rec != nil {
+				log.Logger.Trace(rec)
+				err := model.InternalServerError("Unexpected occurred")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
 		}()
@@ -194,14 +198,14 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 
 		token := r.Header.Get(Authorization)
 		groupId := ParamGroupUuid(r)
-		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, []string{common.AdminRole, common.UserRole}, []string{}, groupId)
+		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, fmt.Sprintf("%s,%s", common.AdminRole, common.UserRole), "", groupId)
 		if err != nil {
 			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, secret))
-		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, *jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -209,9 +213,9 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if err := recover(); err != nil {
-				log.Logger.Error(err)
-				err := model.InternalServerError("Failed to request body bind")
+			if rec := recover(); rec != nil {
+				log.Logger.Trace(rec)
+				err := model.InternalServerError("Unexpected occurred")
 				model.WriteError(w, err.ToJson(), err.Code)
 			}
 		}()
@@ -227,7 +231,7 @@ func (i InterceptorImpl) InterceptAuthenticateOperator(next http.HandlerFunc) ht
 			return
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, jwtPayload))
+		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, *jwtPayload))
 		next.ServeHTTP(w, r)
 	}
 }

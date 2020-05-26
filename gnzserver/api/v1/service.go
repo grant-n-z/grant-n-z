@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/common"
 	"net/http"
 
@@ -89,8 +90,9 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert user_services
+	userUuid, _ := uuid.FromBytes([]byte(jwt.UserUuid))
 	userServiceEntity := &entity.UserService{
-		UserUuid:    jwt.UserUuid,
+		UserUuid:    userUuid,
 		ServiceUuid: serviceEntity.Uuid,
 	}
 	userService, err := s.UserService.InsertUserService(*userServiceEntity)

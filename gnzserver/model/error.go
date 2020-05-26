@@ -9,9 +9,10 @@ import (
 
 // GrantNZ error data
 type ErrorResBody struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Detail  string `json:"detail"`
+	Code      int    `json:"code"`
+	Title     string `json:"title"`
+	Message   string `json:"message"`
+	ErrorCode string `json:"error_code"`
 }
 
 // To json
@@ -22,7 +23,7 @@ func (er ErrorResBody) ToJson() string {
 
 // WriteError response
 func WriteError(w http.ResponseWriter, error string, code int) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(code)
 	w.Write([]byte(error))
 }
@@ -42,8 +43,8 @@ func BadRequest(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusBadRequest,
-		Message: "Bad request.",
-		Detail:  detail,
+		Title:   "Bad request.",
+		Message: detail,
 	}
 }
 
@@ -55,8 +56,8 @@ func Unauthorized(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusUnauthorized,
-		Message: "Unauthorized.",
-		Detail:  detail,
+		Title:   "Unauthorized.",
+		Message: detail,
 	}
 }
 
@@ -68,8 +69,8 @@ func Forbidden(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusForbidden,
-		Message: "Forbidden.",
-		Detail:  detail,
+		Title:   "Forbidden.",
+		Message: detail,
 	}
 }
 
@@ -81,8 +82,8 @@ func NotFound(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusNotFound,
-		Message: "Not found.",
-		Detail:  detail,
+		Title:   "Not found.",
+		Message: detail,
 	}
 }
 
@@ -94,8 +95,8 @@ func Conflict(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusConflict,
-		Message: "Conflict.",
-		Detail:  detail,
+		Title:   "Conflict.",
+		Message: detail,
 	}
 }
 
@@ -107,8 +108,8 @@ func MethodNotAllowed(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusMethodNotAllowed,
-		Message: "Method Not Allowed.",
-		Detail:  detail,
+		Title:   "Method Not Allowed.",
+		Message: detail,
 	}
 }
 
@@ -120,8 +121,8 @@ func UnProcessableEntity(err ...string) *ErrorResBody {
 	}
 	return &ErrorResBody{
 		Code:    http.StatusUnprocessableEntity,
-		Message: "UnProcessable Entity.",
-		Detail:  detail,
+		Title:   "UnProcessable Entity.",
+		Message: detail,
 	}
 }
 
@@ -134,8 +135,8 @@ func InternalServerError(err ...string) *ErrorResBody {
 
 	body := ErrorResBody{
 		Code:    http.StatusInternalServerError,
-		Message: "Internal server error.",
-		Detail:  detail,
+		Title:   "Internal server error.",
+		Message: detail,
 	}
 	log.Logger.Error(body.ToJson())
 	return &body

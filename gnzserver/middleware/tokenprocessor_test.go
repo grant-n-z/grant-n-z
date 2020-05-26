@@ -236,9 +236,9 @@ func TestVerifyOperatorToken_Success(t *testing.T) {
 
 // Test verify user token
 func TestVerifyUserToken_Error(t *testing.T) {
-	_, err := tokenProcessor.VerifyUserToken("test_token", []string{"test_role"}, []string{"test_permission"}, "")
+	_, err := tokenProcessor.VerifyUserToken("test_token", "test_role", "test_permission", "")
 	if err == nil {
-		t.Errorf("Incorrect TestVerifyUserToken_Error test." + err.ToJson())
+		t.Errorf("Incorrect TestVerifyUserToken_Error test.")
 		t.FailNow()
 	}
 }
@@ -253,7 +253,7 @@ func TestVerifyUserToken_Success(t *testing.T) {
 			Password:  "test",
 		},
 	)
-	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, []string{"test_role"}, []string{"test_permission"}, "")
+	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, "test_role", "test_permission", "")
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Success test." + err.ToJson())
 		t.FailNow()

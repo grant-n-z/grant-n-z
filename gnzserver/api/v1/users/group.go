@@ -62,7 +62,7 @@ func (gh GroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	groups, err := gh.groupService.GetGroupByUser(jwt.UserUuid.String())
+	groups, err := gh.groupService.GetGroupByUser(jwt.UserUuid)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
@@ -84,7 +84,7 @@ func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity, jwt.UserUuid.String(), r.Context().Value(middleware.ScopeSecret).(string))
+	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity, jwt.UserUuid, r.Context().Value(middleware.ScopeSecret).(string))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

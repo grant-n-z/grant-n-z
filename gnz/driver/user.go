@@ -139,11 +139,11 @@ func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*mode
 			entity.UserTable.String(),
 			entity.UserUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
-			entity.OperatorPolicyTable.String(),
-			entity.OperatorPolicyTable.String(),
-			entity.OperatorPolicyRoleUuid.String(),
 			entity.RoleTable.String(),
-			entity.RoleUuid.String())).
+			entity.RoleTable.String(),
+			entity.RoleUuid.String(),
+			entity.OperatorPolicyTable.String(),
+			entity.OperatorPolicyRoleUuid.String())).
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserTable.String(),
 			entity.UserEmail.String()), email).

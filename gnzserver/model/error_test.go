@@ -16,11 +16,12 @@ func init() {
 func TestToJson(t *testing.T) {
 	err := ErrorResBody{
 		Code:    http.StatusOK,
+		Title:   "test",
 		Message: "test",
-		Detail:  "test",
+		ErrorCode: "11111",
 	}
 	jsonStr := err.ToJson()
-	if !strings.EqualFold(jsonStr, "{\"code\":200,\"message\":\"test\",\"detail\":\"test\"}") {
+	if !strings.EqualFold(jsonStr, "{\"code\":200,\"title\":\"test\",\"message\":\"test\",\"error_code\":\"11111\"}") {
 		t.Errorf("Incorrect TestToJson test")
 		t.FailNow()
 	}

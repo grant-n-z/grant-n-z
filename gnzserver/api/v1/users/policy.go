@@ -54,7 +54,7 @@ func (ph PolicyImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (ph PolicyImpl) get(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	policyResponses, err := ph.PolicyService.GetPoliciesByUser(jwt.UserUuid.String())
+	policyResponses, err := ph.PolicyService.GetPoliciesByUser(jwt.UserUuid)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

@@ -73,3 +73,14 @@ func (l Log) Error(log ...interface{}) {
 	data := fmt.Sprintf("%s/%s:%v", execFile[len(execFile)-2], execFile[len(execFile)-1], line)
 	l.e.Println(data, fmt.Sprint(log...))
 }
+
+func (l Log) Trace(log interface{}) {
+	l.e.Println(log)
+	for depth := 0; ; depth++ {
+		_, file, line, ok := runtime.Caller(depth)
+		if !ok {
+			break
+		}
+		fmt.Printf("%d: %v:%d\n", depth, file, line)
+	}
+}

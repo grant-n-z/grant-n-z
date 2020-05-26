@@ -51,7 +51,7 @@ func TestGroup_Get(t *testing.T) {
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
 
 	jwt := model.JwtPayload{
-		UserUuid: uuid.New(),
+		UserUuid: uuid.New().String(),
 		Username: "user",
 	}
 	group.Api(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt)))
@@ -82,7 +82,7 @@ func TestGroup_Post(t *testing.T) {
 	request := http.Request{Header: http.Header{}, Method: http.MethodPost, Body: invalid}
 
 	jwt := model.JwtPayload{
-		UserUuid: uuid.New(),
+		UserUuid: uuid.New().String(),
 		Username: "user",
 	}
 	request = *request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt))

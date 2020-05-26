@@ -19,6 +19,7 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible
+	github.com/pkg/errors v0.8.1
 	go.etcd.io/etcd v3.3.20+incompatible
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd

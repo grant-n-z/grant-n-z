@@ -47,7 +47,7 @@ func TestPolicy_Get(t *testing.T) {
 	request := http.Request{Header: http.Header{}, Method: http.MethodGet}
 
 	jwt := model.JwtPayload{
-		UserUuid: uuid.New(),
+		UserUuid: uuid.New().String(),
 		Username: "user",
 	}
 	policy.Api(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt)))

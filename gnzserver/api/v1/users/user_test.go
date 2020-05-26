@@ -82,7 +82,7 @@ func TestUser_Put(t *testing.T) {
 	request := http.Request{Header: http.Header{}, Method: http.MethodPut, Body: body}
 
 	jwt := model.JwtPayload{
-		UserUuid: uuid.New(),
+		UserUuid: uuid.New().String(),
 		Username: "user",
 	}
 	user.Put(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt)))

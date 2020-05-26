@@ -53,7 +53,7 @@ func (sh ServiceImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (sh ServiceImpl) get(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	result, err := sh.Service.GetServiceByUser(jwt.UserUuid.String())
+	result, err := sh.Service.GetServiceByUser(jwt.UserUuid)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

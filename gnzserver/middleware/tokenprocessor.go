@@ -28,7 +28,7 @@ type TokenProcessor interface {
 	VerifyOperatorToken(token string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Verify user token
-	VerifyUserToken(token string, roleNames []string, permissionNames []string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody)
+	VerifyUserToken(token string, roleNames string, permissionNames string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody)
 
 	// Get auth user data in token
 	// If invalid token, return 401
@@ -93,32 +93,28 @@ func (tp TokenProcessorImpl) VerifyOperatorToken(token string) (*model.JwtPayloa
 		return nil, err
 	}
 
-	operatorRoles, err := tp.OperatorPolicyService.GetByUserUuid(jwtPayload.UserUuid.String())
-	if err != nil {
-		return nil, model.Forbidden("Forbidden this token")
+	isOperator := false
+	for _, policy := range jwtPayload.UserPolicies {
+		if policy.RoleName == common.OperatorRole {
+			isOperator = true
+		}
 	}
-
-	if len(operatorRoles) == 0 {
+	if !isOperator {
 		return nil, model.Forbidden("Forbidden this token")
 	}
 
 	return jwtPayload, nil
 }
 
-func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, permissionNames []string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody) {
+func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames string, permissionNames string, groupUuid string) (*model.JwtPayload, *model.ErrorResBody) {
 	jwtPayload, err := tp.GetJwtPayload(token, false)
 	if err != nil || jwtPayload.IsRefresh {
 		return nil, err
 	}
 
-	policies := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid.String())
-	if policies == nil {
-		return nil, model.InternalServerError("Resource data is null")
-	}
-
 	if groupUuid != "" {
 		hasGroup := false
-		userGroups := tp.UserService.GetUserGroupsByUserUuid(jwtPayload.UserUuid.String())
+		userGroups := tp.UserService.GetUserGroupsByUserUuid(jwtPayload.UserUuid)
 		for _, group := range userGroups {
 			if groupUuid == group.GroupUuid {
 				hasGroup = true
@@ -129,22 +125,28 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames []string, p
 		}
 	}
 
-	if len(roleNames) != 0 || len(permissionNames) != 0 {
-		hasRole := false
-		hasPermission := false
-		roleNameJoin := strings.Join(roleNames, ",")
-		permissionNameJoin := strings.Join(permissionNames, ",")
+	hasRole := false
+	hasPermission := false
+	if roleNames != "" || permissionNames != "" {
+		userPolicies := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid)
+		if userPolicies == nil {
+			return nil, model.Forbidden("Forbidden the user has not policy")
+		}
 		for _, policy := range jwtPayload.UserPolicies {
-			if strings.Contains(roleNameJoin, policy.RoleName) {
+			if strings.Contains(roleNames, policy.RoleName) {
 				hasRole = true
 			}
-			if strings.Contains(permissionNameJoin, policy.PermissionName) {
+			if strings.Contains(permissionNames, policy.PermissionName) {
 				hasPermission = true
 			}
 		}
-		if !hasRole || !hasPermission {
-			return nil, model.Forbidden("Forbidden the user has role or permission")
-		}
+	}
+
+	if roleNames != "" && !hasRole {
+		return nil, model.Forbidden("Forbidden the user has not role")
+	}
+	if permissionNames != "" && !hasPermission {
+		return nil, model.Forbidden("Forbidden the user has not permission")
 	}
 
 	return jwtPayload, nil
@@ -234,12 +236,12 @@ func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string) (*
 	exp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
 	rExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 200)
 
-	policy := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid.String())
+	policy := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid)
 	if policy == nil {
 		return nil, model.InternalServerError("Resource data is null")
 	}
 
-	return tp.generateTokenResponse(exp, rExp, policy, jwtPayload.UserUuid.String(), jwtPayload.Username), nil
+	return tp.generateTokenResponse(exp, rExp, policy, jwtPayload.UserUuid, jwtPayload.Username), nil
 }
 
 func (tp TokenProcessorImpl) generateTokenResponse(exp time.Time, rExp time.Time, userPolicy []structure.UserPolicy, userUuid string, username string) *model.TokenResponse {
@@ -312,10 +314,9 @@ func (tp TokenProcessorImpl) parseToken(token string) (model.JwtPayload, bool) {
 		return model.JwtPayload{}, false
 	}
 
-	iss, _ := uuid.FromBytes([]byte(claims["iss"].(string)))
 	jwtPayload := model.JwtPayload{
 		ServerId:     claims["sub"].(string),
-		UserUuid:     iss,
+		UserUuid:     claims["iss"].(string),
 		Username:     claims["username"].(string),
 		UserPolicies: userPolicies,
 		Expires:      claims["exp"].(string),

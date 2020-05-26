@@ -260,6 +260,7 @@ CREATE TABLE operator_policies (
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   INDEX (user_uuid),
+  INDEX (role_uuid),
   CONSTRAINT fk_operator_policies_role_uuid
   FOREIGN KEY (role_uuid)
   REFERENCES roles (uuid)

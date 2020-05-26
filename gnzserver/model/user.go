@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -9,7 +8,7 @@ import (
 
 // Payload in jwt
 type JwtPayload struct {
-	UserUuid     uuid.UUID              `json:"user_uuid"`
+	UserUuid     string                 `json:"user_uuid"`
 	Username     string                 `json:"user_name"`
 	ServerId     string                 `json:"server_id"`
 	Expires      string                 `json:"expires"`
