@@ -123,7 +123,7 @@ func (r Router) v1() {
 
 	// Required Client-Secret and group admin permission
 	group := func() {
-		r.mux.HandleFunc("/api/v1/groups/{group_id}", r.interceptor.InterceptAuthenticateUser(r.GroupsRouter.Group.Get)).Methods(http.MethodGet, http.MethodOptions)
+		r.mux.HandleFunc("/api/v1/groups/{group_id}", r.interceptor.InterceptAuthenticateGroupUser(r.GroupsRouter.Group.Get)).Methods(http.MethodGet, http.MethodOptions)
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/user", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.User.Api))
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/policy", r.interceptor.InterceptAuthenticateGroupAdmin(r.GroupsRouter.Policy.Api))
 		r.mux.HandleFunc("/api/v1/groups/{group_id}/role", r.interceptor.InterceptAuthenticateGroupUser(r.GroupsRouter.Role.Get)).Methods(http.MethodGet, http.MethodOptions)

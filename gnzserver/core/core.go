@@ -32,17 +32,15 @@ var (
 
 type GrantNZServer struct {
 	router Router
-}
-
-func init() {
-	common.InitGrantNZServerConfig(ConfigFilePath)
-	log.InitLogger(common.App.LogLevel)
-	driver.InitRdbms()
-	cache.InitEtcd()
+	database driver.Database
 }
 
 func NewGrantNZServer() GrantNZServer {
+	common.InitGrantNZServerConfig(ConfigFilePath)
+	log.InitLogger(common.App.LogLevel)
+	cache.InitEtcd()
 	log.Logger.Info("New GrantNZServer")
+
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,
@@ -52,7 +50,10 @@ func NewGrantNZServer() GrantNZServer {
 		syscall.SIGKILL,
 	)
 
-	return GrantNZServer{router: NewRouter()}
+	return GrantNZServer{
+		router: NewRouter(),
+		database: driver.NewDatabase(),
+	}
 }
 
 // Start GrantNZ server
@@ -65,7 +66,7 @@ func (g GrantNZServer) Run() {
 
 	go g.subscribeSignal(signalCode, exitCode)
 	go g.gracefulShutdown(shutdownCtx, exitCode, server)
-	go driver.PingRdbms()
+	go g.database.PingRdbms()
 
 	g.runServer(g.runRouter())
 }
@@ -131,7 +132,7 @@ func (g GrantNZServer) gracefulShutdown(ctx context.Context, exitCode chan int, 
 	code := <-exitCode
 	server.Shutdown(ctx)
 
-	driver.Close()
+	g.database.Close()
 	cache.Close()
 
 	log.Logger.Info("Shutdown gracefully GrantNZ Server")
