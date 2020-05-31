@@ -9,6 +9,7 @@ import (
 const (
 	UserTable UserTableConfig = iota
 	UserId
+	UserInternalId
 	UserUuid
 	UserUsername
 	UserEmail
@@ -19,13 +20,14 @@ const (
 
 // The table `users` struct
 type User struct {
-	Id        int       `json:"id"`
-	Uuid      uuid.UUID `json:"uuid"`
-	Username  string    `validate:"required"json:"username"`
-	Email     string    `validate:"required,email"json:"email"`
-	Password  string    `validate:"min=8,required"json:"password"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	Uuid       uuid.UUID `json:"uuid"`
+	Username   string    `validate:"required"json:"username"`
+	Email      string    `validate:"required,email"json:"email"`
+	Password   string    `validate:"min=8,required"json:"password"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // User table config struct
@@ -37,6 +39,8 @@ func (uc UserTableConfig) String() string {
 		return "users"
 	case UserId:
 		return "id"
+	case UserInternalId:
+		return "internal_id"
 	case UserUuid:
 		return "uuid"
 	case UserUsername:

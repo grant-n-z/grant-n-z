@@ -15,9 +15,9 @@ func init() {
 // Test to json
 func TestToJson(t *testing.T) {
 	err := ErrorResBody{
-		Code:    http.StatusOK,
-		Title:   "test",
-		Message: "test",
+		Code:      http.StatusOK,
+		Title:     "test",
+		Message:   "test",
 		ErrorCode: "11111",
 	}
 	jsonStr := err.ToJson()

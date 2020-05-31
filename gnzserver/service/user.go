@@ -1,13 +1,16 @@
 package service
 
 import (
-	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"strings"
+
+	"crypto/md5"
+	"encoding/hex"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/cache"
+	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -119,7 +122,7 @@ func (us UserServiceImpl) GetUserByUuid(uuid string) (*entity.User, *model.Error
 	user, err := us.UserRepository.FindByUuid(uuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found user")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -131,7 +134,7 @@ func (us UserServiceImpl) GetUserByEmail(email string) (*entity.User, *model.Err
 	user, err := us.UserRepository.FindByEmail(email)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found user")
 		}
 		return nil, model.InternalServerError()
 	}
@@ -152,7 +155,7 @@ func (us UserServiceImpl) GetUserWithUserServiceWithServiceByEmail(email string)
 	userWithService, err := us.UserRepository.FindWithUserServiceWithServiceByEmail(email)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found service of user")
 		}
 		return nil, model.InternalServerError()
 	}
@@ -164,7 +167,7 @@ func (us UserServiceImpl) GetUserGroupByUserUuidAndGroupUuid(userUuid string, gr
 	userGroup, err := us.UserRepository.FindUserGroupByUserUuidAndGroupUuid(userUuid, groupUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found group of user")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -176,7 +179,7 @@ func (us UserServiceImpl) GetUserServices() ([]*entity.UserService, *model.Error
 	userServices, err := us.UserRepository.FindUserServices()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found services of user")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -188,9 +191,8 @@ func (us UserServiceImpl) GetUserServiceByUserUuidAndServiceUuid(userUuid string
 	userServices, err := us.UserRepository.FindUserServiceByUserUuidAndServiceUuid(userUuid, serviceUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found service of user")
 		}
-
 		return nil, model.InternalServerError(err.Error())
 	}
 
@@ -215,11 +217,14 @@ func (us UserServiceImpl) GetUserPoliciesByUserUuid(userUuid string) []structure
 	return us.EtcdClient.GetUserPolicy(userUuid)
 }
 
-func (us UserServiceImpl) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+func (us UserServiceImpl) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup {
 	return us.EtcdClient.GetUserGroup(userUuid)
 }
 
 func (us UserServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*entity.UserGroup, *model.ErrorResBody) {
+	userGroupMd5 := md5.Sum(uuid.New().NodeID())
+	userGroupEntity.InternalId = hex.EncodeToString(userGroupMd5[:])
+
 	_, err := us.UserRepository.FindUserGroupByUserUuidAndGroupUuid(userGroupEntity.UserUuid.String(), userGroupEntity.GroupUuid.String())
 	if err != nil {
 		conflictErr := model.Conflict("This user already joins group")
@@ -238,7 +243,10 @@ func (us UserServiceImpl) InsertUserGroup(userGroupEntity entity.UserGroup) (*en
 }
 
 func (us UserServiceImpl) InsertUser(user entity.User) (*entity.User, *model.ErrorResBody) {
-	user.Uuid = uuid.New()
+	uid := uuid.New()
+	uidMd5 := md5.Sum(uid.NodeID())
+	user.InternalId = hex.EncodeToString(uidMd5[:])
+	user.Uuid = uid
 	user.Password = us.EncryptPw(user.Password)
 
 	savedUser, err := us.UserRepository.SaveUser(user)
@@ -253,9 +261,14 @@ func (us UserServiceImpl) InsertUser(user entity.User) (*entity.User, *model.Err
 }
 
 func (us UserServiceImpl) InsertUserWithUserService(user entity.User, userService entity.UserService) (*entity.User, *model.ErrorResBody) {
-	user.Uuid = uuid.New()
+	uid := uuid.New()
+	uidMd5 := md5.Sum(uid.NodeID())
+	user.InternalId = hex.EncodeToString(uidMd5[:])
+	user.Uuid = uid
 	user.Password = us.EncryptPw(user.Password)
 
+	userServiceIdMd5 := md5.Sum(uuid.New().NodeID())
+	userService.InternalId = hex.EncodeToString(userServiceIdMd5[:])
 	savedUser, err := us.UserRepository.SaveWithUserService(user, userService)
 	if err != nil {
 		if strings.Contains(err.Error(), "1062") {
@@ -268,6 +281,9 @@ func (us UserServiceImpl) InsertUserWithUserService(user entity.User, userServic
 }
 
 func (us UserServiceImpl) InsertUserService(userServiceEntity entity.UserService) (*entity.UserService, *model.ErrorResBody) {
+	userServiceMd5 := md5.Sum(uuid.New().NodeID())
+	userServiceEntity.InternalId = hex.EncodeToString(userServiceMd5[:])
+
 	_, err := us.UserRepository.FindUserServiceByUserUuidAndServiceUuid(userServiceEntity.UserUuid.String(), userServiceEntity.ServiceUuid.String())
 	if err != nil {
 		return nil, model.Conflict("Already the user has this service account")
@@ -288,6 +304,8 @@ func (us UserServiceImpl) InsertUserService(userServiceEntity entity.UserService
 }
 
 func (us UserServiceImpl) UpdateUser(user entity.User) (*entity.User, *model.ErrorResBody) {
+	uidMd5 := md5.Sum(user.Uuid.NodeID())
+	user.InternalId = hex.EncodeToString(uidMd5[:])
 	user.Password = us.EncryptPw(user.Password)
 
 	updatedUser, err := us.UserRepository.UpdateUser(user)

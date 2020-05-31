@@ -9,6 +9,7 @@ import (
 const (
 	PolicyTable PolicyTableConfig = iota
 	PolicyId
+	PolicyInternalId
 	PolicyName
 	PolicyRoleUuid
 	PolicyPermissionUuid
@@ -21,6 +22,7 @@ const (
 // The table `policy` struct
 type Policy struct {
 	Id             int       `json:"id"`
+	InternalId     string    `json:"internal_id"`
 	Name           string    `validate:"required"json:"name"`
 	RoleUuid       uuid.UUID `validate:"required"json:"role_uuid"`
 	PermissionUuid uuid.UUID `validate:"required"json:"permission_uuid"`
@@ -39,6 +41,8 @@ func (pc PolicyTableConfig) String() string {
 		return "policies"
 	case PolicyId:
 		return "id"
+	case PolicyInternalId:
+		return "internal_id"
 	case PolicyName:
 		return "name"
 	case PolicyRoleUuid:

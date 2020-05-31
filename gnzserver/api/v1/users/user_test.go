@@ -27,7 +27,7 @@ func init() {
 
 	user = UserImpl{
 		UserService: StubUserService{},
-		Service: StubService{},
+		Service:     StubService{},
 	}
 }
 
@@ -152,7 +152,7 @@ func (us StubUserService) GetUserPoliciesByUserUuid(userUuid string) []structure
 	return []structure.UserPolicy{}
 }
 
-func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup {
 	return []structure.UserGroup{}
 }
 

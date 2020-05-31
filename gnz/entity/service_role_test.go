@@ -18,6 +18,12 @@ func TestServiceRoleString(t *testing.T) {
 		t.FailNow()
 	}
 
+	internalId := ServiceRoleInternalId.String()
+	if !strings.EqualFold(internalId, "internal_id") {
+		t.Errorf("Incorrect TestString test")
+		t.FailNow()
+	}
+
 	roleId := ServiceRoleRoleUuid.String()
 	if !strings.EqualFold(roleId, "role_uuid") {
 		t.Errorf("Incorrect TestString test")

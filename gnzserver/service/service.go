@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"strings"
 
 	"github.com/google/uuid"
@@ -72,7 +74,7 @@ func (ss ServiceImpl) GetServices() ([]*entity.Service, *model.ErrorResBody) {
 	services, err := ss.ServiceRepository.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.Service{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -84,7 +86,7 @@ func (ss ServiceImpl) GetServiceByUuid(uuid string) (*entity.Service, *model.Err
 	service, err := ss.ServiceRepository.FindByUuid(uuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found service")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -96,7 +98,7 @@ func (ss ServiceImpl) GetServiceByName(name string) (*entity.Service, *model.Err
 	service, err := ss.ServiceRepository.FindByName(name)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found service")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -108,7 +110,7 @@ func (ss ServiceImpl) GetServiceBySecret(secret string) (*entity.Service, *model
 	service, err := ss.ServiceRepository.FindBySecret(secret)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.BadRequest("Invalid secret")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -121,7 +123,7 @@ func (ss ServiceImpl) GetServiceByUser(userUuid string) ([]*entity.Service, *mod
 	if err != nil {
 		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found services")
 		}
 		return nil, model.InternalServerError()
 	}
@@ -130,8 +132,12 @@ func (ss ServiceImpl) GetServiceByUser(userUuid string) ([]*entity.Service, *mod
 }
 
 func (ss ServiceImpl) InsertService(service entity.Service) (*entity.Service, *model.ErrorResBody) {
-	service.Uuid = uuid.New()
+	serviceId := uuid.New()
+	serviceIdMd5 := md5.Sum(serviceId.NodeID())
+	service.Uuid = serviceId
+	service.InternalId = hex.EncodeToString(serviceIdMd5[:])
 	service.Secret = ss.GenerateSecret()
+
 	savedService, err := ss.ServiceRepository.Save(service)
 	if err != nil {
 		log.Logger.Warn(err.Error())
@@ -145,7 +151,10 @@ func (ss ServiceImpl) InsertService(service entity.Service) (*entity.Service, *m
 }
 
 func (ss ServiceImpl) InsertServiceWithRelationalData(service *entity.Service) (*entity.Service, *model.ErrorResBody) {
-	service.Uuid = uuid.New()
+	serviceId := uuid.New()
+	serviceIdMd5 := md5.Sum(serviceId.NodeID())
+	service.Uuid = serviceId
+	service.InternalId = hex.EncodeToString(serviceIdMd5[:])
 	service.Secret = ss.GenerateSecret()
 
 	roles, err := ss.RoleRepository.FindByNames([]string{common.AdminRole, common.UserRole})
@@ -159,7 +168,7 @@ func (ss ServiceImpl) InsertServiceWithRelationalData(service *entity.Service) (
 	permissions, err := ss.PermissionRepository.FindByNames([]string{common.AdminPermission, common.ReadPermission, common.WritePermission})
 	if err != nil {
 		if !strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found permission")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}

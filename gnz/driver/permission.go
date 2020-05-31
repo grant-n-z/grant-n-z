@@ -118,7 +118,7 @@ func (pri PermissionRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity
 			entity.GroupPermissionGroupUuid.String()), groupUuid).
 		Scan(&permissions).Error; err != nil {
 
-			return nil, err
+		return nil, err
 	}
 
 	return permissions, nil

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	stubConnection *gorm.DB
+	stubConnection   *gorm.DB
 	extractorService ExtractorService
 )
 
@@ -31,7 +31,7 @@ func TestGetPolicies(t *testing.T) {
 	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		PolicyRepository: stubPolicyRepository,
-		UserRepository: stubUserRepository,
+		UserRepository:   stubUserRepository,
 	}
 
 	policies := extractorService.GetPolicies(1, 1)
@@ -102,7 +102,7 @@ func TestGetUserGroups(t *testing.T) {
 	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
 	stubUGroupRepository := driver.GroupRepositoryImpl{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
-		UserRepository: stubUserRepository,
+		UserRepository:  stubUserRepository,
 		GroupRepository: stubUGroupRepository,
 	}
 

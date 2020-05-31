@@ -186,7 +186,7 @@ func TestInsertUserGroup_Success(t *testing.T) {
 
 // Test insert user
 func TestInsertUser_Success(t *testing.T) {
-	_, err := userService.InsertUser(entity.User{Id: 1})
+	_, err := userService.InsertUser(entity.User{InternalId: ""})
 	if err != nil {
 		t.Errorf("Incorrect TestInsertUser_Success test")
 		t.FailNow()

@@ -9,6 +9,7 @@ import (
 const (
 	ServiceTable ServiceTableConfig = iota
 	ServiceId
+	ServiceInternalId
 	ServiceUuid
 	ServiceName
 	ServiceSecret
@@ -18,12 +19,13 @@ const (
 
 // The table `services` struct
 type Service struct {
-	Id        int       `gorm:"primary_key"json:"id"`
-	Uuid      uuid.UUID `gorm:"type:varchar(128)"json:"uuid"`
-	Name      string    `gorm:"unique;type:varchar(128)"validate:"required"json:"name"`
-	Secret    string    `gorm:"type:varchar(128)"json:"secret"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	Uuid       uuid.UUID `json:"uuid"`
+	Name       string    `validate:"required"json:"name"`
+	Secret     string    `json:"secret"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // Service table config struct
@@ -35,6 +37,8 @@ func (sc ServiceTableConfig) String() string {
 		return "services"
 	case ServiceId:
 		return "id"
+	case ServiceInternalId:
+		return "internal_id"
 	case ServiceUuid:
 		return "uuid"
 	case ServiceName:

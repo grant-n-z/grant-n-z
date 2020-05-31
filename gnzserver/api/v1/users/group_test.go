@@ -86,7 +86,7 @@ func TestGroup_Post(t *testing.T) {
 		Username: "user",
 	}
 	request = *request.WithContext(context.WithValue(request.Context(), middleware.ScopeJwt, jwt))
-	request  = *request .WithContext(context.WithValue(request.Context(), middleware.ScopeSecret, "secret"))
+	request = *request.WithContext(context.WithValue(request.Context(), middleware.ScopeSecret, "secret"))
 	group.Api(response, &request)
 
 	if statusCode != http.StatusCreated {

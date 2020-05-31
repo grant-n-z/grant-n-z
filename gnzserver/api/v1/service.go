@@ -76,7 +76,7 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwt, err := s.TokenProcessor.GetJwtPayload("Bearer " + token.Token, false)
+	jwt, err := s.TokenProcessor.GetJwtPayload("Bearer "+token.Token, false)
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

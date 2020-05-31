@@ -9,6 +9,7 @@ import (
 const (
 	GroupTable GroupTableConfig = iota
 	GroupId
+	GroupInternalId
 	GroupUuid
 	GroupName
 	GroupCreatedAt
@@ -17,11 +18,12 @@ const (
 
 // The table `groups` struct
 type Group struct {
-	Id        int       `gorm:"primary_key"json:"id"`
-	Uuid      uuid.UUID `json:"uuid"`
-	Name      string    `gorm:"type:varchar(128)"validate:"required"json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	Uuid       uuid.UUID `json:"uuid"`
+	Name       string    `validate:"required"json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // Group table config struct
@@ -33,6 +35,8 @@ func (gc GroupTableConfig) String() string {
 		return "groups"
 	case GroupId:
 		return "id"
+	case GroupInternalId:
+		return "internal_id"
 	case GroupUuid:
 		return "uuid"
 	case GroupName:

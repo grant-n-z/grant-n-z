@@ -1,6 +1,9 @@
 package service
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"github.com/google/uuid"
 	"strings"
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
@@ -71,7 +74,7 @@ func (ops OperatorPolicyServiceImpl) GetAll() ([]*entity.OperatorPolicy, *model.
 	operatorPolicies, err := ops.OperatorPolicyRepository.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.OperatorPolicy{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -83,7 +86,7 @@ func (ops OperatorPolicyServiceImpl) GetByUserUuid(userUuid string) ([]*entity.O
 	operatorPolicies, err := ops.OperatorPolicyRepository.FindByUserUuid(userUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.OperatorPolicy{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -95,7 +98,7 @@ func (ops OperatorPolicyServiceImpl) GetByUserUuidAndRoleUuid(userUuid string, r
 	operatorPolicy, err := ops.OperatorPolicyRepository.FindByUserUuidAndRoleUuid(userUuid, roleUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return &entity.OperatorPolicy{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -104,6 +107,8 @@ func (ops OperatorPolicyServiceImpl) GetByUserUuidAndRoleUuid(userUuid string, r
 }
 
 func (ops OperatorPolicyServiceImpl) Insert(entity *entity.OperatorPolicy) (*entity.OperatorPolicy, *model.ErrorResBody) {
+	operatorIdMd5 := md5.Sum(uuid.New().NodeID())
+	entity.InternalId = hex.EncodeToString(operatorIdMd5[:])
 	if _, err := ops.UserRepository.FindByUuid(entity.UserUuid.String()); err != nil {
 		if !strings.Contains(err.Error(), "record not found") {
 			return nil, model.InternalServerError(err.Error())

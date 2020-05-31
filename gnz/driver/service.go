@@ -1,7 +1,10 @@
 package driver
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 
 	"github.com/tomoyane/grant-n-z/gnz/entity"
@@ -128,12 +131,12 @@ func (sri ServiceRepositoryImpl) FindServicesByUserUuid(userUuid string) ([]*ent
 			entity.ServiceUuid.String(),
 			entity.UserServiceTable.String(),
 			entity.UserServiceServiceUuid.String())).
-		Where(fmt.Sprintf(	"%s.%s = ?",
+		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserServiceTable.String(),
 			entity.UserServiceUserUuid.String()), userUuid).
 		Scan(&services).Error; err != nil {
 
-			return nil, err
+		return nil, err
 	}
 
 	return services, nil
@@ -158,7 +161,9 @@ func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, 
 
 	// Save service_roles
 	for _, role := range roles {
+		serviceRoleMd5 := md5.Sum(uuid.New().NodeID())
 		serviceRole := entity.ServiceRole{
+			InternalId:  hex.EncodeToString(serviceRoleMd5[:]),
 			RoleUuid:    role.Uuid,
 			ServiceUuid: service.Uuid,
 		}
@@ -170,7 +175,9 @@ func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, 
 
 	// Save service_permissions
 	for _, permission := range permissions {
+		servicePermissionMd5 := md5.Sum(uuid.New().NodeID())
 		servicePermission := entity.ServicePermission{
+			InternalId:     hex.EncodeToString(servicePermissionMd5[:]),
 			PermissionUuid: permission.Uuid,
 			ServiceUuid:    service.Uuid,
 		}

@@ -29,7 +29,7 @@ func init() {
 	})
 
 	roleService = RoleServiceImpl{
-		EtcdClient: cache.EtcdClientImpl{Connection: stubEtcdConnection},
+		EtcdClient:     cache.EtcdClientImpl{Connection: stubEtcdConnection},
 		RoleRepository: StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 }

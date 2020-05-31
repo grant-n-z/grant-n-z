@@ -118,7 +118,7 @@ func (rri RoleRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Role,
 			entity.GroupRoleGroupUuid.String()), groupUuid).
 		Scan(&roles).Error; err != nil {
 
-			return nil, err
+		return nil, err
 	}
 
 	return roles, nil

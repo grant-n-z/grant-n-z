@@ -48,7 +48,7 @@ type ServerConfig struct {
 // About db data in grant_n_z_{component}.yaml
 type DbConfig struct {
 	Engine   string `yaml:"engine"`
-	Host     string `yaml:"host"`
+	Hosts    string `yaml:"hosts"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Port     string `yaml:"port"`
@@ -189,7 +189,7 @@ func (yml YmlConfig) GetDbConfig() DbConfig {
 	engine := yml.Db.Engine
 	user := yml.Db.User
 	password := yml.Db.Password
-	host := yml.Db.Host
+	hosts := yml.Db.Hosts
 	port := yml.Db.Port
 	name := yml.Db.Name
 
@@ -205,8 +205,8 @@ func (yml YmlConfig) GetDbConfig() DbConfig {
 		password = os.Getenv(yml.Db.Password[1:])
 	}
 
-	if strings.Contains(host, "$") {
-		host = os.Getenv(yml.Db.Host[1:])
+	if strings.Contains(hosts, "$") {
+		hosts = os.Getenv(yml.Db.Hosts[1:])
 	}
 
 	if strings.Contains(port, "$") {
@@ -220,7 +220,7 @@ func (yml YmlConfig) GetDbConfig() DbConfig {
 	yml.Db.Engine = engine
 	yml.Db.User = user
 	yml.Db.Password = password
-	yml.Db.Host = host
+	yml.Db.Hosts = hosts
 	yml.Db.Port = port
 	yml.Db.Name = name
 	return yml.Db

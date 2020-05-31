@@ -9,6 +9,7 @@ import (
 const (
 	PermissionTable PermissionTableConfig = iota
 	PermissionId
+	PermissionInternalId
 	PermissionUuid
 	PermissionName
 	PermissionCreatedAt
@@ -17,11 +18,12 @@ const (
 
 // The table `permissions` struct
 type Permission struct {
-	Id        int       `json:"id"`
-	Uuid      uuid.UUID `json:"uuid"`
-	Name      string    `validate:"required"json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	Uuid       uuid.UUID `json:"uuid"`
+	Name       string    `validate:"required"json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // Permission table config struct
@@ -33,6 +35,8 @@ func (pc PermissionTableConfig) String() string {
 		return "permissions"
 	case PermissionId:
 		return "id"
+	case PermissionInternalId:
+		return "internal_id"
 	case PermissionName:
 		return "name"
 	case PermissionUuid:

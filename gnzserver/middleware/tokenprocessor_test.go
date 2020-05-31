@@ -287,10 +287,10 @@ func (uri StubUserRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.U
 
 func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, error) {
 	user := entity.User{
-		Id:       1,
-		Username: "test",
-		Email:    email,
-		Password: "$2a$10$oqIkJ.fryDacNpVwOkONYe4spwRj9ynuh/YoYOifAlzNa5uWVX/aa",
+		InternalId: "",
+		Username:   "test",
+		Email:      email,
+		Password:   "$2a$10$oqIkJ.fryDacNpVwOkONYe4spwRj9ynuh/YoYOifAlzNa5uWVX/aa",
 	}
 	operatorPolicy := entity.OperatorPolicy{
 		RoleUuid: uuid.New(),
@@ -299,7 +299,7 @@ func (uri StubUserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*
 	uwo := model.UserWithOperatorPolicy{
 		User:           user,
 		OperatorPolicy: operatorPolicy,
-		Role: entity.Role{Name: common.OperatorRole},
+		Role:           entity.Role{Name: common.OperatorRole},
 	}
 	return &uwo, nil
 }
@@ -413,8 +413,8 @@ func (rri StubRoleRepositoryImpl) FindByName(name string) (*entity.Role, error) 
 
 func (rri StubRoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, error) {
 	var roles []entity.Role
-	roles = append(roles, entity.Role{Id: 1, Name: "test_role"})
-	roles = append(roles, entity.Role{Id: 2, Name: "test_role"})
+	roles = append(roles, entity.Role{InternalId: "", Name: "test_role"})
+	roles = append(roles, entity.Role{InternalId: "", Name: "test_role"})
 	return roles, nil
 }
 
@@ -502,7 +502,7 @@ type StubPermissionRepositoryImpl struct {
 }
 
 func (pri StubPermissionRepositoryImpl) FindAll() ([]*entity.Permission, error) {
-	permissions := []*entity.Permission{{Id: 1, Name: "test_permission"}}
+	permissions := []*entity.Permission{{InternalId: "", Name: "test_permission"}}
 	return permissions, nil
 }
 
@@ -517,13 +517,13 @@ func (pri StubPermissionRepositoryImpl) FindByUuid(uuid string) (*entity.Permiss
 }
 
 func (pri StubPermissionRepositoryImpl) FindByName(name string) (*entity.Permission, error) {
-	permission := entity.Permission{Id: 1, Name: "test_permission"}
+	permission := entity.Permission{InternalId: "", Name: "test_permission"}
 	return &permission, nil
 }
 
 func (pri StubPermissionRepositoryImpl) FindByNames(names []string) ([]entity.Permission, error) {
 	var permissions []entity.Permission
-	permissions = append(permissions, entity.Permission{Id: 1, Name: "test_permission"})
+	permissions = append(permissions, entity.Permission{InternalId: "", Name: "test_permission"})
 	return permissions, nil
 }
 

@@ -18,6 +18,12 @@ func TestPolicyString(t *testing.T) {
 		t.FailNow()
 	}
 
+	internalId := PolicyInternalId.String()
+	if !strings.EqualFold(internalId, "internal_id") {
+		t.Errorf("Incorrect TestString test")
+		t.FailNow()
+	}
+
 	name := PolicyName.String()
 	if !strings.EqualFold(name, "name") {
 		t.Errorf("Incorrect TestString test")

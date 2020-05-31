@@ -31,13 +31,15 @@ var (
 )
 
 type GrantNZServer struct {
-	router Router
+	router   Router
 	database driver.Database
 }
 
 func NewGrantNZServer() GrantNZServer {
 	common.InitGrantNZServerConfig(ConfigFilePath)
 	log.InitLogger(common.App.LogLevel)
+	database := driver.NewDatabase()
+	database.Connect()
 	cache.InitEtcd()
 	log.Logger.Info("New GrantNZServer")
 
@@ -51,8 +53,8 @@ func NewGrantNZServer() GrantNZServer {
 	)
 
 	return GrantNZServer{
-		router: NewRouter(),
-		database: driver.NewDatabase(),
+		router:   NewRouter(),
+		database: database,
 	}
 }
 

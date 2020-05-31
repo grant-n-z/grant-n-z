@@ -177,7 +177,6 @@ func (es ExtractorServiceImpl) GetUserGroups(offset int, limit int) map[string][
 			return map[string][]structure.UserGroup{}
 		}
 
-
 		if checkedUserUuid != userGroup.UserUuid.String() {
 			stUserGroups = stUserGroups[:0]
 		}

@@ -8,6 +8,7 @@ import (
 const (
 	ServiceRoleTable ServiceRoleTableConfig = iota
 	ServiceRoleId
+	ServiceRoleInternalId
 	ServiceRoleRoleUuid
 	ServiceRoleServiceUuid
 	ServiceRoleCreatedAt
@@ -17,6 +18,7 @@ const (
 // The table `service_roles` struct
 type ServiceRole struct {
 	Id          int       `json:"id"`
+	InternalId  string    `json:"internal_id"`
 	RoleUuid    uuid.UUID `validate:"required"json:"role_uuid"`
 	ServiceUuid uuid.UUID `validate:"required"json:"service_uuid"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -32,6 +34,8 @@ func (ur ServiceRoleTableConfig) String() string {
 		return "service_roles"
 	case ServiceRoleId:
 		return "id"
+	case ServiceRoleInternalId:
+		return "internal_id"
 	case ServiceRoleRoleUuid:
 		return "role_uuid"
 	case ServiceRoleServiceUuid:

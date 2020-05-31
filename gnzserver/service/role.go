@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"strings"
 
 	"github.com/google/uuid"
@@ -61,7 +63,7 @@ func (rs RoleServiceImpl) GetRoles() ([]*entity.Role, *model.ErrorResBody) {
 	roles, err := rs.RoleRepository.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.Role{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -73,7 +75,7 @@ func (rs RoleServiceImpl) GetRoleByUuid(uuid string) (*entity.Role, *model.Error
 	role, err := rs.RoleRepository.FindByUuid(uuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found role")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -85,7 +87,7 @@ func (rs RoleServiceImpl) GetRoleByName(name string) (*entity.Role, *model.Error
 	role, err := rs.RoleRepository.FindByName(name)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found role")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -98,7 +100,7 @@ func (rs RoleServiceImpl) GetRoleByNames(names []string) ([]entity.Role, *model.
 	roles, err := rs.RoleRepository.FindByNames(names)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found roles")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -110,7 +112,7 @@ func (rs RoleServiceImpl) GetRolesByGroupUuid(groupUuid string) ([]*entity.Role,
 	roles, err := rs.RoleRepository.FindByGroupUuid(groupUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found roles")
 		}
 		return nil, model.InternalServerError()
 	}
@@ -119,7 +121,11 @@ func (rs RoleServiceImpl) GetRolesByGroupUuid(groupUuid string) ([]*entity.Role,
 }
 
 func (rs RoleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.ErrorResBody) {
-	role.Uuid = uuid.New()
+	roleId := uuid.New()
+	roleIdMd5 := md5.Sum(roleId.NodeID())
+	role.Uuid = roleId
+	role.InternalId = hex.EncodeToString(roleIdMd5[:])
+
 	savedRole, err := rs.RoleRepository.Save(*role)
 	if err != nil {
 		log.Logger.Warn(err.Error())
@@ -133,7 +139,11 @@ func (rs RoleServiceImpl) InsertRole(role *entity.Role) (*entity.Role, *model.Er
 }
 
 func (rs RoleServiceImpl) InsertWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, *model.ErrorResBody) {
-	role.Uuid = uuid.New()
+	roleId := uuid.New()
+	roleIdMd5 := md5.Sum(roleId.NodeID())
+	role.Uuid = roleId
+	role.InternalId = hex.EncodeToString(roleIdMd5[:])
+
 	savedRole, err := rs.RoleRepository.SaveWithRelationalData(groupUuid, role)
 	if err != nil {
 		if strings.Contains(err.Error(), "1062") {

@@ -23,7 +23,7 @@ func init() {
 	log.InitLogger("info")
 
 	user = UserImpl{
-		UserService: StubUserService{},
+		UserService:  StubUserService{},
 		GroupService: StubGroupService{},
 	}
 }
@@ -142,7 +142,7 @@ func (us StubUserService) GetUserPoliciesByUserUuid(userUuid string) []structure
 	return []structure.UserPolicy{}
 }
 
-func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup {
 	return []structure.UserGroup{}
 }
 

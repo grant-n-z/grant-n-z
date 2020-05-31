@@ -102,7 +102,7 @@ func TestGetEtcdConfig(t *testing.T) {
 func TestGetDbConfig(t *testing.T) {
 	dbConfig := DbConfig{
 		Engine:   "$DB_ENGINE",
-		Host:     "$DB_HOST",
+		Hosts:    "$DB_HOSTS",
 		User:     "$DB_USER",
 		Password: "$DB_PASSWORD",
 		Port:     "$DB_PORT",
@@ -112,7 +112,7 @@ func TestGetDbConfig(t *testing.T) {
 
 	// Test data
 	os.Setenv("DB_ENGINE", "mysql")
-	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_HOSTS", "localhost")
 	os.Setenv("DB_USER", "root")
 	os.Setenv("DB_PASSWORD", "root")
 	os.Setenv("DB_PORT", "3306")
@@ -123,8 +123,8 @@ func TestGetDbConfig(t *testing.T) {
 		t.FailNow()
 	}
 
-	if !strings.EqualFold(ymlConfig.GetDbConfig().Host, "localhost") {
-		t.Errorf("Incorrect GetEtcdConfig test. host = %s", ymlConfig.GetDbConfig().Host)
+	if !strings.EqualFold(ymlConfig.GetDbConfig().Hosts, "localhost") {
+		t.Errorf("Incorrect GetEtcdConfig test. host = %s", ymlConfig.GetDbConfig().Hosts)
 		t.FailNow()
 	}
 

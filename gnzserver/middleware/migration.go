@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"github.com/google/uuid"
 	"net/http"
 
@@ -37,11 +39,14 @@ func (m Migration) V1() {
 
 	// Generate operator user
 	// Create only first time
+	userUid := uuid.New()
+	userUidMd5 := md5.Sum(userUid.NodeID())
 	operatorUser := entity.User{
-		Uuid:     uuid.New(),
-		Username: common.OperatorRole,
-		Email:    "operator@gmail.com",
-		Password: "grant_n_z_operator",
+		InternalId: hex.EncodeToString(userUidMd5[:]),
+		Uuid:       userUid,
+		Username:   common.OperatorRole,
+		Email:      "operator@gmail.com",
+		Password:   "grant_n_z_operator",
 	}
 	savedOperatorUser, userErr := m.userService.InsertUser(operatorUser)
 	if userErr != nil {
@@ -52,9 +57,12 @@ func (m Migration) V1() {
 	log.Logger.Info("Generate to user for migration")
 
 	// Generate operator role
+	roleUid := uuid.New()
+	roleUidMd5 := md5.Sum(roleUid.NodeID())
 	operatorRole := entity.Role{
-		Uuid: uuid.New(),
-		Name: common.OperatorRole,
+		InternalId: hex.EncodeToString(roleUidMd5[:]),
+		Uuid:       roleUidMd5,
+		Name:       common.OperatorRole,
 	}
 	_, roleErr1 := m.roleService.InsertRole(&operatorRole)
 	if roleErr1 != nil {
@@ -64,9 +72,12 @@ func (m Migration) V1() {
 	}
 
 	// Generate admin role
+	roleUid = uuid.New()
+	roleUidMd5 = md5.Sum(roleUid.NodeID())
 	adminRole := entity.Role{
-		Uuid: uuid.New(),
-		Name: common.AdminRole,
+		InternalId: hex.EncodeToString(roleUidMd5[:]),
+		Uuid:       roleUidMd5,
+		Name:       common.AdminRole,
 	}
 	_, roleErr2 := m.roleService.InsertRole(&adminRole)
 	if roleErr2 != nil {
@@ -76,9 +87,12 @@ func (m Migration) V1() {
 	}
 
 	// Generate user role
+	roleUid = uuid.New()
+	roleUidMd5 = md5.Sum(roleUid.NodeID())
 	userRole := entity.Role{
-		Uuid: uuid.New(),
-		Name: common.UserRole,
+		InternalId: hex.EncodeToString(roleUidMd5[:]),
+		Uuid:       roleUidMd5,
+		Name:       common.UserRole,
 	}
 	_, roleErr3 := m.roleService.InsertRole(&userRole)
 	if roleErr3 != nil {
@@ -89,9 +103,12 @@ func (m Migration) V1() {
 	log.Logger.Info("Generate to role for migration")
 
 	// Generate admin permission
+	permissionUid := uuid.New()
+	permissionUidMd5 := md5.Sum(permissionUid.NodeID())
 	adminPermission := entity.Permission{
-		Uuid: uuid.New(),
-		Name: common.AdminPermission,
+		InternalId: hex.EncodeToString(permissionUidMd5[:]),
+		Uuid:       permissionUid,
+		Name:       common.AdminPermission,
 	}
 	_, permissionErr01 := m.permissionService.InsertPermission(&adminPermission)
 	if permissionErr01 != nil {
@@ -101,9 +118,12 @@ func (m Migration) V1() {
 	}
 
 	// Generate read permission
+	permissionUid = uuid.New()
+	permissionUidMd5 = md5.Sum(permissionUid.NodeID())
 	readPermission := entity.Permission{
-		Uuid: uuid.New(),
-		Name: common.ReadPermission,
+		InternalId: hex.EncodeToString(permissionUidMd5[:]),
+		Uuid:       permissionUid,
+		Name:       common.ReadPermission,
 	}
 	_, permissionErr02 := m.permissionService.InsertPermission(&readPermission)
 	if permissionErr02 != nil {
@@ -113,9 +133,12 @@ func (m Migration) V1() {
 	}
 
 	// Generate write permission
+	permissionUid = uuid.New()
+	permissionUidMd5 = md5.Sum(permissionUid.NodeID())
 	writePermission := entity.Permission{
-		Uuid: uuid.New(),
-		Name: common.WritePermission,
+		InternalId: hex.EncodeToString(permissionUidMd5[:]),
+		Uuid:       permissionUid,
+		Name:       common.WritePermission,
 	}
 	_, permissionErr03 := m.permissionService.InsertPermission(&writePermission)
 	if permissionErr03 != nil {
@@ -126,9 +149,11 @@ func (m Migration) V1() {
 	log.Logger.Info("Generate to role for migration")
 
 	// Generate operator operator_member_role
+	operatorIdMd5 := md5.Sum(uuid.New().NodeID())
 	operatorMemberRole := entity.OperatorPolicy{
-		UserUuid: savedOperatorUser.Uuid,
-		RoleUuid: operatorRole.Uuid,
+		InternalId: hex.EncodeToString(operatorIdMd5[:]),
+		UserUuid:   savedOperatorUser.Uuid,
+		RoleUuid:   operatorRole.Uuid,
 	}
 	_, operatorRoleMemberErr := m.operatorPolicyService.Insert(&operatorMemberRole)
 	if operatorRoleMemberErr != nil {
@@ -157,11 +182,11 @@ func (m Migration) checkV1Migration() bool {
 		log.Logger.Info("Not found admin permission")
 		panic(failedMigrationMsg)
 	}
-		var operatorPolicy []*entity.OperatorPolicy
-		operatorPolicy, err = m.operatorPolicyService.GetAll()
-		if err != nil && err.Code != http.StatusNotFound {
-			panic(failedMigrationMsg)
-		}
+	var operatorPolicy []*entity.OperatorPolicy
+	operatorPolicy, err = m.operatorPolicyService.GetAll()
+	if err != nil && err.Code != http.StatusNotFound {
+		panic(failedMigrationMsg)
+	}
 
 	if operatorAdminRole != nil && adminRole != nil && adminPermission != nil && len(operatorPolicy) != 0 {
 		log.Logger.Info("Skip to database migration")

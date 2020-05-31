@@ -1,6 +1,9 @@
 package service
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"github.com/google/uuid"
 	"strings"
 
 	"github.com/tomoyane/grant-n-z/gnz/cache"
@@ -77,7 +80,7 @@ func (ps PolicyServiceImpl) GetPolicies() ([]*entity.Policy, *model.ErrorResBody
 	policies, err := ps.PolicyRepository.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.Policy{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -89,7 +92,7 @@ func (ps PolicyServiceImpl) GetPoliciesByRoleUuid(roleUuid string) ([]*entity.Po
 	policies, err := ps.PolicyRepository.FindByRoleUuid(roleUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found policies")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -150,7 +153,7 @@ func (ps PolicyServiceImpl) GetPolicyByUserGroup(userUuid string, groupUuid stri
 	groupWithPolicy, err := ps.GroupRepository.FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid, groupUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return nil, model.NotFound("Not found policy")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -180,7 +183,7 @@ func (ps PolicyServiceImpl) GetPolicyByUuid(uuid string) (entity.Policy, *model.
 	policy, err := ps.PolicyRepository.FindByUuid(uuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return policy, nil
+			return entity.Policy{}, nil
 		}
 
 		return policy, model.InternalServerError(err.Error())
@@ -230,7 +233,9 @@ func (ps PolicyServiceImpl) UpdatePolicy(policyRequest model.PolicyRequest, secr
 		return nil, model.InternalServerError(errSer.Error())
 	}
 
+	policyMd5 := md5.Sum(uuid.New().NodeID())
 	policy := entity.Policy{
+		InternalId:     hex.EncodeToString(policyMd5[:]),
 		Name:           policyRequest.Name,
 		RoleUuid:       role.Uuid,
 		PermissionUuid: permission.Uuid,
@@ -256,9 +261,9 @@ func (ps PolicyServiceImpl) UpdatePolicy(policyRequest model.PolicyRequest, secr
 	for _, userPolicy := range userPolicies {
 		if updatedPolicy.ServiceUuid.String() == userPolicy.ServiceUuid {
 			policy := structure.UserPolicy{
-				ServiceUuid: updatedPolicy.ServiceUuid.String(),
-				GroupUuid: groupUuid,
-				RoleName: role.Name,
+				ServiceUuid:    updatedPolicy.ServiceUuid.String(),
+				GroupUuid:      groupUuid,
+				RoleName:       role.Name,
 				PermissionName: permission.Name,
 			}
 			updatePolicies = append(updatePolicies, policy)

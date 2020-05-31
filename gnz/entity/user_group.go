@@ -8,6 +8,7 @@ import (
 const (
 	UserGroupTable UserGroupTableConfig = iota
 	UserGroupId
+	UserGroupInternalId
 	UserGroupUuid
 	UserGroupUserUuid
 	UserGroupGroupUuid
@@ -17,12 +18,13 @@ const (
 
 // The table `user_groups` struct
 type UserGroup struct {
-	Id        int       `gorm:"primary_key"json:"id"`
-	Uuid      uuid.UUID `validate:"required"json:"uuid"`
-	UserUuid  uuid.UUID `validate:"required"json:"user_uuid"`
-	GroupUuid uuid.UUID `validate:"required"json:"group_uuid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	Uuid       uuid.UUID `validate:"required"json:"uuid"`
+	UserUuid   uuid.UUID `validate:"required"json:"user_uuid"`
+	GroupUuid  uuid.UUID `validate:"required"json:"group_uuid"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // UserGroup table config struct
@@ -34,6 +36,8 @@ func (ugc UserGroupTableConfig) String() string {
 		return "user_groups"
 	case UserGroupId:
 		return "id"
+	case UserGroupInternalId:
+		return "internal_id"
 	case UserGroupUuid:
 		return "uuid"
 	case UserGroupUserUuid:

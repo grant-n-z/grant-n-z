@@ -50,6 +50,7 @@ DROP TABLE IF EXISTS policies;
 -- `services`
 CREATE TABLE services (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
   secret varchar(128) NOT NULL,
@@ -63,6 +64,7 @@ CREATE TABLE services (
 -- `users`
 CREATE TABLE users (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
   username varchar(128) NOT NULL,
   email varchar(128) NOT NULL,
@@ -77,6 +79,7 @@ CREATE TABLE users (
 -- `permissions`
 CREATE TABLE permissions (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -89,6 +92,7 @@ CREATE TABLE permissions (
 -- `groups`
 CREATE TABLE groups (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -100,6 +104,7 @@ CREATE TABLE groups (
 -- `roles`
 CREATE TABLE roles (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
   name varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -112,6 +117,7 @@ CREATE TABLE roles (
 -- `user_services`
 CREATE TABLE user_services (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   user_uuid varchar(128) NOT NULL,
   service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -132,6 +138,7 @@ CREATE TABLE user_services (
 -- `user_groups`
 CREATE TABLE user_groups (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
   user_uuid varchar(128) NOT NULL,
   group_uuid varchar(128) NOT NULL,
@@ -154,6 +161,7 @@ CREATE TABLE user_groups (
 -- `service_groups`
 CREATE TABLE service_groups (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   group_uuid varchar(128) NOT NULL,
   service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -174,6 +182,7 @@ CREATE TABLE service_groups (
 -- `service_roles`
 CREATE TABLE service_roles (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   role_uuid varchar(128) NOT NULL,
   service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -194,6 +203,7 @@ CREATE TABLE service_roles (
 -- `service_permissions`
 CREATE TABLE service_permissions (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   permission_uuid varchar(128) NOT NULL,
   service_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -214,6 +224,7 @@ CREATE TABLE service_permissions (
 -- `group_roles`
 CREATE TABLE group_roles (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   role_uuid varchar(128) NOT NULL,
   group_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -234,6 +245,7 @@ CREATE TABLE group_roles (
 -- `group_permissions`
 CREATE TABLE group_permissions (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   permission_uuid varchar(128) NOT NULL,
   group_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -254,6 +266,7 @@ CREATE TABLE group_permissions (
 -- `operator_policies`
 CREATE TABLE operator_policies (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   role_uuid varchar(128) NOT NULL,
   user_uuid varchar(128) NOT NULL,
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -274,6 +287,7 @@ CREATE TABLE operator_policies (
 -- `policies`
 CREATE TABLE policies (
   id int(11) NOT NULL AUTO_INCREMENT,
+  internal_id varchar(32) NOT NULL,
   name varchar(128) NOT NULL,
   role_uuid varchar(128) NOT NULL,
   permission_uuid varchar(128) NOT NULL,

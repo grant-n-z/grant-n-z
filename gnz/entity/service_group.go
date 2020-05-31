@@ -8,6 +8,7 @@ import (
 const (
 	ServiceGroupTable ServiceGroupTableConfig = iota
 	ServiceGroupId
+	ServiceGroupInternalId
 	ServiceGroupGroupUuid
 	ServiceGroupServiceUuid
 	ServiceGroupCreatedAt
@@ -17,6 +18,7 @@ const (
 // The table `service_groups` struct
 type ServiceGroup struct {
 	Id          int       `json:"id"`
+	InternalId  string    `json:"internal_id"`
 	GroupUuid   uuid.UUID `validate:"required"json:"group_uuid"`
 	ServiceUuid uuid.UUID `validate:"required"json:"service_uuid"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -32,6 +34,8 @@ func (uc ServiceGroupTableConfig) String() string {
 		return "service_groups"
 	case ServiceGroupId:
 		return "id"
+	case ServiceGroupInternalId:
+		return "internal_id"
 	case ServiceGroupGroupUuid:
 		return "group_uuid"
 	case ServiceGroupServiceUuid:

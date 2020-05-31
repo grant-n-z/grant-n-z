@@ -9,6 +9,7 @@ import (
 const (
 	GroupRoleTable GroupRoleTableConfig = iota
 	GroupRoleId
+	GroupRoleInternalId
 	GroupRoleRoleUuid
 	GroupRoleGroupUuid
 	GroupRoleCreatedAt
@@ -17,11 +18,12 @@ const (
 
 // The table `group_roles` struct
 type GroupRole struct {
-	Id        int       `json:"id"`
-	RoleUuid  uuid.UUID `validate:"required"json:"role_uuid"`
-	GroupUuid uuid.UUID `validate:"required"json:"group_uuid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	RoleUuid   uuid.UUID `validate:"required"json:"role_uuid"`
+	GroupUuid  uuid.UUID `validate:"required"json:"group_uuid"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // GroupRole table config
@@ -33,6 +35,8 @@ func (gr GroupRoleTableConfig) String() string {
 		return "group_roles"
 	case GroupRoleId:
 		return "id"
+	case GroupRoleInternalId:
+		return "internal_id"
 	case GroupRoleRoleUuid:
 		return "role_uuid"
 	case GroupRoleGroupUuid:

@@ -79,7 +79,7 @@ func TestGetGroupOfUser_Success(t *testing.T) {
 // Test insert group with relational data
 func TestInsertGroupWithRelationalData_Success(t *testing.T) {
 	_, err := groupService.InsertGroupWithRelationalData(
-		entity.Group{Id: 1, Name: "test", Uuid: uuid.New()},
+		entity.Group{InternalId: "", Name: "test", Uuid: uuid.New()},
 		uuid.New().String(),
 		uuid.New().String(),
 	)

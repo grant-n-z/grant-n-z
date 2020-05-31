@@ -102,7 +102,7 @@ type StubPermissionRepositoryImpl struct {
 }
 
 func (pri StubPermissionRepositoryImpl) FindAll() ([]*entity.Permission, error) {
-	permissions := []*entity.Permission{{Id: 1, Name: "test"}}
+	permissions := []*entity.Permission{{InternalId: "", Name: "test"}}
 	return permissions, nil
 }
 

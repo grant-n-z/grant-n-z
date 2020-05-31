@@ -48,4 +48,3 @@ func TestClose_ConnectionIsNotNil(t *testing.T) {
 	InitEtcd()
 	Close()
 }
-

@@ -9,6 +9,7 @@ import (
 const (
 	RoleTable RoleTableConfig = iota
 	RoleId
+	RoleInternalId
 	RoleUuid
 	RoleName
 	RoleCreatedAt
@@ -17,11 +18,12 @@ const (
 
 // The table `roles` struct
 type Role struct {
-	Id        int       `json:"id"`
-	Uuid      uuid.UUID `json:"uuid"`
-	Name      string    `validate:"required"json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id         int       `json:"id"`
+	InternalId string    `json:"internal_id"`
+	Uuid       uuid.UUID `json:"uuid"`
+	Name       string    `validate:"required"json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // Role table config struct
@@ -33,6 +35,8 @@ func (rc RoleTableConfig) String() string {
 		return "roles"
 	case RoleId:
 		return "id"
+	case RoleInternalId:
+		return "internal_id"
 	case RoleUuid:
 		return "uuid"
 	case RoleName:

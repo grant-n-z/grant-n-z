@@ -31,18 +31,18 @@ func NewUpdateTimer() UpdateTimer {
 
 func (ut UpdateTimerImpl) Start(exitCode chan int) int {
 	code := 0
-	loop:
-		for {
-			select {
-			case <-ut.Ticker.C:
-				ut.Runner.Run()
-			case c := <-exitCode:
-				log.Logger.Info("Break update cache loop")
-				ut.Ticker.Stop()
-				code = c
-				break loop
-			}
+loop:
+	for {
+		select {
+		case <-ut.Ticker.C:
+			ut.Runner.Run()
+		case c := <-exitCode:
+			log.Logger.Info("Break update cache loop")
+			ut.Ticker.Stop()
+			code = c
+			break loop
 		}
+	}
 
 	log.Logger.Info("Stopped update cache process")
 	return code

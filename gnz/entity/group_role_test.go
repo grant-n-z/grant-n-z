@@ -18,6 +18,12 @@ func TestGroupRoleString(t *testing.T) {
 		t.FailNow()
 	}
 
+	internalId := GroupRoleInternalId.String()
+	if !strings.EqualFold(internalId, "internal_id") {
+		t.Errorf("Incorrect TestString test")
+		t.FailNow()
+	}
+
 	roleUuid := GroupRoleRoleUuid.String()
 	if !strings.EqualFold(roleUuid, "role_uuid") {
 		t.Errorf("Incorrect TestString test")

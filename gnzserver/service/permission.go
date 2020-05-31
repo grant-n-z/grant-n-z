@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"strings"
 
 	"github.com/google/uuid"
@@ -59,7 +61,7 @@ func (ps PermissionServiceImpl) GetPermissions() ([]*entity.Permission, *model.E
 	permissions, err := ps.PermissionRepository.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.Permission{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -71,7 +73,7 @@ func (ps PermissionServiceImpl) GetPermissionByUuid(uuid string) (*entity.Permis
 	permission, err := ps.PermissionRepository.FindByUuid(uuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return &entity.Permission{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -104,7 +106,11 @@ func (ps PermissionServiceImpl) GetPermissionsByGroupUuid(groupUuid string) ([]*
 }
 
 func (ps PermissionServiceImpl) InsertPermission(permission *entity.Permission) (*entity.Permission, *model.ErrorResBody) {
-	permission.Uuid = uuid.New()
+	permissionId := uuid.New()
+	permissionMd5 := md5.Sum(permissionId.NodeID())
+	permission.Uuid = permissionId
+	permission.InternalId = hex.EncodeToString(permissionMd5[:])
+
 	savedPermission, err := ps.PermissionRepository.Save(*permission)
 	if err != nil {
 		log.Logger.Warn(err.Error())
@@ -118,7 +124,11 @@ func (ps PermissionServiceImpl) InsertPermission(permission *entity.Permission) 
 }
 
 func (ps PermissionServiceImpl) InsertWithRelationalData(groupUuid string, permission entity.Permission) (*entity.Permission, *model.ErrorResBody) {
-	permission.Uuid = uuid.New()
+	permissionId := uuid.New()
+	permissionMd5 := md5.Sum(permissionId.NodeID())
+	permission.Uuid = permissionId
+	permission.InternalId = hex.EncodeToString(permissionMd5[:])
+
 	savedData, err := ps.PermissionRepository.SaveWithRelationalData(groupUuid, permission)
 	if err != nil {
 		if strings.Contains(err.Error(), "1062") {

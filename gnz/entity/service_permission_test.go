@@ -18,6 +18,12 @@ func TestServicePermissionString(t *testing.T) {
 		t.FailNow()
 	}
 
+	internalId := ServicePermissionInternalId.String()
+	if !strings.EqualFold(internalId, "internal_id") {
+		t.Errorf("Incorrect TestString test")
+		t.FailNow()
+	}
+
 	permissionId := ServicePermissionPermissionUuid.String()
 	if !strings.EqualFold(permissionId, "permission_uuid") {
 		t.Errorf("Incorrect TestString test")

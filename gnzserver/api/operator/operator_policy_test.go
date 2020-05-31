@@ -86,7 +86,7 @@ func TestOperatorPolicy_Put(t *testing.T) {
 	request := http.Request{Header: http.Header{}, Method: http.MethodPut, Body: invalid}
 	operatorPolicy.Api(response, &request)
 
-	if statusCode != http.StatusOK{
+	if statusCode != http.StatusOK {
 		t.Errorf("Incorrect TestOperatorPolicy_Put test.")
 		t.FailNow()
 	}

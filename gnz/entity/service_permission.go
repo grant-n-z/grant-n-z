@@ -8,6 +8,7 @@ import (
 const (
 	ServicePermissionTable ServicePermissionTableConfig = iota
 	ServicePermissionId
+	ServicePermissionInternalId
 	ServicePermissionPermissionUuid
 	ServicePermissionServiceUuid
 	ServicePermissionCreatedAt
@@ -17,6 +18,7 @@ const (
 // The table `service_permissions` struct
 type ServicePermission struct {
 	Id             int       `json:"id"`
+	InternalId     string    `json:"internal_id"`
 	PermissionUuid uuid.UUID `validate:"required"json:"permission_uuid"`
 	ServiceUuid    uuid.UUID `validate:"required"json:"service_uuid"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -32,6 +34,8 @@ func (ur ServicePermissionTableConfig) String() string {
 		return "service_permissions"
 	case ServicePermissionId:
 		return "id"
+	case ServicePermissionInternalId:
+		return "internal_id"
 	case ServicePermissionPermissionUuid:
 		return "permission_uuid"
 	case ServicePermissionServiceUuid:

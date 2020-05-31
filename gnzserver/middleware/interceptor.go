@@ -126,11 +126,6 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			return
 		}
 
-		secret, err := interceptClientSecret(w, r)
-		if err != nil {
-			return
-		}
-
 		token := r.Header.Get(Authorization)
 		jwtPayload, err := i.tokenProcessor.VerifyUserToken(token, "", "", "")
 		if err != nil {
@@ -138,7 +133,6 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 			return
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
 		r = r.WithContext(context.WithValue(r.Context(), ScopeJwt, *jwtPayload))
 		next.ServeHTTP(w, r)
 	}

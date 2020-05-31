@@ -13,16 +13,32 @@ import (
 // Global DataBase Client
 var connection *gorm.DB
 
+type Database struct {
+	DbConfig common.DbConfig
+}
+
+// Constructor
+func NewDatabase() Database {
+	return Database{
+		DbConfig: common.Db,
+	}
+}
+
 // Initialize database driver for GrantNZ server
-func InitRdbms() {
-	if !strings.EqualFold(common.Db.Engine, "mysql") {
+func (r Database) Connect() {
+	if !strings.EqualFold(r.DbConfig.Engine, "mysql") {
 		panic("Current status, only support mysql.")
 	}
 
+	//hosts := strings.Split(r.DbConfig.Hosts, ",")
+	//databaseCnt := len(hosts)
+	//for _, host := range hosts {
+	//
+	//}
 	dbSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
 		common.Db.User,
 		common.Db.Password,
-		common.Db.Host,
+		common.Db.Hosts,
 		common.Db.Port,
 		common.Db.Name,
 	)
@@ -30,7 +46,7 @@ func InitRdbms() {
 	db, err := gorm.Open("mysql", dbSource)
 	if err != nil {
 		log.Logger.Warn(err.Error())
-		Close()
+		r.Close()
 		panic("Cannot connect MySQL")
 	}
 
@@ -51,7 +67,7 @@ func InitRdbms() {
 }
 
 // Ping RDBMS
-func PingRdbms() {
+func (r Database) PingRdbms() {
 	for {
 		time.Sleep(1 * time.Minute)
 		err := connection.DB().Ping()
@@ -64,7 +80,7 @@ func PingRdbms() {
 }
 
 // Close RDBMS
-func Close() {
+func (r Database) Close() {
 	if connection != nil {
 		connection.Close()
 		log.Logger.Info("Closed MySQL connection")

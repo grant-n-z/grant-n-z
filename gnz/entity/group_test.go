@@ -18,6 +18,12 @@ func TestGroupString(t *testing.T) {
 		t.FailNow()
 	}
 
+	internalId := GroupInternalId.String()
+	if !strings.EqualFold(internalId, "internal_id") {
+		t.Errorf("Incorrect Group TestString test")
+		t.FailNow()
+	}
+
 	uuid := GroupUuid.String()
 	if !strings.EqualFold(uuid, "uuid") {
 		t.Errorf("Incorrect Group TestString test")

@@ -9,6 +9,7 @@ import (
 const (
 	GroupPermissionTable GroupPermissionTableConfig = iota
 	GroupPermissionId
+	GroupPermissionInternalId
 	GroupPermissionPermissionUuid
 	GroupPermissionGroupUuid
 	GroupPermissionCreatedAt
@@ -18,6 +19,7 @@ const (
 // The table `group_permissions` struct
 type GroupPermission struct {
 	Id             int       `json:"id"`
+	InternalId     string    `json:"internal_id"`
 	PermissionUuid uuid.UUID `validate:"required"json:"permission_uuid"`
 	GroupUuid      uuid.UUID `validate:"required"json:"group_uuid"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -33,6 +35,8 @@ func (gp GroupPermissionTableConfig) String() string {
 		return "group_permissions"
 	case GroupPermissionId:
 		return "id"
+	case GroupPermissionInternalId:
+		return "internal_id"
 	case GroupPermissionPermissionUuid:
 		return "permission_uuid"
 	case GroupPermissionGroupUuid:

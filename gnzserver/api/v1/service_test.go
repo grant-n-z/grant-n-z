@@ -171,7 +171,7 @@ func (us StubUserService) GetUserPoliciesByUserUuid(userUuid string) []structure
 	return []structure.UserPolicy{}
 }
 
-func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup{
+func (us StubUserService) GetUserGroupsByUserUuid(userUuid string) []structure.UserGroup {
 	return []structure.UserGroup{}
 }
 

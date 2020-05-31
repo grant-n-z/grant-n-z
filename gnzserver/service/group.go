@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"strings"
 
 	"github.com/google/uuid"
@@ -63,7 +65,7 @@ func (gs GroupServiceImpl) GetGroups() ([]*entity.Group, *model.ErrorResBody) {
 	groups, err := gs.GroupRepository.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.Group{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -87,7 +89,7 @@ func (gs GroupServiceImpl) GetGroupByUser(userUuid string) ([]*entity.Group, *mo
 	groups, err := gs.GroupRepository.FindByUserUuid(userUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, nil
+			return []*entity.Group{}, nil
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -96,7 +98,10 @@ func (gs GroupServiceImpl) GetGroupByUser(userUuid string) ([]*entity.Group, *mo
 }
 
 func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUuid string, secret string) (*entity.Group, *model.ErrorResBody) {
-	group.Uuid = uuid.New()
+	gid := uuid.New()
+	gidMd5 := md5.Sum(gid.NodeID())
+	group.Uuid = gid
+	group.InternalId = hex.EncodeToString(gidMd5[:])
 
 	role, err := gs.RoleRepository.FindByName(common.AdminRole)
 	if err != nil {
@@ -117,7 +122,7 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUu
 	ser, err := gs.ServiceRepository.FindBySecret(secret)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return nil, model.NotFound("Not found relation service")
+			return nil, model.BadRequest("Invalid secret")
 		}
 		return nil, model.InternalServerError(err.Error())
 	}
@@ -125,31 +130,41 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUu
 	userUuid, _ := uuid.FromBytes([]byte(uUuid))
 
 	// New ServiceGroup
+	serviceGroupIdMd5 := md5.Sum(uuid.New().NodeID())
 	serviceGroup := entity.ServiceGroup{
+		InternalId:  hex.EncodeToString(serviceGroupIdMd5[:]),
 		GroupUuid:   group.Uuid,
 		ServiceUuid: ser.Uuid,
 	}
 
 	// New UserGroup
+	userGroupIdMd5 := md5.Sum(uuid.New().NodeID())
 	userGroup := entity.UserGroup{
-		UserUuid:  userUuid,
-		GroupUuid: group.Uuid,
+		InternalId: hex.EncodeToString(userGroupIdMd5[:]),
+		UserUuid:   userUuid,
+		GroupUuid:  group.Uuid,
 	}
 
 	// New GroupPermission
+	groupIdMd5 := md5.Sum(uuid.New().NodeID())
 	groupPermission := entity.GroupPermission{
+		InternalId:     hex.EncodeToString(groupIdMd5[:]),
 		PermissionUuid: permission.Uuid,
 		GroupUuid:      group.Uuid,
 	}
 
 	// New GroupRole
+	groupRoleIdMd5 := md5.Sum(uuid.New().NodeID())
 	groupRole := entity.GroupRole{
-		RoleUuid:  role.Uuid,
-		GroupUuid: group.Uuid,
+		InternalId: hex.EncodeToString(groupRoleIdMd5[:]),
+		RoleUuid:   role.Uuid,
+		GroupUuid:  group.Uuid,
 	}
 
 	// New Policy
+	policyIdMd5 := md5.Sum(uuid.New().NodeID())
 	policy := entity.Policy{
+		InternalId:     hex.EncodeToString(policyIdMd5[:]),
 		Name:           common.AdminPolicy,
 		RoleUuid:       role.Uuid,
 		PermissionUuid: permission.Uuid,

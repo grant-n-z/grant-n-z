@@ -92,7 +92,7 @@ func TestOperatorPolicy_Insert_Success(t *testing.T) {
 		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 
-	_, err := operatorPolicyService.Insert(&entity.OperatorPolicy{Id: 1, UserUuid: uuid.New(), RoleUuid: uuid.New()})
+	_, err := operatorPolicyService.Insert(&entity.OperatorPolicy{InternalId: "", UserUuid: uuid.New(), RoleUuid: uuid.New()})
 	if err != nil {
 		t.Errorf("Incorrect TestOperatorPolicy_GetByUserIdAndRoleId test")
 		t.FailNow()

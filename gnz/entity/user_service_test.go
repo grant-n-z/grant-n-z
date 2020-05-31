@@ -18,6 +18,12 @@ func TestUserServiceString(t *testing.T) {
 		t.FailNow()
 	}
 
+	internalId := UserServiceInternalId.String()
+	if !strings.EqualFold(internalId, "internal_id") {
+		t.Errorf("Incorrect TestString test")
+		t.FailNow()
+	}
+
 	userId := UserServiceUserUuid.String()
 	if !strings.EqualFold(userId, "user_uuid") {
 		t.Errorf("Incorrect TestString test")

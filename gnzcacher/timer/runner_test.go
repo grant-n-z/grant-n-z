@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	extractorService     service.ExtractorService
-	updaterService     service.UpdaterService
+	extractorService service.ExtractorService
+	updaterService   service.UpdaterService
 )
 
 func init() {
