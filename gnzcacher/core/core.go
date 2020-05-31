@@ -25,17 +25,20 @@ var (
 
 type GrantNZCacher struct {
 	UpdateTimer timer.UpdateTimer
+	Database    driver.Database
 }
 
 func init() {
-	log.InitLogger(common.App.LogLevel)
-	common.InitGrantNZCacherConfig(ConfigFilePath)
-	driver.InitRdbms()
-	cache.InitEtcd()
 }
 
 func NewGrantNZCacher() GrantNZCacher {
+	log.InitLogger(common.App.LogLevel)
+	common.InitGrantNZCacherConfig(ConfigFilePath)
+	database := driver.NewDatabase()
+	database.Connect()
+	cache.InitEtcd()
 	log.Logger.Info("New GrantNZCacher")
+
 	signal.Notify(
 		signalCode,
 		syscall.SIGHUP,
@@ -58,7 +61,7 @@ func (g GrantNZCacher) Run() {
 	fmt.Printf(bannerText, common.App.Version)
 
 	go g.subscribeSignal(signalCode, exitCode)
-	go driver.PingRdbms()
+	go g.Database.PingRdbms()
 
 	exitCode := g.UpdateTimer.Start(exitCode)
 	g.gracefulShutdown(exitCode)
@@ -97,7 +100,7 @@ func (g GrantNZCacher) subscribeSignal(signalCode chan os.Signal, exitCode chan 
 
 // Graceful shutdown
 func (g GrantNZCacher) gracefulShutdown(code int) {
-	driver.Close()
+	g.Database.Close()
 	cache.Close()
 
 	log.Logger.Info("Shutdown gracefully GrantNZ Cacher")
