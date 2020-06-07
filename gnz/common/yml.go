@@ -47,12 +47,14 @@ type ServerConfig struct {
 
 // About db data in grant_n_z_{component}.yaml
 type DbConfig struct {
-	Engine   string `yaml:"engine"`
-	Hosts    string `yaml:"hosts"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Port     string `yaml:"port"`
-	Name     string `yaml:"name"`
+	Engine            string `yaml:"engine"`
+	Hosts             string `yaml:"hosts"`
+	User              string `yaml:"user"`
+	Password          string `yaml:"password"`
+	Port              string `yaml:"port"`
+	Name              string `yaml:"name"`
+	MaxOpenConnection string `yaml:"max-open-connection"`
+	MaxIdleConnection string `yaml:"max-idle-connection"`
 }
 
 // About etcd data in grant_n_z_{component}.yaml
@@ -192,6 +194,8 @@ func (yml YmlConfig) GetDbConfig() DbConfig {
 	hosts := yml.Db.Hosts
 	port := yml.Db.Port
 	name := yml.Db.Name
+	maxOpenConnection := yml.Db.MaxOpenConnection
+	maxIdleConnection := yml.Db.MaxIdleConnection
 
 	if strings.Contains(engine, "$") {
 		engine = os.Getenv(yml.Db.Engine[1:])
@@ -217,11 +221,27 @@ func (yml YmlConfig) GetDbConfig() DbConfig {
 		name = os.Getenv(yml.Db.Name[1:])
 	}
 
+	if strings.Contains(maxOpenConnection, "$") {
+		maxOpenConnection = os.Getenv(yml.Db.MaxOpenConnection[1:])
+		if maxOpenConnection == "" {
+			maxOpenConnection = "10"
+		}
+	}
+
+	if strings.Contains(maxIdleConnection, "$") {
+		maxIdleConnection = os.Getenv(yml.Db.MaxIdleConnection[1:])
+		if maxIdleConnection == "" {
+			maxIdleConnection = "10"
+		}
+	}
+
 	yml.Db.Engine = engine
 	yml.Db.User = user
 	yml.Db.Password = password
 	yml.Db.Hosts = hosts
 	yml.Db.Port = port
 	yml.Db.Name = name
+	yml.Db.MaxOpenConnection = maxOpenConnection
+	yml.Db.MaxIdleConnection = maxIdleConnection
 	return yml.Db
 }

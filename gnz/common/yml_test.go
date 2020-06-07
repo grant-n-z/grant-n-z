@@ -101,12 +101,14 @@ func TestGetEtcdConfig(t *testing.T) {
 // GetDbConfig test
 func TestGetDbConfig(t *testing.T) {
 	dbConfig := DbConfig{
-		Engine:   "$DB_ENGINE",
-		Hosts:    "$DB_HOSTS",
-		User:     "$DB_USER",
-		Password: "$DB_PASSWORD",
-		Port:     "$DB_PORT",
-		Name:     "$DB_NAME",
+		Engine:            "$DB_ENGINE",
+		Hosts:             "$DB_HOSTS",
+		User:              "$DB_USER",
+		Password:          "$DB_PASSWORD",
+		Port:              "$DB_PORT",
+		Name:              "$DB_NAME",
+		MaxOpenConnection: "$DB_MAX_OPEN_CONNECTION",
+		MaxIdleConnection: "$DB_MAX_IDLE_CONNECTION",
 	}
 	ymlConfig := YmlConfig{Db: dbConfig}
 
@@ -117,34 +119,46 @@ func TestGetDbConfig(t *testing.T) {
 	os.Setenv("DB_PASSWORD", "root")
 	os.Setenv("DB_PORT", "3306")
 	os.Setenv("DB_NAME", "grant_n_z")
+	os.Setenv("DB_MAX_OPEN_CONNECTION", "15")
+	os.Setenv("DB_MAX_IDLE_CONNECTION", "15")
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Engine, "mysql") {
-		t.Errorf("Incorrect GetEtcdConfig test. engine = %s", ymlConfig.GetDbConfig().Engine)
+		t.Errorf("Incorrect TestGetDbConfig test. engine = %s", ymlConfig.GetDbConfig().Engine)
 		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Hosts, "localhost") {
-		t.Errorf("Incorrect GetEtcdConfig test. host = %s", ymlConfig.GetDbConfig().Hosts)
+		t.Errorf("Incorrect TestGetDbConfig test. host = %s", ymlConfig.GetDbConfig().Hosts)
 		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().User, "root") {
-		t.Errorf("Incorrect GetEtcdConfig test. user = %s", ymlConfig.GetDbConfig().User)
+		t.Errorf("Incorrect TestGetDbConfig test. user = %s", ymlConfig.GetDbConfig().User)
 		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Password, "root") {
-		t.Errorf("Incorrect GetEtcdConfig test. password = %s", ymlConfig.GetDbConfig().Password)
+		t.Errorf("Incorrect TestGetDbConfig test. password = %s", ymlConfig.GetDbConfig().Password)
 		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Port, "3306") {
-		t.Errorf("Incorrect GetEtcdConfig test. port = %s", ymlConfig.GetDbConfig().Port)
+		t.Errorf("Incorrect TestGetDbConfig test. port = %s", ymlConfig.GetDbConfig().Port)
 		t.FailNow()
 	}
 
 	if !strings.EqualFold(ymlConfig.GetDbConfig().Name, "grant_n_z") {
-		t.Errorf("Incorrect GetEtcdConfig test. db = %s", ymlConfig.GetDbConfig().Name)
+		t.Errorf("Incorrect TestGetDbConfig test. db = %s", ymlConfig.GetDbConfig().Name)
+		t.FailNow()
+	}
+
+	if !strings.EqualFold(ymlConfig.GetDbConfig().MaxOpenConnection, "15") {
+		t.Errorf("Incorrect TestGetDbConfig test. max-open-connection = %s", ymlConfig.GetDbConfig().MaxOpenConnection)
+		t.FailNow()
+	}
+
+	if !strings.EqualFold(ymlConfig.GetDbConfig().MaxIdleConnection, "15") {
+		t.Errorf("Incorrect TestGetDbConfig test. max-idle-connection = %s", ymlConfig.GetDbConfig().MaxIdleConnection)
 		t.FailNow()
 	}
 }

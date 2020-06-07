@@ -16,6 +16,8 @@ db:
   password: $DB_PASSWORD
   port: $DB_PORT
   name: $DB_NAME
+  max-open-connection: $DB_MAX_OPEN_CONNECTION
+  max-idle-connection: $DB_MAX_IDLE_CONNECTION
 
 etcd:
   host: $ETCD_HOST

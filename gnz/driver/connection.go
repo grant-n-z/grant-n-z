@@ -2,6 +2,7 @@ package driver
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,12 +16,14 @@ var connection *gorm.DB
 
 type Database struct {
 	DbConfig common.DbConfig
+	AppConfig common.AppConfig
 }
 
 // Constructor
 func NewDatabase() Database {
 	return Database{
 		DbConfig: common.Db,
+		AppConfig: common.App,
 	}
 }
 
@@ -30,17 +33,12 @@ func (r Database) Connect() {
 		panic("Current status, only support mysql.")
 	}
 
-	//hosts := strings.Split(r.DbConfig.Hosts, ",")
-	//databaseCnt := len(hosts)
-	//for _, host := range hosts {
-	//
-	//}
 	dbSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
-		common.Db.User,
-		common.Db.Password,
-		common.Db.Hosts,
-		common.Db.Port,
-		common.Db.Name,
+		r.DbConfig.User,
+		r.DbConfig.Password,
+		r.DbConfig.Hosts,
+		r.DbConfig.Port,
+		r.DbConfig.Name,
 	)
 
 	db, err := gorm.Open("mysql", dbSource)
@@ -50,14 +48,16 @@ func (r Database) Connect() {
 		panic("Cannot connect MySQL")
 	}
 
-	if strings.EqualFold(common.App.LogLevel, "DEBUG") || strings.EqualFold(common.App.LogLevel, "debug") {
+	if strings.EqualFold(r.AppConfig.LogLevel, "DEBUG") || strings.EqualFold(r.AppConfig.LogLevel, "debug") {
 		db.LogMode(true)
 	} else {
 		db.LogMode(false)
 	}
 
-	//db.DB().SetMaxOpenConns(10)
-	//db.DB().SetMaxIdleConns(10)
+	openConnection, _ := strconv.Atoi(r.DbConfig.MaxOpenConnection)
+	idleConnection, _ := strconv.Atoi(r.DbConfig.MaxIdleConnection)
+	db.DB().SetMaxOpenConns(openConnection)
+	db.DB().SetMaxIdleConns(idleConnection)
 
 	log.Logger.Info(fmt.Sprintf("Connected MySQL. Open connection = %d. Max open connection = %d.",
 		db.DB().Stats().OpenConnections,
