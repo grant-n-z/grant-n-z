@@ -148,6 +148,15 @@ func TestGetUserServices_Success(t *testing.T) {
 	}
 }
 
+// Test user services by user uuid
+func TestGetUserServicesByUserUuid_Success(t *testing.T) {
+	_, err := userService.GetUserServicesByUserUuid("uuid")
+	if err != nil {
+		t.Errorf("Incorrect TestGetUserServicesByUserUuid_Success test")
+		t.FailNow()
+	}
+}
+
 // Test get user service by user id and service id
 func TestGetUserServiceByUserIdAndServiceId_Success(t *testing.T) {
 	_, err := userService.GetUserServiceByUserUuidAndServiceUuid(uuid.New().String(), uuid.New().String())
@@ -258,6 +267,11 @@ func (uri StubUserRepositoryImpl) FindUserGroupByUserUuidAndGroupUuid(userUuid s
 }
 
 func (uri StubUserRepositoryImpl) FindUserServices() ([]*entity.UserService, error) {
+	var userServices []*entity.UserService
+	return userServices, nil
+}
+
+func (uri StubUserRepositoryImpl) FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error) {
 	var userServices []*entity.UserService
 	return userServices, nil
 }

@@ -85,5 +85,5 @@ func (tp StubTokenProcessor) VerifyUserToken(token string, roleNames string, per
 }
 
 func (tp StubTokenProcessor) GetJwtPayload(token string, isRefresh bool) (*model.JwtPayload, *model.ErrorResBody) {
-	return &model.JwtPayload{}, nil
+	return &model.JwtPayload{UserUuid: "dd7f344c-f491-47c8-b85b-4924c082fef0"}, nil
 }

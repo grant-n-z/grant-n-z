@@ -75,7 +75,7 @@ func (l Log) Error(log ...interface{}) {
 }
 
 func (l Log) Trace(log interface{}) {
-	l.e.Println(log)
+	l.i.Println(log)
 	for depth := 0; ; depth++ {
 		_, file, line, ok := runtime.Caller(depth)
 		if !ok {

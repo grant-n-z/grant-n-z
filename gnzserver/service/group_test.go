@@ -68,10 +68,19 @@ func TestGetGroupById_Success(t *testing.T) {
 }
 
 // Test get group of login user
-func TestGetGroupOfUser_Success(t *testing.T) {
+func TestGetGroupByUser_Success(t *testing.T) {
 	_, err := groupService.GetGroupByUser(uuid.New().String())
 	if err != nil {
 		t.Errorf("Incorrect TestGetGroupOfUser_Success test")
+		t.FailNow()
+	}
+}
+
+// Test get group of service for login user
+func TestGetGroupByServices_Success(t *testing.T) {
+	_, err := groupService.GetGroupByServices(uuid.New().String())
+	if err != nil {
+		t.Errorf("Incorrect TestGetGroupByServices_Success test")
 		t.FailNow()
 	}
 }
@@ -110,6 +119,11 @@ func (gr StubGroupRepositoryImpl) FindByName(name string) (*entity.Group, error)
 }
 
 func (gr StubGroupRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.Group, error) {
+	var groups []*entity.Group
+	return groups, nil
+}
+
+func (gr StubGroupRepositoryImpl) FindByServiceUuid(serviceUuid string) ([]*entity.Group, error) {
 	var groups []*entity.Group
 	return groups, nil
 }

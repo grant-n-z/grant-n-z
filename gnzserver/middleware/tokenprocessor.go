@@ -116,7 +116,7 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames string, per
 		hasGroup := false
 		userGroups := tp.UserService.GetUserGroupsByUserUuid(jwtPayload.UserUuid)
 		for _, group := range userGroups {
-			if groupUuid == group.GroupUuid {
+			if strings.EqualFold(groupUuid, group.GroupUuid) {
 				hasGroup = true
 			}
 		}
@@ -132,11 +132,11 @@ func (tp TokenProcessorImpl) VerifyUserToken(token string, roleNames string, per
 		if userPolicies == nil {
 			return nil, model.Forbidden("Forbidden the user has not policy")
 		}
-		for _, policy := range jwtPayload.UserPolicies {
-			if strings.Contains(roleNames, policy.RoleName) {
+		for _, policy := range userPolicies {
+			if policy.RoleName != "" && strings.Contains(roleNames, policy.RoleName) {
 				hasRole = true
 			}
-			if strings.Contains(permissionNames, policy.PermissionName) {
+			if policy.PermissionName != "" && strings.Contains(permissionNames, policy.PermissionName) {
 				hasPermission = true
 			}
 		}
@@ -236,12 +236,12 @@ func (tp TokenProcessorImpl) generateTokenByRefreshToken(refreshToken string) (*
 	exp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour))
 	rExp := time.Now().Add(time.Hour * time.Duration(tp.ServerConfig.TokenExpireHour) * 200)
 
-	policy := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid)
-	if policy == nil {
-		return nil, model.InternalServerError("Resource data is null")
+	policies := tp.UserService.GetUserPoliciesByUserUuid(jwtPayload.UserUuid)
+	if policies == nil {
+		policies = []structure.UserPolicy{}
 	}
 
-	return tp.generateTokenResponse(exp, rExp, policy, jwtPayload.UserUuid, jwtPayload.Username), nil
+	return tp.generateTokenResponse(exp, rExp, policies, jwtPayload.UserUuid, jwtPayload.Username), nil
 }
 
 func (tp TokenProcessorImpl) generateTokenResponse(exp time.Time, rExp time.Time, userPolicy []structure.UserPolicy, userUuid string, username string) *model.TokenResponse {
@@ -253,8 +253,8 @@ func (tp TokenProcessorImpl) generateTokenResponse(exp time.Time, rExp time.Time
 	}
 }
 
-func (tp TokenProcessorImpl) signedInToken(userUuid string, username string, userPolicy []structure.UserPolicy, exp time.Time, isRefresh bool) string {
-	userPolicyJson, _ := json.Marshal(userPolicy)
+func (tp TokenProcessorImpl) signedInToken(userUuid string, username string, userPolicies []structure.UserPolicy, exp time.Time, isRefresh bool) string {
+	userPolicyJson, _ := json.Marshal(userPolicies)
 
 	claims := tp.Token.Claims.(jwt.MapClaims)
 	claims["exp"] = strconv.FormatInt(exp.Unix(), 10)

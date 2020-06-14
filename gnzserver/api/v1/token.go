@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"github.com/tomoyane/grant-n-z/gnz/common"
+	"github.com/tomoyane/grant-n-z/gnzserver/service"
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/log"
@@ -24,6 +25,7 @@ type Token interface {
 // Token api struct
 type TokenImpl struct {
 	TokenProcessor middleware.TokenProcessor
+	Service        service.Service
 }
 
 // Get Policy instance
@@ -38,7 +40,10 @@ func GetTokenInstance() Token {
 // Constructor
 func NewToken() Token {
 	log.Logger.Info("New `v1.Token` instance")
-	return TokenImpl{TokenProcessor: middleware.GetTokenProcessorInstance()}
+	return TokenImpl{
+		TokenProcessor: middleware.GetTokenProcessorInstance(),
+		Service:        service.GetServiceInstance(),
+	}
 }
 
 func (th TokenImpl) Api(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +74,16 @@ func (th TokenImpl) post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return
+	}
+
+	secret := r.Context().Value(middleware.ScopeSecret)
+	if secret != nil {
+		_, err := th.Service.GetServiceByUser(secret.(string))
+		if err != nil {
+			err = model.Unauthorized("You don't join this service")
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
 	}
 
 	res, _ := json.Marshal(token)

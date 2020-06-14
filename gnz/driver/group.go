@@ -25,6 +25,10 @@ type GroupRepository interface {
 	// Join user_groups and groups
 	FindByUserUuid(userUuid string) ([]*entity.Group, error)
 
+	// Get all groups by service uuid
+	// Join service_groups and groups
+	FindByServiceUuid(serviceUuid string) ([]*entity.Group, error)
+
 	// Get all groups with user_groups with policy that has user
 	// Join user_groups and groups and polices
 	FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid string) ([]*model.GroupWithUserGroupWithPolicy, error)
@@ -114,6 +118,41 @@ func (gr GroupRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.Group, 
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserGroupTable.String(),
 			entity.UserGroupUserUuid.String()), userUuid).
+		Scan(&groups).Error; err != nil {
+
+		return nil, err
+	}
+
+	return groups, nil
+}
+
+func (gr GroupRepositoryImpl) FindByServiceUuid(serviceUuid string) ([]*entity.Group, error) {
+	var groups []*entity.Group
+
+	target := entity.GroupTable.String() + "." +
+		entity.GroupId.String() + "," +
+		entity.GroupTable.String() + "." +
+		entity.GroupInternalId.String() + "," +
+		entity.GroupTable.String() + "." +
+		entity.GroupUuid.String() + "," +
+		entity.GroupTable.String() + "." +
+		entity.GroupName.String() + "," +
+		entity.GroupTable.String() + "." +
+		entity.GroupCreatedAt.String() + "," +
+		entity.GroupTable.String() + "." +
+		entity.GroupUpdatedAt.String()
+
+	if err := gr.Connection.Table(entity.ServiceGroupTable.String()).
+		Select(target).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.GroupTable.String(),
+			entity.GroupTable.String(),
+			entity.GroupUuid.String(),
+			entity.ServiceGroupTable.String(),
+			entity.ServiceGroupGroupUuid.String())).
+		Where(fmt.Sprintf("%s.%s = ?",
+			entity.ServiceGroupTable.String(),
+			entity.ServiceGroupServiceUuid.String()), serviceUuid).
 		Scan(&groups).Error; err != nil {
 
 		return nil, err

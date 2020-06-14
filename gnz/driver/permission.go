@@ -150,7 +150,7 @@ func (pri PermissionRepositoryImpl) SaveWithRelationalData(gUuid string, permiss
 	}
 
 	// Save group_permissions
-	groupUuid, _ := uuid.FromBytes([]byte(gUuid))
+	groupUuid := uuid.MustParse(gUuid)
 	groupPermission := entity.GroupPermission{
 		PermissionUuid: permission.Uuid,
 		GroupUuid:      groupUuid,

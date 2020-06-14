@@ -174,41 +174,41 @@ func (pri PolicyRepositoryImpl) FindPolicyOfUserServiceByUserUuidAndServiceUuid(
 	if err := pri.Connection.Table(entity.UserTable.String()).
 		Select(target).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.UserServiceTable.String(),
+			entity.UserServiceTable.String(),
+			entity.UserServiceUserUuid.String(),
 			entity.UserTable.String(),
-			entity.UserTable.String(),
-			entity.UserUuid.String(),
-			entity.UserServiceTable.String(),
-			entity.UserServiceUserUuid.String())).
-		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
-			entity.UserServiceTable.String(),
-			entity.UserServiceTable.String(),
-			entity.UserServiceServiceUuid.String(),
-			entity.PolicyTable.String(),
-			entity.PolicyServiceUuid.String())).
+			entity.UserUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.PolicyTable.String(),
 			entity.PolicyTable.String(),
-			entity.PolicyPermissionUuid.String(),
+			entity.PolicyServiceUuid.String(),
+			entity.UserServiceTable.String(),
+			entity.UserServiceServiceUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.PermissionTable.String(),
-			entity.PermissionUuid.String())).
+			entity.PermissionTable.String(),
+			entity.PermissionUuid.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyPermissionUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
-			entity.PolicyTable.String(),
-			entity.PolicyTable.String(),
-			entity.PolicyRoleUuid.String(),
 			entity.RoleTable.String(),
-			entity.RoleUuid.String())).
-		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
+			entity.RoleTable.String(),
+			entity.RoleUuid.String(),
 			entity.PolicyTable.String(),
-			entity.PolicyTable.String(),
-			entity.PolicyUserGroupUuid.String(),
-			entity.UserGroupTable.String(),
-			entity.UserGroupUuid.String())).
+			entity.PolicyRoleUuid.String())).
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.UserGroupTable.String(),
 			entity.UserGroupTable.String(),
-			entity.UserGroupGroupUuid.String(),
+			entity.UserGroupUuid.String(),
+			entity.PolicyTable.String(),
+			entity.PolicyUserGroupUuid.String())).
+		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
 			entity.GroupTable.String(),
-			entity.GroupUuid.String())).
+			entity.GroupTable.String(),
+			entity.GroupUuid.String(),
+			entity.UserGroupTable.String(),
+			entity.UserGroupGroupUuid.String())).
 		Where(fmt.Sprintf("%s.%s = ?",
 			entity.UserTable.String(),
 			entity.UserUuid.String()), userUuid).

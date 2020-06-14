@@ -122,10 +122,9 @@ func TestInterceptHeader_Success(t *testing.T) {
 
 // Test intercept api ClientSecret in header
 func TestInterceptApiKey_Error(t *testing.T) {
-	writer := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}}
 	request.Header.Set("Client-Secret", "")
-	_, err := interceptClientSecret(writer, &request)
+	_, err := interceptClientSecret(&request)
 	if err == nil {
 		t.Errorf("Incorrect TestInterceptApiKey_Error test.")
 		t.FailNow()
@@ -134,10 +133,9 @@ func TestInterceptApiKey_Error(t *testing.T) {
 
 // Test intercept api ClientSecret in header
 func TestInterceptApiKey_Success(t *testing.T) {
-	writer := StubResponseWriter{}
 	request := http.Request{Header: http.Header{}}
 	request.Header.Set("Client-Secret", "test_key")
-	_, err := interceptClientSecret(writer, &request)
+	_, err := interceptClientSecret(&request)
 	if err != nil {
 		t.Errorf("Incorrect TestInterceptApiKey_Success test.")
 		t.FailNow()

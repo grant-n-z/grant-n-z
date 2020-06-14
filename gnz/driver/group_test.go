@@ -57,6 +57,15 @@ func TestGroupFindGroupsByUserId_Error(t *testing.T) {
 	}
 }
 
+// FindByServiceUuid InternalServerError test
+func TestFindByServiceUuid_Error(t *testing.T) {
+	_, err := groupRepository.FindByServiceUuid("uuid")
+	if err == nil {
+		t.Errorf("Incorrect TestFindByServiceUuid_Error test")
+		t.FailNow()
+	}
+}
+
 // FindGroupWithUserWithPolicyGroupsByUserUuid InternalServerError test
 func TestGroupFindGroupWithUserWithPolicyGroupsByUserId_Error(t *testing.T) {
 	_, err := groupRepository.FindGroupWithUserWithPolicyGroupsByUserUuid("uuid")

@@ -140,6 +140,10 @@ func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.Error
 	return []*entity.UserService{}, nil
 }
 
+func (us StubUserService) GetUserServicesByUserUuid(userUuid string) ([]*entity.UserService, *model.ErrorResBody) {
+	return []*entity.UserService{}, nil
+}
+
 func (us StubUserService) GetUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, *model.ErrorResBody) {
 	return &entity.UserService{}, nil
 }

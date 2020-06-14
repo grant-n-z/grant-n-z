@@ -150,7 +150,7 @@ func (rri RoleRepositoryImpl) SaveWithRelationalData(gUuid string, role entity.R
 	}
 
 	// Save group_roles
-	groupUuid, _ := uuid.FromBytes([]byte(gUuid))
+	groupUuid := uuid.MustParse(gUuid)
 	groupRole := entity.GroupRole{
 		RoleUuid:  role.Uuid,
 		GroupUuid: groupUuid,

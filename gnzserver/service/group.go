@@ -27,6 +27,9 @@ type GroupService interface {
 	// Get group that has the user
 	GetGroupByUser(userUuid string) ([]*entity.Group, *model.ErrorResBody)
 
+	// Get group that has the service
+	GetGroupByServices(serviceUuid string) ([]*entity.Group, *model.ErrorResBody)
+
 	// Insert group
 	InsertGroupWithRelationalData(group entity.Group, userUuid string, secret string) (*entity.Group, *model.ErrorResBody)
 }
@@ -97,6 +100,18 @@ func (gs GroupServiceImpl) GetGroupByUser(userUuid string) ([]*entity.Group, *mo
 	return groups, nil
 }
 
+func (gs GroupServiceImpl) GetGroupByServices(serviceUuid string) ([]*entity.Group, *model.ErrorResBody) {
+	groups, err := gs.GroupRepository.FindByServiceUuid(serviceUuid)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return []*entity.Group{}, nil
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return groups, nil
+}
+
 func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUuid string, secret string) (*entity.Group, *model.ErrorResBody) {
 	gid := uuid.New()
 	gidMd5 := md5.Sum(gid.NodeID())
@@ -127,7 +142,7 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUu
 		return nil, model.InternalServerError(err.Error())
 	}
 
-	userUuid, _ := uuid.FromBytes([]byte(uUuid))
+	userUuid := uuid.MustParse(uUuid)
 
 	// New ServiceGroup
 	serviceGroupIdMd5 := md5.Sum(uuid.New().NodeID())
@@ -138,9 +153,11 @@ func (gs GroupServiceImpl) InsertGroupWithRelationalData(group entity.Group, uUu
 	}
 
 	// New UserGroup
-	userGroupIdMd5 := md5.Sum(uuid.New().NodeID())
+	userGroupUuid := uuid.New()
+	userGroupIdMd5 := md5.Sum(userGroupUuid.NodeID())
 	userGroup := entity.UserGroup{
 		InternalId: hex.EncodeToString(userGroupIdMd5[:]),
+		Uuid:       userGroupUuid,
 		UserUuid:   userUuid,
 		GroupUuid:  group.Uuid,
 	}

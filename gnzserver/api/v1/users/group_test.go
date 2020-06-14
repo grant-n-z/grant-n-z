@@ -112,6 +112,10 @@ func (gs StubGroupService) GetGroupByUser(userUuid string) ([]*entity.Group, *mo
 	return []*entity.Group{}, nil
 }
 
+func (gs StubGroupService) GetGroupByServices(serviceUuid string) ([]*entity.Group, *model.ErrorResBody) {
+	return []*entity.Group{}, nil
+}
+
 func (gs StubGroupService) InsertGroupWithRelationalData(group entity.Group, userUuid string, serviceUuid string) (*entity.Group, *model.ErrorResBody) {
 	return &entity.Group{}, nil
 }

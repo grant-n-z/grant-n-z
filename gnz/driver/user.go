@@ -33,6 +33,9 @@ type UserRepository interface {
 	// Find all UserService
 	FindUserServices() ([]*entity.UserService, error)
 
+	// Find UserService by user uuid
+	FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error)
+
 	// Find all UserService with offset and limit
 	FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, error)
 
@@ -195,6 +198,15 @@ func (uri UserRepositoryImpl) FindUserGroupByUserUuidAndGroupUuid(userUuid strin
 func (uri UserRepositoryImpl) FindUserServices() ([]*entity.UserService, error) {
 	var userServices []*entity.UserService
 	if err := uri.Connection.Find(&userServices).Error; err != nil {
+		return nil, err
+	}
+
+	return userServices, nil
+}
+
+func (uri UserRepositoryImpl) FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error) {
+	var userServices []*entity.UserService
+	if err := uri.Connection.Where("user_uuid = ?", userUuid).Find(&userServices).Error; err != nil {
 		return nil, err
 	}
 

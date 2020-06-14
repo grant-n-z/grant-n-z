@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -35,7 +36,7 @@ type Interceptor interface {
 	Intercept(next http.HandlerFunc) http.HandlerFunc
 
 	// Intercept only http header
-	InterceptHeader(next http.HandlerFunc) http.HandlerFunc
+	InterceptSecret(next http.HandlerFunc) http.HandlerFunc
 
 	// Intercept Http request and Client-Secret header with user authentication
 	InterceptAuthenticateUser(next http.HandlerFunc) http.HandlerFunc
@@ -82,19 +83,18 @@ func (i InterceptorImpl) Intercept(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		userType := r.URL.Query().Get("type")
-		if userType != common.AuthOperator {
-			secret, err := interceptClientSecret(w, r)
-			if err != nil {
-				return
-			}
+		secret, secretErr := interceptClientSecret(r)
+		if secretErr == nil {
 			r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
+		} else {
+			r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, nil))
 		}
+
 		next.ServeHTTP(w, r)
 	}
 }
 
-func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc {
+func (i InterceptorImpl) InterceptSecret(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -108,6 +108,14 @@ func (i InterceptorImpl) InterceptHeader(next http.HandlerFunc) http.HandlerFunc
 			return
 		}
 
+		secret, secretErr := interceptClientSecret(r)
+		if secretErr != nil {
+			err := model.Unauthorized(secretErr.Error())
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+
+		r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
 		next.ServeHTTP(w, r)
 	}
 }
@@ -124,6 +132,13 @@ func (i InterceptorImpl) InterceptAuthenticateUser(next http.HandlerFunc) http.H
 
 		if err := interceptHeader(w, r); err != nil {
 			return
+		}
+
+		secret, secretErr := interceptClientSecret(r)
+		if secretErr == nil {
+			r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, *secret))
+		} else {
+			r = r.WithContext(context.WithValue(r.Context(), ScopeSecret, nil))
 		}
 
 		token := r.Header.Get(Authorization)
@@ -152,8 +167,10 @@ func (i InterceptorImpl) InterceptAuthenticateGroupAdmin(next http.HandlerFunc) 
 			return
 		}
 
-		secret, err := interceptClientSecret(w, r)
-		if err != nil {
+		secret, secretErr := interceptClientSecret(r)
+		if secretErr != nil {
+			err := model.BadRequest("Require Client-Secret.")
+			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
@@ -185,8 +202,10 @@ func (i InterceptorImpl) InterceptAuthenticateGroupUser(next http.HandlerFunc) h
 			return
 		}
 
-		secret, err := interceptClientSecret(w, r)
-		if err != nil {
+		secret, secretErr := interceptClientSecret(r)
+		if secretErr != nil {
+			err := model.BadRequest("Require Client-Secret.")
+			model.WriteError(w, err.ToJson(), err.Code)
 			return
 		}
 
@@ -243,12 +262,10 @@ func interceptHeader(w http.ResponseWriter, r *http.Request) *model.ErrorResBody
 }
 
 // Intercept Client-Secret header
-func interceptClientSecret(w http.ResponseWriter, r *http.Request) (*string, *model.ErrorResBody) {
+func interceptClientSecret(r *http.Request) (*string, error) {
 	clientSecret := r.Header.Get(ClientSecret)
 	if strings.EqualFold(clientSecret, "") {
-		err := model.Unauthorized("Required Client-Secret")
-		model.WriteError(w, err.ToJson(), err.Code)
-		return nil, err
+		return nil, errors.New("Required Client-Secret")
 	}
 	return &clientSecret, nil
 }

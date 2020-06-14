@@ -114,6 +114,7 @@ func (us StubUserService) GetUserByEmail(email string) (*entity.User, *model.Err
 	return &entity.User{}, nil
 }
 
+
 func (us StubUserService) GetUserWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, *model.ErrorResBody) {
 	return &model.UserWithOperatorPolicy{}, nil
 }
@@ -127,6 +128,10 @@ func (us StubUserService) GetUserGroupByUserUuidAndGroupUuid(userUuid string, gr
 }
 
 func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
+	return []*entity.UserService{}, nil
+}
+
+func (us StubUserService) GetUserServicesByUserUuid(userUuid string) ([]*entity.UserService, *model.ErrorResBody) {
 	return []*entity.UserService{}, nil
 }
 

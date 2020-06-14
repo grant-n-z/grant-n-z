@@ -73,6 +73,15 @@ func TestUserFindUserServices_Error(t *testing.T) {
 	}
 }
 
+// FindUserServicesByUserUuid InternalServerError test
+func TestFindUserServicesByUserUuid_Error(t *testing.T) {
+	_, err := userRepository.FindUserServicesByUserUuid("")
+	if err == nil {
+		t.Errorf("Incorrect TestFindUserServicesByUserUuid_Error test")
+		t.FailNow()
+	}
+}
+
 // FindUserServicesOffSetAndLimit InternalServerError test
 func TestUserFindUserServicesOffSetAndLimit_Error(t *testing.T) {
 	_, err := userRepository.FindUserServicesOffSetAndLimit(1, 1)

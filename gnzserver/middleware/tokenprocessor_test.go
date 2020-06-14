@@ -319,6 +319,11 @@ func (uri StubUserRepositoryImpl) FindUserServices() ([]*entity.UserService, err
 	return userServices, nil
 }
 
+func (uri StubUserRepositoryImpl) FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error) {
+	var userServices []*entity.UserService
+	return userServices, nil
+}
+
 func (uri StubUserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, error) {
 	var userServices []*entity.UserService
 	return userServices, nil
@@ -569,8 +574,13 @@ func (gr StubGroupRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.Gro
 	return groups, nil
 }
 
+func (gr StubGroupRepositoryImpl) FindByServiceUuid(serviceUuid string) ([]*entity.Group, error) {
+	var groups []*entity.Group
+	return groups, nil
+}
+
 func (gr StubGroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid string) ([]*model.GroupWithUserGroupWithPolicy, error) {
-	uid, _ := uuid.FromBytes([]byte("20aabf03-7f3f-479c-91d2-909c844de26c"))
+	uid := uuid.MustParse("20aabf03-7f3f-479c-91d2-909c844de26c")
 	var policies []*model.GroupWithUserGroupWithPolicy
 	policies = append(policies, &model.GroupWithUserGroupWithPolicy{Policy: entity.Policy{UserGroupUuid: uid, RoleUuid: uid, PermissionUuid: uid, ServiceUuid: uid}})
 	return policies, nil
@@ -657,7 +667,7 @@ func (e StubEtcdlClient) SetUserGroup(userUuid string, userGroups []structure.Us
 
 func (e StubEtcdlClient) GetUserPolicy(userUuid string) []structure.UserPolicy {
 	uid := "6311b383-4587-469d-8aa1-8103142d33e8"
-	return []structure.UserPolicy{{ServiceUuid: uid, GroupUuid: uid, RoleName: "tst_role", PermissionName: "test_permission"}}
+	return []structure.UserPolicy{{ServiceUuid: uid, GroupUuid: uid, RoleName: "test_role", PermissionName: "test_permission"}}
 }
 
 func (e StubEtcdlClient) GetPermission(permissionUuid string) *structure.Permission {

@@ -31,6 +31,7 @@ type Group interface {
 // Group api struct
 type GroupImpl struct {
 	groupService service.GroupService
+	service      service.Service
 }
 
 // Get Policy instance.
@@ -45,7 +46,10 @@ func GetGroupInstance() Group {
 // Constructor
 func NewGroup() Group {
 	log.Logger.Info("New `v1.users.Group` instance")
-	return GroupImpl{groupService: service.GetGroupServiceInstance()}
+	return GroupImpl{
+		groupService: service.GetGroupServiceInstance(),
+		service: service.GetServiceInstance(),
+	}
 }
 
 func (gh GroupImpl) Api(w http.ResponseWriter, r *http.Request) {
@@ -62,10 +66,27 @@ func (gh GroupImpl) Api(w http.ResponseWriter, r *http.Request) {
 
 func (gh GroupImpl) get(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	groups, err := gh.groupService.GetGroupByUser(jwt.UserUuid)
-	if err != nil {
-		model.WriteError(w, err.ToJson(), err.Code)
-		return
+	secret := r.Context().Value(middleware.ScopeSecret)
+	var groups []*entity.Group
+	if secret == nil {
+		data, err := gh.groupService.GetGroupByUser(jwt.UserUuid)
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+		groups = data
+	} else {
+		ser, err := gh.service.GetServiceBySecret(secret.(string))
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+		data, err := gh.groupService.GetGroupByServices(ser.Uuid.String())
+		if err != nil {
+			model.WriteError(w, err.ToJson(), err.Code)
+			return
+		}
+		groups = data
 	}
 
 	res, _ := json.Marshal(groups)
@@ -83,8 +104,14 @@ func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	secret := r.Context().Value(middleware.ScopeSecret)
+	if secret == nil {
+		err := model.BadRequest("Require Client-Secret.")
+		model.WriteError(w, err.ToJson(), err.Code)
+	}
+
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity, jwt.UserUuid, r.Context().Value(middleware.ScopeSecret).(string))
+	group, err := gh.groupService.InsertGroupWithRelationalData(*groupEntity, jwt.UserUuid, secret.(string))
 	if err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)
 		return

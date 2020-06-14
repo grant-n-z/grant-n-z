@@ -50,6 +50,9 @@ type UserService interface {
 	// Get all UserService
 	GetUserServices() ([]*entity.UserService, *model.ErrorResBody)
 
+	// Get UserService by user uuid
+	GetUserServicesByUserUuid(userUuid string) ([]*entity.UserService, *model.ErrorResBody)
+
 	// Get UserService by user uuid and service uuid
 	GetUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, *model.ErrorResBody)
 
@@ -177,6 +180,18 @@ func (us UserServiceImpl) GetUserGroupByUserUuidAndGroupUuid(userUuid string, gr
 
 func (us UserServiceImpl) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
 	userServices, err := us.UserRepository.FindUserServices()
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil, model.NotFound("Not found services")
+		}
+		return nil, model.InternalServerError(err.Error())
+	}
+
+	return userServices, nil
+}
+
+func (us UserServiceImpl) GetUserServicesByUserUuid(userUuid string) ([]*entity.UserService, *model.ErrorResBody) {
+	userServices, err := us.UserRepository.FindUserServicesByUserUuid(userUuid)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, model.NotFound("Not found services of user")

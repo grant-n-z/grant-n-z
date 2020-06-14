@@ -91,7 +91,7 @@ func (uh UserImpl) Put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
-	userUuid, _ := uuid.FromBytes([]byte(jwt.UserUuid))
+	userUuid := uuid.MustParse(jwt.UserUuid)
 	userEntity.Uuid = userUuid
 	if _, err := uh.UserService.UpdateUser(*userEntity); err != nil {
 		model.WriteError(w, err.ToJson(), err.Code)

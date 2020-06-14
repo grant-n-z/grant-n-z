@@ -90,7 +90,7 @@ func (s ServiceImpl) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert user_services
-	userUuid, _ := uuid.FromBytes([]byte(jwt.UserUuid))
+	userUuid := uuid.MustParse(jwt.UserUuid)
 	userServiceEntity := &entity.UserService{
 		UserUuid:    userUuid,
 		ServiceUuid: serviceEntity.Uuid,

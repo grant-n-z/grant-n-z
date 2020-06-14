@@ -65,12 +65,15 @@ func TestService_Post_BadRequest(t *testing.T) {
 // Test post
 func TestService_Post(t *testing.T) {
 	response := StubResponseWriter{}
+	secret := "secret"
 	body := ioutil.NopCloser(bytes.NewReader([]byte("{\"email\":\"test@gmail.com\", \"password\":\"testtest\"}")))
-	request := http.Request{Header: http.Header{}, Method: http.MethodGet, Body: body}
-	ser.Post(response, request.WithContext(context.WithValue(request.Context(), middleware.ScopeSecret, "secret")))
+	request := &http.Request{Header: http.Header{}, Method: http.MethodGet, Body: body}
+	request = request.WithContext(context.WithValue(request.Context(), middleware.ScopeSecret, secret))
+
+	ser.Post(response, request)
 
 	if statusCode != http.StatusCreated {
-		t.Errorf("Incorrect TestService_Post_BadRequest test.")
+		t.Errorf("Incorrect TestService_Post test.")
 		t.FailNow()
 	}
 }
@@ -156,6 +159,10 @@ func (us StubUserService) GetUserGroupByUserUuidAndGroupUuid(userUuid string, gr
 }
 
 func (us StubUserService) GetUserServices() ([]*entity.UserService, *model.ErrorResBody) {
+	return []*entity.UserService{}, nil
+}
+
+func (us StubUserService) GetUserServicesByUserUuid(userUuid string) ([]*entity.UserService, *model.ErrorResBody) {
 	return []*entity.UserService{}, nil
 }
 

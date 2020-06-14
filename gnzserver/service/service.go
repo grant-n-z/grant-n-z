@@ -121,7 +121,6 @@ func (ss ServiceImpl) GetServiceBySecret(secret string) (*entity.Service, *model
 func (ss ServiceImpl) GetServiceByUser(userUuid string) ([]*entity.Service, *model.ErrorResBody) {
 	services, err := ss.ServiceRepository.FindServicesByUserUuid(userUuid)
 	if err != nil {
-		log.Logger.Warn(err.Error())
 		if strings.Contains(err.Error(), "record not found") {
 			return nil, model.NotFound("Not found services")
 		}
