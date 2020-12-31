@@ -108,6 +108,7 @@ func (gh GroupImpl) post(w http.ResponseWriter, r *http.Request) {
 	if secret == nil {
 		err := model.BadRequest("Require Client-Secret.")
 		model.WriteError(w, err.ToJson(), err.Code)
+		return
 	}
 
 	jwt := r.Context().Value(middleware.ScopeJwt).(model.JwtPayload)
