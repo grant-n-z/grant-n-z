@@ -16,7 +16,7 @@ See documentation.
 ----
 
 ## Documentation
-* [Official documentation]()
+* [Official documentation](https://grant-n-z.page/)
 
 ## Component
 * API server (this repository)
