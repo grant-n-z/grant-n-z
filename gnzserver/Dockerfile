@@ -10,6 +10,4 @@ RUN cd gnzserver && \
     make build-linux-amd64 && \
     chmod 755 build/linux-amd64/GrantNZServer
 
-WORKDIR /gnzserver/build/linux-amd64/
-
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/grant_n_z/gnzserver/build/linux-amd64/entrypoint.sh"]

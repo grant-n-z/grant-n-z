@@ -10,6 +10,4 @@ RUN cd gnzcacher && \
     make build-linux-amd64 && \
     chmod 755 build/linux-amd64/GrantNZCacher
 
-WORKDIR /gnzcacher/build/linux-amd64/
-
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/grant_n_z/gnzcacher/build/linux-amd64/entrypoint.sh"]
