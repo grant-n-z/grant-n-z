@@ -1,0 +1,24 @@
+name: grant_n_z_release
+on:
+  release:
+    types: [ released ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup-go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+
+      - name: checkout
+        uses: actions/checkout@v1
+
+      - name: build-release
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: sh .github/scripts/build_release.sh

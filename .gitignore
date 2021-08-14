@@ -7,7 +7,11 @@ prod/
 vendor/
 credentials.yml
 gnzserver/gnzserver
+gnzserver/build/
+gnzserver/GrantNZServer
 gnzcacher/gnzcacher
+gnzcacher/build/
+gnzcacher/GrantNZCacher
 .GITHUB_TOKEN
 cover.html
 cover.out

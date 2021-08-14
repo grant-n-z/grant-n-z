@@ -58,7 +58,7 @@ func (g GrantNZCacher) Run() {
 		log.Logger.Error(fmt.Sprintf("Could't read %s file", BannerFilePath), err.Error())
 		os.Exit(1)
 	}
-	fmt.Printf(bannerText, common.App.Version)
+	fmt.Printf(bannerText)
 
 	go g.subscribeSignal(signalCode, exitCode)
 	go g.Database.PingRdbms()

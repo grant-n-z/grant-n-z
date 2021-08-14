@@ -12,7 +12,7 @@ func TestInitGrantNZServerConfig(t *testing.T) {
 	os.Setenv("SERVER_PUBLIC_KEY_PATH", "./test-public.key")
 	os.Setenv("SERVER_SIGN_ALGORITHM", "rsa256")
 	InitGrantNZServerConfig("../../gnzserver/grant_n_z_server.yaml")
-	if strings.EqualFold(App.Version, "") {
+	if strings.EqualFold(App.LogLevel, "") {
 		t.Errorf("Incorrect TestInitGrantNZServerConfig test")
 		t.FailNow()
 	}
@@ -21,7 +21,7 @@ func TestInitGrantNZServerConfig(t *testing.T) {
 // InitGrantNZCacherConfig test
 func TestInitGrantNZCacherConfig(t *testing.T) {
 	InitGrantNZCacherConfig("../../gnzcacher/grant_n_z_cacher.yaml")
-	if strings.EqualFold(App.Version, "") {
+	if strings.EqualFold(App.LogLevel, "") {
 		t.Errorf("Incorrect TestInitGrantNZCacherConfig test")
 		t.FailNow()
 	}

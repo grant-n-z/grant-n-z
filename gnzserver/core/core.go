@@ -58,6 +58,7 @@ func NewGrantNZServer() GrantNZServer {
 	}
 }
 
+// Run
 // Start GrantNZ server
 func (g GrantNZServer) Run() {
 	port = common.GServer.Port
@@ -91,7 +92,7 @@ func (g GrantNZServer) runServer(router *mux.Router) {
 		os.Exit(1)
 	}
 
-	fmt.Printf(bannerText, port, common.App.Version)
+	fmt.Printf(bannerText, port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
 		log.Logger.Error("Error run grant-n-z server", err.Error())
 		os.Exit(1)
