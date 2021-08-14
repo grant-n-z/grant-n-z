@@ -1,0 +1,17 @@
+app:
+  log-level: info
+
+cacher:
+  time-millis: $CACHER_TIME_MILLIS
+
+db:
+  engine: $DB_ENGINE
+  host: $DB_HOST
+  user: $DB_USER
+  password: $DB_PASSWORD
+  port: $DB_PORT
+  name: $DB_NAME
+
+etcd:
+  host: $ETCD_HOST
+  port: $ETCD_PORT

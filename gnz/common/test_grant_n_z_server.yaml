@@ -1,0 +1,23 @@
+app:
+  log-level: info
+
+server:
+  port: $SERVER_PORT
+  signed-in-token-private-key-path: $SERVER_PRIVATE_KEY_PATH
+  validate-token-public-key-path: $SERVER_PUBLIC_KEY_PATH
+  token-expire-hour: $SERVER_TOKEN_EXPIRE_HOUR
+  sign-algorithm: $SERVER_SIGN_ALGORITHM
+
+db:
+  engine: $DB_ENGINE
+  hosts: $DB_HOSTS
+  user: $DB_USER
+  password: $DB_PASSWORD
+  port: $DB_PORT
+  name: $DB_NAME
+  max-open-connection: $DB_MAX_OPEN_CONNECTION
+  max-idle-connection: $DB_MAX_IDLE_CONNECTION
+
+etcd:
+  host: $ETCD_HOST
+  port: $ETCD_PORT
