@@ -1,5 +1,4 @@
 app:
-  version: 0.0.41
   log-level: $LOG_LEVEL
 
 cacher:

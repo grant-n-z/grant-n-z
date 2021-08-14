@@ -2,10 +2,14 @@ FROM golang:1.13
 
 RUN mkdir /grant_n_z
 WORKDIR /grant_n_z
-COPY ./gnzserver /grant_n_z
-COPY ./entrypoint.sh /grant_n_z
-COPY ./grant_n_z_server.yaml /grant_n_z
-COPY ./grant_n_z_server.txt /grant_n_z
-RUN chmod 755 /grant_n_z/gnzserver
+COPY ./ /grant_n_z
+
+WORKDIR /grant_n_z/
+
+RUN cd gnzserver && \
+    make build-linux-amd64 && \
+    chmod 755 build/linux-amd64/GrantNZServer
+
+WORKDIR /gnzserver/build/linux-amd64/
 
 ENTRYPOINT ["./entrypoint.sh"]

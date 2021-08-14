@@ -11,6 +11,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+// YmlConfig
 // grant_n_z_{component}.yaml
 type YmlConfig struct {
 	App    AppConfig    `yaml:"app"`
@@ -20,18 +21,20 @@ type YmlConfig struct {
 	Etcd   EtcdConfig   `yaml:"etcd"`
 }
 
+// AppConfig
 // About app data in grant_n_z_{component}.yaml
 type AppConfig struct {
-	Version  string `yaml:"version"`
 	LogLevel string `yaml:"log-level"`
 }
 
+// CacherConfig
 // About app data in grant_n_z_cacher.yaml
 type CacherConfig struct {
 	TimeMillisStr string `yaml:"time-millis"`
 	TimeMillis    int
 }
 
+// ServerConfig
 // About server data in grant_n_z_server.yaml
 type ServerConfig struct {
 	Port                   string `yaml:"port"`
@@ -45,6 +48,7 @@ type ServerConfig struct {
 	TokenExpireHour        int
 }
 
+// DbConfig
 // About db data in grant_n_z_{component}.yaml
 type DbConfig struct {
 	Engine            string `yaml:"engine"`
@@ -57,12 +61,14 @@ type DbConfig struct {
 	MaxIdleConnection string `yaml:"max-idle-connection"`
 }
 
+// EtcdConfig
 // About etcd data in grant_n_z_{component}.yaml
 type EtcdConfig struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
 }
 
+// GetAppConfig
 // Getter AppConfig
 func (yml YmlConfig) GetAppConfig() AppConfig {
 	logLevel := yml.App.LogLevel
@@ -75,6 +81,7 @@ func (yml YmlConfig) GetAppConfig() AppConfig {
 	return yml.App
 }
 
+// GetCacherConfig
 // Getter CacherConfig
 func (yml YmlConfig) GetCacherConfig() CacherConfig {
 	timMillisStr := yml.Cacher.TimeMillisStr
@@ -88,6 +95,7 @@ func (yml YmlConfig) GetCacherConfig() CacherConfig {
 	return yml.Cacher
 }
 
+// GetServerConfig
 // Getter ServerConfig
 func (yml YmlConfig) GetServerConfig() ServerConfig {
 	port := yml.Server.Port
@@ -165,6 +173,7 @@ func (yml YmlConfig) GetServerConfig() ServerConfig {
 	return yml.Server
 }
 
+// GetEtcdConfig
 // Getter EtcdConfig
 func (yml YmlConfig) GetEtcdConfig() EtcdConfig {
 	if &yml.Etcd == nil {
@@ -186,6 +195,7 @@ func (yml YmlConfig) GetEtcdConfig() EtcdConfig {
 	return yml.Etcd
 }
 
+// GetDbConfig
 // Getter DbConfig
 func (yml YmlConfig) GetDbConfig() DbConfig {
 	engine := yml.Db.Engine

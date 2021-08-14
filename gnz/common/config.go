@@ -16,6 +16,7 @@ var (
 	GCacher CacherConfig
 )
 
+// InitGrantNZServerConfig
 // Initialize GrantNZ server config
 // The config is grant_n_z_server.yaml data structure
 func InitGrantNZServerConfig(yamlPath string) {
@@ -26,6 +27,7 @@ func InitGrantNZServerConfig(yamlPath string) {
 	GServer = yml.GetServerConfig()
 }
 
+// InitGrantNZCacherConfig
 // Initialize GrantNZ server config
 // The config is grant_n_z_cacher.yaml data structure
 func InitGrantNZCacherConfig(yamlPath string) {
