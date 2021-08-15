@@ -36,8 +36,8 @@ func TestGetOperatorPolicyServiceInstance(t *testing.T) {
 // Test get error
 func TestOperatorPolicy_Get_Error(t *testing.T) {
 	operatorPolicyService = OperatorPolicyServiceImpl{
-		OperatorPolicyRepository: driver.OperatorPolicyRepositoryImpl{Connection: stubConnection},
-		UserRepository:           driver.UserRepositoryImpl{Connection: stubConnection},
+		OperatorPolicyRepository: driver.RdbmsOperatorPolicyRepository{Connection: stubConnection},
+		UserRepository:           driver.RdbmsUserRepository{Connection: stubConnection},
 		RoleRepository:           StubRoleRepositoryImpl{Connection: stubConnection},
 	}
 

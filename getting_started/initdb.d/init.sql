@@ -6,49 +6,49 @@ CREATE DATABASE IF NOT EXISTS grant_n_z;
 USE grant_n_z;
 
 -- If services exit, drop services
-DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS `services`;
 
 -- If groups exit, drop groups
-DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS `groups`;
 
 -- If roles exit, drop roles
-DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS `roles`;
 
 -- If permissions exit, drop permissions
-DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS `permissions`;
 
 -- If users exit, drop users
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS `users`;
 
 -- If user_services exit, drop user_services
-DROP TABLE IF EXISTS user_services;
+DROP TABLE IF EXISTS `user_services`;
 
 -- If user_groups exit, drop user_groups
-DROP TABLE IF EXISTS user_groups;
+DROP TABLE IF EXISTS `user_groups`;
 
 -- If service_groups exit, drop service_groups
-DROP TABLE IF EXISTS service_groups;
+DROP TABLE IF EXISTS `service_groups`;
 
 -- If service_roles exit, drop service_roles
-DROP TABLE IF EXISTS service_groups;
+DROP TABLE IF EXISTS `service_roles`;
 
 -- If service_permissions exit, drop service_permissions
-DROP TABLE IF EXISTS service_permissions;
+DROP TABLE IF EXISTS `service_permissions`;
 
 -- If group_roles exit, drop group_roles
-DROP TABLE IF EXISTS group_groups;
+DROP TABLE IF EXISTS `group_roles`;
 
 -- If group_permissions exit, drop group_permissions
-DROP TABLE IF EXISTS group_permissions;
+DROP TABLE IF EXISTS `group_permissions`;
 
 -- If operator_policies exit, drop operator_policies
-DROP TABLE IF EXISTS operator_policies;
+DROP TABLE IF EXISTS `operator_policies`;
 
 -- If policies exit, drop policies
-DROP TABLE IF EXISTS policies;
+DROP TABLE IF EXISTS `policies`;
 
 -- `services`
-CREATE TABLE services (
+CREATE TABLE `services` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE services (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `users`
-CREATE TABLE users (
+CREATE TABLE `users` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `permissions`
-CREATE TABLE permissions (
+CREATE TABLE `permissions` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE permissions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `groups`
-CREATE TABLE groups (
+CREATE TABLE `groups` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE groups (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `roles`
-CREATE TABLE roles (
+CREATE TABLE `roles` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `user_services`
-CREATE TABLE user_services (
+CREATE TABLE `user_services` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   user_uuid varchar(128) NOT NULL,
@@ -136,7 +136,7 @@ CREATE TABLE user_services (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `user_groups`
-CREATE TABLE user_groups (
+CREATE TABLE `user_groups` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   uuid varchar(128) NOT NULL,
@@ -154,12 +154,12 @@ CREATE TABLE user_groups (
   ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_user_groups_group_uuid
   FOREIGN KEY (group_uuid)
-  REFERENCES groups (uuid)
+  REFERENCES `groups` (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_groups`
-CREATE TABLE service_groups (
+CREATE TABLE `service_groups` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   group_uuid varchar(128) NOT NULL,
@@ -171,7 +171,7 @@ CREATE TABLE service_groups (
   INDEX (service_uuid),
   CONSTRAINT fk_service_groups_group_uuid
   FOREIGN KEY (group_uuid)
-  REFERENCES groups (uuid)
+  REFERENCES `groups` (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_service_groups_serviceuuid
   FOREIGN KEY (service_uuid)
@@ -180,7 +180,7 @@ CREATE TABLE service_groups (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_roles`
-CREATE TABLE service_roles (
+CREATE TABLE `service_roles` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   role_uuid varchar(128) NOT NULL,
@@ -201,7 +201,7 @@ CREATE TABLE service_roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `service_permissions`
-CREATE TABLE service_permissions (
+CREATE TABLE `service_permissions` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   permission_uuid varchar(128) NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE service_permissions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `group_roles`
-CREATE TABLE group_roles (
+CREATE TABLE `group_roles` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   role_uuid varchar(128) NOT NULL,
@@ -238,12 +238,12 @@ CREATE TABLE group_roles (
   ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_group_roles_group_uuid
   FOREIGN KEY (group_uuid)
-  REFERENCES groups (uuid)
+  REFERENCES `groups` (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `group_permissions`
-CREATE TABLE group_permissions (
+CREATE TABLE `group_permissions` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   permission_uuid varchar(128) NOT NULL,
@@ -259,12 +259,12 @@ CREATE TABLE group_permissions (
   ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_group_permissions_group_uuid
   FOREIGN KEY (group_uuid)
-  REFERENCES groups (uuid)
+  REFERENCES `groups` (uuid)
   ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `operator_policies`
-CREATE TABLE operator_policies (
+CREATE TABLE `operator_policies` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   role_uuid varchar(128) NOT NULL,
@@ -285,7 +285,7 @@ CREATE TABLE operator_policies (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- `policies`
-CREATE TABLE policies (
+CREATE TABLE `policies` (
   id int(11) NOT NULL AUTO_INCREMENT,
   internal_id varchar(32) NOT NULL,
   name varchar(128) NOT NULL,

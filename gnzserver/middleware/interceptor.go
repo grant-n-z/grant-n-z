@@ -35,18 +35,23 @@ type Interceptor interface {
 	// Intercept Http request and Client-Secret header
 	Intercept(next http.HandlerFunc) http.HandlerFunc
 
+	// InterceptSecret
 	// Intercept only http header
 	InterceptSecret(next http.HandlerFunc) http.HandlerFunc
 
+	// InterceptAuthenticateUser
 	// Intercept Http request and Client-Secret header with user authentication
 	InterceptAuthenticateUser(next http.HandlerFunc) http.HandlerFunc
 
+	// InterceptAuthenticateGroupAdmin
 	// Intercept Http request and Client-Secret header with user and group admin role authentication
 	InterceptAuthenticateGroupAdmin(next http.HandlerFunc) http.HandlerFunc
 
+	// InterceptAuthenticateGroupUser
 	// Intercept Http request and Client-Secret header with user and group user role authentication
 	InterceptAuthenticateGroupUser(next http.HandlerFunc) http.HandlerFunc
 
+	// InterceptAuthenticateOperator
 	// Intercept Http request and Client-Secret header with operator authentication
 	InterceptAuthenticateOperator(next http.HandlerFunc) http.HandlerFunc
 }

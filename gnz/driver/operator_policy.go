@@ -23,7 +23,7 @@ type OperatorPolicyRepository interface {
 	Save(role entity.OperatorPolicy) (*entity.OperatorPolicy, error)
 }
 
-type OperatorPolicyRepositoryImpl struct {
+type RdbmsOperatorPolicyRepository struct {
 	Connection *gorm.DB
 }
 
@@ -36,10 +36,10 @@ func GetOperatorPolicyRepositoryInstance() OperatorPolicyRepository {
 
 func NewOperatorPolicyRepository() OperatorPolicyRepository {
 	log.Logger.Info("New `OperatorPolicyRepository` instance")
-	return OperatorPolicyRepositoryImpl{Connection: connection}
+	return RdbmsOperatorPolicyRepository{Connection: connection}
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, error) {
+func (opr RdbmsOperatorPolicyRepository) FindAll() ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
 	if err := opr.Connection.Find(&entities).Error; err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (opr OperatorPolicyRepositoryImpl) FindAll() ([]*entity.OperatorPolicy, err
 	return entities, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.OperatorPolicy, error) {
+func (opr RdbmsOperatorPolicyRepository) FindByUserUuid(userUuid string) ([]*entity.OperatorPolicy, error) {
 	var entities []*entity.OperatorPolicy
 	if err := opr.Connection.Where("user_uuid = ?", userUuid).Find(&entities).Error; err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserUuid(userUuid string) ([]*enti
 	return entities, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, error) {
+func (opr RdbmsOperatorPolicyRepository) FindByUserUuidAndRoleUuid(userUuid string, roleUuid string) (*entity.OperatorPolicy, error) {
 	var operatorMemberRole entity.OperatorPolicy
 	if err := opr.Connection.Where("user_uuid = ? AND role_uuid = ?", userUuid, roleUuid).Find(&operatorMemberRole).Error; err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (opr OperatorPolicyRepositoryImpl) FindByUserUuidAndRoleUuid(userUuid strin
 	return &operatorMemberRole, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserUuid(userUuid string) ([]string, error) {
+func (opr RdbmsOperatorPolicyRepository) FindRoleNameByUserUuid(userUuid string) ([]string, error) {
 	query := opr.Connection.Table(entity.OperatorPolicyTable.String()).
 		Select("name").
 		Joins(fmt.Sprintf("LEFT JOIN %s ON %s.%s = %s.%s",
@@ -102,7 +102,7 @@ func (opr OperatorPolicyRepositoryImpl) FindRoleNameByUserUuid(userUuid string) 
 	return names, nil
 }
 
-func (opr OperatorPolicyRepositoryImpl) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, error) {
+func (opr RdbmsOperatorPolicyRepository) Save(entity entity.OperatorPolicy) (*entity.OperatorPolicy, error) {
 	if err := opr.Connection.Create(&entity).Error; err != nil {
 		return nil, err
 	}

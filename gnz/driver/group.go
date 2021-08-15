@@ -12,31 +12,39 @@ import (
 var grInstance GroupRepository
 
 type GroupRepository interface {
+	// FindAll
 	// Get groups all data
 	FindAll() ([]*entity.Group, error)
 
+	// FindByUuid
 	// Get group by uuid
 	FindByUuid(uuid string) (*entity.Group, error)
 
+	// FindByName
 	// Get group from groups.name
 	FindByName(name string) (*entity.Group, error)
 
+	// FindByUserUuid
 	// Get all groups by user uuid
 	// Join user_groups and groups
 	FindByUserUuid(userUuid string) ([]*entity.Group, error)
 
+	// FindByServiceUuid
 	// Get all groups by service uuid
 	// Join service_groups and groups
 	FindByServiceUuid(serviceUuid string) ([]*entity.Group, error)
 
+	// FindGroupWithUserWithPolicyGroupsByUserUuid
 	// Get all groups with user_groups with policy that has user
 	// Join user_groups and groups and polices
 	FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid string) ([]*model.GroupWithUserGroupWithPolicy, error)
 
+	// FindGroupWithPolicyByUserUuidAndGroupUuid
 	// Get user_groups with policies by user id and group id
 	// Join user_groups and groups and polices
 	FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*model.GroupWithUserGroupWithPolicy, error)
 
+	// SaveWithRelationalData
 	// Generate groups, user_groups, service_groups
 	// Transaction mode
 	SaveWithRelationalData(
@@ -48,11 +56,13 @@ type GroupRepository interface {
 		policy entity.Policy) (*entity.Group, error)
 }
 
-// GroupRepository struct
-type GroupRepositoryImpl struct {
+// RdbmsGroupRepository
+// RdbmsGroupRepository struct
+type RdbmsGroupRepository struct {
 	Connection *gorm.DB
 }
 
+// GetGroupRepositoryInstance
 // Get Policy instance.
 // If use singleton pattern, call this instance method
 func GetGroupRepositoryInstance() GroupRepository {
@@ -62,13 +72,14 @@ func GetGroupRepositoryInstance() GroupRepository {
 	return grInstance
 }
 
+// NewGroupRepository
 // Constructor
 func NewGroupRepository() GroupRepository {
 	log.Logger.Info("New `GroupRepository` instance")
-	return GroupRepositoryImpl{Connection: connection}
+	return RdbmsGroupRepository{Connection: connection}
 }
 
-func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, error) {
+func (gr RdbmsGroupRepository) FindAll() ([]*entity.Group, error) {
 	var groups []*entity.Group
 	if err := gr.Connection.Find(&groups).Error; err != nil {
 		return nil, err
@@ -77,7 +88,7 @@ func (gr GroupRepositoryImpl) FindAll() ([]*entity.Group, error) {
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindByUuid(uuid string) (*entity.Group, error) {
+func (gr RdbmsGroupRepository) FindByUuid(uuid string) (*entity.Group, error) {
 	var group entity.Group
 	if err := gr.Connection.Where("uuid = ?", uuid).Find(&group).Error; err != nil {
 		return nil, err
@@ -86,7 +97,7 @@ func (gr GroupRepositoryImpl) FindByUuid(uuid string) (*entity.Group, error) {
 	return &group, nil
 }
 
-func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, error) {
+func (gr RdbmsGroupRepository) FindByName(name string) (*entity.Group, error) {
 	var group *entity.Group
 	if err := gr.Connection.Where("name = ?", name).Find(&group).Error; err != nil {
 		return nil, err
@@ -95,7 +106,7 @@ func (gr GroupRepositoryImpl) FindByName(name string) (*entity.Group, error) {
 	return group, nil
 }
 
-func (gr GroupRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.Group, error) {
+func (gr RdbmsGroupRepository) FindByUserUuid(userUuid string) ([]*entity.Group, error) {
 	var groups []*entity.Group
 
 	target := entity.GroupTable.String() + "." +
@@ -126,7 +137,7 @@ func (gr GroupRepositoryImpl) FindByUserUuid(userUuid string) ([]*entity.Group, 
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindByServiceUuid(serviceUuid string) ([]*entity.Group, error) {
+func (gr RdbmsGroupRepository) FindByServiceUuid(serviceUuid string) ([]*entity.Group, error) {
 	var groups []*entity.Group
 
 	target := entity.GroupTable.String() + "." +
@@ -161,7 +172,7 @@ func (gr GroupRepositoryImpl) FindByServiceUuid(serviceUuid string) ([]*entity.G
 	return groups, nil
 }
 
-func (gr GroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid string) ([]*model.GroupWithUserGroupWithPolicy, error) {
+func (gr RdbmsGroupRepository) FindGroupWithUserWithPolicyGroupsByUserUuid(userUuid string) ([]*model.GroupWithUserGroupWithPolicy, error) {
 	var groupWithUserGroupWithPolicies []*model.GroupWithUserGroupWithPolicy
 
 	if err := gr.Connection.Table(entity.UserGroupTable.String()).
@@ -189,7 +200,7 @@ func (gr GroupRepositoryImpl) FindGroupWithUserWithPolicyGroupsByUserUuid(userUu
 	return groupWithUserGroupWithPolicies, nil
 }
 
-func (gr GroupRepositoryImpl) FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*model.GroupWithUserGroupWithPolicy, error) {
+func (gr RdbmsGroupRepository) FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*model.GroupWithUserGroupWithPolicy, error) {
 	var groupWithUserGroupWithPolicy model.GroupWithUserGroupWithPolicy
 
 	if err := gr.Connection.Table(entity.UserGroupTable.String()).
@@ -221,7 +232,7 @@ func (gr GroupRepositoryImpl) FindGroupWithPolicyByUserUuidAndGroupUuid(userUuid
 
 }
 
-func (gr GroupRepositoryImpl) SaveWithRelationalData(
+func (gr RdbmsGroupRepository) SaveWithRelationalData(
 	group entity.Group,
 	serviceGroup entity.ServiceGroup,
 	userGroup entity.UserGroup,

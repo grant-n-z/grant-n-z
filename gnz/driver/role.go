@@ -12,36 +12,44 @@ import (
 var rrInstance RoleRepository
 
 type RoleRepository interface {
+	// FindAll
 	// Find all roles
 	FindAll() ([]*entity.Role, error)
 
+	// FindOffSetAndLimit
 	// Find role for offset and limit
 	FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error)
 
+	// FindByUuid
 	// Find role by uuid
 	FindByUuid(uuid string) (*entity.Role, error)
 
-	// FInd role by role name
+	// FindByName
+	// Find role by role name
 	FindByName(name string) (*entity.Role, error)
 
+	// FindByNames
 	// Find roles by role name array
 	FindByNames(name []string) ([]entity.Role, error)
 
+	// FindByGroupUuid
 	// Find roles by group uuid
 	// Join group_roles and roles
 	FindByGroupUuid(groupUuid string) ([]*entity.Role, error)
 
+	// FindNameByUuid
 	// Find role name by uuid
 	FindNameByUuid(uuid string) *string
 
 	// Save role
 	Save(role entity.Role) (*entity.Role, error)
 
+	// SaveWithRelationalData
 	// Save role with relational data
 	SaveWithRelationalData(groupUuid string, role entity.Role) (*entity.Role, error)
 }
 
-type RoleRepositoryImpl struct {
+type RdbmsRoleRepository struct {
 	Connection *gorm.DB
 }
 
@@ -54,10 +62,10 @@ func GetRoleRepositoryInstance() RoleRepository {
 
 func NewRoleRepository() RoleRepository {
 	log.Logger.Info("New `RoleRepository` instance")
-	return RoleRepositoryImpl{Connection: connection}
+	return RdbmsRoleRepository{Connection: connection}
 }
 
-func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, error) {
+func (rri RdbmsRoleRepository) FindAll() ([]*entity.Role, error) {
 	var roles []*entity.Role
 	if err := rri.Connection.Find(&roles).Error; err != nil {
 		return nil, err
@@ -66,7 +74,7 @@ func (rri RoleRepositoryImpl) FindAll() ([]*entity.Role, error) {
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error) {
+func (rri RdbmsRoleRepository) FindOffSetAndLimit(offset int, limit int) ([]*entity.Role, error) {
 	var roles []*entity.Role
 	if err := rri.Connection.Limit(limit).Offset(offset).Find(&roles).Error; err != nil {
 		return nil, err
@@ -75,7 +83,7 @@ func (rri RoleRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*enti
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindByUuid(uuid string) (*entity.Role, error) {
+func (rri RdbmsRoleRepository) FindByUuid(uuid string) (*entity.Role, error) {
 	var role entity.Role
 	if err := rri.Connection.Where("uuid = ?", uuid).Find(&role).Error; err != nil {
 		return nil, err
@@ -84,7 +92,7 @@ func (rri RoleRepositoryImpl) FindByUuid(uuid string) (*entity.Role, error) {
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, error) {
+func (rri RdbmsRoleRepository) FindByName(name string) (*entity.Role, error) {
 	var role entity.Role
 	if err := rri.Connection.Where("name = ?", name).Find(&role).Error; err != nil {
 		return nil, err
@@ -93,7 +101,7 @@ func (rri RoleRepositoryImpl) FindByName(name string) (*entity.Role, error) {
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, error) {
+func (rri RdbmsRoleRepository) FindByNames(names []string) ([]entity.Role, error) {
 	var roles []entity.Role
 	if err := rri.Connection.Where("name IN (?)", names).Find(&roles).Error; err != nil {
 		return nil, err
@@ -102,7 +110,7 @@ func (rri RoleRepositoryImpl) FindByNames(names []string) ([]entity.Role, error)
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Role, error) {
+func (rri RdbmsRoleRepository) FindByGroupUuid(groupUuid string) ([]*entity.Role, error) {
 	var roles []*entity.Role
 
 	if err := rri.Connection.Table(entity.GroupRoleTable.String()).
@@ -124,7 +132,7 @@ func (rri RoleRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Role,
 	return roles, nil
 }
 
-func (rri RoleRepositoryImpl) FindNameByUuid(uuid string) *string {
+func (rri RdbmsRoleRepository) FindNameByUuid(uuid string) *string {
 	role, err := rri.FindByUuid(uuid)
 	if err != nil {
 		return nil
@@ -132,7 +140,7 @@ func (rri RoleRepositoryImpl) FindNameByUuid(uuid string) *string {
 	return &role.Name
 }
 
-func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, error) {
+func (rri RdbmsRoleRepository) Save(role entity.Role) (*entity.Role, error) {
 	if err := rri.Connection.Create(&role).Error; err != nil {
 		return nil, err
 	}
@@ -140,7 +148,7 @@ func (rri RoleRepositoryImpl) Save(role entity.Role) (*entity.Role, error) {
 	return &role, nil
 }
 
-func (rri RoleRepositoryImpl) SaveWithRelationalData(gUuid string, role entity.Role) (*entity.Role, error) {
+func (rri RdbmsRoleRepository) SaveWithRelationalData(gUuid string, role entity.Role) (*entity.Role, error) {
 	tx := rri.Connection.Begin()
 
 	// Save role

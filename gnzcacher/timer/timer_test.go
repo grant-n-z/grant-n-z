@@ -29,11 +29,11 @@ func init() {
 	})
 	etcdClient := cache.EtcdClientImpl{Connection: stubEtcdConnection}
 
-	stubPolicyRepository := driver.PolicyRepositoryImpl{Connection: stubConnection}
-	stubPermissionRepository := driver.PermissionRepositoryImpl{Connection: stubConnection}
-	stubRoleRepository := driver.RoleRepositoryImpl{Connection: stubConnection}
-	stubServiceRepository := driver.ServiceRepositoryImpl{Connection: stubConnection}
-	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
+	stubPolicyRepository := driver.RdbmsPolicyRepository{Connection: stubConnection}
+	stubPermissionRepository := driver.RdbmsPermissionRepository{Connection: stubConnection}
+	stubRoleRepository := driver.RdbmsRoleRepository{Connection: stubConnection}
+	stubServiceRepository := driver.RdbmsServiceRepository{Connection: stubConnection}
+	stubUserRepository := driver.RdbmsUserRepository{Connection: stubConnection}
 
 	extractorService = service.ExtractorServiceImpl{
 		PolicyRepository:     stubPolicyRepository,

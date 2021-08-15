@@ -12,6 +12,7 @@ import (
 var ahInstance Auth
 
 type Auth interface {
+	// Api
 	// Implement auth api
 	// Endpoint is `/api/v1/auth`
 	Api(w http.ResponseWriter, r *http.Request)
@@ -20,11 +21,13 @@ type Auth interface {
 	get(w http.ResponseWriter, r *http.Request)
 }
 
+// AuthImpl
 // Auth api struct
 type AuthImpl struct {
 	tokenProcessor middleware.TokenProcessor
 }
 
+// GetAuthInstance
 // Get Policy instance.
 // If use singleton pattern, call this instance method
 func GetAuthInstance() Auth {
@@ -34,6 +37,7 @@ func GetAuthInstance() Auth {
 	return ahInstance
 }
 
+// NewAuth
 // Constructor
 func NewAuth() Auth {
 	log.Logger.Info("New `v1.Auth` instance")

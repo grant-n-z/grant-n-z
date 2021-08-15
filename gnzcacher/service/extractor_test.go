@@ -27,8 +27,8 @@ func TestNewExtractorService(t *testing.T) {
 
 // Test get policies
 func TestGetPolicies(t *testing.T) {
-	stubPolicyRepository := driver.PolicyRepositoryImpl{Connection: stubConnection}
-	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
+	stubPolicyRepository := driver.RdbmsPolicyRepository{Connection: stubConnection}
+	stubUserRepository := driver.RdbmsUserRepository{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		PolicyRepository: stubPolicyRepository,
 		UserRepository:   stubUserRepository,
@@ -43,7 +43,7 @@ func TestGetPolicies(t *testing.T) {
 
 // Test get permissions
 func TestGetPermissions(t *testing.T) {
-	stubPermissionRepository := driver.PermissionRepositoryImpl{Connection: stubConnection}
+	stubPermissionRepository := driver.RdbmsPermissionRepository{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		PermissionRepository: stubPermissionRepository,
 	}
@@ -57,7 +57,7 @@ func TestGetPermissions(t *testing.T) {
 
 // Test get roles
 func TestGetRoles(t *testing.T) {
-	stubRoleRepository := driver.RoleRepositoryImpl{Connection: stubConnection}
+	stubRoleRepository := driver.RdbmsRoleRepository{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		RoleRepository: stubRoleRepository,
 	}
@@ -71,7 +71,7 @@ func TestGetRoles(t *testing.T) {
 
 // Test get services
 func TestGetServices(t *testing.T) {
-	stubServiceRepository := driver.ServiceRepositoryImpl{Connection: stubConnection}
+	stubServiceRepository := driver.RdbmsServiceRepository{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		ServiceRepository: stubServiceRepository,
 	}
@@ -85,7 +85,7 @@ func TestGetServices(t *testing.T) {
 
 // Test get user services
 func TestGetUserServices(t *testing.T) {
-	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
+	stubUserRepository := driver.RdbmsUserRepository{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		UserRepository: stubUserRepository,
 	}
@@ -99,8 +99,8 @@ func TestGetUserServices(t *testing.T) {
 
 // Test get user groups
 func TestGetUserGroups(t *testing.T) {
-	stubUserRepository := driver.UserRepositoryImpl{Connection: stubConnection}
-	stubUGroupRepository := driver.GroupRepositoryImpl{Connection: stubConnection}
+	stubUserRepository := driver.RdbmsUserRepository{Connection: stubConnection}
+	stubUGroupRepository := driver.RdbmsGroupRepository{Connection: stubConnection}
 	extractorService = ExtractorServiceImpl{
 		UserRepository:  stubUserRepository,
 		GroupRepository: stubUGroupRepository,

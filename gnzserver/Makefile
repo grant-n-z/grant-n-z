@@ -21,3 +21,9 @@ build-darwin-amd64:
 	cp ./entrypoint.sh build/darwin-amd64/
 	cp ./grant_n_z_server.yaml build/darwin-amd64/
 	cp ./grant_n_z_server.txt build/darwin-amd64/
+
+unit-test:
+	go test -v ./...
+
+e2e-test:
+	go run ../e2e/cmd/cmd.go

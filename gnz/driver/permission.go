@@ -12,36 +12,44 @@ import (
 var prInstance PermissionRepository
 
 type PermissionRepository interface {
+	// FindAll
 	// Find all permission
 	FindAll() ([]*entity.Permission, error)
 
+	// FindOffSetAndLimit
 	// Find permission for offset and limit
 	FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, error)
 
+	// FindByUuid
 	// Find permission by uuid
 	FindByUuid(uuid string) (*entity.Permission, error)
 
+	// FindByName
 	// Find permission by name
 	FindByName(name string) (*entity.Permission, error)
 
+	// FindByNames
 	// Find permission by name array
 	FindByNames(names []string) ([]entity.Permission, error)
 
+	// FindByGroupUuid
 	// Find permissions by group uuid
 	// Join group_permission and permission
 	FindByGroupUuid(groupUuid string) ([]*entity.Permission, error)
 
+	// FindNameByUuid
 	// Find permission name by uuid
 	FindNameByUuid(uuid string) *string
 
 	// Save permission
 	Save(permission entity.Permission) (*entity.Permission, error)
 
+	// SaveWithRelationalData
 	// Save permission with relational data
 	SaveWithRelationalData(groupUuid string, permission entity.Permission) (*entity.Permission, error)
 }
 
-type PermissionRepositoryImpl struct {
+type RdbmsPermissionRepository struct {
 	Connection *gorm.DB
 }
 
@@ -54,10 +62,10 @@ func GetPermissionRepositoryInstance() PermissionRepository {
 
 func NewPermissionRepository() PermissionRepository {
 	log.Logger.Info("New `PermissionRepository` instance")
-	return PermissionRepositoryImpl{Connection: connection}
+	return RdbmsPermissionRepository{Connection: connection}
 }
 
-func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) FindAll() ([]*entity.Permission, error) {
 	var permissions []*entity.Permission
 	if err := pri.Connection.Find(&permissions).Error; err != nil {
 		return nil, err
@@ -66,7 +74,7 @@ func (pri PermissionRepositoryImpl) FindAll() ([]*entity.Permission, error) {
 	return permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Permission, error) {
 	var permissions []*entity.Permission
 	if err := pri.Connection.Limit(limitCnt).Offset(offsetCnt).Find(&permissions).Error; err != nil {
 		return nil, err
@@ -75,7 +83,7 @@ func (pri PermissionRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt i
 	return permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) FindByUuid(uuid string) (*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) FindByUuid(uuid string) (*entity.Permission, error) {
 	var permission entity.Permission
 	if err := pri.Connection.Where("uuid = ?", uuid).Find(&permission).Error; err != nil {
 		return nil, err
@@ -84,7 +92,7 @@ func (pri PermissionRepositoryImpl) FindByUuid(uuid string) (*entity.Permission,
 	return &permission, nil
 }
 
-func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) FindByName(name string) (*entity.Permission, error) {
 	var permission entity.Permission
 	if err := pri.Connection.Where("name = ?", name).Find(&permission).Error; err != nil {
 		return nil, err
@@ -93,7 +101,7 @@ func (pri PermissionRepositoryImpl) FindByName(name string) (*entity.Permission,
 	return &permission, nil
 }
 
-func (pri PermissionRepositoryImpl) FindByNames(names []string) ([]entity.Permission, error) {
+func (pri RdbmsPermissionRepository) FindByNames(names []string) ([]entity.Permission, error) {
 	var permissions []entity.Permission
 	if err := pri.Connection.Where("name IN (?)", names).Find(&permissions).Error; err != nil {
 		return nil, err
@@ -102,7 +110,7 @@ func (pri PermissionRepositoryImpl) FindByNames(names []string) ([]entity.Permis
 	return permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) FindByGroupUuid(groupUuid string) ([]*entity.Permission, error) {
 	var permissions []*entity.Permission
 
 	if err := pri.Connection.Table(entity.GroupPermissionTable.String()).
@@ -124,7 +132,7 @@ func (pri PermissionRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity
 	return permissions, nil
 }
 
-func (pri PermissionRepositoryImpl) FindNameByUuid(uuid string) *string {
+func (pri RdbmsPermissionRepository) FindNameByUuid(uuid string) *string {
 	permission, err := pri.FindByUuid(uuid)
 	if err != nil {
 		return nil
@@ -132,7 +140,7 @@ func (pri PermissionRepositoryImpl) FindNameByUuid(uuid string) *string {
 	return &permission.Name
 }
 
-func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) Save(permission entity.Permission) (*entity.Permission, error) {
 	if err := pri.Connection.Create(&permission).Error; err != nil {
 		return nil, err
 	}
@@ -140,7 +148,7 @@ func (pri PermissionRepositoryImpl) Save(permission entity.Permission) (*entity.
 	return &permission, nil
 }
 
-func (pri PermissionRepositoryImpl) SaveWithRelationalData(gUuid string, permission entity.Permission) (*entity.Permission, error) {
+func (pri RdbmsPermissionRepository) SaveWithRelationalData(gUuid string, permission entity.Permission) (*entity.Permission, error) {
 	tx := pri.Connection.Begin()
 
 	// Save permission

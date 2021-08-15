@@ -15,12 +15,14 @@ type UpdateTimer interface {
 	Stop()
 }
 
+// UpdateTimerImpl
 // UpdateTimer struct
 type UpdateTimerImpl struct {
 	Ticker *time.Ticker
 	Runner Runner
 }
 
+// NewUpdateTimer
 // Constructor
 func NewUpdateTimer() UpdateTimer {
 	return UpdateTimerImpl{

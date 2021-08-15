@@ -19,6 +19,7 @@ type Database struct {
 	AppConfig common.AppConfig
 }
 
+// NewDatabase
 // Constructor
 func NewDatabase() Database {
 	return Database{
@@ -27,6 +28,7 @@ func NewDatabase() Database {
 	}
 }
 
+// Connect
 // Initialize database driver for GrantNZ server
 func (r Database) Connect() {
 	if !strings.EqualFold(r.DbConfig.Engine, "mysql") {
@@ -66,6 +68,7 @@ func (r Database) Connect() {
 	connection = db
 }
 
+// PingRdbms
 // Ping RDBMS
 func (r Database) PingRdbms() {
 	for {
@@ -74,7 +77,7 @@ func (r Database) PingRdbms() {
 		if err != nil {
 			log.Logger.Warn("Failed to rdbms ping.", err.Error())
 		} else {
-			log.Logger.Info("Ping rdbms.")
+			log.Logger.Debug("Ping rdbms.")
 		}
 	}
 }
