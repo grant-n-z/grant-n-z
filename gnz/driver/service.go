@@ -14,30 +14,38 @@ import (
 var srInstance ServiceRepository
 
 type ServiceRepository interface {
+	// FindAll
 	// Find all Service
 	FindAll() ([]*entity.Service, error)
 
+	// FindOffSetAndLimit
 	// Find Service for offset and limit
 	FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, error)
 
+	// FindByUuid
 	// Find Service by service uuid
 	FindByUuid(uuid string) (*entity.Service, error)
 
+	// FindByName
 	// Find Service by service name
 	FindByName(name string) (*entity.Service, error)
 
+	// FindBySecret
 	// Find Service by service Client-Secret
 	FindBySecret(apiKey string) (*entity.Service, error)
 
+	// FindNameByUuid
 	// Find Service name by service uuid
 	FindNameByUuid(uuid string) *string
 
+	// FindServicesByUserUuid
 	// Fin Service by user uuid
 	FindServicesByUserUuid(userUuid string) ([]*entity.Service, error)
 
 	// Save Service
 	Save(service entity.Service) (*entity.Service, error)
 
+	// SaveWithRelationalData
 	// Generate Service, ServicePermission, ServiceRole
 	// When generate service, insert initialize permission and role data
 	// Transaction mode
@@ -47,12 +55,13 @@ type ServiceRepository interface {
 	Update(service entity.Service) (*entity.Service, error)
 }
 
+// RdbmsServiceRepository
 // ServiceRepository struct
-type ServiceRepositoryImpl struct {
+type RdbmsServiceRepository struct {
 	Connection *gorm.DB
 }
 
-// Get Policy instance.
+// GetServiceRepositoryInstance Get Policy instance.
 // If use singleton pattern, call this instance method
 func GetServiceRepositoryInstance() ServiceRepository {
 	if srInstance == nil {
@@ -61,13 +70,14 @@ func GetServiceRepositoryInstance() ServiceRepository {
 	return srInstance
 }
 
+// NewServiceRepository
 // Constructor
 func NewServiceRepository() ServiceRepository {
 	log.Logger.Info("New `ServiceRepository` instance")
-	return ServiceRepositoryImpl{Connection: connection}
+	return RdbmsServiceRepository{Connection: connection}
 }
 
-func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, error) {
+func (sri RdbmsServiceRepository) FindAll() ([]*entity.Service, error) {
 	var services []*entity.Service
 	if err := sri.Connection.Find(&services).Error; err != nil {
 		return nil, err
@@ -76,7 +86,7 @@ func (sri ServiceRepositoryImpl) FindAll() ([]*entity.Service, error) {
 	return services, nil
 }
 
-func (sri ServiceRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, error) {
+func (sri RdbmsServiceRepository) FindOffSetAndLimit(offset int, limit int) ([]*entity.Service, error) {
 	var services []*entity.Service
 	if err := sri.Connection.Limit(limit).Offset(offset).Find(&services).Error; err != nil {
 		return nil, err
@@ -85,7 +95,7 @@ func (sri ServiceRepositoryImpl) FindOffSetAndLimit(offset int, limit int) ([]*e
 	return services, nil
 }
 
-func (sri ServiceRepositoryImpl) FindByUuid(uuid string) (*entity.Service, error) {
+func (sri RdbmsServiceRepository) FindByUuid(uuid string) (*entity.Service, error) {
 	var service entity.Service
 	if err := sri.Connection.Where("uuid = ?", uuid).First(&service).Error; err != nil {
 		return nil, err
@@ -94,7 +104,7 @@ func (sri ServiceRepositoryImpl) FindByUuid(uuid string) (*entity.Service, error
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, error) {
+func (sri RdbmsServiceRepository) FindByName(name string) (*entity.Service, error) {
 	var service entity.Service
 	if err := sri.Connection.Where("name = ?", name).First(&service).Error; err != nil {
 		return nil, err
@@ -103,7 +113,7 @@ func (sri ServiceRepositoryImpl) FindByName(name string) (*entity.Service, error
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) FindBySecret(secret string) (*entity.Service, error) {
+func (sri RdbmsServiceRepository) FindBySecret(secret string) (*entity.Service, error) {
 	var service entity.Service
 	if err := sri.Connection.Where("secret = ?", secret).First(&service).Error; err != nil {
 		return nil, err
@@ -112,7 +122,7 @@ func (sri ServiceRepositoryImpl) FindBySecret(secret string) (*entity.Service, e
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) FindNameByUuid(uuid string) *string {
+func (sri RdbmsServiceRepository) FindNameByUuid(uuid string) *string {
 	service, err := sri.FindByUuid(uuid)
 	if err != nil {
 		return nil
@@ -120,7 +130,7 @@ func (sri ServiceRepositoryImpl) FindNameByUuid(uuid string) *string {
 	return &service.Name
 }
 
-func (sri ServiceRepositoryImpl) FindServicesByUserUuid(userUuid string) ([]*entity.Service, error) {
+func (sri RdbmsServiceRepository) FindServicesByUserUuid(userUuid string) ([]*entity.Service, error) {
 	var services []*entity.Service
 
 	if err := sri.Connection.Table(entity.ServiceTable.String()).
@@ -142,7 +152,7 @@ func (sri ServiceRepositoryImpl) FindServicesByUserUuid(userUuid string) ([]*ent
 	return services, nil
 }
 
-func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, error) {
+func (sri RdbmsServiceRepository) Save(service entity.Service) (*entity.Service, error) {
 	if err := sri.Connection.Create(&service).Error; err != nil {
 		return nil, err
 	}
@@ -150,7 +160,7 @@ func (sri ServiceRepositoryImpl) Save(service entity.Service) (*entity.Service, 
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, error) {
+func (sri RdbmsServiceRepository) SaveWithRelationalData(service entity.Service, roles []entity.Role, permissions []entity.Permission) (*entity.Service, error) {
 	tx := sri.Connection.Begin()
 
 	// Save service
@@ -191,7 +201,7 @@ func (sri ServiceRepositoryImpl) SaveWithRelationalData(service entity.Service, 
 	return &service, nil
 }
 
-func (sri ServiceRepositoryImpl) Update(service entity.Service) (*entity.Service, error) {
+func (sri RdbmsServiceRepository) Update(service entity.Service) (*entity.Service, error) {
 	if err := sri.Connection.Save(&service).Error; err != nil {
 		return nil, err
 	}

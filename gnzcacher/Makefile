@@ -21,3 +21,6 @@ build-darwin-amd64:
 	cp ./entrypoint.sh build/darwin-amd64/
 	cp ./grant_n_z_cacher.yaml build/darwin-amd64/
 	cp ./grant_n_z_cacher.txt build/darwin-amd64/
+
+unit-test:
+	go test -v ./...

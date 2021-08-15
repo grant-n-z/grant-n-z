@@ -6,7 +6,7 @@ cacher:
 
 db:
   engine: $DB_ENGINE
-  host: $DB_HOST
+  hosts: $DB_HOSTS
   user: $DB_USER
   password: $DB_PASSWORD
   port: $DB_PORT

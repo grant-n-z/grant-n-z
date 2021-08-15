@@ -12,60 +12,78 @@ import (
 var urInstance UserRepository
 
 type UserRepository interface {
+	// FindByUuid
 	// Find User by user id
 	FindByUuid(uuid string) (*entity.User, error)
 
+	// FindByEmail
 	// Find User by user email
 	FindByEmail(email string) (*entity.User, error)
 
+	// FindByGroupUuid
 	// Find User by group uuid
 	FindByGroupUuid(groupUuid string) ([]*entity.User, error)
 
+	// FindWithOperatorPolicyByEmail
 	// Find User and operator policy by user email
 	FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, error)
 
+	// FindWithUserServiceWithServiceByEmail
 	// Find User and UserService and service by user email
 	FindWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, error)
 
+	// FindUserGroupByUserUuidAndGroupUuid
 	// Find UserGroup by user uuid and group uuid
 	FindUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, error)
 
+	// FindUserServices
 	// Find all UserService
 	FindUserServices() ([]*entity.UserService, error)
 
+	// FindUserServicesByUserUuid
 	// Find UserService by user uuid
 	FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error)
 
+	// FindUserServicesOffSetAndLimit
 	// Find all UserService with offset and limit
 	FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, error)
 
+	// FindUserGroupsOffSetAndLimit
 	// Find all UserGroup with offset and limit
 	FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, error)
 
+	// FindUserServiceByUserUuidAndServiceUuid
 	// Find UserService by user uuid and service uuid
 	FindUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, error)
 
+	// SaveUserGroup
 	// Insert user_group data
 	SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, error)
 
+	// SaveUser
 	// Save User
 	SaveUser(user entity.User) (*entity.User, error)
 
+	// SaveWithUserService
 	// Save User and user service
 	SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, error)
 
+	// SaveUserService
 	// Save UserService
 	SaveUserService(userService entity.UserService) (*entity.UserService, error)
 
+	// UpdateUser
 	// Update User
 	UpdateUser(user entity.User) (*entity.User, error)
 }
 
+// RdbmsUserRepository
 // UserRepository struct
-type UserRepositoryImpl struct {
+type RdbmsUserRepository struct {
 	Connection *gorm.DB
 }
 
+// GetUserRepositoryInstance
 // Get Policy instance.
 // If use singleton pattern, call this instance method
 func GetUserRepositoryInstance() UserRepository {
@@ -75,13 +93,14 @@ func GetUserRepositoryInstance() UserRepository {
 	return urInstance
 }
 
+// NewUserRepository
 // Constructor
 func NewUserRepository() UserRepository {
 	log.Logger.Info("New `UserRepository` instance")
-	return UserRepositoryImpl{Connection: connection}
+	return RdbmsUserRepository{Connection: connection}
 }
 
-func (uri UserRepositoryImpl) FindByUuid(uuid string) (*entity.User, error) {
+func (uri RdbmsUserRepository) FindByUuid(uuid string) (*entity.User, error) {
 	var user entity.User
 	if err := uri.Connection.Where("uuid = ?", uuid).Find(&user).Error; err != nil {
 		return nil, err
@@ -90,7 +109,7 @@ func (uri UserRepositoryImpl) FindByUuid(uuid string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, error) {
+func (uri RdbmsUserRepository) FindByEmail(email string) (*entity.User, error) {
 	var user entity.User
 	if err := uri.Connection.Where("email = ?", email).Find(&user).Error; err != nil {
 		return nil, err
@@ -99,7 +118,7 @@ func (uri UserRepositoryImpl) FindByEmail(email string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.User, error) {
+func (uri RdbmsUserRepository) FindByGroupUuid(groupUuid string) ([]*entity.User, error) {
 	var users []*entity.User
 
 	target := entity.UserTable.String() + "." +
@@ -130,7 +149,7 @@ func (uri UserRepositoryImpl) FindByGroupUuid(groupUuid string) ([]*entity.User,
 	return users, nil
 }
 
-func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, error) {
+func (uri RdbmsUserRepository) FindWithOperatorPolicyByEmail(email string) (*model.UserWithOperatorPolicy, error) {
 	var uwo model.UserWithOperatorPolicy
 
 	if err := uri.Connection.Table(entity.UserTable.String()).
@@ -158,7 +177,7 @@ func (uri UserRepositoryImpl) FindWithOperatorPolicyByEmail(email string) (*mode
 	return &uwo, nil
 }
 
-func (uri UserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, error) {
+func (uri RdbmsUserRepository) FindWithUserServiceWithServiceByEmail(email string) (*model.UserWithUserServiceWithService, error) {
 	var uus model.UserWithUserServiceWithService
 
 	if err := uri.Connection.Table(entity.UserTable.String()).
@@ -186,7 +205,7 @@ func (uri UserRepositoryImpl) FindWithUserServiceWithServiceByEmail(email string
 	return &uus, nil
 }
 
-func (uri UserRepositoryImpl) FindUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, error) {
+func (uri RdbmsUserRepository) FindUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (*entity.UserGroup, error) {
 	var userGroup entity.UserGroup
 	if err := uri.Connection.Where("user_uuid = ? AND group_uuid = ?", userUuid, groupUuid).First(&userGroup).Error; err != nil {
 		return nil, err
@@ -195,7 +214,7 @@ func (uri UserRepositoryImpl) FindUserGroupByUserUuidAndGroupUuid(userUuid strin
 	return &userGroup, nil
 }
 
-func (uri UserRepositoryImpl) FindUserServices() ([]*entity.UserService, error) {
+func (uri RdbmsUserRepository) FindUserServices() ([]*entity.UserService, error) {
 	var userServices []*entity.UserService
 	if err := uri.Connection.Find(&userServices).Error; err != nil {
 		return nil, err
@@ -204,7 +223,7 @@ func (uri UserRepositoryImpl) FindUserServices() ([]*entity.UserService, error) 
 	return userServices, nil
 }
 
-func (uri UserRepositoryImpl) FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error) {
+func (uri RdbmsUserRepository) FindUserServicesByUserUuid(userUuid string) ([]*entity.UserService, error) {
 	var userServices []*entity.UserService
 	if err := uri.Connection.Where("user_uuid = ?", userUuid).Find(&userServices).Error; err != nil {
 		return nil, err
@@ -213,7 +232,7 @@ func (uri UserRepositoryImpl) FindUserServicesByUserUuid(userUuid string) ([]*en
 	return userServices, nil
 }
 
-func (uri UserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, error) {
+func (uri RdbmsUserRepository) FindUserServicesOffSetAndLimit(offset int, limit int) ([]*entity.UserService, error) {
 	var userServices []*entity.UserService
 	if err := uri.Connection.Limit(limit).Offset(offset).Find(&userServices).Error; err != nil {
 		return nil, err
@@ -222,7 +241,7 @@ func (uri UserRepositoryImpl) FindUserServicesOffSetAndLimit(offset int, limit i
 	return userServices, nil
 }
 
-func (uri UserRepositoryImpl) FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, error) {
+func (uri RdbmsUserRepository) FindUserGroupsOffSetAndLimit(offset int, limit int) ([]*entity.UserGroup, error) {
 	var userGroups []*entity.UserGroup
 	if err := uri.Connection.Limit(limit).Offset(offset).Find(&userGroups).Error; err != nil {
 		return nil, err
@@ -231,7 +250,7 @@ func (uri UserRepositoryImpl) FindUserGroupsOffSetAndLimit(offset int, limit int
 	return userGroups, nil
 }
 
-func (uri UserRepositoryImpl) FindUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, error) {
+func (uri RdbmsUserRepository) FindUserServiceByUserUuidAndServiceUuid(userUuid string, serviceUuid string) (*entity.UserService, error) {
 	var userService entity.UserService
 	if err := uri.Connection.Where("user_uuid = ? AND service_uuid = ?", userUuid, serviceUuid).Find(&userService).Error; err != nil {
 		return nil, err
@@ -240,7 +259,7 @@ func (uri UserRepositoryImpl) FindUserServiceByUserUuidAndServiceUuid(userUuid s
 	return &userService, nil
 }
 
-func (uri UserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, error) {
+func (uri RdbmsUserRepository) SaveUserGroup(userGroup entity.UserGroup) (*entity.UserGroup, error) {
 	if err := uri.Connection.Save(&userGroup).Error; err != nil {
 		return nil, err
 	}
@@ -248,7 +267,7 @@ func (uri UserRepositoryImpl) SaveUserGroup(userGroup entity.UserGroup) (*entity
 	return &userGroup, nil
 }
 
-func (uri UserRepositoryImpl) SaveUser(user entity.User) (*entity.User, error) {
+func (uri RdbmsUserRepository) SaveUser(user entity.User) (*entity.User, error) {
 	if err := uri.Connection.Create(&user).Error; err != nil {
 		return nil, err
 	}
@@ -256,7 +275,7 @@ func (uri UserRepositoryImpl) SaveUser(user entity.User) (*entity.User, error) {
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, error) {
+func (uri RdbmsUserRepository) SaveWithUserService(user entity.User, userService entity.UserService) (*entity.User, error) {
 	tx := uri.Connection.Begin()
 
 	if err := tx.Create(&user).Error; err != nil {
@@ -274,7 +293,7 @@ func (uri UserRepositoryImpl) SaveWithUserService(user entity.User, userService 
 	return &user, nil
 }
 
-func (uri UserRepositoryImpl) SaveUserService(userService entity.UserService) (*entity.UserService, error) {
+func (uri RdbmsUserRepository) SaveUserService(userService entity.UserService) (*entity.UserService, error) {
 	if err := uri.Connection.Create(&userService).Error; err != nil {
 		return nil, err
 	}
@@ -282,7 +301,7 @@ func (uri UserRepositoryImpl) SaveUserService(userService entity.UserService) (*
 	return &userService, nil
 }
 
-func (uri UserRepositoryImpl) UpdateUser(user entity.User) (*entity.User, error) {
+func (uri RdbmsUserRepository) UpdateUser(user entity.User) (*entity.User, error) {
 	if err := uri.Connection.Save(&user).Error; err != nil {
 		return nil, err
 	}

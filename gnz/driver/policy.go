@@ -13,29 +13,34 @@ import (
 var plrInstance PolicyRepository
 
 type PolicyRepository interface {
+	// FindAll
 	// Find all policy
 	FindAll() ([]*entity.Policy, error)
 
+	// FindOffSetAndLimit
 	// Find policy for offset and limit
 	FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error)
 
+	// FindByRoleUuid
 	// Find policy by role uuid
 	FindByRoleUuid(roleUuid string) ([]*entity.Policy, error)
 
+	// FindByUuid
 	// Find by uuid
 	FindByUuid(uuid string) (entity.Policy, error)
 
+	// FindPolicyOfUserGroupByUserUuidAndGroupUuid
 	// Find policy data by user uuid and group uuid
 	FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error)
 
+	// FindPolicyOfUserServiceByUserUuidAndServiceUuid
 	// Find policy data by user uuid and group uuid
 	FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error)
 
-	// Update
 	Update(policy entity.Policy) (*entity.Policy, error)
 }
 
-type PolicyRepositoryImpl struct {
+type RdbmsPolicyRepository struct {
 	Connection *gorm.DB
 }
 
@@ -48,10 +53,10 @@ func GetPolicyRepositoryInstance() PolicyRepository {
 
 func NewPolicyRepository() PolicyRepository {
 	log.Logger.Info("New `PolicyRepository` instance")
-	return PolicyRepositoryImpl{Connection: connection}
+	return RdbmsPolicyRepository{Connection: connection}
 }
 
-func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, error) {
+func (pri RdbmsPolicyRepository) FindAll() ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	if err := pri.Connection.Find(&policies).Error; err != nil {
 		return nil, err
@@ -60,7 +65,7 @@ func (pri PolicyRepositoryImpl) FindAll() ([]*entity.Policy, error) {
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error) {
+func (pri RdbmsPolicyRepository) FindOffSetAndLimit(offsetCnt int, limitCnt int) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	if err := pri.Connection.Limit(limitCnt).Offset(offsetCnt).Find(&policies).Error; err != nil {
 		return nil, err
@@ -69,7 +74,7 @@ func (pri PolicyRepositoryImpl) FindOffSetAndLimit(offsetCnt int, limitCnt int) 
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindByRoleUuid(roleUuid string) ([]*entity.Policy, error) {
+func (pri RdbmsPolicyRepository) FindByRoleUuid(roleUuid string) ([]*entity.Policy, error) {
 	var policies []*entity.Policy
 	if err := pri.Connection.Where("role_uuid = ?", roleUuid).Find(&policies).Error; err != nil {
 		return nil, err
@@ -78,7 +83,7 @@ func (pri PolicyRepositoryImpl) FindByRoleUuid(roleUuid string) ([]*entity.Polic
 	return policies, nil
 }
 
-func (pri PolicyRepositoryImpl) FindByUuid(uuid string) (entity.Policy, error) {
+func (pri RdbmsPolicyRepository) FindByUuid(uuid string) (entity.Policy, error) {
 	var policy entity.Policy
 	if err := pri.Connection.Where("uuid = ?", uuid).Find(&policy).Error; err != nil {
 		return entity.Policy{}, err
@@ -87,7 +92,7 @@ func (pri PolicyRepositoryImpl) FindByUuid(uuid string) (entity.Policy, error) {
 	return policy, nil
 }
 
-func (pri PolicyRepositoryImpl) FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error) {
+func (pri RdbmsPolicyRepository) FindPolicyOfUserGroupByUserUuidAndGroupUuid(userUuid string, groupUuid string) (model.UserPolicyOnGroupResponse, error) {
 	var policy model.UserPolicyOnGroupResponse
 
 	target := entity.UserTable.String() + "." +
@@ -149,7 +154,7 @@ func (pri PolicyRepositoryImpl) FindPolicyOfUserGroupByUserUuidAndGroupUuid(user
 	return policy, nil
 }
 
-func (pri PolicyRepositoryImpl) FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error) {
+func (pri RdbmsPolicyRepository) FindPolicyOfUserServiceByUserUuidAndServiceUuid(userUuid string) ([]model.UserPolicyOnServiceResponse, error) {
 	var policy []model.UserPolicyOnServiceResponse
 
 	target := entity.UserTable.String() + "." +
@@ -220,7 +225,7 @@ func (pri PolicyRepositoryImpl) FindPolicyOfUserServiceByUserUuidAndServiceUuid(
 	return policy, nil
 }
 
-func (pri PolicyRepositoryImpl) Update(policy entity.Policy) (*entity.Policy, error) {
+func (pri RdbmsPolicyRepository) Update(policy entity.Policy) (*entity.Policy, error) {
 	if err := pri.Connection.Where("user_group_uuid = ?", policy.UserGroupUuid).Assign(policy).FirstOrCreate(&policy).Error; err != nil {
 		return nil, err
 	}

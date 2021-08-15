@@ -1,18 +1,20 @@
 version: "3.7"
 
 services:
-  database:
+  mysql-database:
     image: mysql:8.0
-    container_name: mysql_database
+    container_name: mysql-database
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: grant_n_z
       MYSQL_USER: user
       MYSQL_PASSWORD: password
-  etcd:
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+  etcd-database:
     image: docker.io/bitnami/etcd
-    container_name: etcd_database
+    container_name: etcd-database
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
       - ETCD_ADVERTISE_CLIENT_URLS=http://localhost:2379
@@ -20,48 +22,52 @@ services:
       - 2379:2379
       - 2380:2380
   gnzserver:
-    image: grantnz/gnzserver:20210814090558
+    image: grantnz/gnzserver:test
     container_name: gnzserver
     tty: true
+    restart: always
     environment:
       - LOG_LEVEL=info
       - DB_ENGINE=mysql
-      - DB_HOST=mysql_database
+      - DB_HOSTS=mysql-database
       - DB_USER=user
       - DB_PORT=3306
       - DB_NAME=grant_n_z
       - DB_PASSWORD=password
-      - ETCD_HOST=etcd_database
+      - ETCD_HOST=etcd-database
       - ETCD_PORT=2379
       - SERVER_PORT=8080
       - SERVER_TOKEN_EXPIRE_HOUR=100
       - SERVER_SIGN_ALGORITHM=rsa256
-      - SERVER_PRIVATE_KEY_PATH="/grant_n_z/getting_started/test-private.key"
-      - SERVER_PUBLIC_KEY_PATH="/grant_n_z/getting_started/test-public.key"
+      - SERVER_PRIVATE_KEY_PATH=/grant_n_z/getting_started/test-private.key
+      - SERVER_PUBLIC_KEY_PATH=/grant_n_z/getting_started/test-public.key
     ports:
       - 8080:8080
     depends_on:
-      - database
-      - etcd
+      - mysql-database
+      - etcd-database
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
+    command: sleep 10s && /grant_n_z/gnzserver/build/linux-amd64/GrantNZServer
   gnzcacher:
-    image: grantnz/gnzcacher:20210814090558
+    image: grantnz/gnzcacher:test
     container_name: gnzcacher
     tty: true
+    restart: always
     environment:
       - LOG_LEVEL=info
       - DB_ENGINE=mysql
-      - DB_HOST=mysql_database
+      - DB_HOSTS=mysql-database
       - DB_USER=user
       - DB_PORT=3306
       - DB_PASSWORD=password
       - DB_NAME=grant_n_z
-      - ETCD_HOST=etcd_database
+      - ETCD_HOST=etcd-database
       - ETCD_PORT=2379
       - CACHER_TIME_MILLIS=1000
     depends_on:
-      - database
-      - etcd
+      - mysql-database
+      - etcd-database
+    command: sleep 10s && /grant_n_z/gnzserver/build/linux-amd64/GrantNZCacher
