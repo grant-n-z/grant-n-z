@@ -11,6 +11,10 @@ func main() {
 	)
 	flag.Parse()
 
-	e2eAuth := endpoint.NewE2eAuth(*ics)
-	e2eAuth.E2eTestV1auth401()
+	testIF := []endpoint.TestIF{endpoint.NewE2eAuth(*ics)}
+	for _, test := range testIF {
+		test.Init()
+		test.Run()
+		test.Close()
+	}
 }
