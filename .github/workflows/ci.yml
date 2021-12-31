@@ -18,7 +18,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v1
     - name: unit-test
-      run: sh .github/script/unit-test.sh
+      run: sh .github/scripts/unit-test.sh
 
   build:
     runs-on: ubuntu-latest
@@ -34,9 +34,9 @@ jobs:
     - name: output-coverage
       env:
         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sh .github/script/test-converage.sh
+      run: sh .github/scripts/test-converage.sh
     - name: build
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: sh .github/script/build.sh
+      run: sh .github/scripts/build.sh
