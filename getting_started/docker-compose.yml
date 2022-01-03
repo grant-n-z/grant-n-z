@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   mysql-database:
-    image: mysql:8.0
+    image: mysql:5.6
     container_name: mysql-database
     restart: always
     environment:
@@ -22,7 +22,7 @@ services:
       - 2379:2379
       - 2380:2380
   gnzserver:
-    image: grantnz/gnzserver:test
+    image: grantnz/gnzserver:latest
     container_name: gnzserver
     tty: true
     restart: always
@@ -52,7 +52,7 @@ services:
       - SYS_PTRACE
     command: sleep 10s && /grant_n_z/gnzserver/build/linux-amd64/GrantNZServer
   gnzcacher:
-    image: grantnz/gnzcacher:test
+    image: grantnz/gnzcacher:latest
     container_name: gnzcacher
     tty: true
     restart: always
