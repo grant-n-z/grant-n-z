@@ -2,15 +2,14 @@ package middleware
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
 
 	"encoding/json"
 
-	"github.com/dgrijalva/jwt-go"
-
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/log"

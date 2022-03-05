@@ -8,7 +8,8 @@ import (
 	"io/ioutil"
 
 	"crypto/rsa"
-	"github.com/dgrijalva/jwt-go"
+
+	"github.com/golang-jwt/jwt"
 )
 
 // YmlConfig
