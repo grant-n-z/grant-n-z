@@ -257,7 +257,7 @@ func (tp TokenProcessorImpl) signedInToken(userUuid string, username string, use
 
 	claims := tp.Token.Claims.(jwt.MapClaims)
 	claims["exp"] = strconv.FormatInt(exp.Unix(), 10)
-	claims["iat"] = strconv.FormatInt(time.Now().UnixNano(), 10)
+	claims["iat"] = strconv.FormatInt(time.Now().Unix(), 10)
 	claims["sub"] = uuid.New().String() // TODO: grant nz server uuid
 	claims["iss"] = userUuid
 	claims["user_policies"] = string(userPolicyJson)
@@ -267,7 +267,6 @@ func (tp TokenProcessorImpl) signedInToken(userUuid string, username string, use
 	} else {
 		claims["is_refresh"] = false
 	}
-
 	signedToken, err := tp.Token.SignedString(tp.ServerConfig.SignedInPrivateKey)
 	if err != nil {
 		log.Logger.Error("Failed to issue signed token", err.Error())
@@ -296,14 +295,17 @@ func (tp TokenProcessorImpl) parseToken(token string) (model.JwtPayload, bool) {
 	})
 
 	if err != nil {
-		log.Logger.Info("Failed to token parse.", err.Error())
-		return model.JwtPayload{}, false
+		e, ok := err.(*jwt.ValidationError)
+		if !ok || ok && e.Errors&jwt.ValidationErrorIssuedAt == 0 {
+			log.Logger.Info("Failed to token parse. ", err.Error())
+			return model.JwtPayload{}, false
+		}
 	}
 
-	if !parseToken.Valid {
-		log.Logger.Info("Failed to token validation.")
-		return model.JwtPayload{}, false
-	}
+	//if !parseToken.Valid {
+	//	log.Logger.Info("Failed to token validation.")
+	//	return model.JwtPayload{}, false
+	//}
 
 	claims := parseToken.Claims.(jwt.MapClaims)
 
