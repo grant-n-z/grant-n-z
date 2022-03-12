@@ -1,4 +1,4 @@
-FROM golang:1.13
+FROM golang:1.15
 
 RUN mkdir /grant_n_z
 WORKDIR /grant_n_z
