@@ -7,20 +7,23 @@ import (
 )
 
 type E2eAuth struct {
+	BaseUrl    string
 	V1Endpoint string
 }
 
 var (
-	v1Endpoint = "/api/v1/auth"
+	v1AuthEndpoint = "/api/v1/auth"
 )
+
 func NewE2eAuth(url string) E2eAuth {
 	return E2eAuth{
-		V1Endpoint: url + v1Endpoint,
+		BaseUrl:    url,
+		V1Endpoint: url + v1AuthEndpoint,
 	}
 }
 
 func (e E2eAuth) E2eTestV1auth401() {
 	req, _ := http.NewRequest(http.MethodGet, e.V1Endpoint, nil)
 	res, err := e2eclient.GetHttpClientInstance().Do(req)
-	e2eclient.ExpectUnauthorized(res, err, v1Endpoint, http.MethodGet)
+	e2eclient.ExpectUnauthorized(res, err, e.V1Endpoint, http.MethodGet)
 }

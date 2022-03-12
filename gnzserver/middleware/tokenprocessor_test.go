@@ -6,7 +6,7 @@ import (
 
 	"encoding/base64"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
@@ -245,7 +245,7 @@ func TestVerifyUserToken_Error(t *testing.T) {
 
 // Test verify user token
 func TestVerifyUserToken_Success(t *testing.T) {
-	token, _ := tokenProcessor.Generate(
+	token, err := tokenProcessor.Generate(
 		common.AuthUser,
 		model.TokenRequest{
 			GrantType: "password",
@@ -253,7 +253,12 @@ func TestVerifyUserToken_Success(t *testing.T) {
 			Password:  "test",
 		},
 	)
-	_, err := tokenProcessor.VerifyUserToken("Bearer "+token.Token, "test_role", "test_permission", "")
+	if err != nil {
+		t.Errorf("Incorrect TestVerifyUserToken_Success test. Token is empty. " + err.ToJson())
+		t.FailNow()
+	}
+
+	_, err = tokenProcessor.VerifyUserToken("Bearer "+token.Token, "test_role", "test_permission", "")
 	if err != nil {
 		t.Errorf("Incorrect TestVerifyUserToken_Success test." + err.ToJson())
 		t.FailNow()

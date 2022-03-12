@@ -13,4 +13,5 @@ func main() {
 
 	e2eAuth := endpoint.NewE2eAuth(*ics)
 	e2eAuth.E2eTestV1auth401()
+	e2eAuth.E2eTestV1user201()
 }
