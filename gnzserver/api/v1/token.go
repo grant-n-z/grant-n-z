@@ -2,13 +2,12 @@ package v1
 
 import (
 	"encoding/json"
-	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnzserver/service"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
+	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
 
 var thInstance Token
