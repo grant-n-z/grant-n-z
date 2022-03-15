@@ -2,13 +2,12 @@ package v1
 
 import (
 	"encoding/json"
-	"github.com/tomoyane/grant-n-z/gnz/common"
-	"github.com/tomoyane/grant-n-z/gnzserver/service"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
+	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
+	"github.com/tomoyane/grant-n-z/gnzserver/service"
 )
 
 var thInstance Token
@@ -39,7 +38,6 @@ func GetTokenInstance() Token {
 
 // Constructor
 func NewToken() Token {
-	log.Logger.Info("New `v1.Token` instance")
 	return TokenImpl{
 		TokenProcessor: middleware.GetTokenProcessorInstance(),
 		Service:        service.GetServiceInstance(),

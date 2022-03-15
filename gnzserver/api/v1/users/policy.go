@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -38,7 +37,6 @@ func GetPolicyInstance() Policy {
 
 // Constructor
 func NewPolicy() Policy {
-	log.Logger.Info("New `v1.users.Policy` instance")
 	return PolicyImpl{PolicyService: service.GetPolicyServiceInstance()}
 }
 

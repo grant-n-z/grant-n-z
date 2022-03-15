@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -37,7 +36,6 @@ func GetServiceInstance() Service {
 
 // Constructor
 func NewService() Service {
-	log.Logger.Info("New `v1.users.Service` instance")
 	return ServiceImpl{Service: service.GetServiceInstance()}
 }
 

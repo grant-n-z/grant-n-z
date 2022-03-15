@@ -11,7 +11,6 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/common"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -54,7 +53,6 @@ func GetGroupServiceInstance() GroupService {
 
 // Constructor
 func NewGroupService() GroupService {
-	log.Logger.Info("New `GroupService` instance")
 	return GroupServiceImpl{
 		EtcdClient:           cache.GetEtcdClientInstance(),
 		GroupRepository:      driver.GetGroupRepositoryInstance(),

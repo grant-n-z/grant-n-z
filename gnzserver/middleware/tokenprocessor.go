@@ -57,7 +57,6 @@ func GetTokenProcessorInstance() TokenProcessor {
 
 // Constructor
 func NewTokenProcessor() TokenProcessor {
-	log.Logger.Info("New `TokenProcessor` instance")
 	serverConfig := common.GServer
 	return TokenProcessorImpl{
 		UserService:           service.GetUserServiceInstance(),

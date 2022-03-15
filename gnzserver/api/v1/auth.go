@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
@@ -40,7 +39,6 @@ func GetAuthInstance() Auth {
 // NewAuth
 // Constructor
 func NewAuth() Auth {
-	log.Logger.Info("New `v1.Auth` instance")
 	return AuthImpl{tokenProcessor: middleware.GetTokenProcessorInstance()}
 }
 

@@ -8,7 +8,6 @@ import (
 
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -45,7 +44,6 @@ func GetOperatorPolicyServiceInstance() OperatorPolicyService {
 }
 
 func NewOperatorPolicyServiceService() OperatorPolicyService {
-	log.Logger.Info("New `OperatorPolicyService` instance")
 	return OperatorPolicyServiceImpl{
 		OperatorPolicyRepository: driver.GetOperatorPolicyRepositoryInstance(),
 		UserRepository:           driver.GetUserRepositoryInstance(),
