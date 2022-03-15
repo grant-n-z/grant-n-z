@@ -39,7 +39,6 @@ func GetTokenInstance() Token {
 
 // Constructor
 func NewToken() Token {
-	log.Logger.Info("New `v1.Token` instance")
 	return TokenImpl{
 		TokenProcessor: middleware.GetTokenProcessorInstance(),
 		Service:        service.GetServiceInstance(),

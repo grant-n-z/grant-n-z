@@ -45,7 +45,6 @@ func GetGroupInstance() Group {
 
 // Constructor
 func NewGroup() Group {
-	log.Logger.Info("New `v1.users.Group` instance")
 	return GroupImpl{
 		groupService: service.GetGroupServiceInstance(),
 		service: service.GetServiceInstance(),

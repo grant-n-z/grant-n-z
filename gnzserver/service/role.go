@@ -52,7 +52,6 @@ func GetRoleServiceInstance() RoleService {
 }
 
 func NewRoleService() RoleService {
-	log.Logger.Info("New `RoleService` instance")
 	return RoleServiceImpl{
 		EtcdClient:     cache.GetEtcdClientInstance(),
 		RoleRepository: driver.GetRoleRepositoryInstance(),

@@ -42,7 +42,6 @@ func GetOperatorServiceInstance() OperatorService {
 }
 
 func NewOperatorService() OperatorService {
-	log.Logger.Info("New `OperatorService` instance")
 	return OperatorServiceImpl{Service: service.GetServiceInstance()}
 }
 

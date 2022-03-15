@@ -10,7 +10,6 @@ import (
 	"github.com/tomoyane/grant-n-z/gnz/cache/structure"
 	"github.com/tomoyane/grant-n-z/gnz/driver"
 	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 )
 
@@ -64,7 +63,6 @@ func GetPolicyServiceInstance() PolicyService {
 
 // Constructor
 func NewPolicyService() PolicyService {
-	log.Logger.Info("New `PolicyService` instance")
 	return PolicyServiceImpl{
 		EtcdClient:           cache.GetEtcdClientInstance(),
 		PolicyRepository:     driver.GetPolicyRepositoryInstance(),

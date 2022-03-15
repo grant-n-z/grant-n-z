@@ -61,7 +61,6 @@ func GetServiceInstance() Service {
 
 // Constructor
 func NewServiceService() Service {
-	log.Logger.Info("New `Service` instance")
 	return ServiceImpl{
 		EtcdClient:           cache.GetEtcdClientInstance(),
 		ServiceRepository:    driver.GetServiceRepositoryInstance(),

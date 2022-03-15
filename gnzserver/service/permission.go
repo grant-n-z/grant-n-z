@@ -50,7 +50,6 @@ func GetPermissionServiceInstance() PermissionService {
 }
 
 func NewPermissionService() PermissionService {
-	log.Logger.Info("New `PermissionService` instance")
 	return PermissionServiceImpl{
 		EtcdClient:           cache.GetEtcdClientInstance(),
 		PermissionRepository: driver.GetPermissionRepositoryInstance(),

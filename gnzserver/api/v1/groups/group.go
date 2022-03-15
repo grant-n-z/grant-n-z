@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -30,7 +29,6 @@ func GetGroupInstance() Group {
 }
 
 func NewGroup() Group {
-	log.Logger.Info("New `v1.groups.Group` instance")
 	return GroupImpl{
 		GroupService: service.GetGroupServiceInstance(),
 	}

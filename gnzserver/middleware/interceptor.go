@@ -68,7 +68,6 @@ func GetInterceptorInstance() Interceptor {
 }
 
 func NewInterceptor() Interceptor {
-	log.Logger.Info("New `Interceptor` instance")
 	return InterceptorImpl{
 		tokenProcessor: GetTokenProcessorInstance(),
 	}

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/tomoyane/grant-n-z/gnz/entity"
-	"github.com/tomoyane/grant-n-z/gnz/log"
 	"github.com/tomoyane/grant-n-z/gnzserver/middleware"
 	"github.com/tomoyane/grant-n-z/gnzserver/model"
 	"github.com/tomoyane/grant-n-z/gnzserver/service"
@@ -39,7 +38,6 @@ func GetPermissionInstance() Permission {
 }
 
 func NewPermission() Permission {
-	log.Logger.Info("New `v1.groups.Permission` instance")
 	return PermissionImpl{
 		PermissionService: service.GetPermissionServiceInstance(),
 	}
