@@ -1,0 +1,31 @@
+<mat-toolbar class="mat-toolbar">
+  <mat-toolbar-row>
+    <mat-icon aria-label="reorder" (click)="drawer.toggle()" class="icon-color">reorder</mat-icon>
+    <span class="toolbar-title">
+       <a mat-list-item [routerLink]="['/']" style="text-decoration: none;">
+         <img src="assets/GrantNZ_logo.png" class="toolbar-title-img">
+       </a>
+    </span>
+    <span class="toolbar-user" [matMenuTriggerFor]="menu">{{username}}</span>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="openServiceDialog()">Services</button>
+      <button mat-menu-item (click)="openNewService()">New Service</button>
+      <button mat-menu-item (click)="onLogout()">Logout</button>
+    </mat-menu>
+  </mat-toolbar-row>
+</mat-toolbar>
+<mat-drawer-container class="container" autosize>
+  <mat-drawer #drawer class="sidenav" mode="side">
+    <mat-nav-list *ngFor="let data of navData | keyvalue">
+      <a mat-list-item [routerLink]="[data.value]">{{data.key}}</a>
+    </mat-nav-list>
+    <div>
+      <mat-icon class="sidenav-close" aria-label="reorder" (click)="drawer.toggle()">
+        navigate_next
+      </mat-icon>
+    </div>
+  </mat-drawer>
+  <div class="content-body">
+    <router-outlet></router-outlet>
+  </div>
+</mat-drawer-container>

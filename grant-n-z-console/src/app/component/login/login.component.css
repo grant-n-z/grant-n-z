@@ -1,0 +1,49 @@
+.card {
+  margin-top: 32px;
+  background: #555555;
+  max-width: 400px;
+  border: 1px solid #aaa;
+  box-shadow: 0 6px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.card-header {
+  width: 100%;
+  text-align: -webkit-center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  width: 100%;
+  margin-left: -18px;
+  text-align: -webkit-center;
+  font-size: 20px;
+}
+
+.select-label {
+  color: white;
+}
+
+.select-content {
+  background: #222222 !important;
+  color: white;
+}
+
+.select-content:active {
+  color: black;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-container > * {
+  width: 100%;
+}
+
+.login-btn {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background: #000000;
+}

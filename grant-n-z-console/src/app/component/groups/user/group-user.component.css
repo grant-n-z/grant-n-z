@@ -1,0 +1,14 @@
+.table {
+  width: 65%;
+  background: #222222;
+}
+
+.cell-content {
+  color: white;
+  border-bottom: solid 1px #000000 !important;
+}
+
+.btn-access {
+  background: #555555;
+  color: black !important;
+}

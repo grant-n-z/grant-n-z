@@ -1,0 +1,57 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import '~ngx-toastr/toastr';
+
+html, body {
+  height: 100%;
+  color: white
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+p, span, div {
+  color: white;
+}
+
+h1, h2, h3 {
+  color: white;
+  margin-bottom: 20px;
+}
+
+ul, li {
+  color: white;
+}
+
+.caution {
+  color: #FF0000;
+}
+
+.icon-color {
+  color: #555555;
+}
+
+.toast-container {
+  margin-top: 80px !important;
+}
+
+.dialog-list .mat-dialog-container {
+  background: #333333 !important;
+}
+
+.dialog-table {
+  width: 100%;
+  background: #222222;
+}
+
+.dialog-cell-content {
+  color: white;
+  border-bottom: solid 1px #000000 !important;
+}
+
+.dialog-btn-select {
+  background: #555555;
+  color: black !important;
+}

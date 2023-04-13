@@ -1,22 +1,3 @@
-test-results/
-tmp/
-routes/
-.idea/
-dev/
-prod/
-vendor/
-credentials.yml
-gnzserver/gnzserver
-gnzserver/build/
-gnzserver/GrantNZServer
-gnzcacher/gnzcacher
-gnzcacher/build/
-gnzcacher/GrantNZCacher
-.GITHUB_TOKEN
-cover.html
-cover.out
-profile.cov
-
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
@@ -63,4 +44,3 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-
