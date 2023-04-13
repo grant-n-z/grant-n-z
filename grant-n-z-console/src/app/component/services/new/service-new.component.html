@@ -1,0 +1,22 @@
+<h2>Create service</h2>
+
+<form #createServiceForm="ngForm" (ngSubmit)="onSubmit()">
+  <div class="input-container">
+    <mat-form-field  style="width: 500px">
+
+      <input matInput
+             placeholder="Service name"
+             name="text"
+             [type]="'text'"
+             [(ngModel)]="serviceModel.name"
+             required>
+    </mat-form-field>
+
+    <p class="caution" *ngIf="submitError != ''">
+      {{submitError}}
+    </p>
+    <button mat-raised-button type="submit" class="login-btn">
+      <span style="color: #555555 !important;">Add</span>
+    </button>
+  </div>
+</form>

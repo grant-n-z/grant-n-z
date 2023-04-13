@@ -1,0 +1,56 @@
+<mat-card class="card">
+  <mat-card-header class="card-header">
+    <p class="card-title">{{name}} Login</p>
+  </mat-card-header>
+  <mat-card-content>
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+      <div class="input-container">
+        <mat-form-field>
+          <mat-label class="select-label">Select Service</mat-label>
+          <mat-select [(ngModel)]="selectedServiceName" name="ser">
+            <mat-option class="select-content" *ngFor="let ser of services" [value]="ser.name">
+              {{ser.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <div class="caution" *ngIf="email.errors">
+            <div [hidden]="!email.errors.pattern">
+              ※ Invalid email format
+            </div>
+          </div>
+          <input matInput
+                 placeholder="Email"
+                 name="email"
+                 [type]="'email'"
+                 [(ngModel)]="loginRequest.email"
+                 pattern="{{loginRequest.emailPattern()}}"
+                 #email="ngModel"
+                 required>
+        </mat-form-field>
+
+        <mat-form-field>
+          <div class="caution" *ngIf="password.errors">
+            <div [hidden]="!password.errors.minlength">
+              ※ Password length min is 8
+            </div>
+          </div>
+          <input matInput
+                 placeholder="Password"
+                 name="password"
+                 [type]="'password'"
+                 [(ngModel)]="loginRequest.password"
+                 minlength="{{loginRequest.passwordMin()}}"
+                 #password="ngModel"
+                 required>
+        </mat-form-field>
+
+        <p class="caution" *ngIf="loginError != ''">
+          {{loginError}}
+        </p>
+        <button mat-raised-button type="submit" class="login-btn" [disabled]="loginForm.invalid">Login</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
