@@ -27,5 +27,4 @@ See documentation.
 https://hub.docker.com/orgs/grantnz/repositories
 
 ## License
-[MIT](https://github.com/tomoyane/grant-n-z/blob/master/LICENSE)
-
+[Apache-2.0](https://github.com/tomoyane/grant-n-z/blob/master/LICENSE)
